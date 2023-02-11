@@ -133,145 +133,32 @@ function App() {
     isInBps: true,
   });
 
-  console.log(feeSetting);
-
   return (
     <div className="App">
-      <div>
-        <h1>KyberSwap Widget Demo</h1>
-        <div className="card">
-          <button
-            onClick={() => (wallet ? disconnect(wallet) : connect())}
-            className="button"
-          >
-            {!wallet ? "Connect Wallet" : "Disconnect"}
-          </button>
-        </div>
-        <p className="title">Choose theme</p>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "6px",
-            justifyContent: "space-around",
-          }}
-        >
-          <div>
-            <input
-              type="radio"
-              id="dark"
-              name="age"
-              value="dark"
-              onChange={(e) => {
-                setTheme(darkTheme);
-              }}
-            />
-            <label htmlFor="dark">Dark theme</label>
-          </div>
-
-          <div>
-            <input
-              type="radio"
-              id="light"
-              name="age"
-              value="light"
-              onChange={(e) => {
-                setTheme(lightTheme);
-              }}
-            />
-            <label htmlFor="light">Light theme</label>
-          </div>
-          <div>
-            <input
-              type="radio"
-              id="custom"
-              name="age"
-              value="custom"
-              onChange={(e) => {
-                setTheme(undefined);
-              }}
-            />
-            <label htmlFor="custom">Custom</label>
-          </div>
-        </div>
-
-        <p className="title">Charge fee</p>
-        <div className="row">
-          chargeFeeBy
-          <div style={{ display: "flex" }}>
-            <div>
-              <input
-                type="radio"
-                id="currency_in"
-                name="chargeFeeBy"
-                value="currency_in"
-                onChange={(e) => {
-                  setFeeSetting({ ...feeSetting, chargeFeeBy: "currency_in" });
-                }}
-              />
-              <label htmlFor="currency_in">currency_in</label>
+      
+      <div className="WidgetBox">
+        <div className="WidgetContainer">
+          <div className="buttonContainer">
+        <button
+              onClick={() => (wallet ? disconnect(wallet) : connect())}
+              className="button"
+            >
+              {!wallet ? "Connect Wallet" : "Disconnect"}
+            </button>
             </div>
-            <div>
-              <input
-                type="radio"
-                id="currency_out"
-                name="chargeFeeBy"
-                value="currency_out"
-                onChange={(e) => {
-                  setFeeSetting({ ...feeSetting, chargeFeeBy: "currency_out" });
-                }}
-              />
-              <label htmlFor="currency_out"> currency_out</label>
-            </div>
-          </div>
+        <Widget
+          theme={theme}
+          tokenList={[]}
+          provider={ethersProvider}
+          defaultTokenOut={defaultTokenOut[chainId]}
+          feeSetting={
+            feeSetting.feeAmount && feeSetting.feeReceiver
+              ? feeSetting
+              : undefined
+          }
+        />
         </div>
-
-        <div className="row">
-          feeReceiver
-          <input
-            value={feeSetting.feeReceiver}
-            onChange={(e) =>
-              setFeeSetting({ ...feeSetting, feeReceiver: e.target.value })
-            }
-          />
         </div>
-
-        <div className="row">
-          feeAmount
-          <input
-            value={feeSetting.feeAmount}
-            onChange={(e) =>
-              setFeeSetting({
-                ...feeSetting,
-                feeAmount: Number(e.target.value),
-              })
-            }
-          />
-        </div>
-
-        <div className="row" style={{ justifyContent: "flex-end" }}>
-          <input
-            type="checkbox"
-            checked={feeSetting.isInBps}
-            onChange={(e) => {
-              setFeeSetting({ ...feeSetting, isInBps: e.target.checked });
-            }}
-          />
-          <label htmlFor="isInBps">isInBps</label>
-        </div>
-      </div>
-
-      <Widget
-        theme={theme}
-        tokenList={[]}
-        provider={ethersProvider}
-        defaultTokenOut={defaultTokenOut[chainId]}
-        feeSetting={
-          feeSetting.feeAmount && feeSetting.feeReceiver
-            ? feeSetting
-            : undefined
-        }
-      />
     </div>
   );
 }
