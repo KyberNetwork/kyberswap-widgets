@@ -2,17 +2,45 @@ import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS } from '../constants'
+import useDebounce from './useDebounce'
 import useTokenBalances from './useTokenBalances'
 import { useTokens } from './useTokens'
 import { useActiveWeb3 } from './useWeb3Provider'
 
 export interface Trade {
-  amountInUsd: number
-  amountOutUsd: number
-  encodedSwapData: string
-  gasUsd: number
-  inputAmount: string
-  outputAmount: string
+  routeSummary: {
+    tokenIn: string
+    amountIn: string
+    amountInUsd: string
+    tokenOut: string
+    amountOut: string
+    amountOutUsd: string
+    gas: string
+    gasPrice: string
+    gasUsd: string
+    extraFee: {
+      feeAmount: string
+      chargeFeeBy: string
+      isInBps: string
+      feeReceiver: string
+    }
+    route: [
+      [
+        {
+          pool: string
+          tokenIn: string
+          tokenOut: string
+          limitReturnAmount: string
+          swapAmount: string
+          amountOut: string
+          exchange: string
+          poolLength: number
+          poolType: string
+          extra: string
+        },
+      ],
+    ]
+  }
   routerAddress: string
 }
 
@@ -26,9 +54,7 @@ const useSwap = ({
   defaultTokenIn,
   defaultTokenOut,
   feeSetting,
-  client,
 }: {
-  client: string
   defaultTokenIn?: string
   defaultTokenOut?: string
   feeSetting?: {
@@ -44,6 +70,7 @@ const useSwap = ({
   const tokens = useTokens()
 
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
+
   useEffect(() => {
     if (isUnsupported) {
       setTokenIn('')
@@ -54,7 +81,7 @@ const useSwap = ({
       setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
       setTokenOut(defaultTokenOut || '')
     }
-  }, [isUnsupported, chainId])
+  }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
 
   const { balances } = useTokenBalances(tokens.map(item => item.address))
   const [allDexes, setAllDexes] = useState<Dex[]>([])
@@ -101,6 +128,8 @@ const useSwap = ({
   }, [isUnsupported, chainId])
 
   const [inputAmout, setInputAmount] = useState('1')
+  const debouncedInput = useDebounce(inputAmout)
+
   const [loading, setLoading] = useState(false)
   const [trade, setTrade] = useState<Trade | null>(null)
   const [error, setError] = useState('')
@@ -114,22 +143,16 @@ const useSwap = ({
   const getRate = useCallback(async () => {
     if (isUnsupported) return
 
-    const listAccounts = await provider?.listAccounts()
-    const account = listAccounts?.[0]
-
-    const date = new Date()
-    date.setMinutes(date.getMinutes() + (deadline || 20))
-
     const tokenInDecimal =
       tokenIn === NATIVE_TOKEN_ADDRESS ? 18 : tokens.find(token => token.address === tokenIn)?.decimals
 
-    if (!tokenInDecimal || !tokenIn || !tokenOut || !inputAmout) {
+    if (!tokenInDecimal || !tokenIn || !tokenOut || !debouncedInput) {
       setError('Invalid input')
       setTrade(null)
       return
     }
 
-    const amountIn = parseUnits(inputAmout, tokenInDecimal)
+    const amountIn = parseUnits(debouncedInput, tokenInDecimal)
 
     if (!amountIn) {
       setError('Invalid input amount')
@@ -152,10 +175,6 @@ const useSwap = ({
       tokenOut,
       saveGas: false,
       gasInclude: true,
-      // slippageTolerance: slippage,
-      // deadline: Math.floor(date.getTime() / 1000),
-      // to: account || ZERO_ADDRESS,
-      // clientData: JSON.stringify({ source: client }),
       amountIn: amountIn.toString(),
       includedSources: dexes,
       chargeFeeBy,
@@ -177,21 +196,15 @@ const useSwap = ({
 
     const controller = new AbortController()
     controllerRef.current = controller
-    const res1 = await fetch(
+    const routeResponse = await fetch(
       `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/routes?${search.slice(1)}`,
-    )
-    const res = await fetch(
-      `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/route/encode?${search.slice(1)}`,
       {
-        headers: {
-          'accept-version': 'Latest',
-        },
         signal: controllerRef.current?.signal,
       },
     ).then(r => r.json())
 
-    setTrade(res)
-    if (Number(res?.outputAmount)) {
+    if (Number(routeResponse.data.routeSummary?.amountOut)) {
+      setTrade(routeResponse.data)
       if (provider && !tokenInBalance.lt(amountIn)) setError('')
     } else {
       setTrade(null)
@@ -204,10 +217,7 @@ const useSwap = ({
     tokenIn,
     tokenOut,
     provider,
-    inputAmout,
-    // JSON.stringify(balances),
-    // slippage,
-    // deadline,
+    debouncedInput,
     dexes,
     isUnsupported,
     chainId,

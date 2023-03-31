@@ -179,7 +179,6 @@ const Widget = ({
     defaultTokenIn,
     defaultTokenOut,
     feeSetting,
-    client,
   })
 
   const trade = isUnsupported ? null : routeTrade
@@ -194,7 +193,9 @@ const Widget = ({
   const tokenOutInfo =
     tokenOut === NATIVE_TOKEN_ADDRESS ? NATIVE_TOKEN[chainId] : tokens.find(item => item.address === tokenOut)
 
-  const amountOut = trade?.outputAmount ? formatUnits(trade.outputAmount, tokenOutInfo?.decimals).toString() : ''
+  const amountOut = trade?.routeSummary?.amountOut
+    ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
+    : ''
 
   let minAmountOut = ''
 
@@ -209,9 +210,9 @@ const Widget = ({
   const tokenOutWithUnit = formatUnits(tokenOutBalance, tokenOutInfo?.decimals || 18)
 
   const rate =
-    trade?.inputAmount &&
-    trade?.outputAmount &&
-    parseFloat(formatUnits(trade.outputAmount, tokenOutInfo?.decimals || 18)) / parseFloat(inputAmout)
+    trade?.routeSummary?.amountIn &&
+    trade?.routeSummary?.amountOut &&
+    parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals || 18)) / parseFloat(inputAmout)
 
   const formattedTokenInBalance = parseFloat(parseFloat(tokenInWithUnit).toPrecision(10))
 
@@ -219,7 +220,9 @@ const Widget = ({
 
   const theme = useTheme()
 
-  const priceImpact = !trade?.amountOutUsd ? -1 : ((-trade.amountOutUsd + trade.amountInUsd) * 100) / trade.amountInUsd
+  const priceImpact = !trade?.routeSummary.amountOutUsd
+    ? -1
+    : (+trade.routeSummary.amountInUsd - +trade.routeSummary.amountOutUsd * 100) / +trade.routeSummary.amountInUsd
 
   const modalTitle = (() => {
     switch (showModal) {
@@ -300,6 +303,8 @@ const Widget = ({
               rate={rate}
               priceImpact={priceImpact}
               slippage={slippage}
+              deadline={deadline}
+              client={client}
               onClose={() => {
                 setShowModal(null)
                 refetch()
@@ -336,7 +341,7 @@ const Widget = ({
     loading: checkingAllowance,
     approve,
     approvalState,
-  } = useApproval(BigNumber.from(trade?.inputAmount || 0), tokenIn, trade?.routerAddress || '')
+  } = useApproval(trade?.routeSummary?.amountIn || '0', tokenIn, trade?.routerAddress || '')
 
   return (
     <Wrapper>
@@ -399,7 +404,7 @@ const Widget = ({
             spellCheck="false"
           />
 
-          {!!trade?.amountInUsd && (
+          {!!trade?.routeSummary?.amountInUsd && (
             <span
               style={{
                 fontSize: '12px',
@@ -408,7 +413,7 @@ const Widget = ({
               }}
             >
               ~
-              {trade.amountInUsd.toLocaleString('en-US', {
+              {(+trade.routeSummary.amountInUsd).toLocaleString('en-US', {
                 style: 'currency',
                 currency: 'USD',
               })}
@@ -487,7 +492,7 @@ const Widget = ({
         <InputRow>
           <Input disabled value={+Number(amountOut).toPrecision(8)} />
 
-          {!!trade?.amountOutUsd && (
+          {!!trade?.routeSummary?.amountOutUsd && (
             <span
               style={{
                 fontSize: '12px',
@@ -496,7 +501,7 @@ const Widget = ({
               }}
             >
               ~
-              {trade.amountOutUsd.toLocaleString('en-US', {
+              {(+trade.routeSummary.amountOutUsd).toLocaleString('en-US', {
                 style: 'currency',
                 currency: 'USD',
               })}
@@ -541,7 +546,9 @@ const Widget = ({
           <DetailLabel>
             Gas Fee <InfoHelper text="Estimated network fee for your transaction" />
           </DetailLabel>
-          <DetailRight>{trade?.gasUsd ? '$' + trade.gasUsd.toPrecision(4) : '--'}</DetailRight>
+          <DetailRight>
+            {trade?.routeSummary?.gasUsd ? '$' + (+trade.routeSummary.gasUsd).toPrecision(4) : '--'}
+          </DetailRight>
         </DetailRow>
 
         <DetailRow>

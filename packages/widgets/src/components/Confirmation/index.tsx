@@ -6,7 +6,7 @@ import useTheme from '../../hooks/useTheme'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo } from '../../constants'
+import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo } from '../../constants'
 import { ReactComponent as BackIcon } from '../../assets/back.svg'
 import { ReactComponent as Loading } from '../../assets/loader.svg'
 import { ReactComponent as External } from '../../assets/external.svg'
@@ -19,7 +19,7 @@ const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
 `
 
-const Error = styled(ErrorIcon)`
+const StyledError = styled(ErrorIcon)`
   color: ${({ theme }) => theme.error};
 `
 
@@ -150,6 +150,8 @@ function Confirmation({
   slippage,
   priceImpact,
   onClose,
+  deadline,
+  client,
 }: {
   trade: Trade
   tokenInInfo: TokenInfo
@@ -160,6 +162,8 @@ function Confirmation({
   slippage: number
   priceImpact: number
   onClose: () => void
+  deadline: number
+  client: string
 }) {
   const theme = useTheme()
 
@@ -200,17 +204,39 @@ function Confirmation({
 
   const confirmSwap = async () => {
     setSnapshotTrade({ amountIn, amountOut })
-    const estimateGasOption = {
-      from: account,
-      to: trade?.routerAddress,
-      data: trade?.encodedSwapData,
-      value: BigNumber.from(tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade?.inputAmount : 0),
-    }
-
     try {
       setAttempTx(true)
       setTxHash('')
       setTxError(false)
+
+      const date = new Date()
+      date.setMinutes(date.getMinutes() + (deadline || 20))
+
+      const buildRes = await fetch(
+        `https://aggregator-api.kyberswap.com/${AGGREGATOR_PATH[chainId]}/api/v1/route/build`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            routeSummary: trade.routeSummary,
+            deadline: Math.floor(date.getTime() / 1000),
+            slippageTolerance: slippage,
+            sender: account,
+            recipient: account,
+            source: client,
+          }),
+        },
+      ).then(r => r.json())
+
+      if (!buildRes.data) {
+        throw new Error('Build route failed: ' + JSON.stringify(buildRes.details))
+      }
+
+      const estimateGasOption = {
+        from: account,
+        to: trade?.routerAddress,
+        data: buildRes.data.data,
+        value: BigNumber.from(tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade?.routeSummary.amountIn : 0),
+      }
 
       const gasEstimated = await provider?.estimateGas(estimateGasOption)
 
@@ -231,7 +257,7 @@ function Confirmation({
     return (
       <>
         <Central>
-          {txStatus === 'success' ? <Success /> : txStatus === 'failed' ? <Error /> : <Spinner />}
+          {txStatus === 'success' ? <Success /> : txStatus === 'failed' ? <StyledError /> : <Spinner />}
           {txHash ? (
             txStatus === 'success' ? (
               <WaitingText>Transaction successful</WaitingText>
@@ -270,7 +296,7 @@ function Confirmation({
     return (
       <>
         <Central>
-          <Error />
+          <StyledError />
           <WaitingText>Something went wrong</WaitingText>
         </Central>
 
@@ -373,7 +399,7 @@ function Confirmation({
             Gas Fee
             <InfoHelper text="Estimated network fee for your transaction" />
           </DetailLabel>
-          <DetailRight>${trade.gasUsd.toPrecision(4)}</DetailRight>
+          <DetailRight>${(+trade.routeSummary.gasUsd).toPrecision(4)}</DetailRight>
         </DetailRow>
 
         <DetailRow>

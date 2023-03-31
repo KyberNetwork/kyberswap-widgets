@@ -162,6 +162,14 @@ const arbitrumTokens = [
     symbol: 'GMX',
     logoURI: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/img/token/GMX.svg',
   },
+  {
+    chainId: 42161,
+    address: '0x912CE59144191C1204E64559FE8253a0e49E6548',
+    decimals: 18,
+    name: 'ARB',
+    symbol: 'ARB',
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/8ba76036-74a3-4471-b3b3-69ea317b0bae.png',
+  },
 ]
 
 export default arbitrumTokens

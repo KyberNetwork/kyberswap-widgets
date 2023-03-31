@@ -11,7 +11,7 @@ export enum APPROVAL_STATE {
   APPROVED = 'approved',
   NOT_APPROVED = 'not_approved',
 }
-function useApproval(amountToApprove: BigNumber, token: string, spender: string) {
+function useApproval(amountToApproveString: string, token: string, spender: string) {
   const { account, provider } = useActiveWeb3()
   const [loading, setLoading] = useState(false)
   const [approvalState, setApprovalState] = useState(() =>
@@ -19,12 +19,11 @@ function useApproval(amountToApprove: BigNumber, token: string, spender: string)
   )
   const contract = useContract(token, erc20ABI)
 
-  const MaxUint256: BigNumber = BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
-
   const [pendingTx, setPendingTx] = useState('')
 
   const approve = useCallback(() => {
     if (contract) {
+      const MaxUint256: BigNumber = BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
       contract.approve(spender, MaxUint256).then((res: providers.TransactionResponse) => {
         setApprovalState(APPROVAL_STATE.PENDING)
         setPendingTx(res.hash)
@@ -50,9 +49,13 @@ function useApproval(amountToApprove: BigNumber, token: string, spender: string)
   }, [pendingTx, provider])
 
   useEffect(() => {
+    if (token === NATIVE_TOKEN_ADDRESS) {
+      setApprovalState(APPROVAL_STATE.APPROVED)
+    }
     if (contract && token !== NATIVE_TOKEN_ADDRESS && account && spender) {
       setLoading(true)
       contract.allowance(account, spender).then((res: any) => {
+        const amountToApprove = BigNumber.from(amountToApproveString)
         if (amountToApprove.lte(res)) {
           setApprovalState(APPROVAL_STATE.APPROVED)
         } else {
@@ -61,7 +64,7 @@ function useApproval(amountToApprove: BigNumber, token: string, spender: string)
         setLoading(false)
       })
     }
-  }, [contract, token, account, spender])
+  }, [contract, token, account, spender, amountToApproveString])
 
   return { loading, approvalState, approve }
 }

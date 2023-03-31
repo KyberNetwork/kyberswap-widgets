@@ -116,7 +116,7 @@ function RefreshBtn({ trade, onRefresh, loading }: Props) {
         clearInterval(i)
       }
     }
-  }, [countdown])
+  }, [countdown, onRefresh])
 
   return (
     <SpinWrapper role="button" onClick={onRefresh}>
