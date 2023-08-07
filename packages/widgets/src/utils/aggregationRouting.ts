@@ -138,10 +138,6 @@ const calculateFee = (
   const currencyToTakeFee = routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN ? currencyIn : currencyOut
   const currencyAmountToTakeFee =
     routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN ? parsedAmountIn : parsedAmountOut
-  // const feeAmountFraction = new Fraction(
-  //   parseUnits(routeSummary.extraFee.feeAmount, RESERVE_USD_DECIMALS).toString(),
-  //   JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
-  // ).divide(10000)
   const feeAmountFraction = Number(routeSummary.extraFee.feeAmount) / 10000
   const feeCurrencyAmount = currencyAmountToTakeFee * feeAmountFraction
 
