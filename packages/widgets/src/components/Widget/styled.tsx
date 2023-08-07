@@ -1,12 +1,17 @@
 import styled from 'styled-components'
 
 export const Wrapper = styled.div`
+  width: 375px;
+  display: flex;
+  flex-direction: column;
+  font-family: ${({ theme }) => theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
+`
+
+export const SwapWrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   padding: 1rem;
-  width: 375px;
   background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.text};
-  font-family: ${({ theme }) => theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow};

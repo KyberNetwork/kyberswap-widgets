@@ -50,40 +50,11 @@ export interface Dex {
   dexId: string
 }
 
-const useSwap = ({
-  defaultTokenIn,
-  defaultTokenOut,
-  feeSetting,
-}: {
-  defaultTokenIn?: string
-  defaultTokenOut?: string
-  feeSetting?: {
-    chargeFeeBy: 'currency_in' | 'currency_out'
-    feeAmount: number
-    feeReceiver: string
-    isInBps: boolean
-  }
-}) => {
-  const { provider, chainId } = useActiveWeb3()
-  const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
-  const [tokenOut, setTokenOut] = useState(defaultTokenOut || '')
-  const tokens = useTokens()
-
+const excludedDexes: Dex[] = []
+export const useDexes = () => {
+  const { chainId } = useActiveWeb3()
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
-  useEffect(() => {
-    if (isUnsupported) {
-      setTokenIn('')
-      setTokenOut('')
-      setTrade(null)
-    } else {
-      setTrade(null)
-      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
-      setTokenOut(defaultTokenOut || '')
-    }
-  }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
-
-  const { balances } = useTokenBalances(tokens.map(item => item.address))
   const [allDexes, setAllDexes] = useState<Dex[]>([])
   const [excludedDexes, setExcludedDexes] = useState<Dex[]>([])
 
@@ -144,6 +115,45 @@ const useSwap = ({
 
     fetchAllDexes()
   }, [isUnsupported, chainId])
+
+  return [allDexes, dexes, setExcludedDexes] as const
+}
+
+const useSwap = ({
+  defaultTokenIn,
+  defaultTokenOut,
+  feeSetting,
+}: {
+  defaultTokenIn?: string
+  defaultTokenOut?: string
+  feeSetting?: {
+    chargeFeeBy: 'currency_in' | 'currency_out'
+    feeAmount: number
+    feeReceiver: string
+    isInBps: boolean
+  }
+}) => {
+  const { provider, chainId } = useActiveWeb3()
+  const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
+  const [tokenOut, setTokenOut] = useState(defaultTokenOut || '')
+  const tokens = useTokens()
+
+  const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
+
+  useEffect(() => {
+    if (isUnsupported) {
+      setTokenIn('')
+      setTokenOut('')
+      setTrade(null)
+    } else {
+      setTrade(null)
+      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
+      setTokenOut(defaultTokenOut || '')
+    }
+  }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
+
+  const { balances } = useTokenBalances(tokens.map(item => item.address))
+  const [allDexes, dexes, setExcludedDexes] = useDexes()
 
   const [inputAmout, setInputAmount] = useState('1')
   const debouncedInput = useDebounce(inputAmout)
