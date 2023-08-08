@@ -233,6 +233,11 @@ export const DetailTitle = styled.div`
   text-transform: uppercase;
   text-align: left;
 `
+export const ViewRouteTitle = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  text-align: right;
+`
 export const Divider = styled.div`
   width: 100%;
   height: 1px;

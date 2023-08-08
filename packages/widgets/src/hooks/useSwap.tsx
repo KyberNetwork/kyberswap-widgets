@@ -242,6 +242,7 @@ const useSwap = ({
     controllerRef.current = null
     setLoading(false)
   }, [
+    tokens,
     tokenIn,
     tokenOut,
     provider,
