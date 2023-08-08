@@ -76,7 +76,7 @@ export const StyledPercent = styled.div<{ backgroundColor?: string }>`
   left: 8px;
   transform: translateY(50%);
   z-index: 2;
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.accent};
   background: ${({ backgroundColor }) => backgroundColor};
 `
 export const StyledDot = styled.i<{ out?: boolean }>`
@@ -89,7 +89,7 @@ export const StyledDot = styled.i<{ out?: boolean }>`
   left: ${({ out }) => (out ? 'unset' : '6.5px')};
   right: ${({ out }) => (out ? '6.5px' : 'unset')};
   z-index: 1;
-  background-color: ${({ theme }) => theme.primary};
+  background-color: ${({ theme }) => theme.accent};
 `
 
 export const StyledPair = styled.div`
@@ -303,7 +303,7 @@ export const StyledWrap = styled.div<{ backgroundColor?: string }>`
 export const StyledHopChevronRight = styled.div`
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-  border-left: 5px solid ${({ theme }) => theme.primary};
+  border-left: 5px solid ${({ theme }) => theme.accent};
 `
 
 export const StyledHopChevronWrapper = styled.div`

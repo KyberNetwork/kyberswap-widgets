@@ -575,7 +575,9 @@ const Widget = ({
         </Detail>
 
         <Button
-          disabled={!!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported}
+          disabled={
+            !!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported
+          }
           onClick={async () => {
             if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
               approve()
