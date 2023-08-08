@@ -38,6 +38,7 @@ import {
   ModalHeader,
   ModalTitle,
   SwapWrapper,
+  ViewRouteTitle,
 } from './styled'
 
 import { BigNumber } from 'ethers'
@@ -85,6 +86,11 @@ export const DialogWrapper = styled.div`
   &.close {
     transform: translateX(100%);
   }
+`
+const Row = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 const ContentWrapper = styled.div`
@@ -542,7 +548,10 @@ const Widget = ({
         </InputWrapper>
 
         <Detail style={{ marginTop: '1rem' }}>
-          <DetailTitle>More information</DetailTitle>
+          <Row>
+            <DetailTitle>More information</DetailTitle>
+            <ViewRouteTitle>View Routes</ViewRouteTitle>
+          </Row>
           <Divider />
           <DetailRow>
             <DetailLabel>
@@ -628,7 +637,7 @@ export default function SwapWidget({
   feeSetting,
   client,
   onTxSubmit,
-  enableRoute = false,
+  enableRoute = true,
 }: WidgetProps) {
   return (
     <StrictMode>
