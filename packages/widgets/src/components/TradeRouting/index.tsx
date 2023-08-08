@@ -135,9 +135,10 @@ interface RoutingProps {
   trade: Trade | null
   currencyIn: TokenInfo | undefined
   currencyOut: TokenInfo | undefined
+  enableRoute: boolean
 }
 
-const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
+const Routing = ({ trade, currencyIn, currencyOut, enableRoute }: RoutingProps) => {
   const { chainId } = useActiveWeb3()
   const shadowRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -154,12 +155,14 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
 
   const renderTokenInfo = (currency: TokenInfo | undefined, amount: string | undefined, reverseOrder?: boolean) => {
     if (chainId && currency) {
+      const ammountScaled = amount ? Number(amount) / 10 ** (currency?.decimals || 18) : 0
+      const ammountFormatted = Number(ammountScaled.toFixed(4))
       return (
         <StyledToken as="div" reverse={reverseOrder} style={{ border: 'none' }}>
           <img
             width="20"
             height="20"
-            alt="tokenIn"
+            alt={reverseOrder ? 'token out' : 'token in'}
             src={currency?.logoURI}
             style={{ borderRadius: '50%' }}
             onError={({ currentTarget }) => {
@@ -168,7 +171,7 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
             }}
           />
           <span>
-            {amount ? Number(amount) / 10 ** (currency?.decimals || 18) : 0} {currency.symbol}
+            {ammountFormatted} {currency.symbol}
           </span>
         </StyledToken>
       )
@@ -191,6 +194,9 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
   useEffect(() => {
     handleScroll()
   }, [tradeComposition, handleScroll])
+
+  if (!enableRoute) return null
+  if (!hasRoutes) return null
 
   return (
     <Wrapper>

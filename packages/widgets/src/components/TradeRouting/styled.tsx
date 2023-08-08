@@ -5,7 +5,7 @@ export const StyledContainer = styled.div`
   max-height: 100%;
   max-width: 100%;
   margin-left: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 
   &::-webkit-scrollbar {
@@ -37,6 +37,8 @@ export const Shadow = styled.div<{ backgroundColor?: string }>`
   background-color: ${({ theme }) => theme.dialog};
   border-radius: ${({ theme }) => theme.borderRadius};
   margin-top: 1em;
+  padding-left: 16px;
+  padding-right: 16px;
   &:before,
   &:after {
     content: '';
@@ -145,6 +147,7 @@ export const StyledRoutes = styled.div`
   width: 100%;
   position: relative;
   padding: 20px 10px 0;
+  box-sizing: border-box;
 
   &:before {
     position: absolute;
