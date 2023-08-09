@@ -135,10 +135,9 @@ interface RoutingProps {
   trade: Trade | null
   currencyIn: TokenInfo | undefined
   currencyOut: TokenInfo | undefined
-  enableRoute: boolean
 }
 
-const Routing = ({ trade, currencyIn, currencyOut, enableRoute }: RoutingProps) => {
+const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
   const { chainId } = useActiveWeb3()
   const shadowRef = useRef<HTMLDivElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -194,9 +193,6 @@ const Routing = ({ trade, currencyIn, currencyOut, enableRoute }: RoutingProps) 
   useEffect(() => {
     handleScroll()
   }, [tradeComposition, handleScroll])
-
-  if (!enableRoute) return null
-  if (!hasRoutes) return null
 
   return (
     <Wrapper>

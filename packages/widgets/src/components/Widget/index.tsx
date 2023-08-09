@@ -277,9 +277,7 @@ const Widget = ({
           />
         )
       case ModalType.TRADE_ROUTE:
-        return (
-          <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} enableRoute={enableRoute} />
-        )
+        if (enableRoute) return <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} />
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
@@ -556,9 +554,11 @@ const Widget = ({
       <Detail style={{ marginTop: '1rem' }}>
         <Row>
           <DetailTitle>More information</DetailTitle>
-          <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
-            View Routes <Expand style={{ width: 12, height: 12 }} />
-          </ViewRouteTitle>
+          {enableRoute && (
+            <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
+              View Routes <Expand style={{ width: 12, height: 12 }} />
+            </ViewRouteTitle>
+          )}
         </Row>
         <Divider />
         <DetailRow>
