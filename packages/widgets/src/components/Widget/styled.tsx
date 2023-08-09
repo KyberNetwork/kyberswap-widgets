@@ -1,17 +1,12 @@
 import styled from 'styled-components'
 
 export const Wrapper = styled.div`
-  width: 375px;
-  display: flex;
-  flex-direction: column;
-  font-family: ${({ theme }) => theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
-`
-
-export const SwapWrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius};
   padding: 1rem;
+  width: 375px;
   background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.text};
+  font-family: ${({ theme }) => theme.fontFamily || `"Work Sans", "Inter var", sans-serif`};
   position: relative;
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow};
@@ -230,13 +225,19 @@ export const DetailRight = styled.div`
 export const DetailTitle = styled.div`
   font-size: 12px;
   font-weight: 500;
+  line-height: 16px;
   text-transform: uppercase;
   text-align: left;
 `
 export const ViewRouteTitle = styled.div`
   font-size: 12px;
   font-weight: 400;
+  line-height: 16px;
   text-align: right;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `
 export const Divider = styled.div`
   width: 100%;

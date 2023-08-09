@@ -48,7 +48,8 @@ const useTokenBalances = (tokenAddresses: string[]) => {
     } catch (e) {
       setLoading(false)
     }
-  }, [provider, chainId, JSON.stringify(tokenAddresses)])
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, chainId, JSON.stringify(tokenAddresses), multicallContract?.callStatic])
 
   useEffect(() => {
     fetchBalances()

@@ -9,6 +9,7 @@ import { ReactComponent as SwapIcon } from '../../assets/swap.svg'
 import { ReactComponent as BackIcon } from '../../assets/back1.svg'
 import { ReactComponent as KyberSwapLogo } from '../../assets/kyberswap.svg'
 import { ReactComponent as AlertIcon } from '../../assets/alert.svg'
+import { ReactComponent as Expand } from '../../assets/expand.svg'
 
 import useTheme from '../../hooks/useTheme'
 
@@ -37,7 +38,6 @@ import {
   DetailRight,
   ModalHeader,
   ModalTitle,
-  SwapWrapper,
   ViewRouteTitle,
 } from './styled'
 
@@ -127,6 +127,7 @@ enum ModalType {
   REVIEW = 'review',
   DEXES_SETTING = 'dexes_setting',
   IMPORT_TOKEN = 'import_token',
+  TRADE_ROUTE = 'trade_route',
 }
 
 interface FeeSetting {
@@ -250,6 +251,8 @@ const Widget = ({
         return 'Liquidity Sources'
       case ModalType.IMPORT_TOKEN:
         return 'Import Token'
+      case ModalType.TRADE_ROUTE:
+        return 'Your Trade Route'
 
       default:
         return null
@@ -272,6 +275,10 @@ const Widget = ({
             excludedDexes={excludedDexes}
             onShowSource={() => setShowModal(ModalType.DEXES_SETTING)}
           />
+        )
+      case ModalType.TRADE_ROUTE:
+        return (
+          <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} enableRoute={enableRoute} />
         )
       case ModalType.CURRENCY_IN:
         return (
@@ -360,270 +367,266 @@ const Widget = ({
 
   return (
     <Wrapper>
-      <SwapWrapper>
-        <DialogWrapper className={showModal ? 'open' : 'close'}>
-          {showModal !== ModalType.REVIEW && (
-            <ModalHeader>
-              <ModalTitle
-                onClick={() =>
-                  showModal === ModalType.DEXES_SETTING ? setShowModal(ModalType.SETTING) : setShowModal(null)
-                }
-                role="button"
-              >
-                <BackIcon style={{ color: theme.subText }} />
-                {modalTitle}
-              </ModalTitle>
-            </ModalHeader>
-          )}
-          <ContentWrapper>{modalContent}</ContentWrapper>
-          <PoweredBy style={{ marginTop: '0' }}>
-            Powered By
-            <KyberSwapLogo />
-          </PoweredBy>
-        </DialogWrapper>
-        <Title>
-          Swap
-          <SettingBtn onClick={() => setShowModal(ModalType.SETTING)}>
-            <SettingIcon />
-          </SettingBtn>
-        </Title>
-        <InputWrapper>
-          <BalanceRow>
-            <div>
-              <MaxHalfBtn onClick={() => setInputAmount(tokenInWithUnit)}>Max</MaxHalfBtn>
-              {/* <MaxHalfBtn>Half</MaxHalfBtn> */}
-            </div>
-            <AccountBalance>
-              <WalletIcon />
-              {formattedTokenInBalance}
-            </AccountBalance>
-          </BalanceRow>
-
-          <InputRow>
-            <Input
-              value={inputAmout}
-              onChange={e => {
-                const value = e.target.value.replace(/,/g, '.')
-                const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
-                if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
-                  setInputAmount(value)
-                }
-              }}
-              inputMode="decimal"
-              autoComplete="off"
-              autoCorrect="off"
-              type="text"
-              pattern="^[0-9]*[.,]?[0-9]*$"
-              placeholder="0.0"
-              minLength={1}
-              maxLength={79}
-              spellCheck="false"
-            />
-
-            {!!trade?.routeSummary?.amountInUsd && (
-              <span
-                style={{
-                  fontSize: '12px',
-                  marginRight: '4px',
-                  color: theme.subText,
-                }}
-              >
-                ~
-                {(+trade.routeSummary.amountInUsd).toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                })}
-              </span>
-            )}
-
-            <SelectTokenBtn onClick={() => !isUnsupported && setShowModal(ModalType.CURRENCY_IN)}>
-              {tokenInInfo ? (
-                <>
-                  <img
-                    width="20"
-                    height="20"
-                    alt="tokenIn"
-                    src={tokenInInfo?.logoURI}
-                    style={{ borderRadius: '50%' }}
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null // prevents looping
-                      currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
-                    }}
-                  />
-                  <div style={{ marginLeft: '0.375rem' }}>{tokenInInfo?.symbol}</div>
-                </>
-              ) : (
-                <SelectTokenText>Select a token</SelectTokenText>
-              )}
-              <DropdownIcon />
-            </SelectTokenBtn>
-          </InputRow>
-        </InputWrapper>
-
-        <MiddleRow>
-          <MiddleLeft>
-            <RefreshBtn
-              loading={loading}
-              onRefresh={() => {
-                getRate()
-              }}
-              trade={trade}
-            />
-            <Rate>
-              {(() => {
-                if (!rate) return '--'
-                return !inverseRate
-                  ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo?.symbol}`
-                  : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo?.symbol}`
-              })()}
-            </Rate>
-
-            {!!rate && (
-              <SettingBtn onClick={() => setInverseRate(prev => !prev)}>
-                <SwapIcon />
-              </SettingBtn>
-            )}
-          </MiddleLeft>
-
-          <SwitchBtn
-            onClick={() => {
-              setTrade(null)
-              setTokenIn(tokenOut)
-              setTokenOut(tokenIn)
-            }}
-          >
-            <SwitchIcon />
-          </SwitchBtn>
-        </MiddleRow>
-
-        <InputWrapper>
-          <BalanceRow>
-            <div />
-            <AccountBalance>
-              <WalletIcon />
-              {formattedTokenOutBalance}
-            </AccountBalance>
-          </BalanceRow>
-
-          <InputRow>
-            <Input disabled value={+Number(amountOut).toPrecision(8)} />
-
-            {!!trade?.routeSummary?.amountOutUsd && (
-              <span
-                style={{
-                  fontSize: '12px',
-                  marginRight: '4px',
-                  color: theme.subText,
-                }}
-              >
-                ~
-                {(+trade.routeSummary.amountOutUsd).toLocaleString('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                })}
-              </span>
-            )}
-            <SelectTokenBtn onClick={() => !isUnsupported && setShowModal(ModalType.CURRENCY_OUT)}>
-              {tokenOutInfo ? (
-                <>
-                  <img
-                    width="20"
-                    height="20"
-                    alt="tokenOut"
-                    src={tokenOutInfo?.logoURI}
-                    style={{ borderRadius: '50%' }}
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null // prevents looping
-                      currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
-                    }}
-                  />
-                  <div style={{ marginLeft: '0.375rem' }}>{tokenOutInfo?.symbol}</div>
-                </>
-              ) : (
-                <SelectTokenText>Select a token</SelectTokenText>
-              )}
-              <DropdownIcon />
-            </SelectTokenBtn>
-          </InputRow>
-        </InputWrapper>
-
-        <Detail style={{ marginTop: '1rem' }}>
-          <Row>
-            <DetailTitle>More information</DetailTitle>
-            <ViewRouteTitle>View Routes</ViewRouteTitle>
-          </Row>
-          <Divider />
-          <DetailRow>
-            <DetailLabel>
-              Minimum Received
-              <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
-            </DetailLabel>
-            <DetailRight>{minAmountOut ? `${minAmountOut} ${tokenOutInfo?.symbol}` : '--'}</DetailRight>
-          </DetailRow>
-
-          <DetailRow>
-            <DetailLabel>
-              Gas Fee <InfoHelper text="Estimated network fee for your transaction" />
-            </DetailLabel>
-            <DetailRight>
-              {trade?.routeSummary?.gasUsd ? '$' + (+trade.routeSummary.gasUsd).toPrecision(4) : '--'}
-            </DetailRight>
-          </DetailRow>
-
-          <DetailRow>
-            <DetailLabel>
-              Price Impact
-              <InfoHelper text="Estimated change in price due to the size of your transaction" />
-            </DetailLabel>
-            <DetailRight
-              style={{
-                color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
-              }}
+      <DialogWrapper className={showModal ? 'open' : 'close'}>
+        {showModal !== ModalType.REVIEW && (
+          <ModalHeader>
+            <ModalTitle
+              onClick={() =>
+                showModal === ModalType.DEXES_SETTING ? setShowModal(ModalType.SETTING) : setShowModal(null)
+              }
+              role="button"
             >
-              {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
-            </DetailRight>
-          </DetailRow>
-        </Detail>
-
-        <Button
-          disabled={
-            !!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported
-          }
-          onClick={async () => {
-            if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
-              approve()
-            } else {
-              setShowModal(ModalType.REVIEW)
-            }
-          }}
-        >
-          {isUnsupported ? (
-            <PoweredBy style={{ fontSize: '16px', marginTop: '0' }}>
-              <AlertIcon style={{ width: '24px', height: '24px' }} />
-              Unsupported network
-            </PoweredBy>
-          ) : loading ? (
-            <Dots>Calculate best route</Dots>
-          ) : error ? (
-            error
-          ) : checkingAllowance ? (
-            <Dots>Checking Allowance</Dots>
-          ) : approvalState === APPROVAL_STATE.NOT_APPROVED ? (
-            'Approve'
-          ) : approvalState === APPROVAL_STATE.PENDING ? (
-            <Dots>Approving</Dots>
-          ) : (
-            'Swap'
-          )}
-        </Button>
-
-        <PoweredBy>
+              <BackIcon style={{ color: theme.subText }} />
+              {modalTitle}
+            </ModalTitle>
+          </ModalHeader>
+        )}
+        <ContentWrapper>{modalContent}</ContentWrapper>
+        <PoweredBy style={{ marginTop: '0' }}>
           Powered By
           <KyberSwapLogo />
         </PoweredBy>
-      </SwapWrapper>
+      </DialogWrapper>
+      <Title>
+        Swap
+        <SettingBtn onClick={() => setShowModal(ModalType.SETTING)}>
+          <SettingIcon />
+        </SettingBtn>
+      </Title>
+      <InputWrapper>
+        <BalanceRow>
+          <div>
+            <MaxHalfBtn onClick={() => setInputAmount(tokenInWithUnit)}>Max</MaxHalfBtn>
+            {/* <MaxHalfBtn>Half</MaxHalfBtn> */}
+          </div>
+          <AccountBalance>
+            <WalletIcon />
+            {formattedTokenInBalance}
+          </AccountBalance>
+        </BalanceRow>
 
-      <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} enableRoute={enableRoute} />
+        <InputRow>
+          <Input
+            value={inputAmout}
+            onChange={e => {
+              const value = e.target.value.replace(/,/g, '.')
+              const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
+              if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
+                setInputAmount(value)
+              }
+            }}
+            inputMode="decimal"
+            autoComplete="off"
+            autoCorrect="off"
+            type="text"
+            pattern="^[0-9]*[.,]?[0-9]*$"
+            placeholder="0.0"
+            minLength={1}
+            maxLength={79}
+            spellCheck="false"
+          />
+
+          {!!trade?.routeSummary?.amountInUsd && (
+            <span
+              style={{
+                fontSize: '12px',
+                marginRight: '4px',
+                color: theme.subText,
+              }}
+            >
+              ~
+              {(+trade.routeSummary.amountInUsd).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+              })}
+            </span>
+          )}
+
+          <SelectTokenBtn onClick={() => !isUnsupported && setShowModal(ModalType.CURRENCY_IN)}>
+            {tokenInInfo ? (
+              <>
+                <img
+                  width="20"
+                  height="20"
+                  alt="tokenIn"
+                  src={tokenInInfo?.logoURI}
+                  style={{ borderRadius: '50%' }}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null // prevents looping
+                    currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
+                  }}
+                />
+                <div style={{ marginLeft: '0.375rem' }}>{tokenInInfo?.symbol}</div>
+              </>
+            ) : (
+              <SelectTokenText>Select a token</SelectTokenText>
+            )}
+            <DropdownIcon />
+          </SelectTokenBtn>
+        </InputRow>
+      </InputWrapper>
+
+      <MiddleRow>
+        <MiddleLeft>
+          <RefreshBtn
+            loading={loading}
+            onRefresh={() => {
+              getRate()
+            }}
+            trade={trade}
+          />
+          <Rate>
+            {(() => {
+              if (!rate) return '--'
+              return !inverseRate
+                ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo?.symbol}`
+                : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo?.symbol}`
+            })()}
+          </Rate>
+
+          {!!rate && (
+            <SettingBtn onClick={() => setInverseRate(prev => !prev)}>
+              <SwapIcon />
+            </SettingBtn>
+          )}
+        </MiddleLeft>
+
+        <SwitchBtn
+          onClick={() => {
+            setTrade(null)
+            setTokenIn(tokenOut)
+            setTokenOut(tokenIn)
+          }}
+        >
+          <SwitchIcon />
+        </SwitchBtn>
+      </MiddleRow>
+
+      <InputWrapper>
+        <BalanceRow>
+          <div />
+          <AccountBalance>
+            <WalletIcon />
+            {formattedTokenOutBalance}
+          </AccountBalance>
+        </BalanceRow>
+
+        <InputRow>
+          <Input disabled value={+Number(amountOut).toPrecision(8)} />
+
+          {!!trade?.routeSummary?.amountOutUsd && (
+            <span
+              style={{
+                fontSize: '12px',
+                marginRight: '4px',
+                color: theme.subText,
+              }}
+            >
+              ~
+              {(+trade.routeSummary.amountOutUsd).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+              })}
+            </span>
+          )}
+          <SelectTokenBtn onClick={() => !isUnsupported && setShowModal(ModalType.CURRENCY_OUT)}>
+            {tokenOutInfo ? (
+              <>
+                <img
+                  width="20"
+                  height="20"
+                  alt="tokenOut"
+                  src={tokenOutInfo?.logoURI}
+                  style={{ borderRadius: '50%' }}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null // prevents looping
+                    currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
+                  }}
+                />
+                <div style={{ marginLeft: '0.375rem' }}>{tokenOutInfo?.symbol}</div>
+              </>
+            ) : (
+              <SelectTokenText>Select a token</SelectTokenText>
+            )}
+            <DropdownIcon />
+          </SelectTokenBtn>
+        </InputRow>
+      </InputWrapper>
+
+      <Detail style={{ marginTop: '1rem' }}>
+        <Row>
+          <DetailTitle>More information</DetailTitle>
+          <ViewRouteTitle onClick={() => setShowModal(ModalType.TRADE_ROUTE)}>
+            View Routes <Expand style={{ width: 12, height: 12 }} />
+          </ViewRouteTitle>
+        </Row>
+        <Divider />
+        <DetailRow>
+          <DetailLabel>
+            Minimum Received
+            <InfoHelper text={`Minimum amount you will receive or your transaction will revert`} />
+          </DetailLabel>
+          <DetailRight>{minAmountOut ? `${minAmountOut} ${tokenOutInfo?.symbol}` : '--'}</DetailRight>
+        </DetailRow>
+
+        <DetailRow>
+          <DetailLabel>
+            Gas Fee <InfoHelper text="Estimated network fee for your transaction" />
+          </DetailLabel>
+          <DetailRight>
+            {trade?.routeSummary?.gasUsd ? '$' + (+trade.routeSummary.gasUsd).toPrecision(4) : '--'}
+          </DetailRight>
+        </DetailRow>
+
+        <DetailRow>
+          <DetailLabel>
+            Price Impact
+            <InfoHelper text="Estimated change in price due to the size of your transaction" />
+          </DetailLabel>
+          <DetailRight
+            style={{
+              color: priceImpact > 15 ? theme.error : priceImpact > 5 ? theme.warning : theme.text,
+            }}
+          >
+            {priceImpact === -1 ? '--' : priceImpact > 0.01 ? priceImpact.toFixed(3) + '%' : '< 0.01%'}
+          </DetailRight>
+        </DetailRow>
+      </Detail>
+
+      <Button
+        disabled={!!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported}
+        onClick={async () => {
+          if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
+            approve()
+          } else {
+            setShowModal(ModalType.REVIEW)
+          }
+        }}
+      >
+        {isUnsupported ? (
+          <PoweredBy style={{ fontSize: '16px', marginTop: '0' }}>
+            <AlertIcon style={{ width: '24px', height: '24px' }} />
+            Unsupported network
+          </PoweredBy>
+        ) : loading ? (
+          <Dots>Calculate best route</Dots>
+        ) : error ? (
+          error
+        ) : checkingAllowance ? (
+          <Dots>Checking Allowance</Dots>
+        ) : approvalState === APPROVAL_STATE.NOT_APPROVED ? (
+          'Approve'
+        ) : approvalState === APPROVAL_STATE.PENDING ? (
+          <Dots>Approving</Dots>
+        ) : (
+          'Swap'
+        )}
+      </Button>
+
+      <PoweredBy>
+        Powered By
+        <KyberSwapLogo />
+      </PoweredBy>
     </Wrapper>
   )
 }

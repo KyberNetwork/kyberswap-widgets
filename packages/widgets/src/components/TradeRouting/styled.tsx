@@ -36,9 +36,6 @@ export const Shadow = styled.div<{ backgroundColor?: string }>`
   overflow: hidden;
   background-color: ${({ theme }) => theme.dialog};
   border-radius: ${({ theme }) => theme.borderRadius};
-  margin-top: 1em;
-  padding-left: 16px;
-  padding-right: 16px;
   &:before,
   &:after {
     content: '';
