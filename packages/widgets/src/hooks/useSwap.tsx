@@ -61,7 +61,7 @@ export const useDexes = (enableDexes?: string) => {
 
   const excludedDexIds = excludedDexes.map(i => i.dexId)
   const dexes =
-    excludedDexes.length === 0 && enableDexesFormatted === undefined
+    excludedDexes.length === 0 && !enableDexes
       ? undefined
       : allDexes
           .filter(dex => enableDexesFormatted?.includes(dex.dexId))
