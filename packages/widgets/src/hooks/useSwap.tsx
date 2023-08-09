@@ -51,7 +51,8 @@ export interface Dex {
 }
 
 const excludedDexes: Dex[] = []
-export const useDexes = () => {
+export const useDexes = (enableDexes?: string) => {
+  const enableDexesFormatted: string[] | undefined = enableDexes?.split(',')
   const { chainId } = useActiveWeb3()
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
@@ -60,9 +61,10 @@ export const useDexes = () => {
 
   const excludedDexIds = excludedDexes.map(i => i.dexId)
   const dexes =
-    excludedDexes.length === 0
+    excludedDexes.length === 0 && enableDexesFormatted === undefined
       ? undefined
       : allDexes
+          .filter(dex => enableDexesFormatted?.includes(dex.dexId))
           .filter(item => !excludedDexIds.includes(item.dexId))
           .map(item => item.dexId)
           .join(',')
@@ -123,6 +125,7 @@ const useSwap = ({
   defaultTokenIn,
   defaultTokenOut,
   feeSetting,
+  enableDexes,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -132,6 +135,7 @@ const useSwap = ({
     feeReceiver: string
     isInBps: boolean
   }
+  enableDexes?: string
 }) => {
   const { provider, chainId } = useActiveWeb3()
   const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
@@ -153,7 +157,7 @@ const useSwap = ({
   }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
 
   const { balances } = useTokenBalances(tokens.map(item => item.address))
-  const [allDexes, dexes, setExcludedDexes] = useDexes()
+  const [allDexes, dexes, setExcludedDexes] = useDexes(enableDexes)
 
   const [inputAmout, setInputAmount] = useState('1')
   const debouncedInput = useDebounce(inputAmout)

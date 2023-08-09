@@ -149,6 +149,7 @@ export interface WidgetProps {
   defaultTokenOut?: string
   feeSetting?: FeeSetting
   onTxSubmit?: (txHash: string, data: any) => void
+  enableDexes?: string
 }
 
 const Widget = ({
@@ -158,6 +159,7 @@ const Widget = ({
   client,
   onTxSubmit,
   enableRoute,
+  enableDexes,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -165,6 +167,7 @@ const Widget = ({
   client: string
   onTxSubmit?: (txHash: string, data: any) => void
   enableRoute: boolean
+  enableDexes?: string
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -194,6 +197,7 @@ const Widget = ({
     defaultTokenIn,
     defaultTokenOut,
     feeSetting,
+    enableDexes,
   })
 
   const trade = isUnsupported ? null : routeTrade
@@ -278,6 +282,7 @@ const Widget = ({
         )
       case ModalType.TRADE_ROUTE:
         if (enableRoute) return <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} />
+      // eslint-disable-next-line
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
@@ -641,6 +646,7 @@ export default function SwapWidget({
   client,
   onTxSubmit,
   enableRoute = true,
+  enableDexes,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -654,6 +660,7 @@ export default function SwapWidget({
               client={client}
               onTxSubmit={onTxSubmit}
               enableRoute={enableRoute}
+              enableDexes={enableDexes}
             />
           </TokenListProvider>
         </Web3Provider>
