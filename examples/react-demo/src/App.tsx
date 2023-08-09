@@ -103,7 +103,7 @@ function App() {
   }
 
   const [theme, setTheme] = useState<any>(darkTheme)
-  const [enableRoute, setEnableRoute] = useState<boolean>(false)
+  const [enableRoute, setEnableRoute] = useState<boolean>(true)
 
   const defaultTokenOut: { [chainId: number]: string } = {
     1: '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202',
