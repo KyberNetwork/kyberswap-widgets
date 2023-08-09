@@ -256,26 +256,30 @@ function App() {
           }}
         >
           <div>
-            <input
-              type='radio'
-              name='traderoute'
-              onChange={(e) => {
-                setEnableRoute(true)
-              }}
-              checked={enableRoute}
-            />
-            <label htmlFor='light'>Enable</label>
+            <label>
+              <input
+                type='radio'
+                name='traderoute'
+                onChange={(e) => {
+                  setEnableRoute(true)
+                }}
+                checked={enableRoute}
+              />
+              Enable
+            </label>
           </div>
           <div>
-            <input
-              type='radio'
-              name='traderoute'
-              onChange={(e) => {
-                setEnableRoute(false)
-              }}
-              checked={!enableRoute}
-            />
-            <label htmlFor='custom'>Disable</label>
+            <label>
+              <input
+                type='radio'
+                name='traderoute'
+                onChange={(e) => {
+                  setEnableRoute(false)
+                }}
+                checked={!enableRoute}
+              />
+              Disable
+            </label>
           </div>
         </div>
       </div>
