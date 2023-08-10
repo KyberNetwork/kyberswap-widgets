@@ -301,7 +301,7 @@ export function getTradeComposition(
   }
 
   const getTokenFromAddress = (address: string) => {
-    if (isSameTokenAddress(chainId, address, NATIVE_TOKEN_ADDRESS)) {
+    if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()) {
       return NATIVE_TOKEN[chainId]
     }
 
