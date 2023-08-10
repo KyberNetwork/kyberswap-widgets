@@ -104,6 +104,7 @@ function App() {
 
   const [theme, setTheme] = useState<any>(darkTheme)
   const [enableRoute, setEnableRoute] = useState<boolean>(true)
+  const [enableDexes, setEnableDexes] = useState<string>('')
 
   const defaultTokenOut: { [chainId: number]: string } = {
     1: '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202',
@@ -282,6 +283,25 @@ function App() {
             </label>
           </div>
         </div>
+        <p className='title'>Enable dexes</p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '16px',
+            justifyContent: 'center',
+          }}
+        >
+          <label>
+            Enable Dexes{' '}
+            <input
+              type='text'
+              onChange={(e) => {
+                setEnableDexes(e.target.value)
+              }}
+              checked={!enableRoute}
+            />
+          </label>
+        </div>
       </div>
       <Widget
         client='widget-react-demo'
@@ -291,6 +311,7 @@ function App() {
         defaultTokenOut={defaultTokenOut[chainId]}
         feeSetting={feeSetting.feeAmount && feeSetting.feeReceiver ? feeSetting : undefined}
         enableRoute={enableRoute}
+        enableDexes={enableDexes}
       />
     </div>
   )

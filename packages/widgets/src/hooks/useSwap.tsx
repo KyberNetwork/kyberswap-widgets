@@ -1,6 +1,6 @@
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS } from '../constants'
 import useDebounce from './useDebounce'
 import useTokenBalances from './useTokenBalances'
@@ -52,19 +52,23 @@ export interface Dex {
 
 const excludedDexes: Dex[] = []
 export const useDexes = (enableDexes?: string) => {
-  const enableDexesFormatted: string[] | undefined = enableDexes?.split(',')
+  const enableDexesFormatted: string[] | undefined = useMemo(
+    () => (enableDexes ? enableDexes.split(',') : undefined),
+    [enableDexes],
+  )
   const { chainId } = useActiveWeb3()
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
   const [allDexes, setAllDexes] = useState<Dex[]>([])
   const [excludedDexes, setExcludedDexes] = useState<Dex[]>([])
-
+  const allDexesEnabled = allDexes.filter(dex =>
+    enableDexesFormatted ? enableDexesFormatted.includes(dex.dexId) : true,
+  )
   const excludedDexIds = excludedDexes.map(i => i.dexId)
   const dexes =
     excludedDexes.length === 0 && !enableDexes
       ? undefined
-      : allDexes
-          .filter(dex => enableDexesFormatted?.includes(dex.dexId))
+      : allDexesEnabled
           .filter(item => !excludedDexIds.includes(item.dexId))
           .map(item => item.dexId)
           .join(',')
@@ -116,9 +120,9 @@ export const useDexes = (enableDexes?: string) => {
     }
 
     fetchAllDexes()
-  }, [isUnsupported, chainId])
+  }, [isUnsupported, chainId, enableDexesFormatted])
 
-  return [allDexes, dexes, setExcludedDexes] as const
+  return [allDexesEnabled, dexes, setExcludedDexes] as const
 }
 
 const useSwap = ({
