@@ -49,5 +49,5 @@ export function isSameTokenAddress(
   if (!tokenBAddress) return false
   if (isNative(chainId, tokenAAddress) && isNative(chainId, tokenBAddress)) return true
 
-  return false
+  return tokenAAddress.toLowerCase() === tokenBAddress.toLowerCase()
 }
