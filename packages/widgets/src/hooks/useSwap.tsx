@@ -50,7 +50,6 @@ export interface Dex {
   dexId: string
 }
 
-const excludedDexes: Dex[] = []
 export const useDexes = (enableDexes?: string) => {
   const enableDexesFormatted: string[] | undefined = useMemo(
     () => (enableDexes ? enableDexes.split(',') : undefined),
@@ -122,7 +121,7 @@ export const useDexes = (enableDexes?: string) => {
     fetchAllDexes()
   }, [isUnsupported, chainId, enableDexesFormatted])
 
-  return [allDexesEnabled, dexes, setExcludedDexes] as const
+  return [allDexesEnabled, dexes, excludedDexes, setExcludedDexes] as const
 }
 
 const useSwap = ({
@@ -161,7 +160,7 @@ const useSwap = ({
   }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
 
   const { balances } = useTokenBalances(tokens.map(item => item.address))
-  const [allDexes, dexes, setExcludedDexes] = useDexes(enableDexes)
+  const [allDexes, dexes, excludedDexes, setExcludedDexes] = useDexes(enableDexes)
 
   const [inputAmout, setInputAmount] = useState('1')
   const debouncedInput = useDebounce(inputAmout)
