@@ -227,12 +227,12 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
               existed = true
               swapAmount = swapAmount + swapPool.swapAmount || 0
             }
-            p2.swapPercentage = Math.trunc((parseFloat(swapAmount) * 100) / parseFloat(totalSwapAmount))
+            p2.swapPercentage = Math.round((parseFloat(swapAmount) * 100) / parseFloat(totalSwapAmount))
             p2.total = totalSwapAmount.toString()
             return p2
           })
           if (!existed) {
-            const percent = Math.trunc((parseFloat(swapPool.swapAmount) * 100) / parseFloat(totalSwapAmount))
+            const percent = Math.round((parseFloat(swapPool.swapAmount) * 100) / parseFloat(totalSwapAmount))
             newSub.push({ ...swapPool, swapPercentage: percent })
           }
           subRoutes[ind] = newSub
@@ -294,7 +294,7 @@ export function getTradeComposition(
     const exactTokenIn = isSameTokenAddress(chainId, tokenIn, inputToken?.address)
     if (exactTokenIn && Number(inputAmount) > 0) {
       const percent = (parseFloat(amount) * 100) / parseFloat(inputAmount)
-      return Math.trunc(percent)
+      return Math.round(percent)
     }
     return undefined
   }
