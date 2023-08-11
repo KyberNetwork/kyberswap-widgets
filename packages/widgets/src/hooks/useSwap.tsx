@@ -187,7 +187,14 @@ const useSwap = ({
       return
     }
 
-    const amountIn = parseUnits(debouncedInput, tokenInDecimal)
+    let amountIn: BigNumber = BigNumber.from('0')
+    try {
+      amountIn = parseUnits(debouncedInput, tokenInDecimal)
+    } catch (e) {
+      setError('Invalid input amount')
+      setTrade(null)
+      return
+    }
 
     if (!amountIn) {
       setError('Invalid input amount')
@@ -238,7 +245,7 @@ const useSwap = ({
       },
     ).then(r => r.json())
 
-    if (Number(routeResponse.data.routeSummary?.amountOut)) {
+    if (Number(routeResponse.data?.routeSummary?.amountOut)) {
       setTrade(routeResponse.data)
       if (provider && !tokenInBalance.lt(amountIn)) setError('')
     } else {
@@ -248,6 +255,7 @@ const useSwap = ({
 
     controllerRef.current = null
     setLoading(false)
+    // eslint-disable-next-line
   }, [
     tokens,
     tokenIn,
@@ -261,7 +269,8 @@ const useSwap = ({
     feeAmount,
     isInBps,
     feeReceiver,
-    balances,
+    // eslint-disable-next-line
+    JSON.stringify(balances),
   ])
 
   useEffect(() => {
