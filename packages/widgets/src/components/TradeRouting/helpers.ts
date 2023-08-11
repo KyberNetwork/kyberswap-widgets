@@ -3,18 +3,6 @@ import { Dex } from '../../hooks/useSwap'
 import { SwapPool } from '../../utils/aggregationRouting'
 
 export const getDexInfoByPool = (pool: SwapPool, allDexes?: Dex[]): { name: string; logoURL: string } | undefined => {
-  if (pool.exchange === '1inch') {
-    return { name: '1inch', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png' }
-  }
-
-  if (pool.exchange === 'paraswap') {
-    return { name: 'Paraswap', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/14534.png' }
-  }
-
-  if (pool.exchange === '0x') {
-    return { name: '0x', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1896.png' }
-  }
-
   return allDexes?.find(
     dex =>
       dex.dexId === pool.exchange ||
