@@ -282,7 +282,7 @@ const Widget = ({
         )
       case ModalType.TRADE_ROUTE:
         if (enableRoute) return <TradeRouting trade={trade} currencyIn={tokenInInfo} currencyOut={tokenOutInfo} />
-      // eslint-disable-next-line
+        return null
       case ModalType.CURRENCY_IN:
         return (
           <SelectCurrency
