@@ -285,7 +285,6 @@ export function getTradeComposition(
     acc[cur.address] = cur
     return acc
   }, {} as { [address: string]: TokenInfo })
-  const defaultToken: TokenInfo = NATIVE_TOKEN[chainId]
   const routes: SwapRoute[] = []
 
   const calcSwapPercentage = function (tokenIn: string, amount: string): number | undefined {
@@ -305,7 +304,17 @@ export function getTradeComposition(
       return NATIVE_TOKEN[chainId]
     }
 
-    return allTokens?.[isAddress(address) || ''] || defaultToken
+    return (
+      allTokens?.[isAddress(address) || ''] ||
+      allTokens?.[address] || {
+        name: '--',
+        decimals: 0,
+        symbol: '--',
+        address,
+        chainId,
+        logoURI: '',
+      }
+    )
   }
 
   // Convert all Swaps to ChartSwaps
@@ -346,12 +355,11 @@ export function getTradeComposition(
       })
 
       if (index === 0) {
-        const token = defaultToken
-        path.push(allTokens?.[isAddress(token.address) || ''] || token)
+        path.push(getTokenFromAddress(hop.tokenIn))
       }
 
-      const token = allTokens?.[isAddress(hop.tokenOut) || ''] || defaultToken
-      path.push(allTokens?.[isAddress(token.address) || ''] || token)
+      const token = getTokenFromAddress(hop.tokenOut)
+      path.push(token)
     })
     routes.push({
       slug: path

@@ -179,7 +179,9 @@ const useSwap = ({
     if (isUnsupported) return
 
     const tokenInDecimal =
-      tokenIn === NATIVE_TOKEN_ADDRESS ? 18 : tokens.find(token => token.address === tokenIn)?.decimals
+      tokenIn === NATIVE_TOKEN_ADDRESS
+        ? 18
+        : tokens.find(token => token.address.toLowerCase() === tokenIn.toLowerCase())?.decimals
 
     if (!tokenInDecimal || !tokenIn || !tokenOut || !debouncedInput) {
       setError('Invalid input')

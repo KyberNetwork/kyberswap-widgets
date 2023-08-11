@@ -207,10 +207,14 @@ const Widget = ({
   const { balances, refetch } = useTokenBalances(tokens.map(item => item.address))
 
   const tokenInInfo =
-    tokenIn === NATIVE_TOKEN_ADDRESS ? NATIVE_TOKEN[chainId] : tokens.find(item => item.address === tokenIn)
+    tokenIn === NATIVE_TOKEN_ADDRESS
+      ? NATIVE_TOKEN[chainId]
+      : tokens.find(item => item.address.toLowerCase() === tokenIn.toLowerCase())
 
   const tokenOutInfo =
-    tokenOut === NATIVE_TOKEN_ADDRESS ? NATIVE_TOKEN[chainId] : tokens.find(item => item.address === tokenOut)
+    tokenOut === NATIVE_TOKEN_ADDRESS
+      ? NATIVE_TOKEN[chainId]
+      : tokens.find(item => item.address.toLowerCase() === tokenOut.toLowerCase())
 
   const amountOut = trade?.routeSummary?.amountOut
     ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
