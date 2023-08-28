@@ -118,6 +118,8 @@ export const NATIVE_TOKEN: {
   59144: eth(59144),
   1101: eth(1101),
   324: eth(324),
+  8453: eth(8453),
+  84531: eth(84531),
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -241,6 +243,22 @@ export const WRAPPED_NATIVE_TOKEN: {
     symbol: 'WETH',
     address: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
     chainId: 324,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  8453: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4200000000000000000000000000000000000006',
+    chainId: 10,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  84531: {
+    name: 'Wrapped Ether',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4200000000000000000000000000000000000006',
+    chainId: 10,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
 }
