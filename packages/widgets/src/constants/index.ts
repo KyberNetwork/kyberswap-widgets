@@ -119,9 +119,7 @@ export const NATIVE_TOKEN: {
   1101: eth(1101),
   324: eth(324),
   8453: eth(8453),
-  84531: eth(84531),
   5000: eth(5000),
-  5001: eth(5001),
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -255,23 +253,7 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 10,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
-  84531: {
-    name: 'Wrapped Ether',
-    decimals: 18,
-    symbol: 'WETH',
-    address: '0x4200000000000000000000000000000000000006',
-    chainId: 10,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
   5000: {
-    name: 'Wrapped Ether',
-    decimals: 18,
-    symbol: 'WETH',
-    address: '0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111',
-    chainId: 10,
-    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-  },
-  5001: {
     name: 'Wrapped Ether',
     decimals: 18,
     symbol: 'WETH',
@@ -320,9 +302,7 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   1101: '0xcA11bde05977b3631167028862bE2a173976CA11',
   324: '0xF9cda624FBC7e059355ce98a31693d299FACd963',
   8453: '0xca11bde05977b3631167028862be2a173976ca11',
-  84531: '0xca11bde05977b3631167028862be2a173976ca11',
   5000: '0xcA11bde05977b3631167028862bE2a173976CA11',
-  5001: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
