@@ -341,6 +341,8 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   59144: 'linea',
   1101: 'polygon-zkevm',
   324: 'zksync',
+  8453: 'base',
+  5000: 'mantle'
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -359,6 +361,8 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   59144: 'https://lineascan.build',
   1101: 'https://zkevm.polygonscan.com',
   324: 'https://explorer.zksync.io',
+  8453: 'https://basescan.org',
+  5000: 'https://explorer.mantle.xyz',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)
