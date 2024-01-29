@@ -11,6 +11,7 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
     }),
+    svgr(),
     react(),
     checker({
       typescript: true,
@@ -19,7 +20,6 @@ export default defineConfig({
       },
       overlay: false,
     }),
-    svgr(),
   ],
   build: {
     lib: {

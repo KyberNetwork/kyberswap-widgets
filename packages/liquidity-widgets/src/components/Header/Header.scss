@@ -1,0 +1,66 @@
+.ks-lw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+
+  .pool-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+
+    .pool-tokens-logo {
+      display: flex;
+      align-items: flex-end;
+
+      img {
+        border-radius: 50%;
+      }
+
+      img:nth-child(2) {
+        margin-left: -6px;
+      }
+
+      .network-logo {
+        margin-left: -4px;
+      }
+    }
+
+    .symbol {
+      font-size: 20px;
+    }
+
+    .tag {
+      border-radius: 6px;
+      background: var(--ks-lw-success);
+      padding: 2px 4px;
+      font-size: 12px;
+    }
+
+    .dex-type {
+      gap: 4px;
+      display: flex;
+      color: var(--ks-lw-subText);
+    }
+  }
+
+  .setting {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--ks-lw-interactive);
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(150%);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+}

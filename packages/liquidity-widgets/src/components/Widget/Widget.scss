@@ -1,0 +1,33 @@
+:root {
+  --ks-lw-text: #212121;
+  --ks-lw-subText: #979797;
+  --ks-lw-primary: #f1ffee;
+  --ks-lw-dialog: #eafce6;
+  --ks-lw-secondary: #ffe3ca;
+  --ks-lw-interactive: #ffffff;
+  --ks-lw-stroke: #ff9f4a;
+  --ks-lw-accent: #ff9f4a;
+  --ks-lw-success: #189470;
+  --ks-lw-warning: #ff9901;
+  --ks-lw-error: #f84242;
+  --ks-lw-fontFamily: Work Sans;
+  --ks-lw-borderRadius: 10px;
+  --ks-lw-buttonRadius: 10px;
+  --ks-lw-boxShadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
+}
+
+.ks-lw {
+  background: var(--ks-lw-primary);
+  color: var(--ks-lw-text);
+  width: 100%;
+  max-width: 680px;
+  border-radius: var(--ks-lw-borderRadius);
+  padding: 24px;
+  font-family: var(--ks-lw-fontFamily);
+
+  .title {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ks-lw-text);
+  }
+}
