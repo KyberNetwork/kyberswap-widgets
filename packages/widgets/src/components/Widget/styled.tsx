@@ -10,6 +10,7 @@ export const Wrapper = styled.div`
   position: relative;
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow};
+  height: max-content;
 `
 
 export const Title = styled.div`

@@ -450,10 +450,19 @@ const Widget = ({
           </ModalHeader>
         )}
         <ContentWrapper>{modalContent}</ContentWrapper>
-        <PoweredBy style={{ marginTop: '0' }}>
-          Powered By
-          <KyberSwapLogo />
-        </PoweredBy>
+        <Footer>
+          <PoweredBy style={{ marginTop: '0' }}>
+            Powered By
+            <KyberSwapLogo />
+          </PoweredBy>
+          <a
+            href="https://discord.com/channels/608934314960224276/1192426056183972010"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Support
+          </a>
+        </Footer>
       </DialogWrapper>
       <Title>
         {title || 'Swap'}
@@ -710,7 +719,11 @@ const Widget = ({
           <KyberSwapLogo />
         </PoweredBy>
 
-        <a href="https://support.kyberswap.com/hc/en-us/requests/new" target="_blank" rel="noopener noreferrer">
+        <a
+          href="https://discord.com/channels/608934314960224276/1192426056183972010"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Support
         </a>
       </Footer>

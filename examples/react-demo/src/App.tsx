@@ -3,8 +3,7 @@ import "./App.css";
 import { Widget } from "@kyberswap/widgets";
 import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
-import { ethers } from "ethers";
-import walletConnectModule from "@web3-onboard/walletconnect";
+import { ethers } from "ethers"; import walletConnectModule from "@web3-onboard/walletconnect";
 
 const injected = injectedModule();
 const walletConnect = walletConnectModule();
@@ -332,6 +331,8 @@ function App() {
         }
         enableRoute={enableRoute}
         enableDexes={enableDexes}
+        showDetail={false}
+        showRate={false}
       />
     </div>
   );
