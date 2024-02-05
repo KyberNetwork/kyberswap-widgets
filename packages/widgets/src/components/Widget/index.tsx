@@ -177,6 +177,7 @@ export interface WidgetProps {
   onError?: (e: any) => void
   showRate?: boolean
   showDetail?: boolean
+  width?: number
 }
 
 const Widget = ({
@@ -196,6 +197,7 @@ const Widget = ({
   onError,
   showRate,
   showDetail,
+  width,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -213,6 +215,7 @@ const Widget = ({
   onError?: (e: any) => void
   showRate?: boolean
   showDetail?: boolean
+  width?: number
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const { chainId } = useActiveWeb3()
@@ -434,7 +437,7 @@ const Widget = ({
   } = useApproval(trade?.routeSummary?.amountIn || '0', tokenIn, trade?.routerAddress || '')
 
   return (
-    <Wrapper>
+    <Wrapper width={width}>
       <DialogWrapper className={showModal ? 'open' : 'close'}>
         {showModal !== ModalType.REVIEW && (
           <ModalHeader>
@@ -751,6 +754,7 @@ export default function SwapWidget({
   onError,
   showRate = true,
   showDetail = true,
+  width,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -774,6 +778,7 @@ export default function SwapWidget({
               title={title}
               showRate={showRate}
               showDetail={showDetail}
+              width={width}
             />
           </TokenListProvider>
         </Web3Provider>
