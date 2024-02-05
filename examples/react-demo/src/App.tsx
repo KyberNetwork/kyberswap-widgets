@@ -3,7 +3,8 @@ import "./App.css";
 import { Widget } from "@kyberswap/widgets";
 import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
-import { ethers } from "ethers"; import walletConnectModule from "@web3-onboard/walletconnect";
+import { ethers } from "ethers";
+import walletConnectModule from "@web3-onboard/walletconnect";
 
 const injected = injectedModule();
 const walletConnect = walletConnectModule();
@@ -138,6 +139,9 @@ function App() {
     isInBps: true,
   });
 
+  const [showRate, setShowRate] = useState(true);
+  const [showDetail, setShowDetail] = useState(true);
+
   return (
     <div className="App">
       <div>
@@ -263,6 +267,28 @@ function App() {
           <label htmlFor="isInBps">isInBps</label>
         </div>
 
+        <div className="row" style={{ justifyContent: "center" }}>
+          <input
+            type="checkbox"
+            checked={showRate}
+            onChange={(e) => {
+              setShowRate(e.target.checked);
+            }}
+          />
+          <label>Show rate</label>
+        </div>
+
+        <div className="row" style={{ justifyContent: "center" }}>
+          <input
+            type="checkbox"
+            checked={showDetail}
+            onChange={(e) => {
+              setShowDetail(e.target.checked);
+            }}
+          />
+          <label>Show detail</label>
+        </div>
+
         <p className="title">Trade route</p>
         <div
           style={{
@@ -331,8 +357,8 @@ function App() {
         }
         enableRoute={enableRoute}
         enableDexes={enableDexes}
-        showDetail={false}
-        showRate={false}
+        showDetail={showDetail}
+        showRate={showRate}
       />
     </div>
   );
