@@ -1,18 +1,20 @@
 import { createContext, ReactNode, useContext } from "react";
-import useTokenFromPoolAddress, { Token } from "./useTokenFromPoolAddress";
+import usePoolInfo, { Pool }  from "./usePoolInfo";
 
 export enum PoolType {
-  UNIV3 = "univ3",
+  DEX_UNISWAPV3 = "DEX_UNISWAPV3",
 }
 
 const WidgetContext = createContext<{
   loading: boolean;
-  poolInfo: { token0: Token; token1: Token; fee: number } | null;
+  pool: Pool | null;
   poolType: PoolType;
+  poolAddress: string;
 }>({
   loading: true,
-  poolInfo: null,
-  poolType: PoolType.UNIV3,
+  pool: null,
+  poolType: PoolType.DEX_UNISWAPV3,
+  poolAddress: '',
 });
 
 export const WidgetProvider = ({
@@ -24,13 +26,14 @@ export const WidgetProvider = ({
   children: ReactNode;
   poolType: PoolType;
 }) => {
-  const { loading, poolInfo } = useTokenFromPoolAddress(poolAddress);
+  const { loading, pool } = usePoolInfo(poolAddress);
 
   return (
     <WidgetContext.Provider
       value={{
         loading,
-        poolInfo,
+        poolAddress,
+        pool,
         poolType,
       }}
     >

@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.1-rc",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@uniswap/sdk-core": "^4.1.4",
+    "@uniswap/v3-sdk": "^3.10.2",
     "ethers": "^5.7.0"
   },
   "devDependencies": {

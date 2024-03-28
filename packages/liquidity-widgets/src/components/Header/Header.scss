@@ -64,3 +64,15 @@
     }
   }
 }
+
+.ks-lw-title {
+  display: flex;
+  font-size: 20px;
+  font-weight: 500;
+  justify-content: space-between;
+  align-items: center;
+
+  .close-btn {
+    cursor: pointer;
+  }
+}

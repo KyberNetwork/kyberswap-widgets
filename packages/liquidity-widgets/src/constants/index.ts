@@ -36,6 +36,14 @@ export const NetworkInfo: {
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
     defaultRpc: "https://ethereum.kyberengineering.io",
   },
+  137: {
+    name: "Polygon POS",
+    logo: "https://polygonscan.com/assets/poly/images/svg/logos/token-light.svg?v=24.2.3.1",
+    scanLink: "https://polygonscan.com",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://polygon.kyberengineering.io",
+  },
+
 };
 
 export const UNI_V3_BPS = 10_000;

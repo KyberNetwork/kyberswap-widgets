@@ -1,3 +1,56 @@
+.outline-btn {
+  background: none;
+  border: 1px solid var(--ks-lw-stroke);
+  border-radius: var(--ks-lw-borderRadius);
+  color: var(--ks-lw-text);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  justify-self: flex-end;
+  align-items: center;
+
+  &:hover {
+    filter: brightness(200%);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.primary-btn {
+  background: var(--ks-lw-accent);
+  border: 1px solid var(--ks-lw-accent);
+  border-radius: var(--ks-lw-borderRadius);
+  color: var(--ks-lw-dialog);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  justify-self: flex-end;
+  align-items: center;
+
+  &:hover {
+    filter: brightness(110%);
+  }
+
+  &:enabled:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--ks-lw-subText);
+    background: var(--ks-lw-interactive);
+    border-color: var(--ks-lw-interactive);
+  }
+}
+
 .ks-lw-content {
   margin-top: 20px;
   display: flex;
@@ -5,6 +58,7 @@
 
   .left {
     flex: 1;
+    width: 50%;
 
     .price-info {
       border-radius: var(--ks-lw-borderRadius);
@@ -20,7 +74,7 @@
         align-items: center;
         gap: 4px;
         color: var(--ks-lw-subText);
-        font-size: 12px;
+        font-size: 14px;
 
         .price {
           font-weight: 500;
@@ -33,8 +87,21 @@
       margin-top: 1rem;
     }
 
-    .price-input {
+    .label-row {
       margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+
+      .outline-btn {
+        font-size: 12px;
+        border-radius: 4px;
+        padding: 4px 6px;
+      }
+    }
+
+    .price-input {
+      margin-top: 0.5rem;
       padding: 10px 12px 10px 8px;
       gap: 10px;
       display: flex;
@@ -46,7 +113,7 @@
         flex-direction: column;
         gap: 8px;
         flex: 1;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 500;
         color: var(--ks-lw-subText);
 
@@ -88,9 +155,9 @@
 
     .liquidity-to-add {
       margin-top: 1rem;
+
       .label {
-        font-size: 12px;
-        font-weight: 500;
+        font-size: 16px;
       }
 
       .input-token {
@@ -104,7 +171,7 @@
           display: flex;
           justify-content: space-between;
           color: var(--ks-lw-subText);
-          font-size: 12px;
+          font-size: 14px;
           font-weight: 500;
 
           .balance-flex {
@@ -135,6 +202,7 @@
             transform: scale(0.96);
           }
         }
+
         .small {
           padding: 2px 6px;
           font-size: 12px;
@@ -147,15 +215,19 @@
           align-items: center;
           gap: 8px;
 
-          input {
-            background: transparent;
-            color: var(--ks-lw-text);
-            font-size: 20px;
-            font-weight: 500;
-            padding: 0;
-            border: none;
-            outline: none;
+          .input {
             flex: 1;
+
+            input {
+              background: transparent;
+              color: var(--ks-lw-text);
+              font-size: 20px;
+              font-weight: 500;
+              width: 100%;
+              padding: 0;
+              border: none;
+              outline: none;
+            }
           }
         }
       }
@@ -163,6 +235,88 @@
   }
 
   .right {
+    flex: 1;
+    width: 50%;
+
+    .zap-route {
+      border: 1px solid var(--ks-lw-stroke);
+      border-radius: var(--ks-lw-borderRadius);
+      padding: 12px 16px;
+
+      .title {
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .divider {
+        width: 100%;
+        height: 1px;
+        background: var(--ks-lw-stroke);
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+
+        .step {
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 500;
+          background: var(--ks-lw-interactive);
+        }
+
+        .text {
+          flex: 1;
+          font-size: 12px;
+          color: var(--ks-lw-subText);
+          line-height: 16px;
+        }
+      }
+    }
+
+    .est-liq-val {
+      margin-top: 1rem;
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-top: 12px;
+        font-size: 12px;
+
+        .label {
+          color: var(--ks-lw-subText);
+          margin-top: 2px;
+          width: fit-content;
+        }
+
+        .token-amount {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          gap: 4px;
+        }
+      }
+    }
+  }
+}
+
+.ks-lw-action {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+
+  button {
     flex: 1;
   }
 }

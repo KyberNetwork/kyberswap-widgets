@@ -6,8 +6,8 @@ import { Theme } from "../../theme";
 import { PoolType, WidgetProvider } from "../../hooks/useWidgetInfo";
 import { providers } from "ethers";
 import { NetworkInfo } from "../../constants";
-import Header from "../Header";
-import Content from "../Content";
+import WidgetContent from "../Content";
+import { ZapContextProvider } from "../../hooks/useZapInState";
 
 export interface WidgetProps {
   theme?: Theme;
@@ -40,20 +40,12 @@ export default function Widget({
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
       <WidgetProvider poolAddress={poolAddress} poolType={poolType}>
-        <div className="ks-lw">
-          <div className="title">Zap Widget</div>
-          <WidgetContent />
-        </div>
+        <ZapContextProvider>
+          <div className="ks-lw">
+            <WidgetContent />
+          </div>
+        </ZapContextProvider>
       </WidgetProvider>
     </Web3Provider>
   );
 }
-
-const WidgetContent = () => {
-  return (
-    <>
-      <Header />
-      <Content />
-    </>
-  );
-};

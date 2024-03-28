@@ -7,10 +7,23 @@ import { NetworkInfo } from "../constants";
 
 export function useContract(
   address: string,
-  ABI: ContractInterface
+  ABI: ContractInterface,
+  readOnly = false
 ): Contract | null {
-  const { provider, account } = useWeb3Provider();
-  return useMemo(() => {
+  const { provider, account, readProvider } = useWeb3Provider();
+
+  const readContract = useMemo(() => {
+    const checksumAddress = isAddress(address);
+    if (!checksumAddress) return null;
+    try {
+      return new Contract(checksumAddress, ABI, readProvider);
+    } catch (error) {
+      console.error("Failed to get contract", error);
+      return null;
+    }
+  }, [readProvider, ABI, address]);
+
+  const contract = useMemo(() => {
     const checksumAddress = isAddress(address);
     if (!checksumAddress) return null;
     try {
@@ -24,10 +37,18 @@ export function useContract(
       return null;
     }
   }, [address, ABI, provider, account]);
+
+  return readOnly ? readContract : contract;
 }
 
 export const useMulticalContract = () => {
-  const { chainId } = useWeb3Provider();
+  const { chainId, readProvider } = useWeb3Provider();
 
-  return useContract(NetworkInfo[chainId].multiCall, MulticallABI);
+  return useMemo(() => {
+    return new Contract(
+      NetworkInfo[chainId].multiCall,
+      MulticallABI,
+      readProvider
+    );
+  }, [chainId, readProvider]);
 };

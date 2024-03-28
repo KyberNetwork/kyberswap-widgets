@@ -1,5 +1,5 @@
 import { LiquidityWidget } from "./components";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
@@ -43,12 +43,6 @@ function App() {
     ethersProvider = new ethers.providers.Web3Provider(wallet.provider, "any");
   }
 
-  const [chainId, setChainId] = useState(1);
-
-  useEffect(() => {
-    ethersProvider?.getNetwork().then((res) => setChainId(res.chainId));
-  }, [ethersProvider]);
-
   const connectedWallets = useWallets();
 
   useEffect(() => {
@@ -88,8 +82,9 @@ function App() {
       <button onClick={() => (wallet ? disconnect(wallet) : connect())}>
         {!wallet ? "connect wallet" : "disconnect"}
       </button>
+      <div>{wallet?.accounts?.[0].address}</div>
       <LiquidityWidget
-        chainId={chainId}
+        chainId={137}
         theme={{
           primary: "#1C1C1C",
           secondary: "#0F0F0F",
@@ -109,8 +104,8 @@ function App() {
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
         provider={ethersProvider}
-        poolType={PoolType.UNIV3}
-        poolAddress="0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
+        poolType={PoolType.DEX_UNISWAPV3}
+        poolAddress="0xB6e57ed85c4c9dbfEF2a68711e9d6f36c56e0FcB"
       />
     </>
   );

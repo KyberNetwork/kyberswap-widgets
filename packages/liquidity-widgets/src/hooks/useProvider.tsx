@@ -4,12 +4,15 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
+import { NetworkInfo } from "../constants";
 
 const Web3Context = createContext<
   | {
       provider: providers.Web3Provider | providers.JsonRpcProvider;
+      readProvider: providers.JsonRpcProvider;
       chainId: number;
       account: string | undefined;
     }
@@ -25,6 +28,11 @@ export const Web3Provider = ({
   chainId: number;
   children: ReactNode;
 }) => {
+  const readProvider = useMemo(
+    () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
+    [chainId]
+  );
+
   const [account, setAccount] = useState<string | undefined>();
 
   useEffect(() => {
@@ -32,7 +40,7 @@ export const Web3Provider = ({
   }, [provider]);
 
   return (
-    <Web3Context.Provider value={{ provider, chainId, account }}>
+    <Web3Context.Provider value={{ provider, chainId, account, readProvider }}>
       {children}
     </Web3Context.Provider>
   );

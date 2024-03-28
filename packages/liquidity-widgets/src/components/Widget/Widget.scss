@@ -25,9 +25,5 @@
   padding: 24px;
   font-family: var(--ks-lw-fontFamily);
 
-  .title {
-    font-size: 20px;
-    font-weight: 500;
-    color: var(--ks-lw-text);
-  }
+  transition: all 0.2s;
 }

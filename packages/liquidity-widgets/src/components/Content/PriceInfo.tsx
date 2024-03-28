@@ -1,35 +1,35 @@
-import { useState } from "react";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import SwitchIcon from "../../assets/switch.svg?react";
+import { useZapState } from "../../hooks/useZapInState";
 
 export default function PriceInfo() {
-  const { loading, poolInfo } = useWidgetInfo();
-  const [revert, setRevert] = useState(false);
+  const { loading, pool } = useWidgetInfo();
+  const { revertPrice, toggleRevertPrice } = useZapState();
 
   if (loading) return <div className="ks-lw-content">Loading...</div>;
+
+  const price = pool
+    ? (revertPrice
+        ? pool.priceOf(pool.token1)
+        : pool.priceOf(pool.token0)
+      ).toSignificant(6)
+    : "--";
 
   return (
     <div className="price-info">
       <div className="row">
-        <span>Market price</span>
-        <span className="price">0.0025</span>
+        <span>Pool price</span>
+        <span className="price">{price}</span>
         <span>
-          {revert
-            ? `${poolInfo?.token1.symbol} per ${poolInfo?.token0.symbol}`
-            : `${poolInfo?.token0.symbol} per ${poolInfo?.token1.symbol}`}
+          {revertPrice
+            ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+            : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
         </span>
-        <SwitchIcon onClick={() => setRevert(!revert)} />
-      </div>
-
-      <div className="row">
-        <span>Current price</span>
-        <span className="price">0.0025</span>
-        <span>
-          {revert
-            ? `${poolInfo?.token1.symbol} per ${poolInfo?.token0.symbol}`
-            : `${poolInfo?.token0.symbol} per ${poolInfo?.token1.symbol}`}
-        </span>
-        <SwitchIcon onClick={() => setRevert(!revert)} />
+        <SwitchIcon
+          style={{ cursor: "pointer" }}
+          onClick={() => toggleRevertPrice()}
+          role="button"
+        />
       </div>
     </div>
   );
