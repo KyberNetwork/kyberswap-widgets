@@ -7,10 +7,12 @@ import X from "../../assets/x.svg?react";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
 import { Token } from "../../hooks/usePoolInfo";
+import { useZapState } from "../../hooks/useZapInState";
 
 const Header = () => {
   const { chainId } = useWeb3Provider();
   const { loading, pool } = useWidgetInfo();
+  const { toggleSetting } = useZapState();
   if (loading) return "loading...";
 
   if (!pool) return `can't get pool info`;
@@ -62,7 +64,7 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="setting" role="button">
+        <div className="setting" role="button" onClick={toggleSetting}>
           <SettingIcon />
         </div>
       </div>

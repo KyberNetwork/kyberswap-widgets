@@ -30,6 +30,7 @@ export interface ZapState {
   amountIn: string;
   priceLower: Price<Token, Token>;
   priceUpper: Price<Token, Token>;
+  deadline: number;
 }
 export interface PreviewProps {
   zapState: ZapState;
@@ -46,7 +47,7 @@ function calculateGasMargin(value: BigNumber): BigNumber {
 }
 
 export default function Preview({
-  zapState: { pool, zapInfo, tokenIn, amountIn, priceLower, priceUpper },
+  zapState: { pool, zapInfo, tokenIn, amountIn, priceLower, priceUpper, deadline },
   onDismiss,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
@@ -119,6 +120,8 @@ export default function Preview({
         sender: account,
         recipient: account,
         route: zapInfo.route,
+        deadline,
+        source: 'zap-widget', 
       }),
     })
       .then((res) => res.json())

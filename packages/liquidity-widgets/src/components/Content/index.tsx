@@ -22,6 +22,7 @@ export default function Content() {
     error,
     priceLower,
     priceUpper,
+    ttl,
     loading: zapLoading,
   } = useZapState();
 
@@ -55,6 +56,9 @@ export default function Content() {
       const el = document.getElementsByClassName("ks-lw");
       (el[0] as HTMLElement).style.maxWidth = "425px";
 
+      const date = new Date();
+      date.setMinutes(date.getMinutes() + (ttl || 20));
+
       setSnapshotState({
         tokenIn,
         amountIn,
@@ -62,6 +66,7 @@ export default function Content() {
         zapInfo,
         priceLower,
         priceUpper,
+        deadline: Math.floor(date.getTime() / 1000),
       });
     }
   };

@@ -51,7 +51,6 @@ export default function usePoolInfo(poolAddress: string) {
   const [pool, setPool] = useState<Pool | null>(null);
 
   const multicallContract = useMulticalContract();
-  console.log(multicallContract)
   const { chainId } = useWeb3Provider();
   const poolContract = useContract(poolAddress, Univ3PoolABI, true);
 

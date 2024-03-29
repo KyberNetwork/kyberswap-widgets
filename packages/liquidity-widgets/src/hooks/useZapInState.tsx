@@ -69,6 +69,14 @@ const ZapContext = createContext<{
   loading: boolean;
   priceLower: Price<Token, Token> | null;
   priceUpper: Price<Token, Token> | null;
+  slippage: number;
+  setSlippage: (val: number) => void;
+  ttl: number;
+  setTtl: (val: number) => void;
+  toggleSetting: () => void;
+  showSetting: boolean;
+  setEnableAggregator: (val: boolean) => void;
+  enableAggregator: boolean;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -87,6 +95,14 @@ const ZapContext = createContext<{
   loading: false,
   priceLower: null,
   priceUpper: null,
+  slippage: 100,
+  setSlippage: () => {},
+  ttl: 20, // 20min
+  setTtl: () => {},
+  toggleSetting: () => {},
+  showSetting: false,
+  enableAggregator: true,
+  setEnableAggregator: () => {},
 });
 
 export const chainIdToChain: { [chainId: number]: string } = {
@@ -102,6 +118,16 @@ export enum Type {
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const { pool, poolType, poolAddress } = useWidgetInfo();
   const { chainId, account } = useWeb3Provider();
+
+  // Setting
+  const [showSetting, setShowSeting] = useState(false);
+  const [slippage, setSlippage] = useState(100);
+  const [ttl, setTtl] = useState(20);
+  const [enableAggregator, setEnableAggregator] = useState(true);
+
+  const toggleSetting = () => {
+    setShowSeting((prev) => !prev);
+  };
 
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(null);
@@ -204,7 +230,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       }
 
       setLoading(true);
-      const params: { [key: string]: string | number } = {
+      const params: { [key: string]: string | number | boolean } = {
         dex: poolType,
         "pool.id": poolAddress,
         "pool.token0": pool.token0.address,
@@ -214,8 +240,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         "position.tickLower": tickLower,
         tokenIn: tokenIn.address,
         amountIn: amountInWei,
-        // TODO: setting
-        slippage: 100,
+        slippage,
+        "aggregatorOptions.disable": !enableAggregator,
       };
 
       let tmp = "";
@@ -254,6 +280,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     poolAddress,
     pool,
     tokenIn?.decimals,
+    enableAggregator,
+    slippage,
   ]);
 
   return (
@@ -276,6 +304,14 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         loading,
         priceLower,
         priceUpper,
+        slippage,
+        setSlippage,
+        ttl,
+        setTtl,
+        toggleSetting,
+        showSetting,
+        enableAggregator,
+        setEnableAggregator,
       }}
     >
       {children}

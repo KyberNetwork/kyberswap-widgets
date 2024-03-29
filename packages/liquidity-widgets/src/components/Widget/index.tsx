@@ -8,6 +8,7 @@ import { providers } from "ethers";
 import { NetworkInfo } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
+import Setting from "../Setting";
 
 export interface WidgetProps {
   theme?: Theme;
@@ -43,6 +44,7 @@ export default function Widget({
         <ZapContextProvider>
           <div className="ks-lw">
             <WidgetContent />
+            <Setting />
           </div>
         </ZapContextProvider>
       </WidgetProvider>
