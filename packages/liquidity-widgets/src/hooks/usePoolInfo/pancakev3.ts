@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import Univ3PoolABI from "../abis/univ3_pool.json";
-import { useContract, useMulticalContract } from "./useContract";
+import Pancakev3PoolABI from "../../abis/pancakev3_pool.json";
+import { useContract, useMulticalContract } from "../useContract";
 import { Interface } from "ethers/lib/utils";
-import { useWeb3Provider } from "./useProvider";
-import { FeeAmount, Pool as UniPool } from "@uniswap/v3-sdk";
-import { BigintIsh, Token as UniToken } from "@uniswap/sdk-core";
+import { useWeb3Provider } from "../useProvider";
+import { FeeAmount, Pool } from "@pancakeswap/v3-sdk";
+import { BigintIsh, Token } from "@pancakeswap/swap-sdk-core";
 
-export class Token extends UniToken {
+export class PancakeToken extends Token {
   public readonly logoURI?: string;
 
   constructor(
@@ -17,15 +17,15 @@ export class Token extends UniToken {
     name?: string,
     logoURI?: string
   ) {
-    super(chainId, address, decimals, symbol, name);
+    super(chainId, address as `0x${string}`, decimals, symbol || "", name);
     this.logoURI = logoURI;
   }
 }
 
-export class Pool extends UniPool {
+export class PancakeV3Pool extends Pool {
   constructor(
-    tokenA: Token,
-    tokenB: Token,
+    tokenA: PancakeToken,
+    tokenB: PancakeToken,
     fee: FeeAmount,
     sqrtRatioX96: BigintIsh,
     liquidity: BigintIsh,
@@ -44,31 +44,34 @@ interface TokenInfo {
   logoURI: string;
 }
 
-const Univ3PoolInterface = new Interface(Univ3PoolABI);
+const Pancakev3PoolInterface = new Interface(Pancakev3PoolABI);
 
-export default function usePoolInfo(poolAddress: string) {
+export default function usePoolInfo(poolAddress: string): {
+  pool: PancakeV3Pool | null;
+  loading: boolean;
+} {
   const [loading, setLoading] = useState(true);
   const [pool, setPool] = useState<Pool | null>(null);
 
   const multicallContract = useMulticalContract();
   const { chainId } = useWeb3Provider();
-  const poolContract = useContract(poolAddress, Univ3PoolABI, true);
+  const poolContract = useContract(poolAddress, Pancakev3PoolABI, true);
 
   useEffect(() => {
     const getPoolInfo = async () => {
       if (!multicallContract || !!pool) return;
       const fns = ["token0", "token1", "fee", "slot0", "liquidity"];
-      const fragments = fns.map((fn) => Univ3PoolInterface.getFunction(fn));
+      const fragments = fns.map((fn) => Pancakev3PoolInterface.getFunction(fn));
       const chunks = fragments.map((fragment) => ({
         target: poolAddress,
-        callData: Univ3PoolInterface.encodeFunctionData(fragment),
+        callData: Pancakev3PoolInterface.encodeFunctionData(fragment),
       }));
       const multiCallRes =
         await multicallContract.callStatic.tryBlockAndAggregate(false, chunks);
 
       const [addr0, addr1, f, slot0, liq] = multiCallRes.returnData.map(
         (item: { returnData: string }, index: number) => {
-          return Univ3PoolInterface.decodeFunctionResult(
+          return Pancakev3PoolInterface.decodeFunctionResult(
             fragments[index],
             item.returnData
           );
@@ -123,18 +126,18 @@ export default function usePoolInfo(poolAddress: string) {
 
         if (!token0Info)
           token0Info = tokens.find(
-            (item: Token) =>
+            (item: PancakeToken) =>
               item.address.toLowerCase() === address0.toLowerCase()
           );
         if (!token1Info)
           token1Info = tokens.find(
-            (item: Token) =>
+            (item: PancakeToken) =>
               item.address.toLowerCase() === address1.toLowerCase()
           );
       }
       if (token0Info && token1Info && fee) {
         const initToken = (t: TokenInfo) =>
-          new Token(
+          new PancakeToken(
             t.chainId,
             t.address,
             t.decimals,
@@ -171,7 +174,7 @@ export default function usePoolInfo(poolAddress: string) {
         ]);
 
         setPool(
-          new Pool(
+          new PancakeV3Pool(
             pool.token0,
             pool.token1,
             pool.fee,

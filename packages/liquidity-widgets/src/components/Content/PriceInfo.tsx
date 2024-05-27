@@ -10,8 +10,10 @@ export default function PriceInfo() {
 
   const price = pool
     ? (revertPrice
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
+        ? // @ts-ignore
+          pool.priceOf(pool.token1 as any)
+        : // @ts-ignore
+          pool.priceOf(pool.token0 as any)
       ).toSignificant(6)
     : "--";
 

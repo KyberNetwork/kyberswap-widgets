@@ -1,32 +1,46 @@
 import { createContext, ReactNode, useContext } from "react";
-import usePoolInfo, { Pool }  from "./usePoolInfo";
+import {
+  PancakeV3Pool,
+  UniV3Pool,
+  useUniV3PoolInfo,
+  usePancakeV3PoolInfo,
+} from "./usePoolInfo";
 
 export enum PoolType {
   DEX_UNISWAPV3 = "DEX_UNISWAPV3",
+  DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
 }
 
-const WidgetContext = createContext<{
+type PancakeV3 = Common & {
+  pool: PancakeV3Pool | null;
+  poolType: PoolType.DEX_PANCAKESWAPV3;
+};
+
+type UniV3 = Common & {
+  pool: UniV3Pool | null;
+  poolType: PoolType.DEX_UNISWAPV3;
+};
+
+type Common = {
   loading: boolean;
-  pool: Pool | null;
-  poolType: PoolType;
   poolAddress: string;
-}>({
+};
+
+const WidgetContext = createContext<PancakeV3 | UniV3>({
   loading: true,
   pool: null,
   poolType: PoolType.DEX_UNISWAPV3,
-  poolAddress: '',
+  poolAddress: "",
 });
 
-export const WidgetProvider = ({
-  poolAddress,
-  children,
-  poolType,
-}: {
+type Props = {
   poolAddress: string;
   children: ReactNode;
   poolType: PoolType;
-}) => {
-  const { loading, pool } = usePoolInfo(poolAddress);
+};
+
+const PancakeV3Provider = ({ poolAddress, children }: Props) => {
+  const { loading, pool } = usePancakeV3PoolInfo(poolAddress);
 
   return (
     <WidgetContext.Provider
@@ -34,12 +48,37 @@ export const WidgetProvider = ({
         loading,
         poolAddress,
         pool,
-        poolType,
+        poolType: PoolType.DEX_PANCAKESWAPV3,
       }}
     >
       {children}
     </WidgetContext.Provider>
   );
+};
+
+const UniV3Provider = ({ poolAddress, children }: Props) => {
+  const { loading, pool } = useUniV3PoolInfo(poolAddress);
+
+  return (
+    <WidgetContext.Provider
+      value={{
+        loading,
+        poolAddress,
+        pool,
+        poolType: PoolType.DEX_UNISWAPV3,
+      }}
+    >
+      {children}
+    </WidgetContext.Provider>
+  );
+};
+
+export const WidgetProvider = (props: Props) => {
+  if (props.poolType === PoolType.DEX_PANCAKESWAPV3) {
+    return <PancakeV3Provider {...props} />;
+  }
+
+  return <UniV3Provider {...props} />;
 };
 
 export const useWidgetInfo = () => {

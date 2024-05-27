@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Type, useZapState } from "../../hooks/useZapInState";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { tryParseTick } from "../../utils/univ3";
+import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { tryParseTick as tryParseTickUniV3 } from "../../utils/univ3";
+import { tryParseTick as tryParseTickPancackeV3 } from "../../utils/pancakev3";
 import { nearestUsableTick } from "@uniswap/v3-sdk";
+import { FeeAmount } from "@pancakeswap/v3-sdk";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -14,7 +16,7 @@ export default function PriceInput({ type }: { type: Type }) {
     priceLower,
     priceUpper,
   } = useZapState();
-  const { pool } = useWidgetInfo();
+  const { pool, poolType } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 
   const price = useMemo(() => {
@@ -80,15 +82,27 @@ export default function PriceInput({ type }: { type: Type }) {
       const defaultTick =
         (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
       const tick =
-        tryParseTick(pool?.token1, pool?.token0, pool?.fee, localValue) ||
-        defaultTick;
+        (poolType === PoolType.DEX_UNISWAPV3
+          ? tryParseTickUniV3(pool?.token1, pool?.token0, pool?.fee, localValue)
+          : tryParseTickPancackeV3(
+              pool?.token1,
+              pool?.token0,
+              pool?.fee as FeeAmount,
+              localValue
+            )) || defaultTick;
       if (tick) setTick(type, tick);
     } else {
       const defaultTick =
         (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
       const tick =
-        tryParseTick(pool?.token0, pool?.token1, pool?.fee, localValue) ||
-        defaultTick;
+        (poolType === PoolType.DEX_UNISWAPV3
+          ? tryParseTickUniV3(pool?.token0, pool?.token1, pool?.fee, localValue)
+          : tryParseTickPancackeV3(
+              pool?.token0,
+              pool?.token1,
+              pool?.fee as FeeAmount,
+              localValue
+            )) || defaultTick;
       if (tick) setTick(type, tick);
     }
   };

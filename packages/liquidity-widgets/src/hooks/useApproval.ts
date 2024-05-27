@@ -72,7 +72,7 @@ function useApproval(
           setApprovalState(APPROVAL_STATE.NOT_APPROVED);
         }
         setLoading(false);
-      });
+      }).catch(console.log);
     }
   }, [contract, token, account, spender, amountToApproveString]);
 

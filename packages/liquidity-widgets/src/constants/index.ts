@@ -36,6 +36,14 @@ export const NetworkInfo: {
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
     defaultRpc: "https://ethereum.kyberengineering.io",
   },
+
+  56: {
+    name: "BSC",
+    logo: "https://storage.googleapis.com/ks-setting-1d682dca/14c1b7c4-b66e-4169-b82e-ea6237f15b461699420601184.png",
+    scanLink: "https://bscscan.com",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://bsc.kyberengineering.io",
+  },
   137: {
     name: "Polygon POS",
     logo: "https://polygonscan.com/assets/poly/images/svg/logos/token-light.svg?v=24.2.3.1",
@@ -44,6 +52,13 @@ export const NetworkInfo: {
     defaultRpc: "https://polygon.kyberengineering.io",
   },
 
+  42161: {
+    name: "Arbitrum",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
+    scanLink: "https://arbiscan.io",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://arbitrum.kyberengineering.io",
+  },
 };
 
 export const UNI_V3_BPS = 10_000;

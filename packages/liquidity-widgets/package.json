@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.1-rc1",
+  "version": "0.0.1-rc5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pancakeswap/sdk": "^5.8.2",
+    "@pancakeswap/v3-sdk": "^3.8.3",
     "@uniswap/sdk-core": "^4.1.4",
     "@uniswap/v3-sdk": "^3.10.2",
     "ethers": "^5.7.0"
@@ -46,6 +48,10 @@
     ".": {
       "import": "./dist/liquidity-widget.es.js",
       "require": "./dist/liquidity-widget.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
     }
   }
 }

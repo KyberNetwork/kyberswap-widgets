@@ -14,7 +14,13 @@ import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
 
-export default function Content() {
+export default function Content({
+  onDismiss,
+  onTogglePreview,
+}: {
+  onDismiss: () => void;
+  onTogglePreview?: (val: boolean) => void;
+}) {
   const {
     tokenIn,
     zapInfo,
@@ -53,9 +59,6 @@ export default function Content() {
       priceLower &&
       priceUpper
     ) {
-      const el = document.getElementsByClassName("ks-lw");
-      (el[0] as HTMLElement).style.maxWidth = "425px";
-
       const date = new Date();
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
@@ -68,15 +71,15 @@ export default function Content() {
         priceUpper,
         deadline: Math.floor(date.getTime() / 1000),
       });
+      onTogglePreview?.(true);
     }
   };
 
   useEffect(() => {
     if (snapshotState === null) {
-      const el = document.getElementsByClassName("ks-lw");
-      (el[0] as HTMLElement).style.maxWidth = "680px";
+      onTogglePreview?.(false);
     }
-  }, [snapshotState]);
+  }, [snapshotState, onTogglePreview]);
 
   const btnText = (() => {
     if (error) return error;
@@ -116,7 +119,7 @@ export default function Content() {
 
   return (
     <>
-      <Header />
+      <Header onDismiss={onDismiss} />
       <div className="ks-lw-content">
         <div className="left">
           <PriceInfo />

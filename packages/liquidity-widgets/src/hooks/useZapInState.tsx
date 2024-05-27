@@ -8,12 +8,10 @@ import {
   useState,
 } from "react";
 import { useWidgetInfo } from "./useWidgetInfo";
-import { Token } from "./usePoolInfo";
+import { Price, tickToPriceByPoolType, Token } from "./usePoolInfo";
 import { useWeb3Provider } from "./useProvider";
 import { parseUnits } from "ethers/lib/utils";
 import useTokenBalance from "./useTokenBalance";
-import { tickToPrice } from "@uniswap/v3-sdk";
-import { Price } from "@uniswap/sdk-core";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 
@@ -67,8 +65,8 @@ const ZapContext = createContext<{
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
-  priceLower: Price<Token, Token> | null;
-  priceUpper: Price<Token, Token> | null;
+  priceLower: Price | null;
+  priceUpper: Price | null;
   slippage: number;
   setSlippage: (val: number) => void;
   ttl: number;
@@ -108,6 +106,8 @@ const ZapContext = createContext<{
 export const chainIdToChain: { [chainId: number]: string } = {
   1: "ethereum",
   137: "polygon",
+  56: "bsc",
+  42161: "arbitrum",
 };
 
 export enum Type {
@@ -183,13 +183,23 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const priceLower = useMemo(() => {
     if (!pool || !tickLower) return null;
-    return tickToPrice(pool.token0, pool.token1, tickLower);
-  }, [pool, tickLower]);
+    return tickToPriceByPoolType(
+      poolType,
+      pool.token0,
+      pool.token1,
+      tickLower
+    ) as Price;
+  }, [pool, tickLower, poolType]);
 
   const priceUpper = useMemo(() => {
     if (!pool || !tickUpper) return null;
-    return tickToPrice(pool.token0, pool.token1, tickUpper);
-  }, [pool, tickUpper]);
+    return tickToPriceByPoolType(
+      poolType,
+      pool.token0,
+      pool.token1,
+      tickUpper
+    ) as Price;
+  }, [pool, tickUpper, poolType]);
 
   const error = useMemo(() => {
     if (!tokenIn) return "Select token in";

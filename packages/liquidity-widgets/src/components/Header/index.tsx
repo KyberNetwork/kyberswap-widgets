@@ -1,22 +1,40 @@
 import "./Header.scss";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import uniswapLogo from "../../assets/uniswap.png";
+import pancakeLogo from "../../assets/pancake.png";
 import SettingIcon from "../../assets/setting.svg?react";
 import X from "../../assets/x.svg?react";
 
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
 import { Token } from "../../hooks/usePoolInfo";
 import { useZapState } from "../../hooks/useZapInState";
 
-const Header = () => {
+const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId } = useWeb3Provider();
-  const { loading, pool } = useWidgetInfo();
+  const { loading, pool, poolType } = useWidgetInfo();
   const { toggleSetting } = useZapState();
   if (loading) return "loading...";
 
   if (!pool) return `can't get pool info`;
   const { token0, token1, fee } = pool;
+
+  const logo = (() => {
+    switch (poolType) {
+      case PoolType.DEX_UNISWAPV3:
+        return uniswapLogo;
+      case PoolType.DEX_PANCAKESWAPV3:
+        return pancakeLogo;
+    }
+  })();
+  const name = (() => {
+    switch (poolType) {
+      case PoolType.DEX_UNISWAPV3:
+        return "Uniswap V3";
+      case PoolType.DEX_PANCAKESWAPV3:
+        return "Pancakeswap V3";
+    }
+  })();
 
   return (
     <>
@@ -24,7 +42,7 @@ const Header = () => {
         <span>
           Zap in {pool.token0.symbol}/{pool.token1.symbol}
         </span>
-        <div className="close-btn" role="button">
+        <div className="close-btn" role="button" onClick={onDismiss}>
           <X />
         </div>
       </div>
@@ -59,8 +77,8 @@ const Header = () => {
 
           <div className="dex-type">
             <span>|</span>
-            <img src={uniswapLogo} width={16} height={16} alt="" />
-            <span>Uniswap V3</span>
+            <img src={logo} width={16} height={16} alt="" />
+            <span>{name}</span>
           </div>
         </div>
 

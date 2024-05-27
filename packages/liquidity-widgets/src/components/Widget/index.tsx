@@ -10,12 +10,16 @@ import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import Setting from "../Setting";
 
+export { PoolType };
+
 export interface WidgetProps {
   theme?: Theme;
   provider: providers.Web3Provider | providers.JsonRpcProvider | undefined;
   poolAddress: string;
   poolType: PoolType;
   chainId: number;
+  onDismiss: () => void;
+  onTogglePreview?: (show: boolean) => void;
 }
 
 export default function Widget({
@@ -24,6 +28,8 @@ export default function Widget({
   poolAddress,
   chainId,
   poolType,
+  onDismiss,
+  onTogglePreview,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -43,7 +49,10 @@ export default function Widget({
       <WidgetProvider poolAddress={poolAddress} poolType={poolType}>
         <ZapContextProvider>
           <div className="ks-lw">
-            <WidgetContent />
+            <WidgetContent
+              onDismiss={onDismiss}
+              onTogglePreview={onTogglePreview}
+            />
             <Setting />
           </div>
         </ZapContextProvider>

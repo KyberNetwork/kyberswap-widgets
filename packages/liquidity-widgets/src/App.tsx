@@ -19,6 +19,12 @@ init({
       rpcUrl: "https://ethereum.kyberengineering.io",
     },
     {
+      id: "0x38",
+      token: "BNB",
+      label: "BSC",
+      rpcUrl: "https://bsc.kyberengineering.io",
+    },
+    {
       id: "0x89",
       token: "MATIC",
       label: "Polygon",
@@ -84,7 +90,7 @@ function App() {
       </button>
       <div>{wallet?.accounts?.[0].address}</div>
       <LiquidityWidget
-        chainId={137}
+        chainId={42161}
         theme={{
           primary: "#1C1C1C",
           secondary: "#0F0F0F",
@@ -104,11 +110,19 @@ function App() {
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
         provider={ethersProvider}
-        poolType={PoolType.DEX_UNISWAPV3}
-        poolAddress="0xB6e57ed85c4c9dbfEF2a68711e9d6f36c56e0FcB"
+        poolType={PoolType.DEX_PANCAKESWAPV3}
+        poolAddress="0x0bacc7a9717e70ea0da5ac075889bd87d4c81197"
+        onTogglePreview={(val: boolean) => {
+          console.log("Show Preview:", val);
+        }}
+        onDismiss={() => {
+          console.log("Dismiss");
+        }}
       />
     </>
   );
 }
 
 export default App;
+
+// poolAddress="0xB6e57ed85c4c9dbfEF2a68711e9d6f36c56e0FcB"
