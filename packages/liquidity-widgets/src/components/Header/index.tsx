@@ -7,7 +7,6 @@ import X from "../../assets/x.svg?react";
 
 import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
-import { Token } from "../../hooks/usePoolInfo";
 import { useZapState } from "../../hooks/useZapInState";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
@@ -49,18 +48,8 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
       <div className="ks-lw-header">
         <div className="pool-info">
           <div className="pool-tokens-logo">
-            <img
-              src={(token0 as Token).logoURI}
-              alt=""
-              width="24px"
-              height="24px"
-            />
-            <img
-              src={(token1 as Token).logoURI}
-              alt=""
-              width="24px"
-              height="24px"
-            />
+            <img src={token0.logoURI} alt="" width="24px" height="24px" />
+            <img src={token1.logoURI} alt="" width="24px" height="24px" />
             <img
               className="network-logo"
               src={NetworkInfo[chainId].logo}

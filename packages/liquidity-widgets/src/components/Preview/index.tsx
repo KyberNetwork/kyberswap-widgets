@@ -1,4 +1,3 @@
-import { Pool, Token } from "../../hooks/usePoolInfo";
 import Info from "../../assets/info.svg?react";
 import DropdownIcon from "../../assets/dropdown.svg?react";
 import Spinner from "../../assets/loader.svg?react";
@@ -20,16 +19,16 @@ import {
   friendlyError,
 } from "../../utils";
 import { useEffect, useState } from "react";
-import { Price } from "@uniswap/sdk-core";
 import { BigNumber } from "ethers";
+import { PoolAdapter, Token, Price } from "../../entities/Pool";
 
 export interface ZapState {
-  pool: Pool;
+  pool: PoolAdapter;
   zapInfo: ZapRouteDetail;
   tokenIn: Token;
   amountIn: string;
-  priceLower: Price<Token, Token>;
-  priceUpper: Price<Token, Token>;
+  priceLower: Price;
+  priceUpper: Price;
   deadline: number;
 }
 

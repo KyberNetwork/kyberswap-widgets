@@ -8,10 +8,10 @@ import {
   useState,
 } from "react";
 import { useWidgetInfo } from "./useWidgetInfo";
-import { Price, tickToPriceByPoolType, Token } from "./usePoolInfo";
 import { useWeb3Provider } from "./useProvider";
 import { parseUnits } from "ethers/lib/utils";
 import useTokenBalance from "./useTokenBalance";
+import { Price, Token, tryParsePrice } from "../entities/Pool";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 
@@ -134,9 +134,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [tickUpper, setTickUpper] = useState<number | null>(null);
   const [isFullRange, setFullRange] = useState(false);
 
-  const [tokenIn, setTokenIn] = useState<Token | null>(
-    () => pool?.token0 || null
-  );
+  const [tokenIn, setTokenIn] = useState<Token | null>(null);
   const [amountIn, setAmountIn] = useState("");
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
   const [zapApiError, setZapApiError] = useState<string>("");
@@ -165,6 +163,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    console.log(pool);
     if (pool && !tokenIn) setTokenIn(pool.token0);
   }, [pool, tokenIn]);
 
@@ -183,23 +182,21 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const priceLower = useMemo(() => {
     if (!pool || !tickLower) return null;
-    return tickToPriceByPoolType(
-      poolType,
+    return tryParsePrice(
       pool.token0,
       pool.token1,
-      tickLower
+      tickLower.toString()
     ) as Price;
-  }, [pool, tickLower, poolType]);
+  }, [pool, tickLower]);
 
   const priceUpper = useMemo(() => {
     if (!pool || !tickUpper) return null;
-    return tickToPriceByPoolType(
-      poolType,
+    return tryParsePrice(
       pool.token0,
       pool.token1,
-      tickUpper
+      tickUpper.toString()
     ) as Price;
-  }, [pool, tickUpper, poolType]);
+  }, [pool, tickUpper]);
 
   const error = useMemo(() => {
     if (!tokenIn) return "Select token in";

@@ -1,0 +1,170 @@
+import { Pool as PancakeV3Pool } from "@pancakeswap/v3-sdk";
+import { tryParseTick as tryParseTickUniV3 } from "../utils/univ3";
+import { tryParseTick as tryParseTickPancackeV3 } from "../utils/pancakev3";
+import JSBI from "jsbi";
+import { Token as UniToken, Price as UniswapPrice } from "@uniswap/sdk-core";
+import { Token as PancakeToken } from "@pancakeswap/sdk";
+import { Pool as UniswapV3Pool } from "@uniswap/v3-sdk";
+import { PoolType } from "../components";
+
+export interface Token {
+  chainId: number;
+  address: string;
+  decimals: number;
+  symbol?: string;
+  name?: string;
+  logoURI?: string;
+}
+
+export interface Price {
+  invert(): Price;
+  toSignificant(significantDigits?: number): string;
+  toFixed(decimalPlaces?: number): string;
+}
+
+interface IPool {
+  tickSpacing: number;
+  sqrtRatioX96: string;
+  liquidity: string;
+  tickCurrent: number;
+  fee: number;
+  token0: Token;
+  token1: Token;
+  token0Price: Price;
+  token1Price: Price;
+  priceOf(token: Token): Price;
+}
+
+// Define the adapter class
+export class PoolAdapter implements IPool {
+  private pool: UniswapV3Pool | PancakeV3Pool;
+
+  constructor(pool: UniswapV3Pool | PancakeV3Pool) {
+    this.pool = pool;
+  }
+
+  get tickSpacing(): number {
+    return this.pool.tickSpacing;
+  }
+
+  get sqrtRatioX96(): string {
+    return this.pool.sqrtRatioX96.toString();
+  }
+
+  get liquidity(): string {
+    return this.pool.liquidity.toString();
+  }
+
+  get tickCurrent(): number {
+    return this.pool.tickCurrent;
+  }
+
+  get fee(): number {
+    return this.pool.fee;
+  }
+
+  get token0(): Token {
+    return this.pool.token0;
+  }
+
+  get token1(): Token {
+    return this.pool.token1;
+  }
+
+  get token0Price(): Price {
+    return this.pool.token0Price;
+  }
+
+  get token1Price(): Price {
+    return this.pool.token1Price;
+  }
+
+  get token1PriceInvert(): string {
+    return this.pool.token1Price.invert().toSignificant(6);
+  }
+
+  priceOf(token: Token): Price {
+    if (token.address === this.token0.address) return this.token0Price;
+    return this.token1Price;
+  }
+}
+
+export function tryParsePrice(
+  base?: Token,
+  quote?: Token,
+  value?: string
+): Price | undefined {
+  if (!base || !quote || !value) {
+    return undefined;
+  }
+
+  if (!value.match(/^\d*\.?\d+$/)) {
+    return undefined;
+  }
+
+  const [whole, fraction] = value.split(".");
+
+  const decimals = fraction?.length ?? 0;
+  const withoutDecimals = JSBI.BigInt((whole ?? "") + (fraction ?? ""));
+
+  const price = new UniswapPrice(
+    new UniToken(base.chainId, base.address, base.decimals, base.symbol),
+    new UniToken(quote.chainId, quote.address, quote.decimals, quote.symbol),
+    JSBI.multiply(
+      JSBI.BigInt(10 ** decimals),
+      JSBI.BigInt(10 ** base.decimals)
+    ),
+    JSBI.multiply(withoutDecimals, JSBI.BigInt(10 ** quote.decimals))
+  );
+
+  return price;
+}
+
+export function tryParseTick(
+  poolType: PoolType,
+  baseToken?: Token,
+  quoteToken?: Token,
+  feeAmount?: number,
+  value?: string
+) {
+  switch (poolType) {
+    case PoolType.DEX_UNISWAPV3:
+      return tryParseTickUniV3(
+        baseToken &&
+          new UniToken(
+            baseToken.chainId,
+            baseToken.address,
+            baseToken.decimals,
+            baseToken.symbol
+          ),
+        quoteToken &&
+          new UniToken(
+            quoteToken.chainId,
+            quoteToken.address,
+            quoteToken.decimals,
+            quoteToken.symbol
+          ),
+        feeAmount,
+        value
+      );
+    case PoolType.DEX_PANCAKESWAPV3:
+      return tryParseTickPancackeV3(
+        baseToken &&
+          new PancakeToken(
+            baseToken.chainId,
+            baseToken.address as `0x${string}`,
+            baseToken.decimals,
+            baseToken.symbol || ""
+          ),
+        quoteToken &&
+          new PancakeToken(
+            quoteToken.chainId,
+            quoteToken.address as `0x${string}`,
+            quoteToken.decimals,
+            quoteToken.symbol || ""
+          ),
+        feeAmount,
+        value
+      );
+  }
+}

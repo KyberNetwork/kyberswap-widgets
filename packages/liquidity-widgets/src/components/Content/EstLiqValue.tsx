@@ -1,4 +1,3 @@
-import { Token } from "../../hooks/usePoolInfo";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
@@ -30,8 +29,8 @@ export default function EstLiqValue() {
         <div className="label">Est. Pooled {pool?.token0.symbol}</div>
         <div>
           <div className="token-amount">
-            {(pool?.token0 as Token)?.logoURI && (
-              <img src={(pool?.token0 as Token).logoURI} width="16px" />
+            {pool?.token0?.logoURI && (
+              <img src={pool.token0.logoURI} width="16px" />
             )}
             {addedAmount0} {pool?.token0.symbol}
           </div>
@@ -45,8 +44,8 @@ export default function EstLiqValue() {
         <div className="label">Est. Pooled {pool?.token1.symbol}</div>
         <div>
           <div className="token-amount">
-            {(pool?.token1 as Token)?.logoURI && (
-              <img src={(pool?.token1 as Token).logoURI} width="16px" />
+            {pool?.token1?.logoURI && (
+              <img src={pool?.token1?.logoURI} width="16px" />
             )}
             {addedAmount1} {pool?.token1.symbol}
           </div>

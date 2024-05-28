@@ -1,32 +1,20 @@
-import { createContext, ReactNode, useContext } from "react";
-import {
-  PancakeV3Pool,
-  UniV3Pool,
-  useUniV3PoolInfo,
-  usePancakeV3PoolInfo,
-} from "./usePoolInfo";
+import { createContext, ReactNode, useContext, useMemo } from "react";
+import { useUniV3PoolInfo, usePancakeV3PoolInfo } from "./usePoolInfo";
+import { PoolAdapter } from "../entities/Pool";
 
 export enum PoolType {
   DEX_UNISWAPV3 = "DEX_UNISWAPV3",
   DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
 }
 
-type PancakeV3 = Common & {
-  pool: PancakeV3Pool | null;
-  poolType: PoolType.DEX_PANCAKESWAPV3;
-};
-
-type UniV3 = Common & {
-  pool: UniV3Pool | null;
-  poolType: PoolType.DEX_UNISWAPV3;
-};
-
-type Common = {
+type ContextState = {
   loading: boolean;
   poolAddress: string;
+  pool: PoolAdapter | null;
+  poolType: PoolType;
 };
 
-const WidgetContext = createContext<PancakeV3 | UniV3>({
+const WidgetContext = createContext<ContextState>({
   loading: true,
   pool: null,
   poolType: PoolType.DEX_UNISWAPV3,
@@ -39,15 +27,25 @@ type Props = {
   poolType: PoolType;
 };
 
-const PancakeV3Provider = ({ poolAddress, children }: Props) => {
+const PancakeV3Provider = ({
+  poolAddress,
+  children,
+}: Omit<Props, "poolType">) => {
   const { loading, pool } = usePancakeV3PoolInfo(poolAddress);
+
+  const poolAdapter = useMemo(
+    () => (pool ? new PoolAdapter(pool) : null),
+    [pool]
+  );
+
+  console.log(poolAdapter)
 
   return (
     <WidgetContext.Provider
       value={{
         loading,
         poolAddress,
-        pool,
+        pool: poolAdapter,
         poolType: PoolType.DEX_PANCAKESWAPV3,
       }}
     >
@@ -56,15 +54,20 @@ const PancakeV3Provider = ({ poolAddress, children }: Props) => {
   );
 };
 
-const UniV3Provider = ({ poolAddress, children }: Props) => {
+const UniV3Provider = ({ poolAddress, children }: Omit<Props, "poolType">) => {
   const { loading, pool } = useUniV3PoolInfo(poolAddress);
+
+  const poolAdapter = useMemo(
+    () => (pool ? new PoolAdapter(pool) : null),
+    [pool]
+  );
 
   return (
     <WidgetContext.Provider
       value={{
         loading,
         poolAddress,
-        pool,
+        pool: poolAdapter,
         poolType: PoolType.DEX_UNISWAPV3,
       }}
     >
