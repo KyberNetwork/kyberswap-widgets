@@ -2,7 +2,7 @@
   position: absolute;
   right: 24px;
   top: 116px;
-  background: var(--ks-lw-dialog);
+  background: var(--ks-lw-layer2);
   padding: 20px;
   border-radius: var(--ks-lw-borderRadius);
 
@@ -27,8 +27,8 @@
   .slp-input-wrapper {
     border-radius: 999px;
     margin-top: 8px;
-    background: var(--ks-lw-secondary);
-    padding: 2px;
+    background: var(--ks-lw-layer1);
+    padding: 4px;
     display: flex;
 
     .slp-item {
@@ -41,27 +41,19 @@
       flex: 2;
       width: 48px;
       display: flex;
-      border: 1px solid var(--ks-lw-secondary);
+      border: 1px solid transparent;
       align-items: center;
       gap: 4px;
       justify-content: center;
-      background: var(--ks-lw-secondary);
       cursor: pointer;
 
       &:hover {
-        background: var(--ks-lw-dialog);
-
-        input {
-          background: var(--ks-lw-dialog);
-        }
+        border: 1px solid var(--ks-lw-accent);
       }
 
       &[data-active="true"] {
         color: var(--ks-lw-text);
-        background: var(--ks-lw-dialog);
-        input {
-          background: var(--ks-lw-dialog);
-        }
+        border: 1px solid var(--ks-lw-accent);
       }
 
       &[data-error="true"] {
@@ -73,12 +65,12 @@
       }
 
       &[data-focus="true"] {
-        background: var(--ks-lw-dialog);
+        border: 1px solid var(--ks-lw-accent);
       }
 
       input {
         width: 72px;
-        background: var(--ks-lw-secondary);
+        background: var(--ks-lw-layer1);
         border: none;
         outline: none;
         color: var(--ks-lw-text);
@@ -88,7 +80,7 @@
         padding: 0;
 
         &:focus {
-          background: var(--ks-lw-dialog);
+          background: var(--ks-lw-layer1);
         }
       }
     }

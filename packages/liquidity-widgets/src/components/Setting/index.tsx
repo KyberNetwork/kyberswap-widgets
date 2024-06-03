@@ -15,7 +15,6 @@ export default function Setting() {
     setEnableAggregator,
   } = useZapState();
   const ref = useRef(null);
-
   useOnClickOutside(ref, () => {
     if (showSetting) toggleSetting();
   });

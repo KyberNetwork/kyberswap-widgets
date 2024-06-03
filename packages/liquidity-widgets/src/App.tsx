@@ -92,21 +92,22 @@ function App() {
       <LiquidityWidget
         chainId={42161}
         theme={{
-          primary: "#1C1C1C",
-          secondary: "#0F0F0F",
           text: "#FFFFFF",
-          subText: "#A9A9A9",
-          interactive: "#292929",
-          dialog: "#313131",
-          stroke: "#505050",
-          accent: "#28E0B9",
-
+          subText: "#B6AECF",
+          icons: "#a9a9a9",
+          layer1: "#27262C",
+          dialog: "#27262C",
+          layer2: "#363046",
+          stroke: "#363046",
+          chartRange: "#5DC5D2",
+          chartArea: "#457F89",
+          accent: "#5DC5D2",
+          warning: "#F4B452",
+          error: "#FF5353",
           success: "#189470",
-          warning: "#FF9901",
-          error: "#F84242",
-          fontFamily: "Work Sans",
-          borderRadius: "10px",
-          buttonRadius: "10px",
+          fontFamily: "Kanit, Sans-serif",
+          borderRadius: "20px",
+          buttonRadius: "16px",
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
         provider={ethersProvider}

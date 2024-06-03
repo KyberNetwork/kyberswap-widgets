@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Type, useZapState } from "../../hooks/useZapInState";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { nearestUsableTick } from "@uniswap/v3-sdk";
-import { tryParseTick } from "../../entities/Pool";
+import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -36,6 +35,7 @@ export default function PriceInput({ type }: { type: Type }) {
     const newTick =
       tick === null
         ? nearestUsableTick(
+            poolType,
             pool.tickCurrent + pool.tickSpacing,
             pool.tickSpacing
           )
@@ -48,6 +48,7 @@ export default function PriceInput({ type }: { type: Type }) {
     const newTick =
       tick === null
         ? nearestUsableTick(
+            poolType,
             pool.tickCurrent - pool.tickSpacing,
             pool.tickSpacing
           )

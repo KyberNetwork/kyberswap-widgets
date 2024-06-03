@@ -1,10 +1,16 @@
-import { Pool as PancakeV3Pool } from "@pancakeswap/v3-sdk";
+import {
+  Pool as PancakeV3Pool,
+  nearestUsableTick as nearestUsableTickPancake,
+} from "@pancakeswap/v3-sdk";
 import { tryParseTick as tryParseTickUniV3 } from "../utils/univ3";
 import { tryParseTick as tryParseTickPancackeV3 } from "../utils/pancakev3";
 import JSBI from "jsbi";
 import { Token as UniToken, Price as UniswapPrice } from "@uniswap/sdk-core";
 import { Token as PancakeToken } from "@pancakeswap/sdk";
-import { Pool as UniswapV3Pool } from "@uniswap/v3-sdk";
+import {
+  Pool as UniswapV3Pool,
+  nearestUsableTick as nearestUsableTickUni,
+} from "@uniswap/v3-sdk";
 import { PoolType } from "../components";
 
 export interface Token {
@@ -167,4 +173,17 @@ export function tryParseTick(
         value
       );
   }
+}
+
+export function nearestUsableTick(
+  poolType: PoolType,
+  tick: number,
+  tickSpacing: number
+): number {
+  if (poolType === PoolType.DEX_UNISWAPV3)
+    return nearestUsableTickUni(tick, tickSpacing);
+  if (poolType === PoolType.DEX_PANCAKESWAPV3)
+    return nearestUsableTickPancake(tick, tickSpacing);
+
+  throw new Error("pool type is not handled");
 }
