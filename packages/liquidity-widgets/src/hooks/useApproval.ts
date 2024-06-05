@@ -32,7 +32,7 @@ function useApproval(
       const MaxUint256: BigNumber = BigNumber.from(
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       );
-      contract
+      return contract
         .approve(spender, MaxUint256)
         .then((res: providers.TransactionResponse) => {
           setApprovalState(APPROVAL_STATE.PENDING);

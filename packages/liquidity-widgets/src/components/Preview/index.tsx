@@ -5,6 +5,7 @@ import SwitchIcon from "../../assets/switch.svg?react";
 import SuccessIcon from "../../assets/success.svg?react";
 import ErrorIcon from "../../assets/error.svg?react";
 import "./Preview.scss";
+
 import {
   ZAP_URL,
   ZapRouteDetail,
@@ -17,10 +18,13 @@ import {
   formatNumber,
   formatWei,
   friendlyError,
+  getDexName,
 } from "../../utils";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
 import { PoolAdapter, Token, Price } from "../../entities/Pool";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import InfoHelper from "../InfoHelper";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -30,6 +34,8 @@ export interface ZapState {
   priceLower: Price;
   priceUpper: Price;
   deadline: number;
+  isFullRange: boolean;
+  slippage: number;
 }
 
 export interface PreviewProps {
@@ -55,10 +61,13 @@ export default function Preview({
     priceLower,
     priceUpper,
     deadline,
+    isFullRange,
+    slippage,
   },
   onDismiss,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
+  const { poolType } = useWidgetInfo();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -295,7 +304,7 @@ export default function Preview({
             {pool.token0.symbol}/{pool.token1.symbol}
           </div>
           <div className="pool-info">
-            <div className="tag tag-primary">Uniswap v3</div>
+            <div className="tag tag-primary">{getDexName(poolType)}</div>
             <div className="tag">Fee {pool.fee / UNI_V3_BPS}%</div>
           </div>
         </div>
@@ -307,20 +316,11 @@ export default function Preview({
           <img src={tokenIn.logoURI} alt="" width="20px" />
 
           <div>
-            {formatNumber(+amountIn)} {tokenIn.symbol}
+            {formatNumber(+amountIn)} {tokenIn.symbol}{" "}
+            <span className="est-usd">
+              ~{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
+            </span>
           </div>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginTop: "1rem" }}>
-        <div className="card-title">Est. Pooled Amount</div>
-        <div className="row" style={{ marginTop: "8px" }}>
-          <img src={(pool.token0 as Token).logoURI} alt="" width="20px" />
-          {addedAmount0} {pool.token0.symbol}
-        </div>
-        <div className="row" style={{ marginTop: "8px" }}>
-          <img src={(pool.token1 as Token).logoURI} alt="" width="20px" />
-          {addedAmount1} {pool.token1.symbol}
         </div>
       </div>
 
@@ -344,23 +344,39 @@ export default function Preview({
         <div className="row-between" style={{ marginTop: "8px" }}>
           <div className="card flex-col" style={{ flex: 1 }}>
             <div className="card-title">Min Price</div>
-            <div>{leftPrice?.toSignificant(6)}</div>
+            <div>{isFullRange ? "0" : leftPrice?.toSignificant(6)}</div>
             <div className="card-title">{quote}</div>
           </div>
           <div className="card flex-col" style={{ flex: 1 }}>
             <div className="card-title">Max Price</div>
-            <div>{rightPrice?.toSignificant(6)}</div>
+            <div>{isFullRange ? "∞" : rightPrice?.toSignificant(6)}</div>
             <div className="card-title">{quote}</div>
           </div>
         </div>
       </div>
 
       <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
-        <div className="row-between">
-          <div className="summary-title">Est. Liquidity Value</div>
-          <span className="summary-value">
-            {formatCurrency(+zapInfo.positionDetails.addedAmountUsd)}
-          </span>
+        <div className="row-between" style={{ alignItems: "flex-start" }}>
+          <div className="summary-title">Est. Pooled Amount</div>
+          <div>
+            <div className="row" style={{ justifyContent: "flex-end" }}>
+              <img src={(pool.token0 as Token).logoURI} alt="" width="20px" />
+              {addedAmount0} {pool.token0.symbol}{" "}
+              <span className="est-usd">
+                ({formatCurrency(+zapInfo.positionDetails.addedAmount0Usd)})
+              </span>
+            </div>
+            <div
+              className="row"
+              style={{ marginTop: "8px", justifyContent: "flex-end" }}
+            >
+              <img src={(pool.token1 as Token).logoURI} alt="" width="20px" />
+              {addedAmount1} {pool.token1.symbol}
+              <span className="est-usd">
+                ({formatCurrency(+zapInfo.positionDetails.addedAmount1Usd)})
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="row-between">
@@ -370,48 +386,42 @@ export default function Preview({
               +zapInfo.zapDetails.remainingAmount0Usd +
                 +zapInfo.zapDetails.remainingAmount1Usd
             )}
-          </span>
-        </div>
-
-        <div className="row-between">
-          <div className="summary-title">
-            Remaining Amount {pool.token0.symbol}
-          </div>
-
-          <span className="summary-value">
-            {formatWei(
-              zapInfo.zapDetails.remainingAmount0,
-              pool.token0.decimals
-            )}{" "}
-            {pool.token0.symbol}
-          </span>
-        </div>
-
-        <div className="row-between">
-          <div className="summary-title">
-            Remaining Amount {pool.token1.symbol}
-          </div>
-          <span className="summary-value">
-            {formatWei(
-              zapInfo.zapDetails.remainingAmount1,
-              pool.token0.decimals
-            )}{" "}
-            {pool.token1.symbol}
+            <InfoHelper
+              text={
+                <>
+                  <div>
+                    {formatWei(
+                      zapInfo.zapDetails.remainingAmount0,
+                      pool.token0.decimals
+                    )}{" "}
+                    {pool.token0.symbol} +{" "}
+                  </div>
+                  <div>
+                    {formatWei(
+                      zapInfo.zapDetails.remainingAmount1,
+                      pool.token0.decimals
+                    )}{" "}
+                    {pool.token1.symbol}
+                  </div>
+                </>
+              }
+            />
           </span>
         </div>
 
         <div className="row-between">
           <div className="summary-title">Max Slippage</div>
           <span className="summary-value">
-            {/* TODO */}
-            0.5%
+            {((slippage * 100) / 10_000).toFixed(2)}%
           </span>
         </div>
 
         <div className="row-between">
           <div className="summary-title">Swap price impact</div>
           <span className="summary-value">
-            {swapPriceImpact < 0.01
+            {+zapInfo.zapDetails.aggregatorSwappedAmountInUsd === 0
+              ? "--"
+              : swapPriceImpact < 0.01
               ? "<0.01%"
               : swapPriceImpact.toFixed(2) + "%"}
           </span>

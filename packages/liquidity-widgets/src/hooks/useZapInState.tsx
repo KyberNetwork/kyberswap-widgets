@@ -10,8 +10,9 @@ import {
 import { useWidgetInfo } from "./useWidgetInfo";
 import { useWeb3Provider } from "./useProvider";
 import { parseUnits } from "ethers/lib/utils";
-import useTokenBalance from "./useTokenBalance";
-import { Price, Token, tryParsePrice } from "../entities/Pool";
+import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
+import { Price, tickToPrice, Token } from "../entities/Pool";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 
@@ -59,8 +60,6 @@ const ZapContext = createContext<{
   balanceIn: string;
   setAmountIn: (value: string) => void;
   toggleRevertPrice: () => void;
-  isFullRange: boolean;
-  setFullRange: (val: boolean) => void;
   setTick: (type: Type, value: number) => void;
   error: string;
   zapInfo: ZapRouteDetail | null;
@@ -85,8 +84,6 @@ const ZapContext = createContext<{
   toggleTokenIn: () => {},
   setAmountIn: () => {},
   toggleRevertPrice: () => {},
-  isFullRange: false,
-  setFullRange: () => {},
   setTick: () => {},
   error: "",
   zapInfo: null,
@@ -132,7 +129,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(null);
   const [tickUpper, setTickUpper] = useState<number | null>(null);
-  const [isFullRange, setFullRange] = useState(false);
 
   const [tokenIn, setTokenIn] = useState<Token | null>(null);
   const [amountIn, setAmountIn] = useState("");
@@ -151,24 +147,68 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     pool?.token1?.address || ""
   );
 
+  const nativeBalance = useNativeBalance();
+
   const balanceIn = useMemo(() => {
+    if (tokenIn?.address === NATIVE_TOKEN_ADDRESS) return nativeBalance;
     if (pool?.token0.address === tokenIn?.address) return balanceToken0;
     return balanceToken1;
-  }, [balanceToken0, balanceToken1, pool?.token0.address, tokenIn?.address]);
+  }, [
+    balanceToken0,
+    balanceToken1,
+    pool?.token0.address,
+    tokenIn?.address,
+    nativeBalance,
+  ]);
 
+  const nativeToken = useMemo(
+    () => ({
+      chainId,
+      address: NATIVE_TOKEN_ADDRESS,
+      decimals: NetworkInfo[chainId].wrappedToken.decimals,
+      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1),
+      logoURI: NetworkInfo[chainId].nativeLogo,
+    }),
+    [chainId]
+  );
+
+  const isToken0Native =
+    pool?.token0.address.toLowerCase() ===
+    NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+  const isToken1Native =
+    pool?.token1.address.toLowerCase() ===
+    NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+
+  //native => wrapped => other
   const toggleTokenIn = () => {
     if (!pool) return;
-    if (tokenIn?.address === pool.token0.address) setTokenIn(pool.token1);
-    else setTokenIn(pool.token0);
+    // tokenIn is native
+    if (tokenIn?.address === NATIVE_TOKEN_ADDRESS) {
+      setTokenIn(isToken0Native ? pool.token0 : pool.token1);
+    } else if (tokenIn?.address === pool.token0.address) {
+      // token1: native
+      // selected: token0
+      if (isToken1Native) setTokenIn(nativeToken);
+      else setTokenIn(pool.token1);
+    } else {
+      // selected: token1
+      // token0: native
+      if (isToken0Native) setTokenIn(nativeToken);
+      else setTokenIn(pool.token0);
+    }
   };
 
   useEffect(() => {
-    console.log(pool);
-    if (pool && !tokenIn) setTokenIn(pool.token0);
-  }, [pool, tokenIn]);
+    if (pool && !tokenIn)
+      setTokenIn(isToken0Native ? nativeToken : pool.token0);
+  }, [pool, tokenIn, nativeToken, isToken0Native]);
 
   const setTick = useCallback(
     (type: Type, value: number) => {
+      if (pool && (value > pool.maxTick || value < pool.minTick)) {
+        return;
+      }
+
       if (type === Type.PriceLower) {
         if (revertPrice) setTickUpper(value);
         else setTickLower(value);
@@ -177,26 +217,18 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         else setTickUpper(value);
       }
     },
-    [revertPrice]
+    [revertPrice, pool]
   );
 
   const priceLower = useMemo(() => {
     if (!pool || !tickLower) return null;
-    return tryParsePrice(
-      pool.token0,
-      pool.token1,
-      tickLower.toString()
-    ) as Price;
-  }, [pool, tickLower]);
+    return tickToPrice(poolType, pool.token0, pool.token1, tickLower) as Price;
+  }, [pool, tickLower, poolType]);
 
   const priceUpper = useMemo(() => {
     if (!pool || !tickUpper) return null;
-    return tryParsePrice(
-      pool.token0,
-      pool.token1,
-      tickUpper.toString()
-    ) as Price;
-  }, [pool, tickUpper]);
+    return tickToPrice(poolType, pool.token0, pool.token1, tickUpper) as Price;
+  }, [pool, tickUpper, poolType]);
 
   const error = useMemo(() => {
     if (!tokenIn) return "Select token in";
@@ -303,8 +335,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         toggleTokenIn,
         setAmountIn,
         toggleRevertPrice,
-        isFullRange,
-        setFullRange,
         setTick,
         error,
         zapInfo,

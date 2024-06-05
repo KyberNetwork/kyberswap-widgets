@@ -1,4 +1,5 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
+import { PoolType } from "../components";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -181,3 +182,12 @@ export function friendlyError(error: Error | string): string {
 
   return `An error occurred`;
 }
+
+export const getDexName = (poolType: PoolType) => {
+  switch (poolType) {
+    case PoolType.DEX_UNISWAPV3:
+      return "Uniswap V3";
+    case PoolType.DEX_PANCAKESWAPV3:
+      return "Pancakeswap V3";
+  }
+};

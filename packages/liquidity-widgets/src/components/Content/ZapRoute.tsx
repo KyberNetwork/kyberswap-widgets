@@ -3,13 +3,20 @@ import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatWei } from "../../utils";
 import { BigNumber } from "ethers";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../../constants";
+import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function ZapRoute() {
   const { zapInfo, tokenIn, amountIn } = useZapState();
   const { pool, poolType } = useWidgetInfo();
+  const { chainId } = useWeb3Provider();
 
-  const tokenOut =
-    tokenIn?.address === pool?.token0.address ? pool?.token1 : pool?.token0;
+  const address =
+    tokenIn?.address === NATIVE_TOKEN_ADDRESS
+      ? NetworkInfo[chainId].wrappedToken.address
+      : tokenIn?.address;
+  const tokenInIsToken0 = address?.toLowerCase() === pool?.token0.address.toLowerCase();
+  const tokenOut = tokenInIsToken0 ? pool?.token1 : pool?.token0;
 
   const swappedAmount = formatWei(
     zapInfo?.zapDetails.aggregatorSwappedAmountIn,
@@ -33,24 +40,51 @@ export default function ZapRoute() {
   const amountInWei = parseUnits(amountIn || "0", tokenIn?.decimals);
 
   // amount in = amount swap via pool + amount swap via aggregator + remain amount + added amount
+  const poolSwappedAmountIn = zapInfo
+    ? amountInWei
+        .sub(BigNumber.from(zapInfo.zapDetails.aggregatorSwappedAmountIn))
+        .sub(
+          BigNumber.from(
+            zapInfo.zapDetails[
+              tokenInIsToken0 ? "remainingAmount0" : "remainingAmount1"
+            ]
+          )
+        )
+        .sub(
+          BigNumber.from(
+            zapInfo.positionDetails[
+              tokenInIsToken0 ? "addedAmount0" : "addedAmount1"
+            ]
+          )
+        )
+    : undefined;
+
   const swappedAmountInViaPool = formatWei(
-    zapInfo
-      ? amountInWei
-          .sub(BigNumber.from(zapInfo.zapDetails.aggregatorSwappedAmountIn))
-          .sub(BigNumber.from(zapInfo.zapDetails.remainingAmount0))
-          .sub(BigNumber.from(zapInfo.positionDetails.addedAmount0))
-          .toString()
-      : undefined,
+    !poolSwappedAmountIn || poolSwappedAmountIn.lt(0)
+      ? undefined
+      : poolSwappedAmountIn.toString(),
     tokenIn?.decimals
   );
   // amount out via pool + amount out via aggregator = amount add liq + remain amount
+  const poolSwappedAmountOut = zapInfo
+    ? BigNumber.from(
+        zapInfo.positionDetails[
+          tokenInIsToken0 ? "addedAmount1" : "addedAmount0"
+        ]
+      )
+        .add(
+          BigNumber.from(
+            zapInfo.zapDetails[
+              tokenInIsToken0 ? "remainingAmount1" : "remainingAmount0"
+            ]
+          )
+        )
+        .sub(BigNumber.from(zapInfo.zapDetails.aggregatorSwappedAmountOut))
+    : undefined;
   const swappedAmountOutViaPool = formatWei(
-    zapInfo
-      ? BigNumber.from(zapInfo.positionDetails.addedAmount1)
-          .add(BigNumber.from(zapInfo.zapDetails.remainingAmount1))
-          .sub(BigNumber.from(zapInfo.zapDetails.aggregatorSwappedAmountOut))
-          .toString()
-      : undefined,
+    !poolSwappedAmountOut || poolSwappedAmountOut.lt(0)
+      ? undefined
+      : poolSwappedAmountOut.toString(),
     tokenOut?.decimals
   );
 

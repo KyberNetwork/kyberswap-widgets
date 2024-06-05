@@ -2,6 +2,7 @@ import WalletIcon from "../../assets/wallet.svg?react";
 import SwitchIcon from "../../assets/switch.svg?react";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatWei } from "../../utils";
+import { BigNumber } from "ethers";
 
 export default function LiquidityToAdd() {
   const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn } =
@@ -13,8 +14,29 @@ export default function LiquidityToAdd() {
       <div className="input-token">
         <div className="balance">
           <div className="balance-flex">
-            <button className="small">Max</button>
-            <button className="small">Half</button>
+            <button
+              className="small"
+              onClick={() => {
+                if (balanceIn && tokenIn)
+                  setAmountIn(formatWei(balanceIn, tokenIn.decimals));
+              }}
+            >
+              Max
+            </button>
+            <button
+              className="small"
+              onClick={() => {
+                if (balanceIn && tokenIn)
+                  setAmountIn(
+                    formatWei(
+                      BigNumber.from(balanceIn).div(2).toString(),
+                      tokenIn.decimals
+                    )
+                  );
+              }}
+            >
+              Half
+            </button>
           </div>
 
           <div className="balance-flex">

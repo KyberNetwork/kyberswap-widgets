@@ -13,6 +13,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
+import Modal from "../Modal";
 
 export default function Content({
   onDismiss,
@@ -30,6 +31,10 @@ export default function Content({
     priceUpper,
     ttl,
     loading: zapLoading,
+    setTick,
+    tickLower,
+    tickUpper,
+    slippage,
   } = useZapState();
 
   const { pool } = useWidgetInfo();
@@ -41,7 +46,9 @@ export default function Content({
     zapInfo?.routerAddress || ""
   );
 
+  const [clickedApprove, setClickedLoading] = useState(false);
   const disabled =
+    clickedApprove ||
     loading ||
     zapLoading ||
     !!error ||
@@ -50,7 +57,8 @@ export default function Content({
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
   const hanldeClick = () => {
     if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
-      approve();
+      setClickedLoading(true);
+      approve().finally(() => setClickedLoading(false));
     } else if (
       pool &&
       amountIn &&
@@ -70,6 +78,8 @@ export default function Content({
         priceLower,
         priceUpper,
         deadline: Math.floor(date.getTime() / 1000),
+        isFullRange: pool.maxTick === tickUpper && pool.minTick === tickLower,
+        slippage,
       });
       onTogglePreview?.(true);
     }
@@ -90,35 +100,29 @@ export default function Content({
     return "Preview";
   })();
 
-  if (snapshotState) {
-    return (
-      <>
-        <div className="ks-lw-title">
-          <span>
-            Zap in {snapshotState.pool.token0.symbol}/
-            {snapshotState.pool.token1.symbol}
-          </span>
-          <div
-            className="close-btn"
-            role="button"
-            onClick={() => setSnapshotState(null)}
-          >
-            <X />
-          </div>
-        </div>
-
-        <Preview
-          zapState={snapshotState}
-          onDismiss={() => {
-            setSnapshotState(null);
-          }}
-        />
-      </>
-    );
-  }
-
   return (
     <>
+      {snapshotState && (
+        <Modal isOpen>
+          <div className="ks-lw-modal-headline">
+            <div>Add Liquidity via Zap</div>
+            <div
+              role="button"
+              onClick={() => setSnapshotState(null)}
+              style={{ cursor: "pointer" }}
+            >
+              <X />
+            </div>
+          </div>
+
+          <Preview
+            zapState={snapshotState}
+            onDismiss={() => {
+              setSnapshotState(null);
+            }}
+          />
+        </Modal>
+      )}
       <Header onDismiss={onDismiss} />
       <div className="ks-lw-content">
         <div className="left">
@@ -126,7 +130,16 @@ export default function Content({
           <LiquidityChart />
           <div className="label-row">
             Price ranges
-            <button className="outline-btn">Full range</button>
+            <button
+              className="outline-btn"
+              onClick={() => {
+                if (!pool) return;
+                setTick(Type.PriceLower, pool.minTick);
+                setTick(Type.PriceUpper, pool.maxTick);
+              }}
+            >
+              Full range
+            </button>
           </div>
           <PriceInput type={Type.PriceLower} />
           <PriceInput type={Type.PriceUpper} />

@@ -8,14 +8,15 @@ import X from "../../assets/x.svg?react";
 import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
+import { getDexName } from "../../utils";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId } = useWeb3Provider();
   const { loading, pool, poolType } = useWidgetInfo();
   const { toggleSetting } = useZapState();
-  if (loading) return "loading...";
+  if (loading) return <span>loading...</span>;
 
-  if (!pool) return `can't get pool info`;
+  if (!pool) return <span>can't get pool info</span>;
   const { token0, token1, fee } = pool;
 
   const logo = (() => {
@@ -26,14 +27,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
         return pancakeLogo;
     }
   })();
-  const name = (() => {
-    switch (poolType) {
-      case PoolType.DEX_UNISWAPV3:
-        return "Uniswap V3";
-      case PoolType.DEX_PANCAKESWAPV3:
-        return "Pancakeswap V3";
-    }
-  })();
+  const name = getDexName(poolType);
 
   return (
     <>

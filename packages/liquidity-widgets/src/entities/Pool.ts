@@ -1,6 +1,10 @@
 import {
   Pool as PancakeV3Pool,
   nearestUsableTick as nearestUsableTickPancake,
+  tickToPrice as tickToPricePancake,
+  TickMath as TickMathPancake,
+  TICK_SPACINGS as TICK_SPACINGS_PANCAKE,
+  FeeAmount as FeeAmountPanckake,
 } from "@pancakeswap/v3-sdk";
 import { tryParseTick as tryParseTickUniV3 } from "../utils/univ3";
 import { tryParseTick as tryParseTickPancackeV3 } from "../utils/pancakev3";
@@ -10,6 +14,10 @@ import { Token as PancakeToken } from "@pancakeswap/sdk";
 import {
   Pool as UniswapV3Pool,
   nearestUsableTick as nearestUsableTickUni,
+  tickToPrice as tickToPriceUni,
+  TickMath as TickMathUni,
+  TICK_SPACINGS as TICK_SPACINGS_UNI,
+  FeeAmount as FeeAmountUni,
 } from "@uniswap/v3-sdk";
 import { PoolType } from "../components";
 
@@ -38,7 +46,10 @@ interface IPool {
   token1: Token;
   token0Price: Price;
   token1Price: Price;
+  poolType: PoolType;
   priceOf(token: Token): Price;
+  minTick: number;
+  maxTick: number;
 }
 
 // Define the adapter class
@@ -47,6 +58,12 @@ export class PoolAdapter implements IPool {
 
   constructor(pool: UniswapV3Pool | PancakeV3Pool) {
     this.pool = pool;
+  }
+
+  get poolType(): PoolType {
+    return this.pool instanceof UniswapV3Pool
+      ? PoolType.DEX_UNISWAPV3
+      : PoolType.DEX_PANCAKESWAPV3;
   }
 
   get tickSpacing(): number {
@@ -92,6 +109,38 @@ export class PoolAdapter implements IPool {
   priceOf(token: Token): Price {
     if (token.address === this.token0.address) return this.token0Price;
     return this.token1Price;
+  }
+
+  get minTick(): number {
+    switch (this.poolType) {
+      case PoolType.DEX_UNISWAPV3:
+        return nearestUsableTickUni(
+          TickMathUni.MIN_TICK,
+          TICK_SPACINGS_UNI[this.fee as FeeAmountUni]
+        );
+
+      case PoolType.DEX_PANCAKESWAPV3:
+        return nearestUsableTickPancake(
+          TickMathPancake.MIN_TICK,
+          TICK_SPACINGS_PANCAKE[this.fee as FeeAmountPanckake]
+        );
+    }
+  }
+
+  get maxTick(): number {
+    switch (this.poolType) {
+      case PoolType.DEX_UNISWAPV3:
+        return nearestUsableTickUni(
+          TickMathUni.MAX_TICK,
+          TICK_SPACINGS_UNI[this.fee as FeeAmountUni]
+        );
+
+      case PoolType.DEX_PANCAKESWAPV3:
+        return nearestUsableTickPancake(
+          TickMathPancake.MAX_TICK,
+          TICK_SPACINGS_PANCAKE[this.fee as FeeAmountPanckake]
+        );
+    }
   }
 }
 
@@ -184,6 +233,49 @@ export function nearestUsableTick(
     return nearestUsableTickUni(tick, tickSpacing);
   if (poolType === PoolType.DEX_PANCAKESWAPV3)
     return nearestUsableTickPancake(tick, tickSpacing);
+
+  throw new Error("pool type is not handled");
+}
+
+export function tickToPrice(
+  poolType: PoolType,
+  token0: Token,
+  token1: Token,
+  tick: number
+): Price {
+  if (poolType === PoolType.DEX_UNISWAPV3)
+    return tickToPriceUni(
+      new UniToken(
+        token0.chainId,
+        token0.address,
+        token0.decimals,
+        token0.symbol
+      ),
+      new UniToken(
+        token1.chainId,
+        token1.address,
+        token1.decimals,
+        token1.symbol
+      ),
+      tick
+    );
+  if (poolType === PoolType.DEX_PANCAKESWAPV3)
+    return tickToPricePancake(
+      new PancakeToken(
+        token0.chainId,
+        token0.address as `0x${string}`,
+        token0.decimals,
+        token0.symbol || ""
+      ),
+      new PancakeToken(
+        token1.chainId,
+        token1.address as `0x${string}`,
+        token1.decimals,
+        token1.symbol || ""
+      ),
+
+      tick
+    );
 
   throw new Error("pool type is not handled");
 }

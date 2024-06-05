@@ -1,24 +1,7 @@
+import { Token } from "../entities/Pool";
+
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
-
-// export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
-//   1: "",
-//   137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
-//   56: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
-//   43114: "0xF2FD8219609E28C61A998cc534681f95D2740f61",
-//   250: "0x878dFE971d44e9122048308301F540910Bbd934c",
-//   25: "0x63Abb9973506189dC3741f61d25d4ed508151E6d",
-//   42161: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
-//   199: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
-//   106: "0x1877Ec0770901cc6886FDA7E7525a78c2Ed4e975",
-//   1313161554: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
-//   42262: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
-//   10: "0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974",
-//   59144: "0xcA11bde05977b3631167028862bE2a173976CA11",
-//   1101: "0xcA11bde05977b3631167028862bE2a173976CA11",
-//   324: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
-//   8453: "0xcA11bde05977b3631167028862bE2a173976CA11",
-// };
 
 export const NetworkInfo: {
   [chainId: number]: {
@@ -27,37 +10,77 @@ export const NetworkInfo: {
     scanLink: string;
     multiCall: string;
     defaultRpc: string;
+    wrappedToken: Token & {
+      symbol: string;
+    };
+    nativeLogo: string;
   };
 } = {
   1: {
     name: "Ethereum",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/fd07cf5c-3ddf-4215-aa51-e6ee2c60afbc1697031732146.png",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://etherscan.io",
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
     defaultRpc: "https://ethereum.kyberengineering.io",
+    wrappedToken: {
+      chainId: 1,
+      name: "WETH",
+      address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      symbol: "WETH",
+      decimals: 18,
+    },
   },
 
   56: {
     name: "BSC",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/d15d102e-6c7c-42f7-9dc4-79f3b1f9cc9b.png",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/14c1b7c4-b66e-4169-b82e-ea6237f15b461699420601184.png",
     scanLink: "https://bscscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://bsc.kyberengineering.io",
+    wrappedToken: {
+      chainId: 1,
+      name: "WBNB",
+      address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+      symbol: "WBNB",
+      decimals: 18,
+    },
   },
   137: {
     name: "Polygon POS",
     logo: "https://polygonscan.com/assets/poly/images/svg/logos/token-light.svg?v=24.2.3.1",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/10d6d017-945d-470d-87eb-6a6f89ce8b7e.png",
     scanLink: "https://polygonscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://polygon.kyberengineering.io",
+    wrappedToken: {
+      chainId: 1,
+      name: "WMATIC",
+      address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+      symbol: "WMATIC",
+      decimals: 18,
+    },
   },
 
   42161: {
     name: "Arbitrum",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://arbiscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://arbitrum.kyberengineering.io",
+    wrappedToken: {
+      chainId: 1,
+      name: "WETH",
+      address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+      symbol: "WETH",
+      decimals: 18,
+    },
   },
 };
 

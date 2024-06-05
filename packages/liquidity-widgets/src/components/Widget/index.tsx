@@ -12,6 +12,18 @@ import Setting from "../Setting";
 
 export { PoolType };
 
+// createModalRoot.js
+const createModalRoot = () => {
+  let modalRoot = document.getElementById("ks-lw-modal-root");
+  if (!modalRoot) {
+    modalRoot = document.createElement("div");
+    modalRoot.id = "ks-lw-modal-root";
+    document.body.appendChild(modalRoot);
+  }
+};
+
+createModalRoot();
+
 export interface WidgetProps {
   theme?: Theme;
   provider: providers.Web3Provider | providers.JsonRpcProvider | undefined;

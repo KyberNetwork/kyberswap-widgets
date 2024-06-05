@@ -1,10 +1,16 @@
 .ks-lw-preview {
-  margin-top: 1rem;
+  .est-usd {
+    color: var(--ks-lw-subText);
+    font-weight: 400;
+    font-size: 14px;
+  }
 
   .title {
     display: flex;
+    align-items: center;
     height: 36px;
     gap: 1rem;
+    margin-top: 1rem;
     font-size: 16px;
 
     .logo {
@@ -28,7 +34,7 @@
         border-radius: 999px;
         font-size: 12px;
         line-height: 16px;
-        background: var(--ks-lw-dialog);
+        background: var(--ks-lw-layer2);
         padding: 0 8px;
       }
 
@@ -39,7 +45,7 @@
   }
 
   .card {
-    background: var(--ks-lw-dialog);
+    background: var(--ks-lw-layer2);
     border-radius: var(--ks-lw-borderRadius);
     padding: 12px 16px;
 
@@ -77,13 +83,13 @@
   }
 
   .summary-title {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--ks-lw-subText);
   }
 
   .summary-value {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 500;
   }
 }

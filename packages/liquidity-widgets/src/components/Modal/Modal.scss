@@ -1,0 +1,31 @@
+/* Modal.css */
+.ks-lw-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ks-lw-modal-content {
+  background: var(--ks-lw-layer1);
+  color: var(--ks-lw-text);
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--ks-lw-borderRadius);
+  padding: 24px;
+  font-family: var(--ks-lw-fontFamily);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.ks-lw-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+}

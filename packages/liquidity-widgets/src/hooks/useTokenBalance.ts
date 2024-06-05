@@ -12,19 +12,41 @@ export default function useTokenBalance(address: string) {
   const [balance, setBalance] = useState("0");
 
   useEffect(() => {
-    if (account && erc20Contract) {
-      setLoading(true);
-      erc20Contract
-        .balanceOf(account)
-        .then((res: BigNumber) => {
-          setBalance(res.toString());
-        })
-        .finally(() => setLoading(false));
-    }
+    const getBalance = () => {
+      if (account && erc20Contract) {
+        setLoading(true);
+        erc20Contract
+          .balanceOf(account)
+          .then((res: BigNumber) => {
+            setBalance(res.toString());
+          })
+          .finally(() => setLoading(false));
+      }
+    };
+    getBalance();
+    const i = setInterval(() => getBalance(), 10_000);
+    return () => clearInterval(i);
   }, [account, erc20Contract]);
 
   return {
     loading,
     balance,
   };
+}
+
+export function useNativeBalance() {
+  const { account, provider } = useWeb3Provider();
+  const [balance, setBalance] = useState("0");
+
+  useEffect(() => {
+    const getBalance = () => {
+      if (account) provider.getBalance(account).then((res) => setBalance(res.toString()));
+    };
+
+    getBalance();
+    const i = setInterval(() => getBalance(), 10_000);
+    return () => clearInterval(i);
+  }, [provider, account]);
+
+  return balance;
 }

@@ -4,15 +4,8 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
 
 export default function PriceInput({ type }: { type: Type }) {
-  const {
-    tickLower,
-    tickUpper,
-    revertPrice,
-    setTick,
-    isFullRange,
-    priceLower,
-    priceUpper,
-  } = useZapState();
+  const { tickLower, tickUpper, revertPrice, setTick, priceLower, priceUpper } =
+    useZapState();
   const { pool, poolType } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 
@@ -21,6 +14,9 @@ export default function PriceInput({ type }: { type: Type }) {
     const rightPrice = !revertPrice ? priceUpper : priceLower?.invert();
     return type === Type.PriceLower ? leftPrice : rightPrice;
   }, [type, priceLower, revertPrice, priceUpper]);
+
+  const isFullRange =
+    !!pool && tickLower === pool.minTick && tickUpper === pool.maxTick;
 
   useEffect(() => {
     if (isFullRange) {
@@ -139,12 +135,12 @@ export default function PriceInput({ type }: { type: Type }) {
       </div>
 
       <div className="action">
-        <div role="button" onClick={increaseTick}>
+        <button onClick={increaseTick} disabled={isFullRange}>
           +
-        </div>
-        <div role="button" onClick={decreaseTick}>
+        </button>
+        <button role="button" onClick={decreaseTick} disabled={isFullRange}>
           -
-        </div>
+        </button>
       </div>
     </div>
   );
