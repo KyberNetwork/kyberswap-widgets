@@ -1,17 +1,20 @@
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { useZapState } from "../../hooks/useZapInState";
+import { AddLiquidityAction, useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
 
 export default function EstLiqValue() {
   const { zapInfo } = useZapState();
   const { pool } = useWidgetInfo();
 
+  const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
+  ) as AddLiquidityAction | undefined;
   const addedAmount0 = formatWei(
-    zapInfo?.positionDetails.addedAmount0,
+    addLiquidityInfo?.addLiquidity.token0.amount,
     pool?.token0.decimals
   );
   const addedAmount1 = formatWei(
-    zapInfo?.positionDetails.addedAmount1,
+    addLiquidityInfo?.addLiquidity.token1.amount,
     pool?.token1.decimals
   );
 
@@ -35,7 +38,10 @@ export default function EstLiqValue() {
             {addedAmount0} {pool?.token0.symbol}
           </div>
           <div className="label" style={{ marginLeft: "auto" }}>
-            ~{formatCurrency(+(zapInfo?.positionDetails.addedAmount0Usd || 0))}
+            ~
+            {formatCurrency(
+              +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)
+            )}
           </div>
         </div>
       </div>
@@ -50,7 +56,10 @@ export default function EstLiqValue() {
             {addedAmount1} {pool?.token1.symbol}
           </div>
           <div className="label" style={{ marginLeft: "auto" }}>
-            ~{formatCurrency(+(zapInfo?.positionDetails.addedAmount1Usd || 0))}
+            ~
+            {formatCurrency(
+              +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)
+            )}
           </div>
         </div>
       </div>
@@ -59,8 +68,8 @@ export default function EstLiqValue() {
         <div className="label">Est. Remaining Value</div>
         <div>
           {formatCurrency(
-            +(zapInfo?.zapDetails.remainingAmount0Usd || 0) +
-              +(zapInfo?.zapDetails.remainingAmount1Usd || 0)
+            +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0) +
+              +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)
           )}
         </div>
       </div>

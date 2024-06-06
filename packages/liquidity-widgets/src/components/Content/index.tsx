@@ -39,7 +39,13 @@ export default function Content({
 
   const { pool } = useWidgetInfo();
 
-  const amountInWei = parseUnits(amountIn || "0", tokenIn?.decimals).toString();
+  let amountInWei = "0";
+  try {
+    amountInWei = parseUnits(amountIn || "0", tokenIn?.decimals).toString();
+  } catch {
+    //
+  }
+
   const { loading, approvalState, approve } = useApproval(
     amountInWei,
     tokenIn?.address || "",

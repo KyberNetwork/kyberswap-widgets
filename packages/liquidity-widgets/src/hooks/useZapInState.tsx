@@ -14,40 +14,99 @@ import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
 import { Price, tickToPrice, Token } from "../entities/Pool";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
 
-export const ZAP_URL = "https://zap-api.kyberswap.com";
+// export const ZAP_URL = "https://zap-api.kyberswap.com";
+export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
+
+export interface AddLiquidityAction {
+  type: "ACTION_TYPE_ADD_LIQUIDITY";
+  addLiquidity: {
+    token0: {
+      address: string;
+      amount: string;
+      amountUsd: string;
+    };
+    token1: {
+      address: string;
+      amount: string;
+      amountUsd: string;
+    };
+  };
+}
+
+export interface AggregatorSwapAction {
+  type: "ACTION_TYPE_AGGREGATOR_SWAP";
+  aggregatorSwap: {
+    swaps: Array<{
+      tokenIn: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+      tokenOut: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+    }>;
+  };
+}
+
+export interface PoolSwapAction {
+  type: "ACTION_TYPE_POOL_SWAP";
+  poolSwap: {
+    swaps: Array<{
+      tokenIn: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+      tokenOut: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+    }>;
+  };
+}
 
 export interface ZapRouteDetail {
   poolDetails: {
-    tick: number;
-    newTick: number;
-    sqrtP: string;
-    newSqrtP: string;
+    uniswapV3: {
+      tick: number;
+      newTick: number;
+      sqrtP: string;
+      newSqrtP: string;
+    };
   };
   positionDetails: {
     addedLiquidity: string;
-    addedAmount0: string;
-    addedAmount0Usd: string;
-    addedAmount1: string;
-    addedAmount1Usd: string;
     addedAmountUsd: string;
   };
   zapDetails: {
     initialAmountUsd: string;
-    aggregatorSwappedAmountIn: string;
-    aggregatorSwappedAmountOut: string;
-    aggregatorSwappedAmountInUsd: string;
-    aggregatorSwappedAmountOutUsd: string;
-    kyberZapFeeUsd: string;
-    partnerFeeUsd: string;
-    remainingAmount0: string;
-    remainingAmount0Usd: string;
-    remainingAmount1: string;
-    remainingAmount1Usd: string;
+    actions: Array<
+      | {
+          type: "ACTION_TYPE_PROTOCOL_FEE";
+          protocolFee: {
+            pcm: number;
+            tokens: Array<{
+              address: string;
+              amount: string;
+              amountUsd: string;
+            }>;
+          };
+        }
+      | AggregatorSwapAction
+      | PoolSwapAction
+      | AddLiquidityAction
+    >;
     finalAmountUsd: string;
     priceImpact: number;
   };
   route: string;
   routerAddress: string;
+  gas: string;
+  gasUsd: string;
 }
 
 const ZapContext = createContext<{

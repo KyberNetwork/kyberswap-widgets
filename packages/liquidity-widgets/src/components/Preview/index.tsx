@@ -7,6 +7,8 @@ import ErrorIcon from "../../assets/error.svg?react";
 import "./Preview.scss";
 
 import {
+  AddLiquidityAction,
+  AggregatorSwapAction,
   ZAP_URL,
   ZapRouteDetail,
   chainIdToChain,
@@ -93,12 +95,15 @@ export default function Preview({
     }
   }, [txHash, provider]);
 
+  const addedLiqInfo = zapInfo.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
+  ) as AddLiquidityAction;
   const addedAmount0 = formatWei(
-    zapInfo.positionDetails.addedAmount0,
+    addedLiqInfo?.addLiquidity.token0.amount,
     pool.token0.decimals
   );
   const addedAmount1 = formatWei(
-    zapInfo.positionDetails.addedAmount1,
+    addedLiqInfo?.addLiquidity.token1.amount,
     pool.token1.decimals
   );
   const [revert, setRevert] = useState(false);
@@ -120,11 +125,21 @@ export default function Preview({
     </span>
   );
 
+  const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
+  ) as AggregatorSwapAction | undefined;
+  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
+    (acc, item) => acc + +item.tokenIn.amountUsd,
+    0
+  );
+  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
+    (acc, item) => acc + +item.tokenOut.amountUsd,
+    0
+  );
   const swapPriceImpact =
-    ((+zapInfo.zapDetails.aggregatorSwappedAmountInUsd -
-      +zapInfo.zapDetails.aggregatorSwappedAmountOutUsd) *
-      100) /
-    +zapInfo.zapDetails.aggregatorSwappedAmountInUsd;
+    swapAmountIn && swapAmountOut
+      ? ((swapAmountIn - +swapAmountOut) * 100) / +swapAmountIn
+      : "--";
 
   const handleClick = () => {
     setAttempTx(true);
@@ -172,6 +187,7 @@ export default function Preview({
     let txStatusText = "";
     if (txHash) {
       if (txStatus === "success") txStatusText = "Transaction successful";
+      else if (txStatus === "failed") txStatusText = "Transaction failed";
       else txStatusText = "Processing transaction";
     } else {
       txStatusText = "Waiting For Confirmation";
@@ -363,7 +379,7 @@ export default function Preview({
               <img src={(pool.token0 as Token).logoURI} alt="" width="20px" />
               {addedAmount0} {pool.token0.symbol}{" "}
               <span className="est-usd">
-                ({formatCurrency(+zapInfo.positionDetails.addedAmount0Usd)})
+                ({formatCurrency(+addedLiqInfo.addLiquidity.token0.amountUsd)})
               </span>
             </div>
             <div
@@ -373,7 +389,7 @@ export default function Preview({
               <img src={(pool.token1 as Token).logoURI} alt="" width="20px" />
               {addedAmount1} {pool.token1.symbol}
               <span className="est-usd">
-                ({formatCurrency(+zapInfo.positionDetails.addedAmount1Usd)})
+                ({formatCurrency(+addedLiqInfo.addLiquidity.token1.amountUsd)})
               </span>
             </div>
           </div>
@@ -382,26 +398,17 @@ export default function Preview({
         <div className="row-between">
           <div className="summary-title">Est. Remaining Value</div>
           <span className="summary-value">
-            {formatCurrency(
-              +zapInfo.zapDetails.remainingAmount0Usd +
-                +zapInfo.zapDetails.remainingAmount1Usd
-            )}
+            {/* TODO: check with Phu */}
+            {formatCurrency(0)}
             <InfoHelper
               text={
                 <>
                   <div>
-                    {formatWei(
-                      zapInfo.zapDetails.remainingAmount0,
-                      pool.token0.decimals
-                    )}{" "}
-                    {pool.token0.symbol} +{" "}
+                    {formatWei("0", pool.token0.decimals)} {pool.token0.symbol}{" "}
+                    +{" "}
                   </div>
                   <div>
-                    {formatWei(
-                      zapInfo.zapDetails.remainingAmount1,
-                      pool.token0.decimals
-                    )}{" "}
-                    {pool.token1.symbol}
+                    {formatWei("0", pool.token0.decimals)} {pool.token1.symbol}
                   </div>
                 </>
               }
@@ -419,7 +426,7 @@ export default function Preview({
         <div className="row-between">
           <div className="summary-title">Swap price impact</div>
           <span className="summary-value">
-            {+zapInfo.zapDetails.aggregatorSwappedAmountInUsd === 0
+            {swapPriceImpact === "--"
               ? "--"
               : swapPriceImpact < 0.01
               ? "<0.01%"

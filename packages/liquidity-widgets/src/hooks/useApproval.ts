@@ -61,18 +61,26 @@ function useApproval(
   useEffect(() => {
     if (token === NATIVE_TOKEN_ADDRESS) {
       setApprovalState(APPROVAL_STATE.APPROVED);
+      return;
     }
-    if (contract && token !== NATIVE_TOKEN_ADDRESS && account && spender) {
+    if (contract && account && spender) {
       setLoading(true);
-      contract.allowance(account, spender).then((res: BigNumber) => {
-        const amountToApprove = BigNumber.from(amountToApproveString);
-        if (amountToApprove.lte(res)) {
-          setApprovalState(APPROVAL_STATE.APPROVED);
-        } else {
-          setApprovalState(APPROVAL_STATE.NOT_APPROVED);
-        }
-        setLoading(false);
-      }).catch(console.log);
+      contract
+        .allowance(account, spender)
+        .then((res: BigNumber) => {
+          const amountToApprove = BigNumber.from(amountToApproveString);
+          if (amountToApprove.lte(res)) {
+            setApprovalState(APPROVAL_STATE.APPROVED);
+          } else {
+            setApprovalState(APPROVAL_STATE.NOT_APPROVED);
+          }
+          setLoading(false);
+        })
+        .catch((e: Error) => {
+          console.log("get allowance failed", e);
+          setApprovalState(APPROVAL_STATE.UNKNOWN);
+          setLoading(false);
+        });
     }
   }, [contract, token, account, spender, amountToApproveString]);
 
