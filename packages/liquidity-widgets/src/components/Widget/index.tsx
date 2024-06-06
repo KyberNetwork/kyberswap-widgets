@@ -3,9 +3,9 @@ import "./Widget.scss";
 import { Web3Provider } from "../../hooks/useProvider";
 
 import { Theme } from "../../theme";
-import { PoolType, WidgetProvider } from "../../hooks/useWidgetInfo";
+import { WidgetProvider } from "../../hooks/useWidgetInfo";
 import { providers } from "ethers";
-import { NetworkInfo } from "../../constants";
+import { NetworkInfo, PoolType } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import Setting from "../Setting";
@@ -28,6 +28,7 @@ export interface WidgetProps {
   theme?: Theme;
   provider: providers.Web3Provider | providers.JsonRpcProvider | undefined;
   poolAddress: string;
+  positionId?: string;
   poolType: PoolType;
   chainId: number;
   onDismiss: () => void;
@@ -38,6 +39,7 @@ export default function Widget({
   theme,
   provider,
   poolAddress,
+  positionId,
   chainId,
   poolType,
   onDismiss,
@@ -58,7 +60,7 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <WidgetProvider poolAddress={poolAddress} poolType={poolType}>
+      <WidgetProvider poolAddress={poolAddress} poolType={poolType} positionId={positionId}>
         <ZapContextProvider>
           <div className="ks-lw">
             <WidgetContent

@@ -4,8 +4,15 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
 
 export default function PriceInput({ type }: { type: Type }) {
-  const { tickLower, tickUpper, revertPrice, setTick, priceLower, priceUpper } =
-    useZapState();
+  const {
+    tickLower,
+    tickUpper,
+    revertPrice,
+    setTick,
+    priceLower,
+    priceUpper,
+    positionId,
+  } = useZapState();
   const { pool, poolType } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 
@@ -120,6 +127,7 @@ export default function PriceInput({ type }: { type: Type }) {
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"
+          disabled={positionId !== undefined}
           type="text"
           pattern="^[0-9]*[.,]?[0-9]*$"
           placeholder="0.0"
@@ -135,10 +143,10 @@ export default function PriceInput({ type }: { type: Type }) {
       </div>
 
       <div className="action">
-        <button onClick={increaseTick} disabled={isFullRange}>
+        <button onClick={increaseTick} disabled={isFullRange || positionId !== undefined}>
           +
         </button>
-        <button role="button" onClick={decreaseTick} disabled={isFullRange}>
+        <button role="button" onClick={decreaseTick} disabled={isFullRange || positionId !== undefined}>
           -
         </button>
       </div>

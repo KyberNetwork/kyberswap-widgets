@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import Pancakev3PoolABI from "../../abis/pancakev3_pool.json";
+import Pancakev3PosManagerABI from "../../abis/pancakev3_pos_manager.json";
 import { useContract, useMulticalContract } from "../useContract";
 import { Interface } from "ethers/lib/utils";
 import { useWeb3Provider } from "../useProvider";
 import { FeeAmount, Pool } from "@pancakeswap/v3-sdk";
 import { BigintIsh, Token } from "@pancakeswap/swap-sdk-core";
+import { NFT_MANAGER_CONTRACT, PoolType } from "../../constants";
 
 export class PancakeToken extends Token {
   public readonly logoURI?: string;
@@ -46,16 +48,29 @@ interface TokenInfo {
 
 const Pancakev3PoolInterface = new Interface(Pancakev3PoolABI);
 
-export default function usePoolInfo(poolAddress: string): {
+export default function usePoolInfo(
+  poolAddress: string,
+  positionId: string | undefined
+): {
   pool: PancakeV3Pool | null;
   loading: boolean;
+  position: { tickLower: number; tickUpper: number } | null;
 } {
   const [loading, setLoading] = useState(true);
   const [pool, setPool] = useState<Pool | null>(null);
+  const [position, setPosition] = useState<{
+    tickLower: number;
+    tickUpper: number;
+  } | null>(null);
 
   const multicallContract = useMulticalContract();
   const { chainId } = useWeb3Provider();
   const poolContract = useContract(poolAddress, Pancakev3PoolABI, true);
+  const posManagerContract = useContract(
+    NFT_MANAGER_CONTRACT[PoolType.DEX_PANCAKESWAPV3],
+    Pancakev3PosManagerABI,
+    true
+  );
 
   useEffect(() => {
     const getPoolInfo = async () => {
@@ -161,8 +176,27 @@ export default function usePoolInfo(poolAddress: string): {
       }
       setLoading(false);
     };
+    const getPositionInfo = () => {
+      if (!positionId || !posManagerContract) return;
+      posManagerContract
+        .positions(positionId)
+        .then((res: { tickUpper: number; tickLower: number }) => {
+          setPosition({
+            tickLower: res.tickLower,
+            tickUpper: res.tickUpper,
+          });
+        });
+    };
+    getPositionInfo();
     getPoolInfo();
-  }, [chainId, multicallContract, poolAddress, pool]);
+  }, [
+    chainId,
+    multicallContract,
+    poolAddress,
+    pool,
+    positionId,
+    posManagerContract,
+  ]);
 
   useEffect(() => {
     let i: NodeJS.Timeout | undefined;
@@ -195,5 +229,5 @@ export default function usePoolInfo(poolAddress: string): {
     };
   }, [pool, poolContract]);
 
-  return { loading, pool };
+  return { loading, pool, position };
 }

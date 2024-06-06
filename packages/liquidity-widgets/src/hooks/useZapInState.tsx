@@ -13,6 +13,7 @@ import { parseUnits } from "ethers/lib/utils";
 import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
 import { Price, tickToPrice, Token } from "../entities/Pool";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
+import { BigNumber } from "ethers";
 
 // export const ZAP_URL = "https://zap-api.kyberswap.com";
 export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
@@ -133,6 +134,7 @@ const ZapContext = createContext<{
   showSetting: boolean;
   setEnableAggregator: (val: boolean) => void;
   enableAggregator: boolean;
+  positionId?: string;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -172,7 +174,7 @@ export enum Type {
 }
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
-  const { pool, poolType, poolAddress } = useWidgetInfo();
+  const { pool, poolType, poolAddress, position, positionId } = useWidgetInfo();
   const { chainId, account } = useWeb3Provider();
 
   // Setting
@@ -186,8 +188,19 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const [revertPrice, setRevertPrice] = useState(false);
-  const [tickLower, setTickLower] = useState<number | null>(null);
-  const [tickUpper, setTickUpper] = useState<number | null>(null);
+  const [tickLower, setTickLower] = useState<number | null>(
+    position?.tickLower ?? null
+  );
+  const [tickUpper, setTickUpper] = useState<number | null>(
+    position?.tickUpper ?? null
+  );
+
+  useEffect(() => {
+    if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
+      setTickLower(position.tickLower);
+      setTickUpper(position.tickUpper);
+    }
+  }, [position?.tickUpper, position?.tickLower]);
 
   const [tokenIn, setTokenIn] = useState<Token | null>(null);
   const [amountIn, setAmountIn] = useState("");
@@ -298,7 +311,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
     if (!amountIn) return "Enter an amount";
     try {
-      parseUnits(amountIn, tokenIn.decimals).toString();
+      const amountInWei = parseUnits(amountIn, tokenIn.decimals);
+      if (amountInWei.gt(BigNumber.from(balanceIn)))
+        return "Insufficient balance";
     } catch (e) {
       return "Invalid input amount";
     }
@@ -307,7 +322,15 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
     if (zapApiError) return zapApiError;
     return "";
-  }, [tokenIn, tickLower, tickUpper, amountIn, account, zapApiError]);
+  }, [
+    tokenIn,
+    tickLower,
+    tickUpper,
+    amountIn,
+    account,
+    zapApiError,
+    balanceIn,
+  ]);
 
   useEffect(() => {
     if (
@@ -340,6 +363,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         amountIn: amountInWei,
         slippage,
         "aggregatorOptions.disable": !enableAggregator,
+        ...(positionId ? { "position.id": positionId } : {}),
       };
 
       let tmp = "";
@@ -380,6 +404,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     tokenIn?.decimals,
     enableAggregator,
     slippage,
+    positionId,
   ]);
 
   return (
@@ -408,6 +433,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         showSetting,
         enableAggregator,
         setEnableAggregator,
+        positionId,
       }}
     >
       {children}

@@ -1,17 +1,15 @@
 import { createContext, ReactNode, useContext, useMemo } from "react";
 import { useUniV3PoolInfo, usePancakeV3PoolInfo } from "./usePoolInfo";
 import { PoolAdapter } from "../entities/Pool";
-
-export enum PoolType {
-  DEX_UNISWAPV3 = "DEX_UNISWAPV3",
-  DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
-}
+import { PoolType } from "../constants";
 
 type ContextState = {
   loading: boolean;
   poolAddress: string;
   pool: PoolAdapter | null;
   poolType: PoolType;
+  positionId?: string;
+  position: { tickUpper: number; tickLower: number } | null;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -19,26 +17,31 @@ const WidgetContext = createContext<ContextState>({
   pool: null,
   poolType: PoolType.DEX_UNISWAPV3,
   poolAddress: "",
+  position: null,
 });
 
 type Props = {
   poolAddress: string;
   children: ReactNode;
   poolType: PoolType;
+  positionId?: string;
+  position?: { tickLower: number; tickUpper: number };
 };
 
 const PancakeV3Provider = ({
   poolAddress,
   children,
+  positionId,
 }: Omit<Props, "poolType">) => {
-  const { loading, pool } = usePancakeV3PoolInfo(poolAddress);
+  const { loading, pool, position } = usePancakeV3PoolInfo(
+    poolAddress,
+    positionId
+  );
 
   const poolAdapter = useMemo(
     () => (pool ? new PoolAdapter(pool) : null),
     [pool]
   );
-
-  console.log(poolAdapter)
 
   return (
     <WidgetContext.Provider
@@ -46,6 +49,8 @@ const PancakeV3Provider = ({
         loading,
         poolAddress,
         pool: poolAdapter,
+        positionId,
+        position,
         poolType: PoolType.DEX_PANCAKESWAPV3,
       }}
     >
@@ -68,6 +73,8 @@ const UniV3Provider = ({ poolAddress, children }: Omit<Props, "poolType">) => {
         loading,
         poolAddress,
         pool: poolAdapter,
+        // TODO
+        position: null,
         poolType: PoolType.DEX_UNISWAPV3,
       }}
     >

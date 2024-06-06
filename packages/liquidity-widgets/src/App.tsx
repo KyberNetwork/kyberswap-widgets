@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { ethers, providers } from "ethers";
-import { PoolType } from "./hooks/useWidgetInfo";
+import { PoolType } from "./constants";
 
 const injected = injectedModule();
 
@@ -113,6 +113,7 @@ function App() {
         provider={ethersProvider}
         poolType={PoolType.DEX_PANCAKESWAPV3}
         poolAddress="0x0bacc7a9717e70ea0da5ac075889bd87d4c81197"
+        positionId="24654"
         onTogglePreview={(val: boolean) => {
           console.log("Show Preview:", val);
         }}

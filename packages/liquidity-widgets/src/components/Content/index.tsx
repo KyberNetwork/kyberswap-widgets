@@ -35,6 +35,7 @@ export default function Content({
     tickLower,
     tickUpper,
     slippage,
+    positionId,
   } = useZapState();
 
   const { pool } = useWidgetInfo();
@@ -136,16 +137,18 @@ export default function Content({
           <LiquidityChart />
           <div className="label-row">
             Price ranges
-            <button
-              className="outline-btn"
-              onClick={() => {
-                if (!pool) return;
-                setTick(Type.PriceLower, pool.minTick);
-                setTick(Type.PriceUpper, pool.maxTick);
-              }}
-            >
-              Full range
-            </button>
+            {positionId === undefined && (
+              <button
+                className="outline-btn"
+                onClick={() => {
+                  if (!pool) return;
+                  setTick(Type.PriceLower, pool.minTick);
+                  setTick(Type.PriceUpper, pool.maxTick);
+                }}
+              >
+                Full range
+              </button>
+            )}
           </div>
           <PriceInput type={Type.PriceLower} />
           <PriceInput type={Type.PriceUpper} />

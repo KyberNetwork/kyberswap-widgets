@@ -17,8 +17,9 @@ export default function LiquidityToAdd() {
             <button
               className="small"
               onClick={() => {
-                if (balanceIn && tokenIn)
+                if (balanceIn && tokenIn) {
                   setAmountIn(formatWei(balanceIn, tokenIn.decimals));
+                }
               }}
             >
               Max

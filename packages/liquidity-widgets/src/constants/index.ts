@@ -85,3 +85,13 @@ export const NetworkInfo: {
 };
 
 export const UNI_V3_BPS = 10_000;
+
+export enum PoolType {
+  DEX_UNISWAPV3 = "DEX_UNISWAPV3",
+  DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
+}
+
+export const NFT_MANAGER_CONTRACT: { [key in PoolType]: string } = {
+  [PoolType.DEX_UNISWAPV3]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+  [PoolType.DEX_PANCAKESWAPV3]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+};

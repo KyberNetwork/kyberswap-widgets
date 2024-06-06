@@ -15,7 +15,7 @@ export default function Tooltip({ text, width, size, ...rest }: TooltipProps) {
         text ? (
           <div
             style={{
-              width: width || "228px",
+              width: width || "max-content",
               padding: "10px 16px",
               lineHeight: 1.5,
               fontWeight: "400",

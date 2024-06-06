@@ -1,4 +1,4 @@
-import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
@@ -7,7 +7,7 @@ import {
 } from "../../hooks/useZapInState";
 import { formatWei } from "../../utils";
 import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../../constants";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo, PoolType } from "../../constants";
 import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function ZapRoute() {

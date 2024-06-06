@@ -66,11 +66,10 @@ export default function EstLiqValue() {
 
       <div className="detail-row">
         <div className="label">Est. Remaining Value</div>
+
         <div>
-          {formatCurrency(
-            +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0) +
-              +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)
-          )}
+          {/* TODO: remaining amount */}
+          TODO
         </div>
       </div>
 

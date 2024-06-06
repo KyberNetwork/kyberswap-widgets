@@ -125,6 +125,11 @@
           padding: 0;
           border: none;
           outline: none;
+
+          &:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+          }
         }
       }
 

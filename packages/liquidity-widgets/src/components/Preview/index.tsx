@@ -69,7 +69,7 @@ export default function Preview({
   onDismiss,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
-  const { poolType } = useWidgetInfo();
+  const { poolType, positionId } = useWidgetInfo();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -317,7 +317,12 @@ export default function Preview({
 
         <div>
           <div>
-            {pool.token0.symbol}/{pool.token1.symbol}
+            {pool.token0.symbol}/{pool.token1.symbol}{" "}
+            {positionId !== undefined && (
+              <span style={{ color: "var(--ks-lw-accent)" }}>
+                #{positionId}
+              </span>
+            )}
           </div>
           <div className="pool-info">
             <div className="tag tag-primary">{getDexName(poolType)}</div>
@@ -399,18 +404,17 @@ export default function Preview({
           <div className="summary-title">Est. Remaining Value</div>
           <span className="summary-value">
             {/* TODO: check with Phu */}
-            {formatCurrency(0)}
+            TODO
             <InfoHelper
               text={
-                <>
+                <div>
                   <div>
                     {formatWei("0", pool.token0.decimals)} {pool.token0.symbol}{" "}
-                    +{" "}
                   </div>
                   <div>
                     {formatWei("0", pool.token0.decimals)} {pool.token1.symbol}
                   </div>
-                </>
+                </div>
               }
             />
           </span>

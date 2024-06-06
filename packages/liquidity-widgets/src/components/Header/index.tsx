@@ -5,14 +5,14 @@ import pancakeLogo from "../../assets/pancake.png";
 import SettingIcon from "../../assets/setting.svg?react";
 import X from "../../assets/x.svg?react";
 
-import { PoolType, useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { NetworkInfo, UNI_V3_BPS } from "../../constants";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { NetworkInfo, PoolType, UNI_V3_BPS } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { getDexName } from "../../utils";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId } = useWeb3Provider();
-  const { loading, pool, poolType } = useWidgetInfo();
+  const { loading, pool, poolType, positionId } = useWidgetInfo();
   const { toggleSetting } = useZapState();
   if (loading) return <span>loading...</span>;
 
@@ -32,9 +32,14 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
     <>
       <div className="ks-lw-title">
-        <span>
-          Zap in {pool.token0.symbol}/{pool.token1.symbol}
-        </span>
+        <div style={{ display: "flex" }}>
+          Zap in {pool.token0.symbol}/{pool.token1.symbol}{" "}
+          {positionId !== undefined && (
+            <div style={{ marginLeft: "4px", color: "var(--ks-lw-accent)" }}>
+              #{positionId}
+            </div>
+          )}
+        </div>
         <div className="close-btn" role="button" onClick={onDismiss}>
           <X />
         </div>

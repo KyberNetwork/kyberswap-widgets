@@ -19,7 +19,7 @@ import {
   TICK_SPACINGS as TICK_SPACINGS_UNI,
   FeeAmount as FeeAmountUni,
 } from "@uniswap/v3-sdk";
-import { PoolType } from "../components";
+import { PoolType } from "../constants";
 
 export interface Token {
   chainId: number;

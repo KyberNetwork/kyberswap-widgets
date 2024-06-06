@@ -1,5 +1,5 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
-import { PoolType } from "../components";
+import { PoolType } from "../constants";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
