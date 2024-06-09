@@ -9,6 +9,7 @@ import "./Preview.scss";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  RefundAction,
   ZAP_URL,
   ZapRouteDetail,
   chainIdToChain,
@@ -106,6 +107,44 @@ export default function Preview({
     addedLiqInfo?.addLiquidity.token1.amount,
     pool.token1.decimals
   );
+
+  const refundInfo = zapInfo.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REFUND"
+  ) as RefundAction | null;
+  const refundToken0 =
+    refundInfo?.refund.tokens.filter(
+      (item) => item.address.toLowerCase() === pool.token0.address.toLowerCase()
+    ) || [];
+  const refundToken1 =
+    refundInfo?.refund.tokens.filter(
+      (item) => item.address.toLowerCase() === pool.token1.address.toLowerCase()
+    ) || [];
+
+  const refundAmount0 = formatWei(
+    refundToken0
+      .reduce(
+        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
+        BigNumber.from("0")
+      )
+      .toString(),
+    pool.token0.decimals
+  );
+
+  const refundAmount1 = formatWei(
+    refundToken1
+      .reduce(
+        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
+        BigNumber.from("0")
+      )
+      .toString(),
+    pool.token1.decimals
+  );
+
+  const refundUsd = refundInfo?.refund.tokens.reduce(
+    (acc, cur) => acc + +cur.amountUsd,
+    0
+  ) || 0;
+
   const [revert, setRevert] = useState(false);
   const price = pool
     ? (revert
@@ -403,16 +442,15 @@ export default function Preview({
         <div className="row-between">
           <div className="summary-title">Est. Remaining Value</div>
           <span className="summary-value">
-            {/* TODO: check with Phu */}
-            TODO
+            {formatCurrency(refundUsd)}
             <InfoHelper
               text={
                 <div>
                   <div>
-                    {formatWei("0", pool.token0.decimals)} {pool.token0.symbol}{" "}
+                    {refundAmount0} {pool.token0.symbol}{" "}
                   </div>
                   <div>
-                    {formatWei("0", pool.token0.decimals)} {pool.token1.symbol}
+                    {refundAmount1} {pool.token1.symbol}
                   </div>
                 </div>
               }

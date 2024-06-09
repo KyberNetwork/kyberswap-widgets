@@ -1,6 +1,12 @@
+import { BigNumber } from "ethers";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { AddLiquidityAction, useZapState } from "../../hooks/useZapInState";
+import {
+  AddLiquidityAction,
+  RefundAction,
+  useZapState,
+} from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
+import InfoHelper from "../InfoHelper";
 
 export default function EstLiqValue() {
   const { zapInfo } = useZapState();
@@ -17,6 +23,44 @@ export default function EstLiqValue() {
     addLiquidityInfo?.addLiquidity.token1.amount,
     pool?.token1.decimals
   );
+
+  const refundInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REFUND"
+  ) as RefundAction | null;
+  const refundToken0 =
+    refundInfo?.refund.tokens.filter(
+      (item) =>
+        item.address.toLowerCase() === pool?.token0.address.toLowerCase()
+    ) || [];
+  const refundToken1 =
+    refundInfo?.refund.tokens.filter(
+      (item) =>
+        item.address.toLowerCase() === pool?.token1.address.toLowerCase()
+    ) || [];
+
+  const refundAmount0 = formatWei(
+    refundToken0
+      .reduce(
+        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
+        BigNumber.from("0")
+      )
+      .toString(),
+    pool?.token0.decimals
+  );
+
+  const refundAmount1 = formatWei(
+    refundToken1
+      .reduce(
+        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
+        BigNumber.from("0")
+      )
+      .toString(),
+    pool?.token1.decimals
+  );
+
+  const refundUsd =
+    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
+    0;
 
   return (
     <div className="zap-route est-liq-val">
@@ -68,8 +112,19 @@ export default function EstLiqValue() {
         <div className="label">Est. Remaining Value</div>
 
         <div>
-          {/* TODO: remaining amount */}
-          TODO
+          {formatCurrency(refundUsd)}
+          <InfoHelper
+            text={
+              <div>
+                <div>
+                  {refundAmount0} {pool?.token0.symbol}{" "}
+                </div>
+                <div>
+                  {refundAmount1} {pool?.token1.symbol}
+                </div>
+              </div>
+            }
+          />
         </div>
       </div>
 

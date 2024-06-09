@@ -7,7 +7,7 @@ import {
   FeeAmount as FeeAmountPanckake,
 } from "@pancakeswap/v3-sdk";
 import { tryParseTick as tryParseTickUniV3 } from "../utils/univ3";
-import { tryParseTick as tryParseTickPancackeV3 } from "../utils/pancakev3";
+import { tryParseTick as tryParseTickPancakeV3 } from "../utils/pancakev3";
 import JSBI from "jsbi";
 import { Token as UniToken, Price as UniswapPrice } from "@uniswap/sdk-core";
 import { Token as PancakeToken } from "@pancakeswap/sdk";
@@ -203,7 +203,7 @@ export function tryParseTick(
         value
       );
     case PoolType.DEX_PANCAKESWAPV3:
-      return tryParseTickPancackeV3(
+      return tryParseTickPancakeV3(
         baseToken &&
           new PancakeToken(
             baseToken.chainId,

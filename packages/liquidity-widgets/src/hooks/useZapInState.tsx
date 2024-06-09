@@ -70,6 +70,28 @@ export interface PoolSwapAction {
   };
 }
 
+export interface RefundAction {
+  type: "ACTION_TYPE_REFUND";
+  refund: {
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
+export interface ProtocolFeeAction {
+  type: "ACTION_TYPE_PROTOCOL_FEE";
+  protocolFee: {
+    pcm: number;
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
+
 export interface ZapRouteDetail {
   poolDetails: {
     uniswapV3: {
@@ -86,20 +108,11 @@ export interface ZapRouteDetail {
   zapDetails: {
     initialAmountUsd: string;
     actions: Array<
-      | {
-          type: "ACTION_TYPE_PROTOCOL_FEE";
-          protocolFee: {
-            pcm: number;
-            tokens: Array<{
-              address: string;
-              amount: string;
-              amountUsd: string;
-            }>;
-          };
-        }
+      | ProtocolFeeAction
       | AggregatorSwapAction
       | PoolSwapAction
       | AddLiquidityAction
+      | RefundAction
     >;
     finalAmountUsd: string;
     priceImpact: number;

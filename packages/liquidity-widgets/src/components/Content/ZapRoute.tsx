@@ -79,8 +79,8 @@ export default function ZapRoute() {
       : pool?.token1;
   const poolSwapTokenOut =
     poolSwapTokenInAddress?.toLowerCase() === pool?.token0.address.toLowerCase()
-      ? pool?.token0
-      : pool?.token1;
+      ? pool?.token1
+      : pool?.token0;
 
   // amount in = amount swap via pool + amount swap via aggregator + remain amount + added amount
   const swappedAmountInViaPool = formatWei(
@@ -122,7 +122,7 @@ export default function ZapRoute() {
         <div className="text">
           Build LP using {addedAmount0} {pool?.token0.symbol} and {addedAmount1}{" "}
           {pool?.token1.symbol} on{" "}
-          {poolType === PoolType.DEX_UNISWAPV3 ? "Uniswap" : "PancackeSwap"}
+          {poolType === PoolType.DEX_UNISWAPV3 ? "Uniswap" : "PancakeSwap"}
         </div>
       </div>
     </div>
