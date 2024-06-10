@@ -14,6 +14,7 @@ import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
 import { Price, tickToPrice, Token } from "../entities/Pool";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
 import { BigNumber } from "ethers";
+import useDebounce from "./useDebounce";
 
 // export const ZAP_URL = "https://zap-api.kyberswap.com";
 export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
@@ -209,6 +210,10 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
+    console.log("Tick:", { tickLower, tickUpper });
+  }, [tickLower, tickUpper]);
+
+  useEffect(() => {
     if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
       setTickLower(position.tickLower);
       setTickUpper(position.tickUpper);
@@ -220,6 +225,10 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
   const [zapApiError, setZapApiError] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
+  const debounceTickLower = useDebounce(tickLower, 300);
+  const debounceTickUpper = useDebounce(tickUpper, 300);
+  const debounceAmountIn = useDebounce(amountIn, 300);
 
   const toggleRevertPrice = useCallback(() => {
     setRevertPrice((prev) => !prev);
@@ -320,7 +329,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     if (tickLower === null) return "Enter min price";
     if (tickUpper === null) return "Enter max price";
 
-    if (tickLower > tickUpper) return "Invalid price range";
+    if (tickLower >= tickUpper) return "Invalid price range";
 
     if (!amountIn) return "Enter an amount";
     try {
@@ -347,15 +356,15 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (
-      tickLower !== null &&
-      tickUpper !== null &&
-      amountIn &&
+      debounceTickLower !== null &&
+      debounceTickUpper !== null &&
+      debounceAmountIn &&
       pool &&
       tokenIn?.address
     ) {
       let amountInWei = "";
       try {
-        amountInWei = parseUnits(amountIn, tokenIn.decimals).toString();
+        amountInWei = parseUnits(debounceAmountIn, tokenIn.decimals).toString();
       } catch (error) {
         console.log(error);
       }
@@ -370,8 +379,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         "pool.token0": pool.token0.address,
         "pool.token1": pool.token1.address,
         "pool.fee": pool.fee,
-        "position.tickUpper": tickUpper,
-        "position.tickLower": tickLower,
+        "position.tickUpper": debounceTickUpper,
+        "position.tickLower": debounceTickLower,
         tokenIn: tokenIn.address,
         amountIn: amountInWei,
         slippage,
@@ -406,11 +415,11 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         });
     }
   }, [
-    amountIn,
+    debounceAmountIn,
     chainId,
     poolType,
-    tickLower,
-    tickUpper,
+    debounceTickLower,
+    debounceTickUpper,
     tokenIn?.address,
     poolAddress,
     pool,

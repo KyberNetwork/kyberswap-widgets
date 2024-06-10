@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useMemo } from "react";
 import { useUniV3PoolInfo, usePancakeV3PoolInfo } from "./usePoolInfo";
 import { PoolAdapter } from "../entities/Pool";
 import { PoolType } from "../constants";
+import { defaultTheme, Theme } from "../theme";
 
 type ContextState = {
   loading: boolean;
@@ -10,6 +11,7 @@ type ContextState = {
   poolType: PoolType;
   positionId?: string;
   position: { tickUpper: number; tickLower: number } | null;
+  theme: Theme;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -18,6 +20,7 @@ const WidgetContext = createContext<ContextState>({
   poolType: PoolType.DEX_UNISWAPV3,
   poolAddress: "",
   position: null,
+  theme: defaultTheme,
 });
 
 type Props = {
@@ -26,12 +29,14 @@ type Props = {
   poolType: PoolType;
   positionId?: string;
   position?: { tickLower: number; tickUpper: number };
+  theme: Theme;
 };
 
 const PancakeV3Provider = ({
   poolAddress,
   children,
   positionId,
+  theme,
 }: Omit<Props, "poolType">) => {
   const { loading, pool, position } = usePancakeV3PoolInfo(
     poolAddress,
@@ -52,6 +57,7 @@ const PancakeV3Provider = ({
         positionId,
         position,
         poolType: PoolType.DEX_PANCAKESWAPV3,
+        theme,
       }}
     >
       {children}
@@ -59,7 +65,11 @@ const PancakeV3Provider = ({
   );
 };
 
-const UniV3Provider = ({ poolAddress, children }: Omit<Props, "poolType">) => {
+const UniV3Provider = ({
+  poolAddress,
+  children,
+  theme,
+}: Omit<Props, "poolType">) => {
   const { loading, pool } = useUniV3PoolInfo(poolAddress);
 
   const poolAdapter = useMemo(
@@ -76,6 +86,7 @@ const UniV3Provider = ({ poolAddress, children }: Omit<Props, "poolType">) => {
         // TODO
         position: null,
         poolType: PoolType.DEX_UNISWAPV3,
+        theme,
       }}
     >
       {children}

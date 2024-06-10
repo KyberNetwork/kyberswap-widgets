@@ -137,8 +137,8 @@ export default function PriceInput({ type }: { type: Type }) {
         />
         <span>
           {revertPrice
-            ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
-            : `${pool?.token0.symbol} per ${pool?.token1.symbol}`}
+            ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+            : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
         </span>
       </div>
 

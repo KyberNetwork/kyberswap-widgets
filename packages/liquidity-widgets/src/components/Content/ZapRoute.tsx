@@ -24,7 +24,7 @@ export default function ZapRoute() {
   const tokenOut = tokenInIsToken0 ? pool?.token1 : pool?.token0;
 
   const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => (item.type === "ACTION_TYPE_AGGREGATOR_SWAP")
+    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
   ) as AggregatorSwapAction | null;
 
   const swappedAmount = formatWei(
@@ -71,6 +71,7 @@ export default function ZapRoute() {
     (acc, item) => acc.add(item.tokenOut.amount),
     BigNumber.from("0")
   );
+
   const poolSwapTokenInAddress =
     poolSwapInfo?.poolSwap.swaps[0]?.tokenIn.address;
   const poolSwapTokenIn =
@@ -112,8 +113,8 @@ export default function ZapRoute() {
       <div className="row">
         <div className="step">2</div>
         <div className="text">
-          Swap {swappedAmountInViaPool} {tokenIn?.symbol} for{" "}
-          {swappedAmountOutViaPool} {tokenOut?.symbol} via Pool
+          Swap {swappedAmountInViaPool} {poolSwapTokenIn?.symbol} for{" "}
+          {swappedAmountOutViaPool} {poolSwapTokenOut?.symbol} via Pool
         </div>
       </div>
 

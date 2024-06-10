@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import "./Widget.scss";
 import { Web3Provider } from "../../hooks/useProvider";
 
-import { Theme } from "../../theme";
+import { Theme, defaultTheme } from "../../theme";
 import { WidgetProvider } from "../../hooks/useWidgetInfo";
 import { providers } from "ethers";
 import { NetworkInfo, PoolType } from "../../constants";
@@ -60,7 +60,7 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <WidgetProvider poolAddress={poolAddress} poolType={poolType} positionId={positionId}>
+      <WidgetProvider poolAddress={poolAddress} poolType={poolType} positionId={positionId} theme={theme || defaultTheme}>
         <ZapContextProvider>
           <div className="ks-lw">
             <WidgetContent
