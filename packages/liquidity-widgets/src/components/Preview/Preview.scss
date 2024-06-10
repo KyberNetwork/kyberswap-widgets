@@ -1,4 +1,12 @@
 .ks-lw-preview {
+  .warning-msg {
+    border-radius: var(--ks-lw-borderRadius);
+    font-size: 12px;
+    padding: 12px 16px;
+    margin-top: 1rem;
+    font-weight: 400;
+  }
+
   .est-usd {
     color: var(--ks-lw-subText);
     font-weight: 400;
@@ -27,7 +35,7 @@
 
     .pool-info {
       display: flex;
-      margin-top: 4px;
+      align-items: center;
       gap: 4px;
 
       .tag {
@@ -36,6 +44,7 @@
         line-height: 16px;
         background: var(--ks-lw-layer2);
         padding: 0 8px;
+        height: max-content;
       }
 
       .tag-primary {
@@ -65,6 +74,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    font-size: 14px;
   }
 
   .row-between {

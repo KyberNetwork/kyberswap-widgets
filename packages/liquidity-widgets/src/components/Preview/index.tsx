@@ -9,6 +9,7 @@ import "./Preview.scss";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  ProtocolFeeAction,
   RefundAction,
   ZAP_URL,
   ZapRouteDetail,
@@ -17,11 +18,14 @@ import {
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import {
+  PI_LEVEL,
   formatCurrency,
   formatNumber,
   formatWei,
   friendlyError,
+  getDexLogo,
   getDexName,
+  getPriceImpact,
 } from "../../utils";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
@@ -70,7 +74,7 @@ export default function Preview({
   onDismiss,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
-  const { poolType, positionId } = useWidgetInfo();
+  const { poolType, positionId, theme } = useWidgetInfo();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -140,10 +144,9 @@ export default function Preview({
     pool.token1.decimals
   );
 
-  const refundUsd = refundInfo?.refund.tokens.reduce(
-    (acc, cur) => acc + +cur.amountUsd,
-    0
-  ) || 0;
+  const refundUsd =
+    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
+    0;
 
   const [revert, setRevert] = useState(false);
   const price = pool
@@ -177,9 +180,11 @@ export default function Preview({
   );
   const swapPriceImpact =
     swapAmountIn && swapAmountOut
-      ? ((swapAmountIn - +swapAmountOut) * 100) / +swapAmountIn
-      : "--";
+      ? ((swapAmountIn - swapAmountOut) * 100) / swapAmountIn
+      : null;
 
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact);
+  const swapPiRes = getPriceImpact(swapPriceImpact);
   const handleClick = () => {
     setAttempTx(true);
     setTxHash("");
@@ -221,6 +226,15 @@ export default function Preview({
       })
       .finally(() => setAttempTx(false));
   };
+
+  const feeInfo = zapInfo.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+
+  const zapFee = feeInfo?.protocolFee.tokens.reduce(
+    (acc, cur) => acc + +cur.amountUsd,
+    0
+  );
 
   if (attempTx || txHash) {
     let txStatusText = "";
@@ -364,8 +378,11 @@ export default function Preview({
             )}
           </div>
           <div className="pool-info">
-            <div className="tag tag-primary">{getDexName(poolType)}</div>
-            <div className="tag">Fee {pool.fee / UNI_V3_BPS}%</div>
+            <div className="tag tag-primary">Fee {pool.fee / UNI_V3_BPS}%</div>
+            <div style={{ display: "flex", alignItems: "center", gap: '4px' }}>
+              <img src={getDexLogo(poolType)} width={16} height={16} alt="" />
+              <div>{getDexName(poolType)}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -460,22 +477,106 @@ export default function Preview({
 
         <div className="row-between">
           <div className="summary-title">Max Slippage</div>
-          <span className="summary-value">
+          <span
+            className="summary-value"
+            style={{ color: slippage >= 500 ? theme.warning : theme.text }}
+          >
             {((slippage * 100) / 10_000).toFixed(2)}%
           </span>
         </div>
 
         <div className="row-between">
           <div className="summary-title">Swap price impact</div>
-          <span className="summary-value">
-            {swapPriceImpact === "--"
-              ? "--"
-              : swapPriceImpact < 0.01
-              ? "<0.01%"
-              : swapPriceImpact.toFixed(2) + "%"}
-          </span>
+          {aggregatorSwapInfo ? (
+            <div
+              style={{
+                color:
+                  swapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                  swapPiRes.level === PI_LEVEL.INVALID
+                    ? theme.error
+                    : swapPiRes.level === PI_LEVEL.HIGH
+                    ? theme.warning
+                    : theme.text,
+              }}
+            >
+              {swapPiRes.display}
+            </div>
+          ) : (
+            "--"
+          )}
         </div>
+
+        <div className="row-between">
+          <div className="summary-title">Price impact</div>
+          {zapInfo ? (
+            <div
+              style={{
+                color:
+                  piRes.level === PI_LEVEL.VERY_HIGH ||
+                  piRes.level === PI_LEVEL.INVALID
+                    ? theme.error
+                    : piRes.level === PI_LEVEL.HIGH
+                    ? theme.warning
+                    : theme.text,
+              }}
+            >
+              {piRes.display}
+            </div>
+          ) : (
+            "--"
+          )}
+        </div>
+
+        {zapFee && (
+          <div className="row-between">
+            <div className="summary-title">Zap Fee</div>
+            {formatCurrency(zapFee)}
+          </div>
+        )}
       </div>
+
+      {slippage >= 500 && (
+        <div
+          className="warning-msg"
+          style={{
+            backgroundColor: theme.warning + "33",
+            color: theme.warning,
+          }}
+        >
+          Slippage is high, your transaction might be front-run!
+        </div>
+      )}
+
+      {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
+        <div
+          className="warning-msg"
+          style={{
+            backgroundColor:
+              swapPiRes.level === PI_LEVEL.HIGH
+                ? `${theme.warning}33`
+                : `${theme.error}33`,
+            color:
+              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
+          }}
+        >
+          Swap {swapPiRes.msg}
+        </div>
+      )}
+
+      {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
+        <div
+          className="warning-msg"
+          style={{
+            backgroundColor:
+              piRes.level === PI_LEVEL.HIGH
+                ? `${theme.warning}33`
+                : `${theme.error}33`,
+            color: piRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
+          }}
+        >
+          {piRes.msg}
+        </div>
+      )}
 
       <button
         className="primary-btn"

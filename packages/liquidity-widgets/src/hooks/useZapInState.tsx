@@ -210,8 +210,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   );
 
   useEffect(() => {
-    console.log("Tick:", { tickLower, tickUpper });
-  }, [tickLower, tickUpper]);
+    console.log("Tick:", {
+      tickLower,
+      tickUpper,
+      tickCurrent: pool?.tickCurrent,
+    });
+  }, [tickLower, tickUpper, pool?.tickCurrent]);
 
   useEffect(() => {
     if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
@@ -331,7 +335,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
     if (tickLower >= tickUpper) return "Invalid price range";
 
-    if (!amountIn) return "Enter an amount";
+    if (!amountIn || +amountIn === 0) return "Enter an amount";
     try {
       const amountInWei = parseUnits(amountIn, tokenIn.decimals);
       if (amountInWei.gt(BigNumber.from(balanceIn)))

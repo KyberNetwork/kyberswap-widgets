@@ -9,18 +9,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
 
 .ks-lw-modal-content {
   background: var(--ks-lw-layer1);
   color: var(--ks-lw-text);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   border-radius: var(--ks-lw-borderRadius);
   padding: 24px;
   font-family: var(--ks-lw-fontFamily);
   position: relative;
   transition: all 0.2s;
+  max-height: 96vh;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .ks-lw-modal-close {

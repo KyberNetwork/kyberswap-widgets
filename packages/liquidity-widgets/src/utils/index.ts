@@ -1,5 +1,8 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
 import { PoolType } from "../constants";
+import uniswapLogo from "../assets/uniswap.png";
+import pancakeLogo from "../assets/pancake.png";
+
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -188,6 +191,55 @@ export const getDexName = (poolType: PoolType) => {
     case PoolType.DEX_UNISWAPV3:
       return "Uniswap V3";
     case PoolType.DEX_PANCAKESWAPV3:
-      return "Pancakeswap V3";
+      return "PancakeSwap V3";
   }
+};
+
+export const getDexLogo = (poolType: PoolType) => {
+  switch (poolType) {
+    case PoolType.DEX_UNISWAPV3:
+      return uniswapLogo;
+    case PoolType.DEX_PANCAKESWAPV3:
+      return pancakeLogo;
+  }
+};
+
+
+export enum PI_LEVEL {
+  HIGH = "HIGH",
+  VERY_HIGH = "VERY_HIGH",
+  NORMAL = "NORMAL",
+  INVALID = "INVALID",
+}
+export const getPriceImpact = (pi: number | null | undefined) => {
+  if (pi === null || pi === undefined || isNaN(pi))
+    return {
+      msg: "Unable to calculate Price Impact",
+      level: PI_LEVEL.INVALID,
+      display: "--",
+    };
+
+  const piDisplay = pi < 0.01 ? "<0.01%" : pi.toFixed(2) + "%";
+
+  if (pi > 10) {
+    return {
+      msg: "Price impact is very high. You will lose funds!",
+      level: PI_LEVEL.VERY_HIGH,
+      display: piDisplay,
+    };
+  }
+
+  if (pi > 2) {
+    return {
+      msg: "Price impact is high",
+      level: PI_LEVEL.HIGH,
+      display: piDisplay,
+    };
+  }
+
+  return {
+    msg: "",
+    level: PI_LEVEL.NORMAL,
+    display: piDisplay,
+  };
 };

@@ -111,6 +111,7 @@ function App() {
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
         provider={ethersProvider}
+        positionId="24654"
         poolType={PoolType.DEX_PANCAKESWAPV3}
         poolAddress="0x0bacc7a9717e70ea0da5ac075889bd87d4c81197"
         onTogglePreview={(val: boolean) => {

@@ -1,13 +1,15 @@
 import WalletIcon from "../../assets/wallet.svg?react";
 import SwitchIcon from "../../assets/switch.svg?react";
 import { useZapState } from "../../hooks/useZapInState";
-import { formatWei } from "../../utils";
+import { formatCurrency, formatWei } from "../../utils";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 
 export default function LiquidityToAdd() {
-  const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn } =
+  const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn, zapInfo } =
     useZapState();
+
+  const initUsd = zapInfo?.zapDetails.initialAmountUsd;
 
   return (
     <div className="liquidity-to-add">
@@ -77,6 +79,7 @@ export default function LiquidityToAdd() {
               spellCheck="false"
             />
           </div>
+          {!!initUsd && <div className="est-usd">~{formatCurrency(+initUsd)}</div>}
           <button onClick={toggleTokenIn}>
             {tokenIn && (
               <img src={tokenIn?.logoURI} alt="TokenLogo" width="20px" />
