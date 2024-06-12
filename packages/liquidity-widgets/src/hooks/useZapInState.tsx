@@ -148,6 +148,8 @@ const ZapContext = createContext<{
   showSetting: boolean;
   setEnableAggregator: (val: boolean) => void;
   enableAggregator: boolean;
+  degenMode: boolean;
+  setDegenMode: (val: boolean) => void;
   positionId?: string;
 }>({
   revertPrice: false,
@@ -165,7 +167,7 @@ const ZapContext = createContext<{
   loading: false,
   priceLower: null,
   priceUpper: null,
-  slippage: 100,
+  slippage: 10,
   setSlippage: () => {},
   ttl: 20, // 20min
   setTtl: () => {},
@@ -173,6 +175,8 @@ const ZapContext = createContext<{
   showSetting: false,
   enableAggregator: true,
   setEnableAggregator: () => {},
+  degenMode: false,
+  setDegenMode: () => {},
 });
 
 export const chainIdToChain: { [chainId: number]: string } = {
@@ -189,11 +193,11 @@ export enum Type {
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const { pool, poolType, poolAddress, position, positionId } = useWidgetInfo();
-  const { chainId, account } = useWeb3Provider();
+  const { chainId, account, networkChainId } = useWeb3Provider();
 
   // Setting
   const [showSetting, setShowSeting] = useState(false);
-  const [slippage, setSlippage] = useState(100);
+  const [slippage, setSlippage] = useState(10);
   const [ttl, setTtl] = useState(20);
   const [enableAggregator, setEnableAggregator] = useState(true);
 
@@ -229,6 +233,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
   const [zapApiError, setZapApiError] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [degenMode, setDegenMode] = useState(false);
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
@@ -329,6 +334,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   }, [pool, tickUpper, poolType]);
 
   const error = useMemo(() => {
+    if (!account) return "Please connect wallet";
+    if (chainId !== networkChainId) return "Wrong network";
+
     if (!tokenIn) return "Select token in";
     if (tickLower === null) return "Enter min price";
     if (tickUpper === null) return "Enter max price";
@@ -344,8 +352,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       return "Invalid input amount";
     }
 
-    if (!account) return "Please connect wallet";
-
     if (zapApiError) return zapApiError;
     return "";
   }, [
@@ -356,6 +362,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     account,
     zapApiError,
     balanceIn,
+    networkChainId,
+    chainId,
   ]);
 
   useEffect(() => {
@@ -460,6 +468,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         enableAggregator,
         setEnableAggregator,
         positionId,
+        degenMode,
+        setDegenMode,
       }}
     >
       {children}

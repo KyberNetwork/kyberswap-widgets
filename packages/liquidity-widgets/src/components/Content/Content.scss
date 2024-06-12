@@ -57,9 +57,17 @@
   display: flex;
   gap: 20px;
 
+  @media screen and (max-width: 666px) {
+    flex-direction: column;
+  }
+
   .left {
     flex: 1;
     width: 50%;
+
+    @media screen and (max-width: 666px) {
+      width: 100%;
+    }
 
     .price-info {
       border-radius: var(--ks-lw-borderRadius);
@@ -287,6 +295,10 @@
     flex: 1;
     width: 50%;
 
+    @media screen and (max-width: 666px) {
+      width: 100%;
+    }
+
     .zap-route {
       border: 1px solid var(--ks-lw-stroke);
       border-radius: var(--ks-lw-borderRadius);
@@ -360,7 +372,7 @@
         .token-amount {
           display: flex;
           justify-content: flex-end;
-          align-items: center;
+          align-items: flex-start;
           gap: 4px;
         }
       }

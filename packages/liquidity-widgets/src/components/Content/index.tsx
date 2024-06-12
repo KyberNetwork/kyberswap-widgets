@@ -4,7 +4,13 @@ import PriceInfo from "./PriceInfo";
 import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
-import { Type, useZapState } from "../../hooks/useZapInState";
+import {
+  AggregatorSwapAction,
+  PoolSwapAction,
+  ProtocolFeeAction,
+  Type,
+  useZapState,
+} from "../../hooks/useZapInState";
 import ZapRoute from "./ZapRoute";
 import EstLiqValue from "./EstLiqValue";
 import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
@@ -14,6 +20,8 @@ import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
+import { PI_LEVEL, getPriceImpact } from "../../utils";
+import InfoHelper from "../InfoHelper";
 
 export default function Content({
   onDismiss,
@@ -36,9 +44,10 @@ export default function Content({
     tickUpper,
     slippage,
     positionId,
+    degenMode,
   } = useZapState();
 
-  const { pool } = useWidgetInfo();
+  const { pool, theme } = useWidgetInfo();
 
   let amountInWei = "0";
   try {
@@ -54,13 +63,6 @@ export default function Content({
   );
 
   const [clickedApprove, setClickedLoading] = useState(false);
-  const disabled =
-    clickedApprove ||
-    loading ||
-    zapLoading ||
-    !!error ||
-    approvalState === APPROVAL_STATE.PENDING;
-
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
   const hanldeClick = () => {
     if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
@@ -107,12 +109,71 @@ export default function Content({
     return "Preview";
   })();
 
+  const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
+  ) as AggregatorSwapAction | undefined;
+  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
+    (acc, item) => acc + +item.tokenIn.amountUsd,
+    0
+  );
+  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
+    (acc, item) => acc + +item.tokenOut.amountUsd,
+    0
+  );
+
+  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
+  ) as PoolSwapAction | null;
+  const amountInPoolSwap =
+    poolSwapInfo?.poolSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenIn.amountUsd,
+      0
+    ) || 0;
+  const amountOutPoolSwap =
+    poolSwapInfo?.poolSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenOut.amount,
+      0
+    ) || 0;
+
+  const swapPriceImpact =
+    swapAmountIn && swapAmountOut
+      ? ((swapAmountIn +
+          amountInPoolSwap -
+          (swapAmountOut + amountOutPoolSwap)) *
+          100) /
+        swapAmountIn
+      : null;
+
+  const feeInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+
+  const piVeryHigh =
+    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
+    (!!aggregatorSwapInfo &&
+      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
+
+  const piHigh =
+    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
+    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
+
+  const disabled =
+    clickedApprove ||
+    loading ||
+    zapLoading ||
+    !!error ||
+    approvalState === APPROVAL_STATE.PENDING ||
+    (piVeryHigh && !degenMode);
+
   return (
     <>
       {snapshotState && (
-        <Modal isOpen>
+        <Modal isOpen onClick={() => setSnapshotState(null)}>
           <div className="ks-lw-modal-headline">
-            <div>Add Liquidity via Zap</div>
+            <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
               role="button"
               onClick={() => setSnapshotState(null)}
@@ -162,13 +223,43 @@ export default function Content({
       </div>
 
       <div className="ks-lw-action">
-        <button className="outline-btn">Cancel</button>
+        <button className="outline-btn" onClick={onDismiss}>
+          Cancel
+        </button>
         <button
           className="primary-btn"
           disabled={disabled}
           onClick={hanldeClick}
+          style={
+            !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
+              ? {
+                  background:
+                    piVeryHigh && degenMode
+                      ? theme.error
+                      : piHigh
+                      ? theme.warning
+                      : undefined,
+                  border:
+                    piVeryHigh && degenMode
+                      ? `1px solid ${theme.error}`
+                      : piHigh
+                      ? theme.warning
+                      : undefined,
+                }
+              : {}
+          }
         >
           {btnText}
+          {piVeryHigh && (
+            <InfoHelper
+              width="300px"
+              text={
+                degenMode
+                  ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                  : "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+              }
+            />
+          )}
         </button>
       </div>
     </>

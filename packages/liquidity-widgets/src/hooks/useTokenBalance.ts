@@ -21,7 +21,7 @@ export default function useTokenBalance(address: string) {
             setBalance(res.toString());
           })
           .finally(() => setLoading(false));
-      }
+      } else setBalance("0");
     };
     getBalance();
     const i = setInterval(() => getBalance(), 10_000);
@@ -40,7 +40,9 @@ export function useNativeBalance() {
 
   useEffect(() => {
     const getBalance = () => {
-      if (account) provider.getBalance(account).then((res) => setBalance(res.toString()));
+      if (account)
+        provider.getBalance(account).then((res) => setBalance(res.toString()));
+      else setBalance("0");
     };
 
     getBalance();

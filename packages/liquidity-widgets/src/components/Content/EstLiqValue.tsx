@@ -3,30 +3,34 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  PoolSwapAction,
+  ProtocolFeeAction,
   RefundAction,
   useZapState,
 } from "../../hooks/useZapInState";
 import {
   PI_LEVEL,
   formatCurrency,
+  formatNumber,
   formatWei,
   getPriceImpact,
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
+import { formatUnits } from "ethers/lib/utils";
 
 export default function EstLiqValue() {
   const { zapInfo } = useZapState();
-  const { pool, theme } = useWidgetInfo();
+  const { pool, theme, position } = useWidgetInfo();
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
   ) as AddLiquidityAction | undefined;
-  const addedAmount0 = formatWei(
-    addLiquidityInfo?.addLiquidity.token0.amount,
+  const addedAmount0 = formatUnits(
+    addLiquidityInfo?.addLiquidity.token0.amount || "0",
     pool?.token0.decimals
   );
-  const addedAmount1 = formatWei(
-    addLiquidityInfo?.addLiquidity.token1.amount,
+  const addedAmount1 = formatUnits(
+    addLiquidityInfo?.addLiquidity.token1.amount || "0",
     pool?.token1.decimals
   );
 
@@ -79,59 +83,135 @@ export default function EstLiqValue() {
     (acc, item) => acc + +item.tokenOut.amountUsd,
     0
   );
+
+  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
+  ) as PoolSwapAction | null;
+  const amountInPoolSwap =
+    poolSwapInfo?.poolSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenIn.amountUsd,
+      0
+    ) || 0;
+  const amountOutPoolSwap =
+    poolSwapInfo?.poolSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenOut.amount,
+      0
+    ) || 0;
   const swapPriceImpact =
     swapAmountIn && swapAmountOut
-      ? ((swapAmountIn - swapAmountOut) * 100) / swapAmountIn
+      ? ((swapAmountIn +
+          amountInPoolSwap -
+          (swapAmountOut + amountOutPoolSwap)) *
+          100) /
+        swapAmountIn
       : null;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact);
-  const swapPiRes = getPriceImpact(swapPriceImpact);
+  const feeInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+
+  const positionAmount0Usd =
+    (+(position?.amount0 || 0) *
+      +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
+      +addedAmount0 || 0;
+
+  const positionAmount1Usd =
+    (+(position?.amount1 || 0) *
+      +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
+      +addedAmount1 || 0;
+
+  const addedAmountUsd =
+    +(zapInfo?.positionDetails.addedAmountUsd || 0) +
+      positionAmount0Usd +
+      positionAmount1Usd || 0;
 
   return (
     <>
       <div className="zap-route est-liq-val">
         <div className="title">
           Est. Liquidity Value
-          <span>
-            {formatCurrency(+(zapInfo?.positionDetails.addedAmountUsd || 0))}
-          </span>
+          {!!addedAmountUsd && <span>{formatCurrency(addedAmountUsd)}</span>}
         </div>
         <div className="divider"></div>
 
         <div className="detail-row">
           <div className="label">Est. Pooled {pool?.token0.symbol}</div>
-          <div>
-            <div className="token-amount">
-              {pool?.token0?.logoURI && (
-                <img src={pool.token0.logoURI} width="16px" />
-              )}
-              {addedAmount0} {pool?.token0.symbol}
+          {zapInfo ? (
+            <div>
+              <div className="token-amount">
+                {pool?.token0?.logoURI && (
+                  <img
+                    src={pool.token0.logoURI}
+                    width="14px"
+                    style={{ marginTop: "2px" }}
+                  />
+                )}
+                <div>
+                  {position && (
+                    <div style={{ textAlign: "end" }}>
+                      {formatNumber(+position.amount0)} {pool?.token0.symbol}
+                    </div>
+                  )}
+
+                  <div style={{ textAlign: "end" }}>
+                    {position && "+"} {formatNumber(+addedAmount0)}{" "}
+                    {pool?.token0.symbol}
+                  </div>
+                </div>
+              </div>
+              <div className="label" style={{ marginLeft: "auto" }}>
+                ~
+                {formatCurrency(
+                  +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0) +
+                    positionAmount0Usd
+                )}
+              </div>
             </div>
-            <div className="label" style={{ marginLeft: "auto" }}>
-              ~
-              {formatCurrency(
-                +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)
-              )}
-            </div>
-          </div>
+          ) : (
+            "--"
+          )}
         </div>
 
         <div className="detail-row">
           <div className="label">Est. Pooled {pool?.token1.symbol}</div>
-          <div>
-            <div className="token-amount">
-              {pool?.token1?.logoURI && (
-                <img src={pool?.token1?.logoURI} width="16px" />
-              )}
-              {addedAmount1} {pool?.token1.symbol}
+          {zapInfo ? (
+            <div>
+              <div className="token-amount">
+                {pool?.token1?.logoURI && (
+                  <img
+                    src={pool?.token1?.logoURI}
+                    width="14px"
+                    style={{ marginTop: "2px" }}
+                  />
+                )}
+
+                <div>
+                  {position && (
+                    <div style={{ textAlign: "end" }}>
+                      {formatNumber(+position.amount1)} {pool?.token1.symbol}
+                    </div>
+                  )}
+
+                  <div style={{ textAlign: "end" }}>
+                    {position && "+"} {formatNumber(+addedAmount1)}{" "}
+                    {pool?.token1.symbol}
+                  </div>
+                </div>
+              </div>
+              <div className="label" style={{ marginLeft: "auto" }}>
+                ~
+                {formatCurrency(
+                  +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0) +
+                    positionAmount1Usd
+                )}
+              </div>
             </div>
-            <div className="label" style={{ marginLeft: "auto" }}>
-              ~
-              {formatCurrency(
-                +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)
-              )}
-            </div>
-          </div>
+          ) : (
+            "--"
+          )}
         </div>
 
         <div className="detail-row">
@@ -205,7 +285,8 @@ export default function EstLiqValue() {
               swapPiRes.level === PI_LEVEL.HIGH
                 ? `${theme.warning}33`
                 : `${theme.error}33`,
-            color: swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
+            color:
+              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
           }}
         >
           Swap {swapPiRes.msg}

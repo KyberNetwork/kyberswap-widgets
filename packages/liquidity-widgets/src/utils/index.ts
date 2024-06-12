@@ -2,7 +2,7 @@ import { formatUnits, getAddress } from "ethers/lib/utils";
 import { PoolType } from "../constants";
 import uniswapLogo from "../assets/uniswap.png";
 import pancakeLogo from "../assets/pancake.png";
-
+import { ProtocolFeeAction } from "../hooks/useZapInState";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -204,14 +204,17 @@ export const getDexLogo = (poolType: PoolType) => {
   }
 };
 
-
 export enum PI_LEVEL {
   HIGH = "HIGH",
   VERY_HIGH = "VERY_HIGH",
   NORMAL = "NORMAL",
   INVALID = "INVALID",
 }
-export const getPriceImpact = (pi: number | null | undefined) => {
+
+export const getPriceImpact = (
+  pi: number | null | undefined,
+  zapFeeInfo?: ProtocolFeeAction
+) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
       msg: "Unable to calculate Price Impact",
@@ -221,7 +224,9 @@ export const getPriceImpact = (pi: number | null | undefined) => {
 
   const piDisplay = pi < 0.01 ? "<0.01%" : pi.toFixed(2) + "%";
 
-  if (pi > 10) {
+  const warningThreshold = zapFeeInfo ? getWarningThreshold(zapFeeInfo) : 1;
+
+  if (pi > 10 * warningThreshold) {
     return {
       msg: "Price impact is very high. You will lose funds!",
       level: PI_LEVEL.VERY_HIGH,
@@ -229,7 +234,7 @@ export const getPriceImpact = (pi: number | null | undefined) => {
     };
   }
 
-  if (pi > 2) {
+  if (pi > warningThreshold) {
     return {
       msg: "Price impact is high",
       level: PI_LEVEL.HIGH,
@@ -242,4 +247,26 @@ export const getPriceImpact = (pi: number | null | undefined) => {
     level: PI_LEVEL.NORMAL,
     display: piDisplay,
   };
+};
+
+export enum PairType {
+  Stable = "stable",
+  Correlated = "correlated",
+  Common = "common",
+  Exotic = "exotic",
+}
+
+// basis point is 100k
+const feeConfig = {
+  [PairType.Stable]: 10,
+  [PairType.Correlated]: 25,
+  [PairType.Common]: 100,
+  [PairType.Exotic]: 250,
+};
+
+// basis point is 10k
+export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
+  if (zapFee.protocolFee.pcm <= feeConfig[PairType.Stable]) return 0.1;
+  if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
+  return 1;
 };

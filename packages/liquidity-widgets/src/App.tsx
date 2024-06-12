@@ -90,7 +90,6 @@ function App() {
       </button>
       <div>{wallet?.accounts?.[0].address}</div>
       <LiquidityWidget
-        chainId={42161}
         theme={{
           text: "#FFFFFF",
           subText: "#B6AECF",
@@ -111,9 +110,10 @@ function App() {
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
         provider={ethersProvider}
-        positionId="24654"
+        chainId={42161}
+        // positionId="24654"
         poolType={PoolType.DEX_PANCAKESWAPV3}
-        poolAddress="0x0bacc7a9717e70ea0da5ac075889bd87d4c81197"
+        poolAddress="0xde3ec6da3ec868c5a0a0f835651211feb1730aa2"
         onTogglePreview={(val: boolean) => {
           console.log("Show Preview:", val);
         }}
@@ -125,7 +125,13 @@ function App() {
   );
 }
 
-        // positionId="24654"
 export default App;
 
+// chainId={137}
 // poolAddress="0xB6e57ed85c4c9dbfEF2a68711e9d6f36c56e0FcB"
+// poolType={PoolType.DEX_UNISWAPV3}
+
+// chainId={42161}
+// positionId="24654"
+// poolType={PoolType.DEX_PANCAKESWAPV3}
+// poolAddress="0x0bacc7a9717e70ea0da5ac075889bd87d4c81197"

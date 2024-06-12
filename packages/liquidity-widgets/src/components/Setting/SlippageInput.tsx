@@ -95,7 +95,7 @@ const SlippageInput = () => {
             <AlertIcon
               style={{
                 position: "absolute",
-                top: 4,
+                top: 7,
                 left: 4,
                 width: 16,
                 height: 16,
@@ -112,7 +112,31 @@ const SlippageInput = () => {
               if (isValid) setSlippage(parseSlippageInput(v));
             }}
             value={v}
-            onChange={(e) => setV(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (value === "") {
+                setV(value);
+                setSlippage(10);
+                return;
+              }
+
+              const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
+              if (!value.match(numberRegex)) {
+                e.preventDefault();
+                return;
+              }
+
+              const res = validateSlippageInput(value);
+
+              if (res.isValid) {
+                const parsedValue = parseSlippageInput(value);
+                setSlippage(parsedValue);
+              } else {
+                setSlippage(10);
+              }
+              setV(value);
+            }}
             pattern="/^(\d+)\.?(\d{1,2})?$/"
           />
           <span>%</span>

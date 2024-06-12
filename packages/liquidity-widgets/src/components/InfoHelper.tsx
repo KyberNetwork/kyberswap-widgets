@@ -37,6 +37,7 @@ export default function InfoHelper({
   placement,
   style,
   color,
+  width,
 }: {
   text: string | ReactNode;
   size?: number;
@@ -44,6 +45,7 @@ export default function InfoHelper({
   placement?: Placement;
   style?: CSSProperties;
   color?: string;
+  width?: string;
 }) {
   const [show, setShow] = useState<boolean>(false);
 
@@ -52,7 +54,13 @@ export default function InfoHelper({
 
   return (
     <InfoHelperWrapper style={style}>
-      <Tooltip text={text} show={show} placement={placement} size={size}>
+      <Tooltip
+        text={text}
+        show={show}
+        placement={placement}
+        size={size}
+        width={width}
+      >
         <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close}>
           <Info style={{ color, width: size, height: size }} />
         </InfoWrapper>

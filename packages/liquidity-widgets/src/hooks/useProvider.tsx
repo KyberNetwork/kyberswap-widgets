@@ -15,6 +15,7 @@ const Web3Context = createContext<
       readProvider: providers.JsonRpcProvider;
       chainId: number;
       account: string | undefined;
+      networkChainId: number | undefined;
     }
   | undefined
 >(undefined);
@@ -34,13 +35,19 @@ export const Web3Provider = ({
   );
 
   const [account, setAccount] = useState<string | undefined>();
+  const [networkChainId, setNetWorkChainId] = useState<number | undefined>();
 
   useEffect(() => {
-    provider.listAccounts().then((res) => setAccount(res[0]));
+    provider.listAccounts().then((res) => {
+      setAccount(res[0]);
+    });
+    provider.getNetwork().then(({ chainId }) => setNetWorkChainId(chainId));
   }, [provider]);
 
   return (
-    <Web3Context.Provider value={{ provider, chainId, account, readProvider }}>
+    <Web3Context.Provider
+      value={{ provider, chainId, account, readProvider, networkChainId }}
+    >
       {children}
     </Web3Context.Provider>
   );

@@ -3,6 +3,7 @@ import { useUniV3PoolInfo, usePancakeV3PoolInfo } from "./usePoolInfo";
 import { PoolAdapter } from "../entities/Pool";
 import { PoolType } from "../constants";
 import { defaultTheme, Theme } from "../theme";
+import { PositionAdaper } from "../entities/Position";
 
 type ContextState = {
   loading: boolean;
@@ -10,7 +11,7 @@ type ContextState = {
   pool: PoolAdapter | null;
   poolType: PoolType;
   positionId?: string;
-  position: { tickUpper: number; tickLower: number } | null;
+  position: PositionAdaper | null;
   theme: Theme;
 };
 
@@ -69,8 +70,9 @@ const UniV3Provider = ({
   poolAddress,
   children,
   theme,
+  positionId,
 }: Omit<Props, "poolType">) => {
-  const { loading, pool } = useUniV3PoolInfo(poolAddress);
+  const { loading, pool, position } = useUniV3PoolInfo(poolAddress, positionId);
 
   const poolAdapter = useMemo(
     () => (pool ? new PoolAdapter(pool) : null),
@@ -83,8 +85,7 @@ const UniV3Provider = ({
         loading,
         poolAddress,
         pool: poolAdapter,
-        // TODO
-        position: null,
+        position,
         poolType: PoolType.DEX_UNISWAPV3,
         theme,
       }}

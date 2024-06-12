@@ -4,9 +4,15 @@ import Pancakev3PosManagerABI from "../../abis/pancakev3_pos_manager.json";
 import { useContract, useMulticalContract } from "../useContract";
 import { Interface } from "ethers/lib/utils";
 import { useWeb3Provider } from "../useProvider";
-import { FeeAmount, Pool } from "@pancakeswap/v3-sdk";
+import {
+  FeeAmount,
+  Pool,
+  Position as PancakePosition,
+} from "@pancakeswap/v3-sdk";
 import { BigintIsh, Token } from "@pancakeswap/swap-sdk-core";
 import { NFT_MANAGER_CONTRACT, PoolType } from "../../constants";
+import { BigNumber } from "ethers";
+import { PositionAdaper } from "../../entities/Position";
 
 export class PancakeToken extends Token {
   public readonly logoURI?: string;
@@ -54,14 +60,11 @@ export default function usePoolInfo(
 ): {
   pool: PancakeV3Pool | null;
   loading: boolean;
-  position: { tickLower: number; tickUpper: number } | null;
+  position: PositionAdaper | null;
 } {
   const [loading, setLoading] = useState(true);
   const [pool, setPool] = useState<Pool | null>(null);
-  const [position, setPosition] = useState<{
-    tickLower: number;
-    tickUpper: number;
-  } | null>(null);
+  const [position, setPosition] = useState<PositionAdaper | null>(null);
 
   const multicallContract = useMulticalContract();
   const { chainId } = useWeb3Provider();
@@ -158,7 +161,7 @@ export default function usePoolInfo(
             t.decimals,
             t.symbol,
             t.name,
-            t.logoURI
+            t.logoURI || `https://ui-avatars.com/api/?name=?`
           );
 
         const token0 = initToken(token0Info);
@@ -173,21 +176,30 @@ export default function usePoolInfo(
           slot0.tick
         );
         setPool(pool);
+
+        if (positionId && posManagerContract) {
+          posManagerContract
+            .positions(positionId)
+            .then(
+              (res: {
+                tickUpper: number;
+                tickLower: number;
+                liquidity: BigNumber;
+              }) => {
+                const pos = new PancakePosition({
+                  pool,
+                  tickLower: res.tickLower,
+                  tickUpper: res.tickUpper,
+                  liquidity: res.liquidity.toString(),
+                });
+                const posAdapter = new PositionAdaper(pos);
+                setPosition(posAdapter);
+              }
+            );
+        }
       }
       setLoading(false);
     };
-    const getPositionInfo = () => {
-      if (!positionId || !posManagerContract) return;
-      posManagerContract
-        .positions(positionId)
-        .then((res: { tickUpper: number; tickLower: number }) => {
-          setPosition({
-            tickLower: res.tickLower,
-            tickUpper: res.tickUpper,
-          });
-        });
-    };
-    getPositionInfo();
     getPoolInfo();
   }, [
     chainId,

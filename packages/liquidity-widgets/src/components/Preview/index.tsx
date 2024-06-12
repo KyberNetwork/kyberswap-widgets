@@ -26,6 +26,7 @@ import {
   getDexLogo,
   getDexName,
   getPriceImpact,
+  getWarningThreshold,
 } from "../../utils";
 import { useEffect, useState } from "react";
 import { BigNumber } from "ethers";
@@ -167,6 +168,15 @@ export default function Preview({
     </span>
   );
 
+  const feeInfo = zapInfo.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+
+  const zapFee = feeInfo?.protocolFee.tokens.reduce(
+    (acc, cur) => acc + +cur.amountUsd,
+    0
+  );
+
   const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
   ) as AggregatorSwapAction | undefined;
@@ -183,8 +193,18 @@ export default function Preview({
       ? ((swapAmountIn - swapAmountOut) * 100) / swapAmountIn
       : null;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact);
-  const swapPiRes = getPriceImpact(swapPriceImpact);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+
+  const piVeryHigh =
+    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
+    (!!aggregatorSwapInfo &&
+      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
+
+  const piHigh =
+    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
+    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
+
   const handleClick = () => {
     setAttempTx(true);
     setTxHash("");
@@ -227,14 +247,7 @@ export default function Preview({
       .finally(() => setAttempTx(false));
   };
 
-  const feeInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
-  ) as ProtocolFeeAction | undefined;
-
-  const zapFee = feeInfo?.protocolFee.tokens.reduce(
-    (acc, cur) => acc + +cur.amountUsd,
-    0
-  );
+  const warningThreshold = (feeInfo ? getWarningThreshold(feeInfo) : 1) / 100 * 10_000;
 
   if (attempTx || txHash) {
     let txStatusText = "";
@@ -379,7 +392,7 @@ export default function Preview({
           </div>
           <div className="pool-info">
             <div className="tag tag-primary">Fee {pool.fee / UNI_V3_BPS}%</div>
-            <div style={{ display: "flex", alignItems: "center", gap: '4px' }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <img src={getDexLogo(poolType)} width={16} height={16} alt="" />
               <div>{getDexName(poolType)}</div>
             </div>
@@ -479,7 +492,7 @@ export default function Preview({
           <div className="summary-title">Max Slippage</div>
           <span
             className="summary-value"
-            style={{ color: slippage >= 500 ? theme.warning : theme.text }}
+            style={{ color: slippage > warningThreshold ? theme.warning : theme.text }}
           >
             {((slippage * 100) / 10_000).toFixed(2)}%
           </span>
@@ -535,7 +548,7 @@ export default function Preview({
         )}
       </div>
 
-      {slippage >= 500 && (
+      {slippage > warningThreshold  && (
         <div
           className="warning-msg"
           style={{
@@ -580,10 +593,23 @@ export default function Preview({
 
       <button
         className="primary-btn"
-        style={{ marginTop: "1rem", width: "100%" }}
         onClick={handleClick}
+        style={{
+          marginTop: "1rem",
+          width: "100%",
+          background: piVeryHigh
+            ? theme.error
+            : piHigh
+            ? theme.warning
+            : undefined,
+          border: piVeryHigh
+            ? `1px solid ${theme.error}`
+            : piHigh
+            ? theme.warning
+            : undefined,
+        }}
       >
-        Add Liquidity
+        {positionId ? "Increase" : "Add"} Liquidity
       </button>
     </div>
   );

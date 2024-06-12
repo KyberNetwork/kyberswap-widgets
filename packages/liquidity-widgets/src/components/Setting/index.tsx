@@ -13,6 +13,8 @@ export default function Setting() {
     toggleSetting,
     enableAggregator,
     setEnableAggregator,
+    degenMode,
+    setDegenMode,
   } = useZapState();
   const ref = useRef(null);
   useOnClickOutside(ref, () => {
@@ -53,6 +55,16 @@ export default function Setting() {
           isActive={enableAggregator}
           toggle={() => {
             setEnableAggregator(!enableAggregator);
+          }}
+        />
+      </div>
+
+      <div className="row-btw">
+        <div className="setting-title">Degen Mode</div>
+        <Toggle
+          isActive={degenMode}
+          toggle={() => {
+            setDegenMode(!degenMode);
           }}
         />
       </div>

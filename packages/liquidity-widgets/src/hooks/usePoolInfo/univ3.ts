@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import Univ3PosManagerABI from "../../abis/uniswapv3_pos_manager.json";
 import Univ3PoolABI from "../../abis/univ3_pool.json";
 import { useContract, useMulticalContract } from "../useContract";
 import { Interface } from "ethers/lib/utils";
 import { useWeb3Provider } from "../useProvider";
-import { FeeAmount, Pool } from "@uniswap/v3-sdk";
+import { FeeAmount, Pool, Position as UniPosition } from "@uniswap/v3-sdk";
 import { BigintIsh, Token } from "@uniswap/sdk-core";
+import { NFT_MANAGER_CONTRACT, PoolType } from "../../constants";
+import { BigNumber } from "ethers";
+import { PositionAdaper } from "../../entities/Position";
 
 export class UniToken extends Token {
   public readonly logoURI?: string;
@@ -46,13 +50,23 @@ interface TokenInfo {
 
 const Univ3PoolInterface = new Interface(Univ3PoolABI);
 
-export default function usePoolInfo(poolAddress: string) {
+export default function usePoolInfo(
+  poolAddress: string,
+  positionId: string | undefined
+) {
   const [loading, setLoading] = useState(true);
   const [pool, setPool] = useState<Pool | null>(null);
 
   const multicallContract = useMulticalContract();
   const { chainId } = useWeb3Provider();
   const poolContract = useContract(poolAddress, Univ3PoolABI, true);
+  const [position, setPosition] = useState<PositionAdaper | null>(null);
+
+  const posManagerContract = useContract(
+    NFT_MANAGER_CONTRACT[PoolType.DEX_UNISWAPV3],
+    Univ3PosManagerABI,
+    true
+  );
 
   useEffect(() => {
     const getPoolInfo = async () => {
@@ -140,7 +154,7 @@ export default function usePoolInfo(poolAddress: string) {
             t.decimals,
             t.symbol,
             t.name,
-            t.logoURI
+            t.logoURI || `https://ui-avatars.com/api/?name=?`
           );
 
         const token0 = initToken(token0Info);
@@ -155,11 +169,39 @@ export default function usePoolInfo(poolAddress: string) {
           slot0.tick
         );
         setPool(pool);
+
+        if (positionId && posManagerContract) {
+          posManagerContract
+            .positions(positionId)
+            .then(
+              (res: {
+                tickUpper: number;
+                tickLower: number;
+                liquidity: BigNumber;
+              }) => {
+                const pos = new UniPosition({
+                  pool,
+                  tickLower: res.tickLower,
+                  tickUpper: res.tickUpper,
+                  liquidity: res.liquidity.toString(),
+                });
+                const posAdapter = new PositionAdaper(pos);
+                setPosition(posAdapter);
+              }
+            );
+        }
       }
       setLoading(false);
     };
     getPoolInfo();
-  }, [chainId, multicallContract, poolAddress, pool]);
+  }, [
+    chainId,
+    multicallContract,
+    poolAddress,
+    pool,
+    positionId,
+    posManagerContract,
+  ]);
 
   useEffect(() => {
     let i: NodeJS.Timeout | undefined;
@@ -192,5 +234,5 @@ export default function usePoolInfo(poolAddress: string) {
     };
   }, [pool, poolContract]);
 
-  return { loading, pool };
+  return { loading, pool, position };
 }

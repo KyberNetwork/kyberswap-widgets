@@ -66,12 +66,13 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             {token0.symbol}/{token1.symbol}
           </span>
 
-          <div className="tag">Fee {fee / UNI_V3_BPS}%</div>
-
-          <div className="dex-type">
-            <span>|</span>
-            <img src={logo} width={16} height={16} alt="" />
-            <span>{name}</span>
+          <div style={{ display: "flex", gap: "4px" }}>
+            <div className="tag">Fee {fee / UNI_V3_BPS}%</div>
+            <div className="dex-type">
+              <span>|</span>
+              <img src={logo} width={16} height={16} alt="" />
+              <span>{name}</span>
+            </div>
           </div>
         </div>
 

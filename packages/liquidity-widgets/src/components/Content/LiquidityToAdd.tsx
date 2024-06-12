@@ -4,16 +4,20 @@ import { useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export default function LiquidityToAdd() {
   const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn, zapInfo } =
     useZapState();
+  const { positionId } = useWidgetInfo();
 
   const initUsd = zapInfo?.zapDetails.initialAmountUsd;
 
   return (
     <div className="liquidity-to-add">
-      <div className="label">Liquidity to add</div>
+      <div className="label">
+        Liquidity to {positionId ? "increase" : "add"}
+      </div>
       <div className="input-token">
         <div className="balance">
           <div className="balance-flex">
@@ -79,10 +83,17 @@ export default function LiquidityToAdd() {
               spellCheck="false"
             />
           </div>
-          {!!initUsd && <div className="est-usd">~{formatCurrency(+initUsd)}</div>}
+          {!!initUsd && (
+            <div className="est-usd">~{formatCurrency(+initUsd)}</div>
+          )}
           <button onClick={toggleTokenIn}>
             {tokenIn && (
-              <img src={tokenIn?.logoURI} alt="TokenLogo" width="20px" />
+              <img
+                src={tokenIn?.logoURI}
+                alt="TokenLogo"
+                width="20px"
+                style={{ borderRadius: "50%" }}
+              />
             )}
             <span>{tokenIn?.symbol}</span>
             <SwitchIcon />

@@ -80,6 +80,8 @@ export default function PriceInput({ type }: { type: Type }) {
   };
 
   const correctPrice = () => {
+    console.log('xxx')
+    if (!pool) return;
     if (revertPrice) {
       const defaultTick =
         (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
@@ -91,7 +93,8 @@ export default function PriceInput({ type }: { type: Type }) {
           pool?.fee,
           localValue
         ) || defaultTick;
-      if (tick) setTick(type, tick);
+      if (tick)
+        setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
     } else {
       const defaultTick =
         (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
@@ -143,10 +146,17 @@ export default function PriceInput({ type }: { type: Type }) {
       </div>
 
       <div className="action">
-        <button onClick={increaseTick} disabled={isFullRange || positionId !== undefined}>
+        <button
+          onClick={increaseTick}
+          disabled={isFullRange || positionId !== undefined}
+        >
           +
         </button>
-        <button role="button" onClick={decreaseTick} disabled={isFullRange || positionId !== undefined}>
+        <button
+          role="button"
+          onClick={decreaseTick}
+          disabled={isFullRange || positionId !== undefined}
+        >
           -
         </button>
       </div>
