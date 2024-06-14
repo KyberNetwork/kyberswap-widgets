@@ -16,8 +16,8 @@ import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
 import { BigNumber } from "ethers";
 import useDebounce from "./useDebounce";
 
-// export const ZAP_URL = "https://zap-api.kyberswap.com";
-export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
+export const ZAP_URL = "https://zap-api.kyberswap.com";
+// export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
 
 export interface AddLiquidityAction {
   type: "ACTION_TYPE_ADD_LIQUIDITY";
@@ -145,12 +145,14 @@ const ZapContext = createContext<{
   ttl: number;
   setTtl: (val: number) => void;
   toggleSetting: () => void;
+  setShowSeting: (val: boolean) => void;
   showSetting: boolean;
   setEnableAggregator: (val: boolean) => void;
   enableAggregator: boolean;
   degenMode: boolean;
   setDegenMode: (val: boolean) => void;
   positionId?: string;
+  marketPrice: number | undefined | null;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -172,11 +174,13 @@ const ZapContext = createContext<{
   ttl: 20, // 20min
   setTtl: () => {},
   toggleSetting: () => {},
+  setShowSeting: () => {},
   showSetting: false,
   enableAggregator: true,
   setEnableAggregator: () => {},
   degenMode: false,
   setDegenMode: () => {},
+  marketPrice: undefined,
 });
 
 export const chainIdToChain: { [chainId: number]: string } = {
@@ -192,7 +196,15 @@ export enum Type {
 }
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
-  const { pool, poolType, poolAddress, position, positionId } = useWidgetInfo();
+  const {
+    pool,
+    poolType,
+    poolAddress,
+    position,
+    positionId,
+    feePcm,
+    feeAddress,
+  } = useWidgetInfo();
   const { chainId, account, networkChainId } = useWeb3Provider();
 
   // Setting
@@ -324,12 +336,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const priceLower = useMemo(() => {
-    if (!pool || !tickLower) return null;
+    if (!pool || tickLower == null) return null;
     return tickToPrice(poolType, pool.token0, pool.token1, tickLower) as Price;
   }, [pool, tickLower, poolType]);
 
   const priceUpper = useMemo(() => {
-    if (!pool || !tickUpper) return null;
+    if (!pool || tickUpper === null) return null;
     return tickToPrice(poolType, pool.token0, pool.token1, tickUpper) as Price;
   }, [pool, tickUpper, poolType]);
 
@@ -366,6 +378,33 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     chainId,
   ]);
 
+  const [marketPrice, setMarketPrice] = useState<number | null | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    if (!pool) return;
+    const priceUrl = "https://price.kyberswap.com";
+    fetch(
+      `${priceUrl}/${chainIdToChain[chainId]}/api/v1/prices?ids=${pool.token0.address},${pool.token1.address}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        const token0Price = res.data.prices.find(
+          (item: { address: string; price: number; marketPrice: number }) =>
+            item.address.toLowerCase() === pool.token0.address.toLowerCase()
+        );
+        const token1Price = res.data.prices.find(
+          (item: { address: string; price: number; marketPrice: number }) =>
+            item.address.toLowerCase() === pool.token1.address.toLowerCase()
+        );
+        const price0 = token0Price?.marketPrice || token0Price?.price || 0;
+        const price1 = token1Price?.marketPrice || token1Price?.price || 0;
+        if (price0 && price1) setMarketPrice(price0 / price1);
+        else setMarketPrice(null);
+      });
+  }, [chainId, pool]);
+
   useEffect(() => {
     if (
       debounceTickLower !== null &&
@@ -398,6 +437,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         slippage,
         "aggregatorOptions.disable": !enableAggregator,
         ...(positionId ? { "position.id": positionId } : {}),
+        ...(feeAddress ? { feeAddress, feePcm } : {}),
       };
 
       let tmp = "";
@@ -432,6 +472,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     poolType,
     debounceTickLower,
     debounceTickUpper,
+    feeAddress,
+    feePcm,
     tokenIn?.address,
     poolAddress,
     pool,
@@ -464,12 +506,14 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         ttl,
         setTtl,
         toggleSetting,
+        setShowSeting,
         showSetting,
         enableAggregator,
         setEnableAggregator,
         positionId,
         degenMode,
         setDegenMode,
+        marketPrice,
       }}
     >
       {children}

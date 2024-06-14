@@ -299,6 +299,26 @@
       width: 100%;
     }
 
+    .price-warning {
+      padding: 12px 16px;
+      color: var(--ks-lw-subText);
+      font-size: 14px;
+      border-radius: var(--ks-lw-borderRadius);
+      margin-top: 1rem;
+      font-weight: 400;
+
+      .row {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .text {
+        font-style: italic;
+        color: var(--ks-lw-text);
+      }
+    }
+
     .zap-route {
       border: 1px solid var(--ks-lw-stroke);
       border-radius: var(--ks-lw-borderRadius);
@@ -367,6 +387,10 @@
           color: var(--ks-lw-subText);
           margin-top: 2px;
           width: fit-content;
+        }
+
+        .underline {
+          border-bottom: 1px dotted var(--ks-lw-subText);
         }
 
         .token-amount {

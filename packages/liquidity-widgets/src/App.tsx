@@ -111,12 +111,12 @@ function App() {
         }}
         provider={ethersProvider}
         chainId={42161}
-        // positionId="24654"
+        positionId="24654"
         poolType={PoolType.DEX_PANCAKESWAPV3}
-        poolAddress="0xde3ec6da3ec868c5a0a0f835651211feb1730aa2"
-        onTogglePreview={(val: boolean) => {
-          console.log("Show Preview:", val);
-        }}
+        poolAddress="0x0bacc7a9717e70ea0da5ac075889bd87d4c81197"
+
+        feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
+        feePcm={50}
         onDismiss={() => {
           console.log("Dismiss");
         }}

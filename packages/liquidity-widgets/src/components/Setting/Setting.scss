@@ -17,6 +17,10 @@
     line-height: 20px;
   }
 
+  .underline {
+    border-bottom: 1px dotted var(--ks-lw-subText);
+  }
+
   .row-btw {
     display: flex;
     justify-content: space-between;

@@ -63,7 +63,7 @@ export default function usePoolInfo(
   const [position, setPosition] = useState<PositionAdaper | null>(null);
 
   const posManagerContract = useContract(
-    NFT_MANAGER_CONTRACT[PoolType.DEX_UNISWAPV3],
+    NFT_MANAGER_CONTRACT[PoolType.DEX_UNISWAPV3][chainId],
     Univ3PosManagerABI,
     true
   );

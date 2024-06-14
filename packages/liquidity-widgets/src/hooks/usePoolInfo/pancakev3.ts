@@ -70,7 +70,7 @@ export default function usePoolInfo(
   const { chainId } = useWeb3Provider();
   const poolContract = useContract(poolAddress, Pancakev3PoolABI, true);
   const posManagerContract = useContract(
-    NFT_MANAGER_CONTRACT[PoolType.DEX_PANCAKESWAPV3],
+    NFT_MANAGER_CONTRACT[PoolType.DEX_PANCAKESWAPV3][chainId],
     Pancakev3PosManagerABI,
     true
   );

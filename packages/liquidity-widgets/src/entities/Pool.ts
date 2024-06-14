@@ -142,6 +142,39 @@ export class PoolAdapter implements IPool {
         );
     }
   }
+
+  newPool({
+    sqrtRatioX96,
+    liquidity,
+    tick,
+  }: {
+    sqrtRatioX96: string;
+    liquidity: string;
+    tick: number;
+  }): PoolAdapter {
+    let pool;
+    if (this.pool instanceof UniswapV3Pool) {
+      pool = new UniswapV3Pool(
+        this.pool.token0,
+        this.pool.token1,
+        this.pool.fee,
+        sqrtRatioX96,
+        liquidity,
+        tick
+      );
+    } else {
+      pool = new PancakeV3Pool(
+        this.pool.token0,
+        this.pool.token1,
+        this.pool.fee,
+        sqrtRatioX96,
+        liquidity,
+        tick
+      );
+    }
+
+    return new PoolAdapter(pool);
+  }
 }
 
 export function tryParsePrice(

@@ -7,11 +7,13 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { getDexLogo, getDexName } from "../../utils";
+import { MouseoverTooltip } from "../Tooltip";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId } = useWeb3Provider();
-  const { loading, pool, poolType, positionId, position } = useWidgetInfo();
-  const { toggleSetting } = useZapState();
+  const { loading, pool, poolType, positionId, position, theme } =
+    useWidgetInfo();
+  const { toggleSetting, degenMode } = useZapState();
   if (loading) return <span>loading...</span>;
 
   if (!pool) return <span>can't get pool info</span>;
@@ -76,9 +78,23 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           </div>
         </div>
 
-        <div className="setting" role="button" onClick={toggleSetting}>
-          <SettingIcon />
-        </div>
+        <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
+          <div
+            className="setting"
+            role="button"
+            onClick={e => {
+              e.stopPropagation()
+              e.preventDefault()
+              toggleSetting()
+            }}
+            style={{
+              background: degenMode ? theme.warning + "33" : undefined,
+              color: degenMode ? theme.warning : undefined,
+            }}
+          >
+            <SettingIcon />
+          </div>
+        </MouseoverTooltip>
       </div>
     </>
   );

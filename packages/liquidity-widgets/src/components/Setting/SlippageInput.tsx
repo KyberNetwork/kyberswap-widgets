@@ -107,9 +107,11 @@ const SlippageInput = () => {
             data-active={![5, 10, 50, 100].includes(slippage)}
             placeholder="Custom"
             onFocus={() => setIsFocus(true)}
-            onBlur={() => {
+            onBlur={(e) => {
               setIsFocus(false);
-              if (isValid) setSlippage(parseSlippageInput(v));
+              if (!e.currentTarget.value) setSlippage(10);
+              else if (isValid)
+                setSlippage(parseSlippageInput(e.currentTarget.value));
             }}
             value={v}
             onChange={(e) => {

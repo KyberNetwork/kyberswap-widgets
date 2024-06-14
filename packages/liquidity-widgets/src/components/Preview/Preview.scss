@@ -98,6 +98,10 @@
     color: var(--ks-lw-subText);
   }
 
+  .underline {
+    border-bottom: 1px dotted var(--ks-lw-subText);
+  }
+
   .summary-value {
     font-size: 14px;
     font-weight: 500;

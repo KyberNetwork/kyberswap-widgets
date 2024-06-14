@@ -32,7 +32,9 @@ export interface WidgetProps {
   poolType: PoolType;
   chainId: number;
   onDismiss: () => void;
-  onTogglePreview?: (show: boolean) => void;
+  onTxSubmit?: (txHash: string) => void;
+  feeAddress?: string;
+  feePcm?: number;
 }
 
 export default function Widget({
@@ -43,7 +45,9 @@ export default function Widget({
   chainId,
   poolType,
   onDismiss,
-  onTogglePreview,
+  onTxSubmit,
+  feeAddress,
+  feePcm,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -60,13 +64,17 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <WidgetProvider poolAddress={poolAddress} poolType={poolType} positionId={positionId} theme={theme || defaultTheme}>
+      <WidgetProvider
+        poolAddress={poolAddress}
+        poolType={poolType}
+        positionId={positionId}
+        theme={theme || defaultTheme}
+        feeAddress={feeAddress}
+        feePcm={feePcm}
+      >
         <ZapContextProvider>
           <div className="ks-lw">
-            <WidgetContent
-              onDismiss={onDismiss}
-              onTogglePreview={onTogglePreview}
-            />
+            <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
             <Setting />
           </div>
         </ZapContextProvider>

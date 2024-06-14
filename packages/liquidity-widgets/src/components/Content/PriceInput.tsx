@@ -13,6 +13,7 @@ export default function PriceInput({ type }: { type: Type }) {
     priceUpper,
     positionId,
   } = useZapState();
+  console.log(positionId)
   const { pool, poolType } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
 
@@ -24,14 +25,6 @@ export default function PriceInput({ type }: { type: Type }) {
 
   const isFullRange =
     !!pool && tickLower === pool.minTick && tickUpper === pool.maxTick;
-
-  useEffect(() => {
-    if (isFullRange) {
-      setLocalValue(type === Type.PriceLower ? "0" : "∞");
-    } else {
-      if (price) setLocalValue(price.toSignificant(6));
-    }
-  }, [type, price, isFullRange]);
 
   const increase = (tick: number | null) => {
     if (!pool) return;
@@ -79,36 +72,40 @@ export default function PriceInput({ type }: { type: Type }) {
     }
   };
 
-  const correctPrice = () => {
-    console.log('xxx')
+  const correctPrice = (value: string) => {
     if (!pool) return;
     if (revertPrice) {
       const defaultTick =
         (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
       const tick =
-        tryParseTick(
-          poolType,
-          pool?.token1,
-          pool?.token0,
-          pool?.fee,
-          localValue
-        ) || defaultTick;
-      if (tick)
+        tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
+        defaultTick;
+      if (Number.isInteger(tick))
         setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
     } else {
       const defaultTick =
         (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
       const tick =
-        tryParseTick(
-          poolType,
-          pool?.token0,
-          pool?.token1,
-          pool?.fee,
-          localValue
-        ) || defaultTick;
-      if (tick) setTick(type, tick);
+        tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
+        defaultTick;
+      if (Number.isInteger(tick))
+        setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
     }
   };
+
+  useEffect(() => {
+    if (
+      type === Type.PriceLower &&
+      (!revertPrice ? pool?.minTick === tickLower : pool?.maxTick === tickUpper)
+    ) {
+      setLocalValue("0");
+    } else if (
+      type === Type.PriceUpper &&
+      (!revertPrice ? pool?.maxTick === tickUpper : pool?.minTick === tickLower)
+    ) {
+      setLocalValue("∞");
+    } else if (price) setLocalValue(price?.toSignificant(6));
+  }, [isFullRange, pool, type, tickLower, tickUpper, price, revertPrice]);
 
   return (
     <div className="price-input">
@@ -126,7 +123,7 @@ export default function PriceInput({ type }: { type: Type }) {
               setLocalValue(value);
             }
           }}
-          onBlur={correctPrice}
+          onBlur={(e) => correctPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"
@@ -145,21 +142,23 @@ export default function PriceInput({ type }: { type: Type }) {
         </span>
       </div>
 
-      <div className="action">
-        <button
-          onClick={increaseTick}
-          disabled={isFullRange || positionId !== undefined}
-        >
-          +
-        </button>
-        <button
-          role="button"
-          onClick={decreaseTick}
-          disabled={isFullRange || positionId !== undefined}
-        >
-          -
-        </button>
-      </div>
+      {positionId === undefined && (
+        <div className="action">
+          <button
+            onClick={increaseTick}
+            disabled={isFullRange || positionId !== undefined}
+          >
+            +
+          </button>
+          <button
+            role="button"
+            onClick={decreaseTick}
+            disabled={isFullRange || positionId !== undefined}
+          >
+            -
+          </button>
+        </div>
+      )}
     </div>
   );
 }

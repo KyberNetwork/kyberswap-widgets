@@ -20,15 +20,18 @@ import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
-import { PI_LEVEL, getPriceImpact } from "../../utils";
+import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
+import { BigNumber } from "ethers";
 
 export default function Content({
   onDismiss,
   onTogglePreview,
+  onTxSubmit,
 }: {
   onDismiss: () => void;
   onTogglePreview?: (val: boolean) => void;
+  onTxSubmit?: (tx: string) => void;
 }) {
   const {
     tokenIn,
@@ -45,6 +48,8 @@ export default function Content({
     slippage,
     positionId,
     degenMode,
+    revertPrice,
+    marketPrice,
   } = useZapState();
 
   const { pool, theme } = useWidgetInfo();
@@ -74,7 +79,9 @@ export default function Content({
       tokenIn &&
       zapInfo &&
       priceLower &&
-      priceUpper
+      priceUpper &&
+      tickLower !== null &&
+      tickUpper !== null
     ) {
       const date = new Date();
       date.setMinutes(date.getMinutes() + (ttl || 20));
@@ -89,6 +96,8 @@ export default function Content({
         deadline: Math.floor(date.getTime() / 1000),
         isFullRange: pool.maxTick === tickUpper && pool.minTick === tickLower,
         slippage,
+        tickUpper,
+        tickLower,
       });
       onTogglePreview?.(true);
     }
@@ -168,6 +177,34 @@ export default function Content({
     approvalState === APPROVAL_STATE.PENDING ||
     (piVeryHigh && !degenMode);
 
+  const newPool =
+    zapInfo && pool
+      ? pool.newPool({
+          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
+          tick: zapInfo.poolDetails.uniswapV3.newTick,
+          liquidity: BigNumber.from(pool.liquidity)
+            .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
+            .toString(),
+        })
+      : null;
+
+  const isDevated =
+    !!marketPrice &&
+    newPool &&
+    Math.abs(marketPrice / +newPool.priceOf(newPool.token0).toFixed() - 1) >
+      0.02;
+
+  const marketRate = marketPrice
+    ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+    : null;
+
+  const price = newPool
+    ? (revertPrice
+        ? newPool.priceOf(newPool.token1)
+        : newPool.priceOf(newPool.token0)
+      ).toSignificant(6)
+    : "--";
+
   return (
     <>
       {snapshotState && (
@@ -184,6 +221,7 @@ export default function Content({
           </div>
 
           <Preview
+            onTxSubmit={onTxSubmit}
             zapState={snapshotState}
             onDismiss={() => {
               setSnapshotState(null);
@@ -197,14 +235,22 @@ export default function Content({
           <PriceInfo />
           <LiquidityChart />
           <div className="label-row">
-            Price ranges
+            {positionId === undefined
+              ? "Price ranges"
+              : "Your position price ranges"}
             {positionId === undefined && (
               <button
                 className="outline-btn"
                 onClick={() => {
                   if (!pool) return;
-                  setTick(Type.PriceLower, pool.minTick);
-                  setTick(Type.PriceUpper, pool.maxTick);
+                  setTick(
+                    Type.PriceLower,
+                    revertPrice ? pool.maxTick : pool.minTick
+                  );
+                  setTick(
+                    Type.PriceUpper,
+                    revertPrice ? pool.minTick : pool.maxTick
+                  );
                 }}
               >
                 Full range
@@ -219,6 +265,43 @@ export default function Content({
         <div className="right">
           <ZapRoute />
           <EstLiqValue />
+
+          {isDevated && (
+            <div
+              className="price-warning"
+              style={{ backgroundColor: `${theme.warning}33` }}
+            >
+              <div className="text">
+                The pool's estimated price after zapping of{" "}
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: theme.warning,
+                    fontStyle: "normal",
+                    marginLeft: "2px",
+                  }}
+                >
+                  1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
+                  {price}{" "}
+                  {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
+                </span>{" "}
+                deviates from the market price{" "}
+                <span
+                  style={{
+                    fontWeight: "500",
+                    color: theme.warning,
+                    fontStyle: "normal",
+                  }}
+                >
+                  (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
+                  {marketRate}{" "}
+                  {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
+                </span>
+                . You might have high impermanent loss after you add liquidity
+                to this pool
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -11,6 +11,13 @@ export function useOnClickOutside<T extends HTMLElement>(
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       let nodes: RefObject<T | undefined>[];
       if (
+        [...document.getElementsByClassName("setting")].some((el: Element) =>
+          el.contains(e.target as Node)
+        )
+      ) {
+        return;
+      }
+      if (
         [...document.getElementsByTagName("reach-portal")].some((el: Element) =>
           el.contains(e.target as Node)
         )

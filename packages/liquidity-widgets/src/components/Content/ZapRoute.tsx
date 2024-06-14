@@ -5,14 +5,14 @@ import {
   PoolSwapAction,
   useZapState,
 } from "../../hooks/useZapInState";
-import { formatWei } from "../../utils";
+import { formatWei, getDexName } from "../../utils";
 import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS, NetworkInfo, PoolType } from "../../constants";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../../constants";
 import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function ZapRoute() {
   const { zapInfo, tokenIn } = useZapState();
-  const { pool, poolType } = useWidgetInfo();
+  const { pool, poolType, theme } = useWidgetInfo();
   const { chainId } = useWeb3Provider();
 
   const address =
@@ -103,27 +103,46 @@ export default function ZapRoute() {
       <div className="title">Zap Route</div>
       <div className="divider" />
 
-      <div className="row">
-        <div className="step">1</div>
-        <div className="text">
-          Swap {swappedAmount} {tokenIn?.symbol} for {swappedAmountOut}{" "}
-          {tokenOut?.symbol} via KyberSwap
+      {aggregatorSwapInfo && (
+        <div className="row">
+          <div className="step">1</div>
+          <div className="text">
+            Swap {swappedAmount} {tokenIn?.symbol} for {swappedAmountOut}{" "}
+            {tokenOut?.symbol} via{" "}
+            <span style={{ color: theme.text, fontWeight: 500 }}>
+              KyberSwap
+            </span>
+          </div>
         </div>
-      </div>
-      <div className="row">
-        <div className="step">2</div>
-        <div className="text">
-          Swap {swappedAmountInViaPool} {poolSwapTokenIn?.symbol} for{" "}
-          {swappedAmountOutViaPool} {poolSwapTokenOut?.symbol} via Pool
+      )}
+
+      {poolSwapInfo && (
+        <div className="row">
+          <div className="step">{aggregatorSwapInfo ? 2 : 1}</div>
+          <div className="text">
+            Swap {swappedAmountInViaPool} {poolSwapTokenIn?.symbol} for{" "}
+            {swappedAmountOutViaPool} {poolSwapTokenOut?.symbol} via{" "}
+            <span style={{ color: theme.text, fontWeight: 500 }}>
+              {getDexName(poolType)} Pool
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="row">
-        <div className="step">3</div>
+        <div className="step">
+          {aggregatorSwapInfo && poolSwapInfo
+            ? 3
+            : aggregatorSwapInfo || poolSwapInfo
+            ? 2
+            : 1}
+        </div>
         <div className="text">
           Build LP using {addedAmount0} {pool?.token0.symbol} and {addedAmount1}{" "}
           {pool?.token1.symbol} on{" "}
-          {poolType === PoolType.DEX_UNISWAPV3 ? "Uniswap" : "PancakeSwap"}
+          <span style={{ color: theme.text, fontWeight: 500 }}>
+            {getDexName(poolType)}
+          </span>
         </div>
       </div>
     </div>

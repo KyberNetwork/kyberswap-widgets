@@ -4,6 +4,7 @@ import { useZapState } from "../../hooks/useZapInState";
 import Toggle from "../Toggle";
 import "./Setting.scss";
 import SlippageInput from "./SlippageInput";
+import { MouseoverTooltip } from "../Tooltip";
 
 export default function Setting() {
   const {
@@ -25,11 +26,21 @@ export default function Setting() {
   return (
     <div className="ks-lw-setting" ref={ref}>
       <div className="title">Advanced Setting</div>
-      <div className="setting-title">Max Slippage</div>
+      <MouseoverTooltip
+        text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+        width="220px"
+      >
+        <div className="setting-title underline">Max Slippage</div>
+      </MouseoverTooltip>
       <SlippageInput />
 
       <div className="row-btw">
-        <div className="setting-title">Transaction Time Limit</div>
+        <MouseoverTooltip
+          text="Transaction will revert if it is pending for longer than the indicated time."
+          width="220px"
+        >
+          <div className="setting-title underline">Transaction Time Limit</div>
+        </MouseoverTooltip>
 
         <div className="ttl-input">
           <input
@@ -50,7 +61,12 @@ export default function Setting() {
       </div>
 
       <div className="row-btw">
-        <div className="setting-title">Use Aggregator for Zaps</div>
+        <MouseoverTooltip
+          text="Zap will include DEX aggregator to find the best price."
+          width="220px"
+        >
+          <div className="setting-title underline">Use Aggregator for Zaps</div>
+        </MouseoverTooltip>
         <Toggle
           isActive={enableAggregator}
           toggle={() => {
@@ -60,7 +76,12 @@ export default function Setting() {
       </div>
 
       <div className="row-btw">
-        <div className="setting-title">Degen Mode</div>
+        <MouseoverTooltip
+          text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+          width="220px"
+        >
+          <div className="setting-title underline">Degen Mode</div>
+        </MouseoverTooltip>
         <Toggle
           isActive={degenMode}
           toggle={() => {

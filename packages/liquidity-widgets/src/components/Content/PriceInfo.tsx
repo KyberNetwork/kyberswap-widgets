@@ -1,37 +1,11 @@
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import SwitchIcon from "../../assets/switch.svg?react";
-import { chainIdToChain, useZapState } from "../../hooks/useZapInState";
-import { useEffect, useState } from "react";
-import { useWeb3Provider } from "../../hooks/useProvider";
+import { useZapState } from "../../hooks/useZapInState";
 import { formatNumber } from "../../utils";
 
-const priceUrl = "https://price.kyberswap.com";
 export default function PriceInfo() {
-  const { chainId } = useWeb3Provider();
   const { loading, pool, theme } = useWidgetInfo();
-  const { revertPrice, toggleRevertPrice } = useZapState();
-  const [marketPrice, setMarketPrice] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!pool) return;
-    fetch(
-      `${priceUrl}/${chainIdToChain[chainId]}/api/v1/prices?ids=${pool.token0.address},${pool.token1.address}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        const token0Price = res.data.prices.find(
-          (item: { address: string; price: number; marketPrice: number }) =>
-            item.address.toLowerCase() === pool.token0.address.toLowerCase()
-        );
-        const token1Price = res.data.prices.find(
-          (item: { address: string; price: number; marketPrice: number }) =>
-            item.address.toLowerCase() === pool.token1.address.toLowerCase()
-        );
-        const price0 = token0Price.marketPrice || token0Price.price || 0;
-        const price1 = token1Price.marketPrice || token1Price.price || 0;
-        if (price0 && price1) setMarketPrice(price0 / price1);
-      });
-  }, [chainId, pool]);
+  const { marketPrice, revertPrice, toggleRevertPrice } = useZapState();
 
   if (loading) return <div className="price-info">Loading...</div>;
 
@@ -71,10 +45,21 @@ export default function PriceInfo() {
         </div>
       </div>
 
+      {marketPrice === null && (
+        <div
+          className="price-warning"
+          style={{ backgroundColor: `${theme.warning}33` }}
+        >
+          <span className="text">
+            Unable to get the market price. Please be cautious!
+          </span>
+        </div>
+      )}
+
       {isDevated && (
         <div
           className="price-warning"
-          style={{ backgroundColor: `${theme.warning}20` }}
+          style={{ backgroundColor: `${theme.warning}33` }}
         >
           {/*
           <div className="row">

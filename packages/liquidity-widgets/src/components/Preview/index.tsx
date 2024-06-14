@@ -9,6 +9,7 @@ import "./Preview.scss";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  PoolSwapAction,
   ProtocolFeeAction,
   RefundAction,
   ZAP_URL,
@@ -33,6 +34,7 @@ import { BigNumber } from "ethers";
 import { PoolAdapter, Token, Price } from "../../entities/Pool";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
+import { MouseoverTooltip } from "../Tooltip";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -44,11 +46,14 @@ export interface ZapState {
   deadline: number;
   isFullRange: boolean;
   slippage: number;
+  tickLower: number;
+  tickUpper: number;
 }
 
 export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
+  onTxSubmit?: (tx: string) => void;
 }
 
 function calculateGasMargin(value: BigNumber): BigNumber {
@@ -69,10 +74,12 @@ export default function Preview({
     priceLower,
     priceUpper,
     deadline,
-    isFullRange,
     slippage,
+    tickLower,
+    tickUpper,
   },
   onDismiss,
+  onTxSubmit,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
   const { poolType, positionId, theme } = useWidgetInfo();
@@ -172,10 +179,7 @@ export default function Preview({
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
 
-  const zapFee = feeInfo?.protocolFee.tokens.reduce(
-    (acc, cur) => acc + +cur.amountUsd,
-    0
-  );
+  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
   const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
@@ -188,10 +192,23 @@ export default function Preview({
     (acc, item) => acc + +item.tokenOut.amountUsd,
     0
   );
-  const swapPriceImpact =
-    swapAmountIn && swapAmountOut
-      ? ((swapAmountIn - swapAmountOut) * 100) / swapAmountIn
-      : null;
+
+  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
+  ) as PoolSwapAction | null;
+  const amountInPoolSwap =
+    poolSwapInfo?.poolSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenIn.amountUsd,
+      0
+    ) || 0;
+  const amountOutPoolSwap =
+    poolSwapInfo?.poolSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenOut.amount,
+      0
+    ) || 0;
+  const totalSwapIn = (swapAmountIn || 0) + amountInPoolSwap;
+  const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
+  const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
 
   const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
   const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
@@ -238,6 +255,7 @@ export default function Preview({
               gasLimit: calculateGasMargin(estimateGas),
             });
             setTxHash(txReceipt.hash);
+            onTxSubmit?.(txReceipt.hash);
           } catch (e) {
             setAttempTx(false);
             setTxError(e as Error);
@@ -247,7 +265,8 @@ export default function Preview({
       .finally(() => setAttempTx(false));
   };
 
-  const warningThreshold = (feeInfo ? getWarningThreshold(feeInfo) : 1) / 100 * 10_000;
+  const warningThreshold =
+    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
   if (attempTx || txHash) {
     let txStatusText = "";
@@ -365,12 +384,14 @@ export default function Preview({
             alt=""
             width="36px"
             height="36px"
+            style={{ borderRadius: "50%" }}
           />
           <img
             src={(pool.token1 as Token).logoURI}
             alt=""
             width="36px"
             height="36px"
+            style={{ borderRadius: "50%" }}
           />
 
           <img
@@ -403,7 +424,12 @@ export default function Preview({
       <div className="card" style={{ marginTop: "1rem" }}>
         <div className="card-title">Zap-in Amount</div>
         <div className="row" style={{ marginTop: "8px" }}>
-          <img src={tokenIn.logoURI} alt="" width="20px" />
+          <img
+            src={tokenIn.logoURI}
+            alt=""
+            width="20px"
+            style={{ borderRadius: "50%" }}
+          />
 
           <div>
             {formatNumber(+amountIn)} {tokenIn.symbol}{" "}
@@ -432,14 +458,44 @@ export default function Preview({
         </div>
 
         <div className="row-between" style={{ marginTop: "8px" }}>
-          <div className="card flex-col" style={{ flex: 1 }}>
+          <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
             <div className="card-title">Min Price</div>
-            <div>{isFullRange ? "0" : leftPrice?.toSignificant(6)}</div>
+            <div
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                width: "100%",
+                textAlign: "center",
+              }}
+            >
+              {(
+                revert ? tickUpper === pool.maxTick : tickLower === pool.minTick
+              )
+                ? "0"
+                : leftPrice?.toSignificant(6)}
+            </div>
             <div className="card-title">{quote}</div>
           </div>
-          <div className="card flex-col" style={{ flex: 1 }}>
+          <div className="card flex-col" style={{ flex: 1, width: "50%" }}>
             <div className="card-title">Max Price</div>
-            <div>{isFullRange ? "∞" : rightPrice?.toSignificant(6)}</div>
+            <div
+              style={{
+                textAlign: "center",
+                width: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {(
+                !revert
+                  ? tickUpper === pool.maxTick
+                  : tickLower === pool.minTick
+              )
+                ? "∞"
+                : rightPrice?.toSignificant(6)}
+            </div>
             <div className="card-title">{quote}</div>
           </div>
         </div>
@@ -450,7 +506,12 @@ export default function Preview({
           <div className="summary-title">Est. Pooled Amount</div>
           <div>
             <div className="row" style={{ justifyContent: "flex-end" }}>
-              <img src={(pool.token0 as Token).logoURI} alt="" width="20px" />
+              <img
+                src={(pool.token0 as Token).logoURI}
+                alt=""
+                width="20px"
+                style={{ borderRadius: "50%" }}
+              />
               {addedAmount0} {pool.token0.symbol}{" "}
               <span className="est-usd">
                 ({formatCurrency(+addedLiqInfo.addLiquidity.token0.amountUsd)})
@@ -460,7 +521,12 @@ export default function Preview({
               className="row"
               style={{ marginTop: "8px", justifyContent: "flex-end" }}
             >
-              <img src={(pool.token1 as Token).logoURI} alt="" width="20px" />
+              <img
+                src={(pool.token1 as Token).logoURI}
+                alt=""
+                width="20px"
+                style={{ borderRadius: "50%" }}
+              />
               {addedAmount1} {pool.token1.symbol}
               <span className="est-usd">
                 ({formatCurrency(+addedLiqInfo.addLiquidity.token1.amountUsd)})
@@ -470,7 +536,12 @@ export default function Preview({
         </div>
 
         <div className="row-between">
-          <div className="summary-title">Est. Remaining Value</div>
+          <MouseoverTooltip
+            text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+            width="220px"
+          >
+            <div className="summary-title underline">Est. Remaining Value</div>
+          </MouseoverTooltip>
           <span className="summary-value">
             {formatCurrency(refundUsd)}
             <InfoHelper
@@ -489,18 +560,30 @@ export default function Preview({
         </div>
 
         <div className="row-between">
-          <div className="summary-title">Max Slippage</div>
+          <MouseoverTooltip
+            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+            width="220px"
+          >
+            <div className="summary-title underline">Max Slippage</div>
+          </MouseoverTooltip>
           <span
             className="summary-value"
-            style={{ color: slippage > warningThreshold ? theme.warning : theme.text }}
+            style={{
+              color: slippage > warningThreshold ? theme.warning : theme.text,
+            }}
           >
             {((slippage * 100) / 10_000).toFixed(2)}%
           </span>
         </div>
 
         <div className="row-between">
-          <div className="summary-title">Swap price impact</div>
-          {aggregatorSwapInfo ? (
+          <MouseoverTooltip
+            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
+            width="220px"
+          >
+            <div className="summary-title underline">Swap price impact</div>
+          </MouseoverTooltip>
+          {aggregatorSwapInfo || poolSwapInfo ? (
             <div
               style={{
                 color:
@@ -520,7 +603,12 @@ export default function Preview({
         </div>
 
         <div className="row-between">
-          <div className="summary-title">Price impact</div>
+          <MouseoverTooltip
+            text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+            width="220px"
+          >
+            <div className="summary-title underline">Zap impact</div>
+          </MouseoverTooltip>
           {zapInfo ? (
             <div
               style={{
@@ -540,15 +628,18 @@ export default function Preview({
           )}
         </div>
 
-        {zapFee && (
-          <div className="row-between">
-            <div className="summary-title">Zap Fee</div>
-            {formatCurrency(zapFee)}
-          </div>
-        )}
+        <div className="row-between">
+          <MouseoverTooltip
+            text="Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees."
+            width="220px"
+          >
+            <div className="summary-title underline">Zap Fee</div>
+          </MouseoverTooltip>
+          {parseFloat(zapFee.toFixed(3))}%
+        </div>
       </div>
 
-      {slippage > warningThreshold  && (
+      {slippage > warningThreshold && (
         <div
           className="warning-msg"
           style={{

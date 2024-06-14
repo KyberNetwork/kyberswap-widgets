@@ -17,6 +17,7 @@ import {
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { formatUnits } from "ethers/lib/utils";
+import { MouseoverTooltip } from "../Tooltip";
 
 export default function EstLiqValue() {
   const { zapInfo } = useZapState();
@@ -97,18 +98,14 @@ export default function EstLiqValue() {
       (acc, item) => acc + +item.tokenOut.amount,
       0
     ) || 0;
-  const swapPriceImpact =
-    swapAmountIn && swapAmountOut
-      ? ((swapAmountIn +
-          amountInPoolSwap -
-          (swapAmountOut + amountOutPoolSwap)) *
-          100) /
-        swapAmountIn
-      : null;
+  const totalSwapIn = (swapAmountIn || 0) + amountInPoolSwap;
+  const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
+  const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
 
   const feeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
+  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
   const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
   const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
@@ -146,7 +143,7 @@ export default function EstLiqValue() {
                   <img
                     src={pool.token0.logoURI}
                     width="14px"
-                    style={{ marginTop: "2px" }}
+                    style={{ marginTop: "2px", borderRadius: "50%" }}
                   />
                 )}
                 <div>
@@ -184,7 +181,7 @@ export default function EstLiqValue() {
                   <img
                     src={pool?.token1?.logoURI}
                     width="14px"
-                    style={{ marginTop: "2px" }}
+                    style={{ marginTop: "2px", borderRadius: "50%" }}
                   />
                 )}
 
@@ -215,7 +212,12 @@ export default function EstLiqValue() {
         </div>
 
         <div className="detail-row">
-          <div className="label">Est. Remaining Value</div>
+          <MouseoverTooltip
+            text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+            width="220px"
+          >
+            <div className="label underline">Est. Remaining Value</div>
+          </MouseoverTooltip>
 
           <div>
             {formatCurrency(refundUsd)}
@@ -235,8 +237,13 @@ export default function EstLiqValue() {
         </div>
 
         <div className="detail-row">
-          <div className="label">Swap Price Impact</div>
-          {aggregatorSwapInfo ? (
+          <MouseoverTooltip
+            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
+            width="220px"
+          >
+            <div className="label underline">Swap Price Impact</div>
+          </MouseoverTooltip>
+          {aggregatorSwapInfo || poolSwapInfo ? (
             <div
               style={{
                 color:
@@ -256,7 +263,12 @@ export default function EstLiqValue() {
         </div>
 
         <div className="detail-row">
-          <div className="label">Price Impact</div>
+          <MouseoverTooltip
+            text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+            width="220px"
+          >
+            <div className="label underline">Zap Impact</div>
+          </MouseoverTooltip>
           {zapInfo ? (
             <div
               style={{
@@ -274,6 +286,16 @@ export default function EstLiqValue() {
           ) : (
             "--"
           )}
+        </div>
+
+        <div className="detail-row">
+          <MouseoverTooltip
+            text="Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees."
+            width="220px"
+          >
+            <div className="label underline">Zap Fee</div>
+          </MouseoverTooltip>
+          {feeInfo ? parseFloat(zapFee.toFixed(3)) + "%" : "--"}
         </div>
       </div>
 
