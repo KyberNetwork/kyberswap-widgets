@@ -1,4 +1,3 @@
-import { useTheme } from "@pancakeswap/hooks";
 import { max, scaleLinear, ZoomTransform } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
 import partition from "lodash/partition";
@@ -9,6 +8,7 @@ import { Brush } from "./Brush";
 import { Line } from "./Line";
 import { Bound, ChartEntry, LiquidityChartRangeInputProps } from "./types";
 import Zoom, { ZoomOverlay } from "./Zoom";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 const xAccessor = (d: ChartEntry) => d.price0;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;
@@ -28,7 +28,7 @@ export function Chart({
   showZoomButtons = true,
 }: LiquidityChartRangeInputProps) {
   const zoomRef = useRef<SVGRectElement | null>(null);
-  const { theme } = useTheme();
+  const { theme } = useWidgetInfo();
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
 
@@ -105,12 +105,12 @@ export function Chart({
       <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} style={{ overflow: "visible" }}>
         <defs>
           <linearGradient id="green-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={theme.colors.success} stopOpacity={1} />
-            <stop offset="100%" stopColor={theme.colors.success} stopOpacity={0.2} />
+            <stop offset="5%" stopColor={theme.success} stopOpacity={1} />
+            <stop offset="100%" stopColor={theme.success} stopOpacity={0.2} />
           </linearGradient>
           <linearGradient id="red-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={theme.colors.failure} stopOpacity={1} />
-            <stop offset="100%" stopColor={theme.colors.failure} stopOpacity={0.2} />
+            <stop offset="5%" stopColor={theme.error} stopOpacity={1} />
+            <stop offset="100%" stopColor={theme.error} stopOpacity={0.2} />
           </linearGradient>
         </defs>
         <defs>

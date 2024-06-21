@@ -1,17 +1,21 @@
-import { useTranslation } from "@pancakeswap/localization";
-import { Currency, Price } from "@pancakeswap/swap-sdk-core";
-import { AutoColumn, BunnyKnownPlaceholder, ChartDisableIcon, LineGraphIcon } from "@pancakeswap/uikit";
 import { FeeAmount } from "@pancakeswap/v3-sdk";
-import * as Sentry from "@sentry/nextjs";
 import { format } from "d3";
 import { saturate } from "polished";
 import { useCallback, useMemo } from "react";
-import { styled, useTheme } from "styled-components";
+import { styled } from "styled-components";
 
 import { Chart } from "./Chart";
 import { InfoBox } from "./InfoBox";
 import Loader from "./Loader";
-import { Bound, ChartEntry, TickDataRaw, ZOOM_LEVELS, ZoomLevels } from "./types";
+import {
+  Bound,
+  ChartEntry,
+  TickDataRaw,
+  ZOOM_LEVELS,
+  ZoomLevels,
+} from "./types";
+import { Price, Token } from "../../entities/Pool";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 const ChartWrapper = styled.div`
   position: relative;
@@ -47,14 +51,14 @@ export function LiquidityChartRangeInput({
   liquidity?: bigint;
   isLoading?: boolean;
   error?: Error;
-  currencyA?: Currency | null;
-  currencyB?: Currency | null;
+  currencyA?: Token | null;
+  currencyB?: Token | null;
   feeAmount?: FeeAmount;
   ticks?: TickDataRaw[];
   ticksAtLimit?: { [bound in Bound]?: boolean };
   price?: number;
-  priceLower?: Price<Currency, Currency>;
-  priceUpper?: Price<Currency, Currency>;
+  priceLower?: Price;
+  priceUpper?: Price;
   onLeftRangeInput?: (typedValue: string) => void;
   onRightRangeInput?: (typedValue: string) => void;
   onBothRangeInput?: (leftTypedValue: string, rightTypedValue: string) => void;
@@ -62,15 +66,14 @@ export function LiquidityChartRangeInput({
   zoomLevel?: ZoomLevels;
   formattedData: ChartEntry[] | undefined;
 }) {
-  const { t } = useTranslation();
-  const theme = useTheme();
+  const { theme } = useWidgetInfo();
 
   // Get token color
   const tokenAColor = "#7645D9";
   const tokenBColor = "#7645D9";
 
   const isSorted = useMemo(
-    () => currencyA && currencyB && currencyA?.wrapped.sortsBefore(currencyB?.wrapped),
+    () => currencyA && currencyB && currencyA.address < currencyB.address,
     [currencyA, currencyB]
   );
 
@@ -79,7 +82,10 @@ export function LiquidityChartRangeInput({
     const rightPrice = isSorted ? priceUpper : priceLower?.invert();
 
     return leftPrice && rightPrice
-      ? [parseFloat(leftPrice?.toSignificant(18)), parseFloat(rightPrice?.toSignificant(18))]
+      ? [
+          parseFloat(leftPrice?.toSignificant(18)),
+          parseFloat(rightPrice?.toSignificant(18)),
+        ]
       : undefined;
   }, [isSorted, priceLower, priceUpper]);
 
@@ -95,12 +101,15 @@ export function LiquidityChartRangeInput({
       }
 
       const updateLeft =
-        (!ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] || mode === "handle" || mode === "reset") &&
+        (!ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ||
+          mode === "handle" ||
+          mode === "reset") &&
         leftRangeValue > 0 &&
         leftRangeValue !== leftPrice;
 
       const updateRight =
-        (!ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] || mode === "reset") &&
+        (!ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] ||
+          mode === "reset") &&
         rightRangeValue > 0 &&
         rightRangeValue < 1e35 &&
         rightRangeValue !== rightPrice;
@@ -108,8 +117,15 @@ export function LiquidityChartRangeInput({
       if (updateLeft && updateRight) {
         const parsedLeftRangeValue = parseFloat(leftRangeValue.toFixed(18));
         const parsedRightRangeValue = parseFloat(rightRangeValue.toFixed(18));
-        if (parsedLeftRangeValue > 0 && parsedRightRangeValue > 0 && parsedLeftRangeValue < parsedRightRangeValue) {
-          onBothRangeInput?.(leftRangeValue.toFixed(18), rightRangeValue.toFixed(18));
+        if (
+          parsedLeftRangeValue > 0 &&
+          parsedRightRangeValue > 0 &&
+          parsedLeftRangeValue < parsedRightRangeValue
+        ) {
+          onBothRangeInput?.(
+            leftRangeValue.toFixed(18),
+            rightRangeValue.toFixed(18)
+          );
         }
       } else if (updateLeft) {
         onLeftRangeInput?.(leftRangeValue.toFixed(18));
@@ -117,39 +133,68 @@ export function LiquidityChartRangeInput({
         onRightRangeInput?.(rightRangeValue.toFixed(18));
       }
     },
-    [isSorted, onBothRangeInput, onLeftRangeInput, onRightRangeInput, ticksAtLimit, brushDomain]
+    [
+      isSorted,
+      onBothRangeInput,
+      onLeftRangeInput,
+      onRightRangeInput,
+      ticksAtLimit,
+      brushDomain,
+    ]
   );
 
   const brushLabelValue = useCallback(
     (d: "w" | "e", x: number) => {
       if (!price) return "";
 
-      if (d === "w" && ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER]) return "0";
-      if (d === "e" && ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER]) return "∞";
+      if (d === "w" && ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER])
+        return "0";
+      if (d === "e" && ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER])
+        return "∞";
 
-      const percent = (x < price ? -1 : 1) * ((Math.max(x, price) - Math.min(x, price)) / price) * 100;
+      const percent =
+        (x < price ? -1 : 1) *
+        ((Math.max(x, price) - Math.min(x, price)) / price) *
+        100;
 
-      return price ? `${format(Math.abs(percent) > 1 ? ".2~s" : ".2~f")(percent)}%` : "";
+      return price
+        ? `${format(Math.abs(percent) > 1 ? ".2~s" : ".2~f")(percent)}%`
+        : "";
     },
     [isSorted, price, ticksAtLimit]
   );
 
-  if (error) {
-    Sentry.captureMessage(error.toString(), "log");
-  }
-
-  const isUninitialized = !currencyA || !currencyB || (formattedData === undefined && !isLoading);
+  const isUninitialized =
+    !currencyA || !currencyB || (formattedData === undefined && !isLoading);
 
   return (
-    <AutoColumn gap="md" style={{ minHeight: "200px", width: "100%", marginBottom: "16px" }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        minHeight: "200px",
+        width: "100%",
+        marginBottom: "16px",
+        gap: "1rem",
+      }}
+    >
       {isUninitialized ? (
-        <InfoBox message={t("Your position will appear here.")} icon={<BunnyKnownPlaceholder />} />
+        <InfoBox
+          message={"Your position will appear here."}
+          icon={<div>TODO: Kyberswap icon?</div>}
+        />
       ) : isLoading ? (
-        <InfoBox icon={<Loader size="40px" stroke={theme.colors.text} />} />
+        <InfoBox icon={<Loader size="40px" stroke={theme.text} />} />
       ) : error ? (
-        <InfoBox message={t("Liquidity data not available.")} icon={<ChartDisableIcon width="40px" />} />
+        <InfoBox
+          message={"Liquidity data not available."}
+          icon={<div>TODO: Chart disable icon</div>}
+        />
       ) : !formattedData || formattedData.length === 0 || !price ? (
-        <InfoBox message={t("There is no liquidity data.")} icon={<LineGraphIcon width="40px" />} />
+        <InfoBox
+          message={"There is no liquidity data."}
+          icon={<div>TODO: LineGraphIcon </div>}
+        />
       ) : (
         <ChartWrapper>
           <Chart
@@ -159,12 +204,12 @@ export function LiquidityChartRangeInput({
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
             styles={{
               area: {
-                selection: theme.colors.text,
+                selection: theme.text,
               },
               brush: {
                 handle: {
-                  west: saturate(0.1, tokenAColor) ?? theme.colors.text,
-                  east: saturate(0.1, tokenBColor) ?? theme.colors.text,
+                  west: saturate(0.1, tokenAColor) ?? theme.text,
+                  east: saturate(0.1, tokenBColor) ?? theme.text,
                 },
               },
             }}
@@ -177,6 +222,6 @@ export function LiquidityChartRangeInput({
           />
         </ChartWrapper>
       )}
-    </AutoColumn>
+    </div>
   );
 }

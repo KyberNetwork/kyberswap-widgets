@@ -1,14 +1,8 @@
 import { area, curveStepAfter, ScaleLinear } from "d3";
 import { useMemo } from "react";
-import { styled } from "styled-components";
 
 import { ChartEntry } from "./types";
-
-const Path = styled.path<{ fill: string | undefined; opacity: number }>`
-  opacity: ${({ opacity }) => opacity || 1}};
-  stroke: ${({ fill, theme }) => fill ?? theme.colors.failure};
-  fill: ${({ fill, theme }) => fill ?? theme.colors.failure};
-`;
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export const Area = ({
   series,
@@ -26,12 +20,14 @@ export const Area = ({
   yValue: (d: ChartEntry) => number;
   fill?: string | undefined;
   opacity?: number;
-}) =>
-  useMemo(
+}) => {
+  const { theme } = useWidgetInfo();
+  return useMemo(
     () => (
-      <Path
+      <path
         opacity={opacity || 1}
-        fill={fill}
+        fill={fill ?? theme.error}
+        stroke={fill ?? theme.error}
         d={
           area()
             .curve(curveStepAfter)
@@ -46,5 +42,6 @@ export const Area = ({
         }
       />
     ),
-    [fill, opacity, series, xScale, xValue, yScale, yValue]
+    [fill, opacity, series, xScale, xValue, yScale, yValue, theme.error]
   );
+};

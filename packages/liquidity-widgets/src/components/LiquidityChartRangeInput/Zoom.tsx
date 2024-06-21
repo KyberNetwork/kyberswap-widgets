@@ -1,7 +1,13 @@
-import { ScaleLinear, select, zoom, ZoomBehavior, zoomIdentity, ZoomTransform } from "d3";
+import {
+  ScaleLinear,
+  select,
+  zoom,
+  ZoomBehavior,
+  zoomIdentity,
+  ZoomTransform,
+} from "d3";
 import { useEffect, useMemo, useRef } from "react";
 import { styled } from "styled-components";
-import { ZoomInIcon, ZoomOutIcon, AutoRenewIcon, Box } from "@pancakeswap/uikit";
 
 import { ZoomLevels } from "./types";
 
@@ -69,7 +75,10 @@ export default function Zoom({
         svg &&
         zoomBehavior.current &&
         select(svg as Element)
-          .call(zoomBehavior.current.transform, zoomIdentity.translate(0, 0).scale(1))
+          .call(
+            zoomBehavior.current.transform,
+            zoomIdentity.translate(0, 0).scale(1)
+          )
           .transition()
           .call(zoomBehavior.current.scaleTo, 0.5),
     ],
@@ -85,10 +94,22 @@ export default function Zoom({
         [0, 0],
         [width, height],
       ])
-      .on("zoom", ({ transform }: { transform: ZoomTransform }) => setZoom(transform));
+      .on("zoom", ({ transform }: { transform: ZoomTransform }) =>
+        setZoom(transform)
+      );
 
     select(svg as Element).call(zoomBehavior.current);
-  }, [height, width, setZoom, svg, xScale, zoomBehavior, zoomLevels, zoomLevels.max, zoomLevels.min]);
+  }, [
+    height,
+    width,
+    setZoom,
+    svg,
+    xScale,
+    zoomBehavior,
+    zoomLevels,
+    zoomLevels.max,
+    zoomLevels.min,
+  ]);
 
   useEffect(() => {
     // reset zoom to initial on zoomLevel change
@@ -98,7 +119,7 @@ export default function Zoom({
   return (
     <Wrapper count={showResetButton ? 3 : 2}>
       {showResetButton && (
-        <Box
+        <div
           style={{
             cursor: "pointer",
             textAlign: "center",
@@ -106,30 +127,36 @@ export default function Zoom({
             paddingLeft: "4px",
           }}
         >
-          <AutoRenewIcon
-            color="primary"
-            width={20}
+          <div
             onClick={() => {
               resetBrush();
               zoomReset();
             }}
-          />
-        </Box>
+          >
+            AutoRenewIcon
+          </div>
+        </div>
       )}
-      <Box
+      <div
         style={{
           cursor: "pointer",
         }}
       >
+        <div onClick={zoomIn}>Zoom in</div>
+        {/*
         <ZoomInIcon width={24} onClick={zoomIn} color="primary" />
-      </Box>
-      <Box
+        */}
+      </div>
+      <div
         style={{
           cursor: "pointer",
         }}
       >
+        <div onClick={zoomOut}>Zoom out</div>
+        {/*
         <ZoomOutIcon width={24} onClick={zoomOut} color="primary" />
-      </Box>
+        */}
+      </div>
     </Wrapper>
   );
 }

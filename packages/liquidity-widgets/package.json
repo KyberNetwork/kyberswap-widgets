@@ -18,6 +18,8 @@
     "@uniswap/v3-sdk": "^3.10.2",
     "d3": "^7.9.0",
     "ethers": "^5.7.0",
+    "polished": "^4.3.1",
+    "styled-components": "^6.1.11",
     "typescript": "^5.2.2"
   },
   "devDependencies": {

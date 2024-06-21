@@ -1,17 +1,11 @@
-import { Axis as d3Axis, axisBottom, NumberValue, ScaleLinear, select } from "d3";
+import {
+  Axis as d3Axis,
+  axisBottom,
+  NumberValue,
+  ScaleLinear,
+  select,
+} from "d3";
 import { useMemo } from "react";
-import { styled } from "styled-components";
-
-const StyledGroup = styled.g`
-  line {
-    display: none;
-  }
-
-  text {
-    color: ${({ theme }) => theme.colors.textSubtle};
-    transform: translateY(5px);
-  }
-`;
 
 const Axis = ({ axisGenerator }: { axisGenerator: d3Axis<NumberValue> }) => {
   const axisRef = (axis: SVGGElement) => {
@@ -36,9 +30,9 @@ export const AxisBottom = ({
 }) =>
   useMemo(
     () => (
-      <StyledGroup transform={`translate(0, ${innerHeight + offset})`}>
+      <g className="group" transform={`translate(0, ${innerHeight + offset})`}>
         <Axis axisGenerator={axisBottom(xScale).ticks(6)} />
-      </StyledGroup>
+      </g>
     ),
     [innerHeight, offset, xScale]
   );

@@ -1,14 +1,6 @@
 import { ScaleLinear } from "d3";
 import { useMemo } from "react";
-import { styled } from "styled-components";
-
-const StyledLine = styled.line`
-  opacity: 0.5;
-  stroke-width: 2;
-  stroke: ${({ theme }) => theme.colors.primary};
-  fill: none;
-  stroke-dasharray: 4;
-`;
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export const Line = ({
   value,
@@ -18,8 +10,22 @@ export const Line = ({
   value: number;
   xScale: ScaleLinear<number, number>;
   innerHeight: number;
-}) =>
-  useMemo(
-    () => <StyledLine x1={xScale(value)} y1="0" x2={xScale(value)} y2={innerHeight} />,
-    [value, xScale, innerHeight]
+}) => {
+  const { theme } = useWidgetInfo();
+  return useMemo(
+    () => (
+      <line
+        x1={xScale(value)}
+        y1="0"
+        x2={xScale(value)}
+        y2={innerHeight}
+        style={{
+          opacity: 0.5,
+          strokeWidth: 2,
+          stroke: theme.accent,
+        }}
+      />
+    ),
+    [value, xScale, innerHeight, theme.accent]
   );
+};
