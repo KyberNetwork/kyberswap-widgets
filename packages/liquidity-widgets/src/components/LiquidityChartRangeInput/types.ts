@@ -71,6 +71,7 @@ export interface TickDataRaw {
   tick: string | number;
   liquidityGross: BigintIsh;
   liquidityNet: BigintIsh;
+  price0: string;
 }
 
 // Tick with fields parsed to bigints, and active liquidity computed.
