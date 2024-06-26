@@ -355,7 +355,7 @@ export const ZapContextProvider = ({
 
   const setTick = useCallback(
     (type: Type, value: number) => {
-      if (pool && (value > pool.maxTick || value < pool.minTick)) {
+      if (position || (pool && (value > pool.maxTick || value < pool.minTick))) {
         return;
       }
 
@@ -367,7 +367,7 @@ export const ZapContextProvider = ({
         else setTickUpper(value);
       }
     },
-    [revertPrice, pool]
+    [position, pool, revertPrice]
   );
 
   const priceLower = useMemo(() => {

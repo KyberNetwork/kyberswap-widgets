@@ -34,7 +34,7 @@ export default function LiquidityChart() {
       priceLower={priceLower || undefined}
       priceUpper={priceUpper || undefined}
       onBothRangeInput={(l, r) => {
-        if (!pool) return;
+        if (!pool || position) return
         const tickLower = tryParseTick(
           poolType,
           revertPrice ? pool?.token1 : pool?.token0,
@@ -63,7 +63,7 @@ export default function LiquidityChart() {
           );
       }}
       onLeftRangeInput={(value) => {
-        if (!pool) return;
+        if (!pool || position) return
         const tick = tryParseTick(
           poolType,
           revertPrice ? pool.token1 : pool.token0,
@@ -78,7 +78,7 @@ export default function LiquidityChart() {
           );
       }}
       onRightRangeInput={(value) => {
-        if (!pool) return;
+        if (!pool || position) return
         const tick = tryParseTick(
           poolType,
           revertPrice ? pool.token1 : pool.token0,
