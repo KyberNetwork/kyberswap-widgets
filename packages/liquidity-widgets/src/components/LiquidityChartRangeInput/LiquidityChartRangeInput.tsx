@@ -2,7 +2,6 @@ import { FeeAmount } from "@pancakeswap/v3-sdk";
 import { format } from "d3";
 import { saturate } from "polished";
 import { useCallback, useMemo } from "react";
-import { styled } from "styled-components";
 
 import { Chart } from "./Chart";
 import { InfoBox } from "./InfoBox";
@@ -16,13 +15,7 @@ import {
 } from "./types";
 import { Price, Token } from "../../entities/Pool";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-
-const ChartWrapper = styled.div`
-  position: relative;
-
-  justify-content: center;
-  align-content: center;
-`;
+import { useZapState } from "../../hooks/useZapInState";
 
 export function LiquidityChartRangeInput({
   currencyA,
@@ -72,10 +65,8 @@ export function LiquidityChartRangeInput({
   const tokenAColor = "#7645D9";
   const tokenBColor = "#7645D9";
 
-  const isSorted = useMemo(
-    () => currencyA && currencyB && currencyA.address < currencyB.address,
-    [currencyA, currencyB]
-  );
+  const { revertPrice } = useZapState();
+  const isSorted = !revertPrice;
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
     const leftPrice = isSorted ? priceLower : priceUpper?.invert();
@@ -174,29 +165,30 @@ export function LiquidityChartRangeInput({
         alignItems: "center",
         minHeight: "200px",
         width: "100%",
-        marginBottom: "16px",
+        marginTop: "8px",
         gap: "1rem",
+        justifyContent: "center",
       }}
     >
       {isUninitialized ? (
         <InfoBox
           message={"Your position will appear here."}
-          icon={<div>TODO: Kyberswap icon?</div>}
+          icon={<div></div>}
         />
       ) : isLoading ? (
         <InfoBox icon={<Loader size="40px" stroke={theme.text} />} />
       ) : error ? (
-        <InfoBox
-          message={"Liquidity data not available."}
-          icon={<div>TODO: Chart disable icon</div>}
-        />
+        <InfoBox message={"Liquidity data not available."} icon={<div></div>} />
       ) : !formattedData || formattedData.length === 0 || !price ? (
-        <InfoBox
-          message={"There is no liquidity data."}
-          icon={<div>TODO: LineGraphIcon </div>}
-        />
+        <InfoBox message={"There is no liquidity data."} icon={<div></div>} />
       ) : (
-        <ChartWrapper>
+        <div
+          style={{
+            position: "relative",
+            justifyContent: "center",
+            alignContent: "center",
+          }}
+        >
           <Chart
             key={`${feeAmount ?? FeeAmount.MEDIUM}`}
             data={{ series: formattedData, current: price }}
@@ -220,7 +212,7 @@ export function LiquidityChartRangeInput({
             zoomLevels={zoomLevel ?? ZOOM_LEVELS[feeAmount ?? FeeAmount.MEDIUM]}
             ticksAtLimit={ticksAtLimit}
           />
-        </ChartWrapper>
+        </div>
       )}
     </div>
   );
