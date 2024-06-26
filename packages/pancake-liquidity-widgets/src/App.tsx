@@ -1,23 +1,23 @@
-import { LiquidityWidget } from "./components";
-import { init } from "@web3-onboard/react";
-
-import injectedModule from "@web3-onboard/injected-wallets";
-
-import "@rainbow-me/rainbowkit/styles.css";
-
 import {
   ConnectButton,
   RainbowKitProvider,
   getDefaultConfig,
   getDefaultWallets,
 } from "@rainbow-me/rainbowkit";
-import { WagmiProvider, createStorage } from "wagmi";
 import { arbitrum, mainnet, polygon, bsc } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useAccount } from "wagmi";
-import { usePublicClient } from "wagmi";
-import { useWalletClient } from "wagmi";
-import { useChainId } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useWalletClient,
+  useChainId,
+  WagmiProvider,
+  createStorage,
+} from "wagmi";
+
+import { LiquidityWidget } from "./components";
+
+import "@rainbow-me/rainbowkit/styles.css";
 
 const { wallets } = getDefaultWallets();
 const wagmiConfig = getDefaultConfig({
@@ -30,39 +30,6 @@ const wagmiConfig = getDefaultConfig({
   }),
 });
 const queryClient = new QueryClient();
-
-const injected = injectedModule();
-
-// initialize Onboard
-init({
-  wallets: [injected],
-  chains: [
-    {
-      id: "0x1",
-      token: "ETH",
-      label: "Ethereum Mainnet",
-      rpcUrl: "https://ethereum.kyberengineering.io",
-    },
-    {
-      id: "0x38",
-      token: "BNB",
-      label: "BSC",
-      rpcUrl: "https://bsc.kyberengineering.io",
-    },
-    {
-      id: "0x89",
-      token: "MATIC",
-      label: "Polygon",
-      rpcUrl: "https://polygon.kyberengineering.io",
-    },
-    {
-      id: "0xc7",
-      token: "BTT",
-      label: "BTTC",
-      rpcUrl: "https://bttc.kyberengineering.io",
-    },
-  ],
-});
 
 function Provider({ children }: React.PropsWithChildren) {
   return (
