@@ -6,7 +6,6 @@ import {
   useZapState,
 } from "../../hooks/useZapInState";
 import { formatWei, getDexName } from "../../utils";
-import { BigNumber } from "ethers";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../../constants";
 import { useWeb3Provider } from "../../hooks/useProvider";
 
@@ -29,20 +28,14 @@ export default function ZapRoute() {
 
   const swappedAmount = formatWei(
     aggregatorSwapInfo?.aggregatorSwap.swaps
-      .reduce(
-        (acc, item) => acc.add(BigNumber.from(item.tokenIn.amount)),
-        BigNumber.from("0")
-      )
+      .reduce((acc, item) => acc + BigInt(item.tokenIn.amount), BigInt(0))
       .toString(),
     tokenIn?.decimals
   );
 
   const swappedAmountOut = formatWei(
     aggregatorSwapInfo?.aggregatorSwap.swaps
-      .reduce(
-        (acc, item) => acc.add(BigNumber.from(item.tokenOut.amount)),
-        BigNumber.from("0")
-      )
+      .reduce((acc, item) => acc + BigInt(item.tokenOut.amount), BigInt(0))
       .toString(),
     tokenOut?.decimals
   );
@@ -64,12 +57,12 @@ export default function ZapRoute() {
     (item) => item.type === "ACTION_TYPE_POOL_SWAP"
   ) as PoolSwapAction | null;
   const amountInPoolSwap = poolSwapInfo?.poolSwap.swaps.reduce(
-    (acc, item) => acc.add(item.tokenIn.amount),
-    BigNumber.from("0")
+    (acc, item) => acc + BigInt(item.tokenIn.amount),
+    BigInt(0)
   );
   const amountOutPoolSwap = poolSwapInfo?.poolSwap.swaps.reduce(
-    (acc, item) => acc.add(item.tokenOut.amount),
-    BigNumber.from("0")
+    (acc, item) => acc + BigInt(item.tokenOut.amount),
+    BigInt(0)
   );
 
   const poolSwapTokenInAddress =

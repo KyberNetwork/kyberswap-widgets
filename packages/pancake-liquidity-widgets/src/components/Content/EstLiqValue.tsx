@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import {
   AddLiquidityAction,
@@ -17,7 +16,7 @@ import {
   getPriceImpact,
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
-import { formatUnits } from "ethers/lib/utils";
+import { formatUnits } from "viem";
 import { MouseoverTooltip } from "../Tooltip";
 import { PancakeToken } from "../../entities/Pool";
 
@@ -32,12 +31,12 @@ export default function EstLiqValue() {
     (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
   ) as AddLiquidityAction | undefined;
   const addedAmount0 = formatUnits(
-    addLiquidityInfo?.addLiquidity.token0.amount || "0",
-    token0?.decimals
+    BigInt(addLiquidityInfo?.addLiquidity.token0.amount || "0"),
+    token0?.decimals || 0
   );
   const addedAmount1 = formatUnits(
-    addLiquidityInfo?.addLiquidity.token1.amount || "0",
-    token1?.decimals
+    BigInt(addLiquidityInfo?.addLiquidity.token1.amount || "0"),
+    token1?.decimals || 0
   );
 
   const refundInfo = zapInfo?.zapDetails.actions.find(
@@ -54,20 +53,14 @@ export default function EstLiqValue() {
 
   const refundAmount0 = formatWei(
     refundToken0
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
+      .reduce((acc, cur) => acc + BigInt(cur.amount), BigInt(0))
       .toString(),
     token0?.decimals
   );
 
   const refundAmount1 = formatWei(
     refundToken1
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
+      .reduce((acc, cur) => acc + BigInt(cur.amount), BigInt(0))
       .toString(),
     token1?.decimals
   );

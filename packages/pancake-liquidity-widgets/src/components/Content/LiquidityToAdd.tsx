@@ -1,9 +1,9 @@
+import { formatUnits } from "viem";
+
 import WalletIcon from "../../assets/wallet.svg?react";
 import SwitchIcon from "../../assets/switch.svg?react";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
-import { BigNumber } from "ethers";
-import { formatUnits } from "ethers/lib/utils";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export default function LiquidityToAdd() {
@@ -25,12 +25,7 @@ export default function LiquidityToAdd() {
               className="small"
               onClick={() => {
                 if (balanceIn && tokenIn) {
-                  setAmountIn(
-                    formatUnits(
-                      BigNumber.from(balanceIn).toString(),
-                      tokenIn.decimals
-                    )
-                  );
+                  setAmountIn(formatUnits(BigInt(balanceIn), tokenIn.decimals));
                 }
               }}
             >
@@ -41,10 +36,7 @@ export default function LiquidityToAdd() {
               onClick={() => {
                 if (balanceIn && tokenIn)
                   setAmountIn(
-                    formatUnits(
-                      BigNumber.from(balanceIn).div(2).toString(),
-                      tokenIn.decimals
-                    )
+                    formatUnits(BigInt(balanceIn) / BigInt(2), tokenIn.decimals)
                   );
               }}
             >

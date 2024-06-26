@@ -19,13 +19,12 @@ import { useEffect, useState } from "react";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
-import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
 import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
-import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import { PancakeToken } from "../../entities/Pool";
+import { parseUnits } from "viem";
 
 export default function Content({
   onDismiss,
@@ -69,7 +68,10 @@ export default function Content({
 
   let amountInWei = "0";
   try {
-    amountInWei = parseUnits(amountIn || "0", tokenIn?.decimals).toString();
+    amountInWei = parseUnits(
+      amountIn || "0",
+      tokenIn?.decimals || 0
+    ).toString();
   } catch {
     //
   }
@@ -195,9 +197,9 @@ export default function Content({
       ? pool.newPool({
           sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
           tick: zapInfo.poolDetails.uniswapV3.newTick,
-          liquidity: BigNumber.from(pool.liquidity)
-            .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
-            .toString(),
+          liquidity: (
+            pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
+          ).toString(),
         })
       : null;
 

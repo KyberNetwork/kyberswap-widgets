@@ -35,8 +35,7 @@ import { Token, Price } from "@pancakeswap/sdk";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
-import { formatUnits } from "ethers/lib/utils";
-import { Address } from "viem";
+import { Address, formatUnits } from "viem";
 import { PancakeToken, PancakeV3Pool } from "../../entities/Pool";
 
 export interface ZapState {
@@ -117,11 +116,11 @@ export default function Preview({
     (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
   ) as AddLiquidityAction;
   const addedAmount0 = formatUnits(
-    addedLiqInfo?.addLiquidity.token0.amount,
+    BigInt(addedLiqInfo?.addLiquidity.token0.amount),
     pool.token0.decimals
   );
   const addedAmount1 = formatUnits(
-    addedLiqInfo?.addLiquidity.token1.amount,
+    BigInt(addedLiqInfo?.addLiquidity.token1.amount),
     pool.token1.decimals
   );
 
@@ -273,7 +272,7 @@ export default function Preview({
             const price = priceRes?.marketPrice || priceRes?.price || 0;
 
             const gasUsd =
-              +formatUnits(gasPrice) * +estimateGas.toString() * price;
+              +formatUnits(gasPrice, 18) * +estimateGas.toString() * price;
 
             setGasUsd(gasUsd);
           } catch (e) {
@@ -589,7 +588,8 @@ export default function Preview({
               <div>
                 {position ? (
                   <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount0.toExact())} {pool?.token0.symbol}
+                    {formatNumber(+position.amount0.toExact())}{" "}
+                    {pool?.token0.symbol}
                   </div>
                 ) : (
                   <div style={{ textAlign: "end" }}>
@@ -639,7 +639,8 @@ export default function Preview({
               )}
               {position ? (
                 <div style={{ textAlign: "end" }}>
-                  {formatNumber(+position.amount1.toExact())} {pool?.token1.symbol}
+                  {formatNumber(+position.amount1.toExact())}{" "}
+                  {pool?.token1.symbol}
                 </div>
               ) : (
                 <div style={{ textAlign: "end" }}>

@@ -1,9 +1,14 @@
-import { formatUnits, getAddress } from "ethers/lib/utils";
+import { isAddress as _isAddress, getAddress } from "viem";
+import { formatUnits } from "viem";
 import pancakeLogo from "../assets/pancake.png";
 import { ProtocolFeeAction } from "../hooks/useZapInState";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
+  if (!_isAddress(value)) {
+    return false;
+  }
+
   try {
     return getAddress(value);
   } catch {
@@ -47,9 +52,10 @@ export const formatCurrency = (value: number) =>
 export const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-US", { maximumSignificantDigits: 6 }).format(value);
 
+// TODO: handle decimals = 0
 export const formatWei = (value?: string, decimals?: number) => {
   if (value && decimals)
-    return formatNumber(+formatUnits(value, decimals).toString());
+    return formatNumber(+formatUnits(BigInt(value), decimals).toString());
 
   return "--";
 };

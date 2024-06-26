@@ -7,12 +7,11 @@ import {
   useMemo,
   useState,
 } from "react";
+import { parseUnits } from "viem";
 import { useWidgetInfo } from "./useWidgetInfo";
 import { useWeb3Provider } from "./useProvider";
-import { parseUnits } from "ethers/lib/utils";
 import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
-import { BigNumber } from "ethers";
 import { Price, Token } from "@pancakeswap/sdk";
 import { tickToPrice } from "@pancakeswap/v3-sdk";
 import useDebounce from "./useDebounce";
@@ -352,7 +351,10 @@ export const ZapContextProvider = ({
 
   const setTick = useCallback(
     (type: Type, value: number) => {
-      if (position || (pool && (value > pool.maxTick || value < pool.minTick))) {
+      if (
+        position ||
+        (pool && (value > pool.maxTick || value < pool.minTick))
+      ) {
         return;
       }
 
@@ -396,8 +398,7 @@ export const ZapContextProvider = ({
     if (!amountIn || +amountIn === 0) return "Enter an amount";
     try {
       const amountInWei = parseUnits(amountIn, tokenIn.decimals);
-      if (amountInWei.gt(BigNumber.from(balanceIn)))
-        return "Insufficient balance";
+      if (amountInWei > BigInt(balanceIn)) return "Insufficient balance";
     } catch (e) {
       return "Invalid input amount";
     }
