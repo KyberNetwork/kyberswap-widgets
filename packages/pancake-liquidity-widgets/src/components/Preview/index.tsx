@@ -126,12 +126,12 @@ export default function Preview({
   );
 
   const positionAmount0Usd =
-    (+(position?.amount0 || 0) *
+    (+(position?.amount0.toExact() || 0) *
       +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1 || 0) *
+    (+(position?.amount1.toExact() || 0) *
       +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
@@ -589,7 +589,7 @@ export default function Preview({
               <div>
                 {position ? (
                   <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount0)} {pool?.token0.symbol}
+                    {formatNumber(+position.amount0.toExact())} {pool?.token0.symbol}
                   </div>
                 ) : (
                   <div style={{ textAlign: "end" }}>
@@ -639,7 +639,7 @@ export default function Preview({
               )}
               {position ? (
                 <div style={{ textAlign: "end" }}>
-                  {formatNumber(+position.amount1)} {pool?.token1.symbol}
+                  {formatNumber(+position.amount1.toExact())} {pool?.token1.symbol}
                 </div>
               ) : (
                 <div style={{ textAlign: "end" }}>

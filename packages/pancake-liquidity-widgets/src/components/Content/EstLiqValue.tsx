@@ -120,12 +120,12 @@ export default function EstLiqValue() {
   const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
 
   const positionAmount0Usd =
-    (+(position?.amount0 || 0) *
+    (+(position?.amount0.toExact() || 0) *
       +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1 || 0) *
+    (+(position?.amount1.toExact() || 0) *
       +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
@@ -157,7 +157,7 @@ export default function EstLiqValue() {
                 )}
                 {position ? (
                   <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount0)} {token0?.symbol}
+                    {formatNumber(+position.amount0.toExact())} {token0?.symbol}
                   </div>
                 ) : (
                   <div style={{ textAlign: "end" }}>
@@ -199,7 +199,7 @@ export default function EstLiqValue() {
 
                 {position ? (
                   <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount1)} {token1?.symbol}
+                    {formatNumber(+position.amount1.toExact())} {token1?.symbol}
                   </div>
                 ) : (
                   <div style={{ textAlign: "end" }}>
