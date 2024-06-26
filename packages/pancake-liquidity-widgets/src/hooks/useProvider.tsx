@@ -3,7 +3,7 @@ import { Address, PublicClient, WalletClient } from "viem";
 
 type Web3ContextData = {
   walletClient: WalletClient | undefined;
-  publicClient: PublicClient | undefined;
+  publicClient: PublicClient;
   account: Address | undefined;
   chainId: number;
   networkChainId: number;

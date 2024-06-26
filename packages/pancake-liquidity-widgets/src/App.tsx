@@ -8,7 +8,6 @@ import { arbitrum, mainnet, polygon, bsc } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   useAccount,
-  usePublicClient,
   useWalletClient,
   useChainId,
   WagmiProvider,
@@ -62,7 +61,6 @@ function CurrentWallet() {
 }
 
 function LiquidityWidgetWrapper() {
-  const publicClient = usePublicClient();
   const walletClientQuery = useWalletClient();
   const { address: account } = useAccount();
   const chainId = useChainId();
@@ -89,7 +87,6 @@ function LiquidityWidgetWrapper() {
         buttonRadius: "16px",
         boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
       }}
-      publicClient={publicClient}
       walletClient={walletClient}
       account={account}
       networkChainId={chainId}

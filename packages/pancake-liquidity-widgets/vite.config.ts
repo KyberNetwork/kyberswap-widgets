@@ -42,4 +42,9 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    // Source: https://stackoverflow.com/a/75953479/6812545
+    // This helps resolve 504 (Outdated Optimize Dep)
+    exclude: ["js-big-decimal"],
+  },
 });

@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { PublicClient, WalletClient, Address } from "viem";
+import { useEffect, useMemo } from "react";
+import { WalletClient, Address, http, createPublicClient } from "viem";
+import * as chains from "viem/chains";
 
 import { Web3Provider } from "../../hooks/useProvider";
 import { Theme, defaultTheme } from "../../theme";
@@ -9,6 +10,10 @@ import { ZapContextProvider } from "../../hooks/useZapInState";
 import Setting from "../Setting";
 
 import "./Widget.scss";
+
+const getChainById = (chainId: number) => {
+  return Object.values(chains).find((chain) => chain.id === chainId);
+};
 
 // createModalRoot.js
 const createModalRoot = () => {
@@ -26,7 +31,6 @@ export interface WidgetProps {
   theme?: Theme;
 
   walletClient: WalletClient | undefined;
-  publicClient: PublicClient | undefined;
   account: Address | undefined;
   chainId: number;
   networkChainId: number;
@@ -46,7 +50,6 @@ export default function Widget({
   theme,
 
   walletClient,
-  publicClient,
   account,
   chainId,
   networkChainId,
@@ -61,6 +64,18 @@ export default function Widget({
   excludedSources,
   source,
 }: WidgetProps) {
+  const publicClient = useMemo(() => {
+    const chain = getChainById(chainId);
+    if (!chain) {
+      throw new Error(`chainId: ${chainId} is not supported`);
+    }
+
+    return createPublicClient({
+      chain,
+      transport: http(),
+    });
+  }, [chainId]);
+
   useEffect(() => {
     if (!theme) return;
     const r = document.querySelector<HTMLElement>(":root");
@@ -72,6 +87,7 @@ export default function Widget({
   return (
     <Web3Provider
       walletClient={walletClient}
+      // @ts-ignore
       publicClient={publicClient}
       chainId={chainId}
       account={account}
