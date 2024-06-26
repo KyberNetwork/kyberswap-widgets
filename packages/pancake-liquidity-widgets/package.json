@@ -1,5 +1,5 @@
 {
-  "name": "@kyberswap/liquidity-widgets",
+  "name": "@kyberswap/pancake-liquidity-widgets",
   "license": "MIT",
   "version": "0.0.8-rc",
   "type": "module",
