@@ -7,28 +7,8 @@ import {
   ZoomTransform,
 } from "d3";
 import { useEffect, useMemo, useRef } from "react";
-import { styled } from "styled-components";
 
 import { ZoomLevels } from "./types";
-
-const Wrapper = styled.div<{ count: number }>`
-  display: grid;
-  grid-template-columns: repeat(${({ count }) => count.toString()}, 1fr);
-  grid-gap: 6px;
-
-  position: absolute;
-  top: -18px;
-  right: 0;
-`;
-
-export const ZoomOverlay = styled.rect`
-  fill: transparent;
-  cursor: grab;
-
-  &:active {
-    cursor: grabbing;
-  }
-`;
 
 export default function Zoom({
   svg,
@@ -117,7 +97,16 @@ export default function Zoom({
   }, [zoomInitial, zoomLevels]);
 
   return (
-    <Wrapper count={showResetButton ? 3 : 2}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${showResetButton ? 3 : 2}, 1fr)`,
+        gap: "6px",
+        position: "absolute",
+        top: "-18px",
+        right: 0,
+      }}
+    >
       {showResetButton && (
         <div
           style={{
@@ -175,6 +164,6 @@ export default function Zoom({
           ></path>
         </svg>{" "}
       </div>
-    </Wrapper>
+    </div>
   );
 }
