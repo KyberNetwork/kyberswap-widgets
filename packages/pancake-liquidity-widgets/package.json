@@ -13,16 +13,15 @@
     "@pancakeswap/sdk": "^5.8.2",
     "@pancakeswap/v3-sdk": "^3.8.3",
     "@popperjs/core": "^2.11.8",
-    "@rainbow-me/rainbowkit": "2.1.0",
     "@reach/portal": "^0.18.0",
-    "@tanstack/react-query": "5.22.2",
     "d3": "^7.9.0",
     "polished": "^4.3.1",
     "typescript": "^5.2.2",
-    "viem": "2.13.3",
-    "wagmi": "2.9.2"
+    "viem": "2.13.3"
   },
   "devDependencies": {
+    "@rainbow-me/rainbowkit": "2.1.0",
+    "@tanstack/react-query": "5.22.2",
     "@types/d3": "^7.4.3",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",
@@ -36,7 +35,8 @@
     "vite": "^5.0.8",
     "vite-plugin-checker": "^0.6.2",
     "vite-plugin-dts": "^3.7.0",
-    "vite-plugin-svgr": "^4.2.0"
+    "vite-plugin-svgr": "^4.2.0",
+    "wagmi": "2.9.2"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
