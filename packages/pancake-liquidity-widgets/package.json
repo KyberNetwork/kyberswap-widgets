@@ -51,7 +51,8 @@
   "exports": {
     ".": {
       "import": "./dist/liquidity-widget.es.js",
-      "require": "./dist/liquidity-widget.umd.js"
+      "require": "./dist/liquidity-widget.umd.js",
+      "types": "./dist/index.d.ts"
     },
     "./dist/style.css": {
       "import": "./dist/style.css",
