@@ -227,11 +227,17 @@ export const ZapContextProvider = ({
   source,
   excludedSources,
   includedSources,
+
+  defaultTickLower,
+  defaultTickUpper,
 }: {
   children: ReactNode;
   source: string;
   includedSources?: string;
   excludedSources?: string;
+
+  defaultTickLower?: number;
+  defaultTickUpper?: number;
 }) => {
   const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
     useWidgetInfo();
@@ -249,10 +255,10 @@ export const ZapContextProvider = ({
 
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(
-    position?.tickLower ?? null
+    position?.tickLower ?? defaultTickLower ?? null
   );
   const [tickUpper, setTickUpper] = useState<number | null>(
-    position?.tickUpper ?? null
+    position?.tickUpper ?? defaultTickUpper ?? null
   );
 
   useEffect(() => {

@@ -23,6 +23,10 @@ export interface WidgetProps {
   chainId: number;
   networkChainId: number;
 
+  defaultTickLower?: number;
+  defaultTickUpper?: number;
+  defaultInputAmount?: string;
+
   poolAddress: string;
   positionId?: string;
   onDismiss: () => void;
@@ -41,6 +45,9 @@ export default function Widget({
   account,
   chainId,
   networkChainId,
+
+  defaultTickLower,
+  defaultTickUpper,
 
   poolAddress,
   positionId,
@@ -109,6 +116,8 @@ export default function Widget({
           includedSources={includedSources}
           excludedSources={excludedSources}
           source={source}
+          defaultTickLower={defaultTickLower}
+          defaultTickUpper={defaultTickUpper}
         >
           <div className="ks-lw">
             <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
