@@ -15,18 +15,6 @@ const getChainById = (chainId: number) => {
   return Object.values(chains).find((chain) => chain.id === chainId);
 };
 
-// createModalRoot.js
-const createModalRoot = () => {
-  let modalRoot = document.getElementById("ks-lw-modal-root");
-  if (!modalRoot) {
-    modalRoot = document.createElement("div");
-    modalRoot.id = "ks-lw-modal-root";
-    document.body.appendChild(modalRoot);
-  }
-};
-
-createModalRoot();
-
 export interface WidgetProps {
   theme?: Theme;
 
@@ -83,6 +71,19 @@ export default function Widget({
       r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
     });
   }, [theme]);
+
+  useEffect(() => {
+    const createModalRoot = () => {
+      let modalRoot = document.getElementById("ks-lw-modal-root");
+      if (!modalRoot) {
+        modalRoot = document.createElement("div");
+        modalRoot.id = "ks-lw-modal-root";
+        document.body.appendChild(modalRoot);
+      }
+    };
+
+    createModalRoot();
+  }, []);
 
   return (
     <Web3Provider
