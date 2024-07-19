@@ -21,7 +21,7 @@ import { useCallback, useEffect, useState } from "react";
 
 type WidgetParams = {
   chainId: number;
-  positionId: string;
+  positionId?: string;
   poolAddress: string;
 };
 
@@ -78,8 +78,8 @@ function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
   const [params, setParams] = useState<WidgetParams>({
     chainId: 56,
-    positionId: "1288027",
-    poolAddress: "0x92b7807bf19b7dddf89b706143896d05228f3121",
+    // positionId: "1288027",
+    poolAddress: "0x36696169c63e42cd08ce11f5deebbcebae652050",
   });
 
   const walletClientQuery = useWalletClient();
@@ -103,38 +103,43 @@ function LiquidityWidgetWrapper() {
         <Params params={params} setParams={handleUpdateParams} />
         <CurrentWallet />
       </div>
-      <LiquidityWidget
-        key={key}
-        theme={{
-          text: "#FFFFFF",
-          subText: "#B6AECF",
-          icons: "#a9a9a9",
-          layer1: "#27262C",
-          dialog: "#27262C",
-          layer2: "#363046",
-          stroke: "#363046",
-          chartRange: "#5DC5D2",
-          chartArea: "#457F89",
-          accent: "#5DC5D2",
-          warning: "#F4B452",
-          error: "#FF5353",
-          success: "#189470",
-          fontFamily: "Kanit, Sans-serif",
-          borderRadius: "20px",
-          buttonRadius: "16px",
-          boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
-        }}
-        walletClient={walletClient}
-        account={account}
-        networkChainId={chainId}
-        {...params}
-        feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
-        feePcm={50}
-        onDismiss={() => {
-          window.location.reload();
-        }}
-        source="zap-widget-demo"
-      />
+      <div style={{ maxWidth: "960px" }}>
+        <LiquidityWidget
+          key={key}
+          theme={{
+            cardBackground: "#27262C",
+            cardBorder: "#383241",
+            background: "#08060B",
+            inputBackground: "#372F47",
+            inputBorder: "#55496E",
+            primary: "#1FC7D4",
+            secondary: "#A881FC",
+            tertiary: "#353547",
+            textSecondary: "#B8ADD2",
+            textPrimary: "#F4EEFF",
+            textReverse: "#000000",
+            warningBackground: "#3D2100",
+            wraningBorder: "#5B3400",
+            warning: "#ff9d02",
+            error: "	#ff3333",
+            disabled: "#666171",
+
+            "green-10": "#02382e",
+            "green-20": "#035345",
+            "green-50": "#129e7D",
+          }}
+          walletClient={walletClient}
+          account={account}
+          networkChainId={chainId}
+          {...params}
+          feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
+          feePcm={50}
+          onDismiss={() => {
+            window.location.reload();
+          }}
+          source="zap-widget-demo"
+        />
+      </div>
     </>
   );
 }

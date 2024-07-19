@@ -2,7 +2,7 @@ import "./Content.scss";
 import X from "../../assets/x.svg?react";
 import ErrorIcon from "../../assets/error.svg?react";
 import PriceInfo from "./PriceInfo";
-import LiquidityChart from "./LiquidityChart";
+// import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
 import {
@@ -25,6 +25,8 @@ import InfoHelper from "../InfoHelper";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import { PancakeToken } from "../../entities/Pool";
 import { parseUnits } from "viem";
+import { tryParseTick } from "../../utils/pancakev3";
+import { nearestUsableTick } from "@pancakeswap/v3-sdk";
 
 export default function Content({
   onDismiss,
@@ -227,6 +229,40 @@ export default function Content({
       ).toSignificant(6)
     : "--";
 
+  const correctPrice = (value: string, type: Type) => {
+    if (!pool) return;
+    if (revertPrice) {
+      const defaultTick =
+        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
+      const tick =
+        tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
+        defaultTick;
+      if (Number.isInteger(tick))
+        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+    } else {
+      const defaultTick =
+        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
+      const tick =
+        tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
+        defaultTick;
+      if (Number.isInteger(tick))
+        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+    }
+  };
+  const currentPoolPrice = pool
+    ? revertPrice
+      ? pool.priceOf(pool.token1)
+      : pool.priceOf(pool.token0)
+    : undefined;
+
+  const selectPriceRange = (percent: number) => {
+    if (!currentPoolPrice) return;
+    const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
+    const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
+    correctPrice(left.toString(), Type.PriceLower);
+    correctPrice(right.toString(), Type.PriceUpper);
+  };
+
   return (
     <>
       {loadPoolError && (
@@ -281,34 +317,59 @@ export default function Content({
       <Header onDismiss={onDismiss} />
       <div className="ks-lw-content">
         <div className="left">
-          <PriceInfo />
-          <LiquidityChart />
-          <div className="label-row">
-            {positionId === undefined
-              ? "Price ranges"
-              : "Your position price ranges"}
+          <LiquidityToAdd />
+
+          <div className="label" style={{ marginTop: "1.5rem" }}>
+            Set price ranges
+          </div>
+
+          <div className="ks-lw-card">
+            <PriceInfo />
+
+            <div className="price-input-group">
+              <PriceInput type={Type.PriceLower} />
+              <PriceInput type={Type.PriceUpper} />
+            </div>
+
             {positionId === undefined && (
-              <button
-                className="outline-btn"
-                onClick={() => {
-                  if (!pool) return;
-                  setTick(
-                    Type.PriceLower,
-                    revertPrice ? pool.maxTick : pool.minTick
-                  );
-                  setTick(
-                    Type.PriceUpper,
-                    revertPrice ? pool.minTick : pool.maxTick
-                  );
-                }}
-              >
-                Full range
-              </button>
+              <div className="price-input-preset">
+                <button
+                  className="outline-btn"
+                  onClick={() => selectPriceRange(0.1)}
+                >
+                  10%
+                </button>
+                <button
+                  className="outline-btn"
+                  onClick={() => selectPriceRange(0.2)}
+                >
+                  20%
+                </button>
+                <button
+                  className="outline-btn"
+                  onClick={() => selectPriceRange(0.75)}
+                >
+                  75%
+                </button>
+                <button
+                  className="outline-btn"
+                  onClick={() => {
+                    if (!pool) return;
+                    setTick(
+                      Type.PriceLower,
+                      revertPrice ? pool.maxTick : pool.minTick
+                    );
+                    setTick(
+                      Type.PriceUpper,
+                      revertPrice ? pool.minTick : pool.maxTick
+                    );
+                  }}
+                >
+                  Full range
+                </button>
+              </div>
             )}
           </div>
-          <PriceInput type={Type.PriceLower} />
-          <PriceInput type={Type.PriceUpper} />
-          <LiquidityToAdd />
         </div>
 
         <div className="right">
