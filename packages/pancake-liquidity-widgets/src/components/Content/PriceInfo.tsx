@@ -82,9 +82,8 @@ export default function PriceInfo() {
               {marketRate}{" "}
             </span>
             {revertPrice ? pool?.token0.symbol : pool?.token1.symbol} per{" "}
-            {revertPrice ? pool?.token1.symbol : pool?.token0.symbol}
-            . Please consider the risks of impermanent loss before adding
-            liquidity.
+            {revertPrice ? pool?.token1.symbol : pool?.token0.symbol}. Please
+            consider the risks of impermanent loss before adding liquidity.
           </div>
         </div>
       )}

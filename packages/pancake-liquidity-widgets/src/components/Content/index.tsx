@@ -20,10 +20,8 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import Modal from "../Modal";
-import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
+import { PI_LEVEL, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
-import { useWeb3Provider } from "../../hooks/useProvider";
-import { PancakeToken } from "../../entities/Pool";
 import { parseUnits } from "viem";
 import { tryParseTick } from "../../utils/pancakev3";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
@@ -53,20 +51,9 @@ export default function Content({
     positionId,
     degenMode,
     revertPrice,
-    marketPrice,
   } = useZapState();
 
-  const {
-    pool,
-    theme,
-    error: loadPoolError,
-    position,
-    positionOwner,
-  } = useWidgetInfo();
-  const { account } = useWeb3Provider();
-
-  const token0 = pool?.token0 as PancakeToken | undefined;
-  const token1 = pool?.token1 as PancakeToken | undefined;
+  const { pool, theme, error: loadPoolError } = useWidgetInfo();
 
   let amountInWei = "0";
   try {
@@ -174,8 +161,8 @@ export default function Content({
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
 
   const piVeryHigh =
     (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
@@ -193,41 +180,6 @@ export default function Content({
     !!error ||
     approvalState === APPROVAL_STATE.PENDING ||
     (piVeryHigh && !degenMode);
-
-  const newPool =
-    zapInfo && pool
-      ? pool.newPool({
-          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-          tick: zapInfo.poolDetails.uniswapV3.newTick,
-          liquidity: (
-            pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
-          ).toString(),
-        })
-      : null;
-
-  const isDevated =
-    !!marketPrice &&
-    newPool &&
-    Math.abs(
-      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
-    ) > 0.02;
-
-  const isOutOfRangeAfterZap =
-    position && newPool
-      ? newPool.tickCurrent < position.tickLower ||
-        newPool.tickCurrent >= position.tickUpper
-      : false;
-
-  const marketRate = marketPrice
-    ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
-    : null;
-
-  const price = newPool
-    ? (revertPrice
-        ? newPool.priceOf(newPool.token1)
-        : newPool.priceOf(newPool.token0)
-      ).toSignificant(6)
-    : "--";
 
   const correctPrice = (value: string, type: Type) => {
     if (!pool) return;
@@ -375,68 +327,6 @@ export default function Content({
         <div className="right">
           <ZapRoute />
           <EstLiqValue />
-
-          {isOutOfRangeAfterZap && (
-            <div
-              className="price-warning"
-              style={{
-                backgroundColor: `${theme.warning}33`,
-                color: theme.warning,
-              }}
-            >
-              The position will be inactive after zapping and won’t earn any
-              fees until the pool price moves back to select price range
-            </div>
-          )}
-          {isDevated && (
-            <div
-              className="price-warning"
-              style={{ backgroundColor: `${theme.warning}33` }}
-            >
-              <div className="text">
-                The pool's estimated price after zapping of{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                    marginLeft: "2px",
-                  }}
-                >
-                  1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
-                  {revertPrice ? token0?.symbol : token1?.symbol}
-                </span>{" "}
-                deviates from the market price{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                  }}
-                >
-                  (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                  {marketRate} {revertPrice ? token0?.symbol : token1?.symbol})
-                </span>
-                . You might have high impermanent loss after you add liquidity
-                to this pool
-              </div>
-            </div>
-          )}
-
-          {positionOwner &&
-            account &&
-            positionOwner.toLowerCase() !== account.toLowerCase() && (
-              <div
-                className="price-warning"
-                style={{
-                  backgroundColor: `${theme.warning}33`,
-                  color: theme.warning,
-                }}
-              >
-                You are not the current owner of the position #{positionId},
-                please double check before proceeding
-              </div>
-            )}
         </div>
       </div>
 
@@ -471,6 +361,7 @@ export default function Content({
           {piVeryHigh && (
             <InfoHelper
               width="300px"
+              color={theme.textReverse}
               text={
                 degenMode
                   ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"

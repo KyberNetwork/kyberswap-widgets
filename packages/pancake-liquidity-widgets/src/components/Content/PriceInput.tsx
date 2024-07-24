@@ -151,6 +151,7 @@ export default function PriceInput({ type }: { type: Type }) {
           minLength={1}
           maxLength={79}
           spellCheck="false"
+          style={{ maxWidth: positionId ? "120px" : undefined }}
         />
         {positionId === undefined && (
           <button
