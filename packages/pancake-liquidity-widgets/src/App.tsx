@@ -3,6 +3,7 @@ import {
   RainbowKitProvider,
   getDefaultConfig,
   getDefaultWallets,
+  useConnectModal,
 } from "@rainbow-me/rainbowkit";
 import { arbitrum, mainnet, polygon, bsc } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -92,6 +93,8 @@ function LiquidityWidgetWrapper() {
     setKey(Date.now());
   }, []);
 
+  const { openConnectModal } = useConnectModal();
+
   return (
     <>
       <div
@@ -105,6 +108,9 @@ function LiquidityWidgetWrapper() {
       </div>
       <div style={{ maxWidth: "960px" }}>
         <LiquidityWidget
+          onConnectWallet={() => {
+            openConnectModal?.();
+          }}
           key={key}
           theme={{
             cardBackground: "#27262C",

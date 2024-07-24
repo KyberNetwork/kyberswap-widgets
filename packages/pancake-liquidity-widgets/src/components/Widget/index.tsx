@@ -32,6 +32,7 @@ export interface WidgetProps {
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  onConnectWallet: () => void
 }
 
 export default function Widget({
@@ -51,6 +52,7 @@ export default function Widget({
   includedSources,
   excludedSources,
   source,
+  onConnectWallet,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -104,6 +106,7 @@ export default function Widget({
         theme={theme || defaultTheme}
         feeAddress={feeAddress}
         feePcm={feePcm}
+        onConnectWallet={onConnectWallet}
       >
         <ZapContextProvider
           includedSources={includedSources}

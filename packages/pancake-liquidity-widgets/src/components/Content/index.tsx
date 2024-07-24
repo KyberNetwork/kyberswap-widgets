@@ -25,6 +25,7 @@ import InfoHelper from "../InfoHelper";
 import { parseUnits } from "viem";
 import { tryParseTick } from "../../utils/pancakev3";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
+import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function Content({
   onDismiss,
@@ -53,7 +54,13 @@ export default function Content({
     revertPrice,
   } = useZapState();
 
-  const { pool, theme, error: loadPoolError } = useWidgetInfo();
+  const {
+    pool,
+    theme,
+    error: loadPoolError,
+    onConnectWallet,
+  } = useWidgetInfo();
+  const { account } = useWeb3Provider();
 
   let amountInWei = "0";
   try {
@@ -334,42 +341,49 @@ export default function Content({
         <button className="outline-btn" onClick={onDismiss}>
           Cancel
         </button>
-        <button
-          className="primary-btn"
-          disabled={disabled}
-          onClick={hanldeClick}
-          style={
-            !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
-              ? {
-                  background:
-                    piVeryHigh && degenMode
-                      ? theme.error
-                      : piHigh
-                      ? theme.warning
-                      : undefined,
-                  border:
-                    piVeryHigh && degenMode
-                      ? `1px solid ${theme.error}`
-                      : piHigh
-                      ? theme.warning
-                      : undefined,
+
+        {!account ? (
+          <button className="primary-btn" onClick={onConnectWallet}>
+            Connect Wallet
+          </button>
+        ) : (
+          <button
+            className="primary-btn"
+            disabled={disabled}
+            onClick={hanldeClick}
+            style={
+              !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
+                ? {
+                    background:
+                      piVeryHigh && degenMode
+                        ? theme.error
+                        : piHigh
+                        ? theme.warning
+                        : undefined,
+                    border:
+                      piVeryHigh && degenMode
+                        ? `1px solid ${theme.error}`
+                        : piHigh
+                        ? theme.warning
+                        : undefined,
+                  }
+                : {}
+            }
+          >
+            {btnText}
+            {piVeryHigh && (
+              <InfoHelper
+                width="300px"
+                color={theme.textReverse}
+                text={
+                  degenMode
+                    ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                    : "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
                 }
-              : {}
-          }
-        >
-          {btnText}
-          {piVeryHigh && (
-            <InfoHelper
-              width="300px"
-              color={theme.textReverse}
-              text={
-                degenMode
-                  ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                  : "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-              }
-            />
-          )}
-        </button>
+              />
+            )}
+          </button>
+        )}
       </div>
     </>
   );
