@@ -25,6 +25,7 @@ type WidgetParams = {
   chainId: number;
   positionId: string;
   poolAddress: string;
+  theme: "light" | "dark";
 };
 
 const { wallets } = getDefaultWallets();
@@ -82,6 +83,7 @@ function LiquidityWidgetWrapper() {
     chainId: 56,
     positionId: "1288027",
     poolAddress: "0x92b7807bf19b7dddf89b706143896d05228f3121",
+    theme: "light",
   });
 
   const walletClientQuery = useWalletClient();
@@ -112,28 +114,6 @@ function LiquidityWidgetWrapper() {
           key={key}
           onConnectWallet={() => {
             openConnectModal?.();
-          }}
-          theme={{
-            cardBackground: "#27262C",
-            cardBorder: "#383241",
-            background: "#08060B",
-            inputBackground: "#372F47",
-            inputBorder: "#55496E",
-            primary: "#1FC7D4",
-            secondary: "#A881FC",
-            tertiary: "#353547",
-            textSecondary: "#B8ADD2",
-            textPrimary: "#F4EEFF",
-            textReverse: "#000000",
-            warningBackground: "#3D2100",
-            wraningBorder: "#5B3400",
-            warning: "#ff9d02",
-            error: "	#ff3333",
-            disabled: "#666171",
-
-            "green-10": "#02382e",
-            "green-20": "#035345",
-            "green-50": "#129e7D",
           }}
           walletClient={walletClient}
           account={account}
@@ -223,6 +203,41 @@ function Params({
                 }));
               }}
             />
+          </div>
+
+          <div style={{ display: "flex", gap: "60px" }}>
+            <span>Theme</span>
+            <div>
+              <input
+                type="radio"
+                id="dark"
+                name="Dark"
+                value="dark"
+                checked={params.theme === "dark"}
+                onChange={(e) =>
+                  setParams({
+                    ...params,
+                    theme: e.currentTarget.value as "light" | "dark",
+                  })
+                }
+              />
+              <label htmlFor="dark">Dark</label>
+
+              <input
+                type="radio"
+                id="light"
+                name="Light"
+                value="light"
+                checked={params.theme === "light"}
+                onChange={(e) =>
+                  setParams({
+                    ...params,
+                    theme: e.currentTarget.value as "light" | "dark",
+                  })
+                }
+              />
+              <label htmlFor="light">light</label>
+            </div>
           </div>
 
           <button

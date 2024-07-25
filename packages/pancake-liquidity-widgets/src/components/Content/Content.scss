@@ -23,9 +23,9 @@
 
 .primary-btn {
   background: var(--ks-lw-primary);
-  border: 1px solid var(--ks-lw-accent);
+  border: 1px solid var(--ks-lw-primary);
   border-radius: 16px;
-  color: #000000;
+  color: var(--ks-lw-textReverse);
   font-size: 16px;
   font-weight: 600;
   padding: 10px 12px;
@@ -48,7 +48,7 @@
     cursor: not-allowed;
     color: var(--ks-lw-textSecondary);
     background: var(--ks-lw-disabled);
-    /* border-color: var(--ks-lw-layer2); */
+    border-color: var(--ks-lw-disabled);
     /* filter: brightness(108%); */
   }
 }
