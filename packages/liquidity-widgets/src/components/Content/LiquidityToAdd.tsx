@@ -8,6 +8,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useState } from "react";
 import Modal from "../Modal";
 import { useTokenList } from "../../hooks/useTokenList";
+import { useTokenBalances } from "../../hooks/useTokenBalance";
 
 export default function LiquidityToAdd() {
   const {
@@ -29,6 +30,9 @@ export default function LiquidityToAdd() {
   // TODO
   const initUsd = zapInfo?.zapDetails.initialAmountUsd;
 
+  const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  console.log(balances)
+
   const [showTokenModal, setShowTokenModal] = useState(false);
 
   return (
@@ -38,10 +42,14 @@ export default function LiquidityToAdd() {
           <div className="label">
             Liquidity to {positionId ? "increase" : "add"}
           </div>
-          <button onClick={() => {
-            onAddNewToken()
-            setShowTokenModal(true)
-          }}>+ Add Token</button>
+          <button
+            onClick={() => {
+              onAddNewToken();
+              setShowTokenModal(true);
+            }}
+          >
+            + Add Token
+          </button>
         </div>
         {tokenIns.map((tokenIn, index) => {
           return (
@@ -156,7 +164,7 @@ export default function LiquidityToAdd() {
                           value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
                         )
                       ) {
-                        console.log(value)
+                        console.log(value);
                         onAmountChange(index, value);
                       }
                     }}
