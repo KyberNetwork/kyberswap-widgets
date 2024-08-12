@@ -144,6 +144,13 @@ const ZapContext = createContext<{
   tickUpper: number | null;
   tokenIn: Token | null;
   amountIn: string;
+  tokenIns: Array<Token | null>;
+  amountIns: string[];
+  onAmountChange: (indeX: number, value: string) => void;
+  onTokenInChange: (indeX: number, value: Token | null) => void;
+  onAddNewToken: () => void;
+  onRemoveToken: (index: number) => void;
+
   toggleTokenIn: () => void;
   balanceIn: string;
   setAmountIn: (value: string) => void;
@@ -173,6 +180,8 @@ const ZapContext = createContext<{
   tickLower: null,
   tickUpper: null,
   tokenIn: null,
+  tokenIns: [],
+  amountIns: [],
   balanceIn: "0",
   amountIn: "",
   toggleTokenIn: () => {},
@@ -197,6 +206,10 @@ const ZapContext = createContext<{
   setDegenMode: () => {},
   marketPrice: undefined,
   source: "",
+  onAmountChange: () => {},
+  onTokenInChange: () => {},
+  onAddNewToken: () => {},
+  onRemoveToken: () => {},
 });
 
 export const chainIdToChain: { [chainId: number]: string } = {
@@ -277,6 +290,10 @@ export const ZapContextProvider = ({
 
   const [tokenIn, setTokenIn] = useState<Token | null>(null);
   const [amountIn, setAmountIn] = useState("");
+
+  const [tokenIns, setTokenIns] = useState<Array<Token | null>>([]);
+  const [amountIns, setAmountIns] = useState<string[]>([]);
+
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
   const [zapApiError, setZapApiError] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -348,14 +365,25 @@ export const ZapContextProvider = ({
     }
   };
 
+  // TODO: deprecated
   useEffect(() => {
     if (pool && !tokenIn)
       setTokenIn(isToken0Native ? nativeToken : pool.token0);
   }, [pool, tokenIn, nativeToken, isToken0Native]);
 
+  useEffect(() => {
+    if (pool && !tokenIns.length) {
+      setTokenIns([isToken0Native ? nativeToken : pool.token0]);
+      setAmountIns([""]);
+    }
+  }, [pool, tokenIns.length, nativeToken, isToken0Native]);
+
   const setTick = useCallback(
     (type: Type, value: number) => {
-      if (position || (pool && (value > pool.maxTick || value < pool.minTick))) {
+      if (
+        position ||
+        (pool && (value > pool.maxTick || value < pool.minTick))
+      ) {
         return;
       }
 
@@ -533,6 +561,44 @@ export const ZapContextProvider = ({
     source,
   ]);
 
+  const onAmountChange = (index: number, amount: string) => {
+    if (index >= amountIns.length) {
+      return;
+    }
+
+    const newAmountIns = [...amountIns];
+    newAmountIns[index] = amount;
+    setAmountIns(newAmountIns);
+  };
+  const onTokenInChange = (index: number, token: Token | null) => {
+    if (index >= tokenIns.length) {
+      return;
+    }
+
+    const newTokens = [...tokenIns];
+    newTokens[index] = token;
+    setTokenIns(newTokens);
+  };
+
+  const onAddNewToken = () => {
+    setTokenIns((prev) => [...prev, null]);
+    setAmountIns((prev) => [...prev, ""]);
+  };
+
+  const onRemoveToken = (index: number) => {
+    const newTokenIns = [
+      ...tokenIns.slice(0, index),
+      ...tokenIns.slice(index + 1),
+    ];
+    setTokenIns(newTokenIns);
+
+    const newAmountIns = [
+      ...amountIns.slice(0, index),
+      ...amountIns.slice(index + 1),
+    ];
+    setAmountIns(newAmountIns);
+  };
+
   return (
     <ZapContext.Provider
       value={{
@@ -565,6 +631,12 @@ export const ZapContextProvider = ({
         setDegenMode,
         marketPrice,
         source,
+        amountIns,
+        tokenIns,
+        onAmountChange,
+        onTokenInChange,
+        onAddNewToken,
+        onRemoveToken,
       }}
     >
       {children}
