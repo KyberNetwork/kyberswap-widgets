@@ -42,7 +42,6 @@ init({
       label: "Base",
       rpcUrl: "https://base.llamarpc.com	",
     },
-
   ],
 });
 
@@ -117,20 +116,13 @@ function App() {
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
         provider={ethersProvider}
-        chainId={137}
-        // positionId="730708"
-        poolType={PoolType.DEX_UNISWAPV3}
-        poolAddress="0xb6e57ed85c4c9dbfef2a68711e9d6f36c56e0fcb"
-        // chainId={56}
-        // positionId="24654"
-        // poolType={PoolType.DEX_PANCAKESWAPV3}
-        // poolAddress="0x36696169c63e42cd08ce11f5deebbcebae652050"
-        // feeAddress="0x7E59Be2D29C5482256f555D9BD4b37851F1f3411"
-        // feePcm={50}
         onDismiss={() => {
           window.location.reload();
         }}
         source="zap-widget-demo"
+        chainId={42161}
+        poolType={PoolType.DEX_UNISWAPV3}
+        poolAddress="0xC6962004f452bE9203591991D15f6b388e09E8D0"
       />
     </>
   );

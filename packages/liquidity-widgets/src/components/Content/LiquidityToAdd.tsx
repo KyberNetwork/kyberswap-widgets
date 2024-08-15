@@ -15,7 +15,7 @@ export default function LiquidityToAdd() {
     // amountIn,
     // setAmountIn,
     // toggleTokenIn,
-    balanceIn,
+    // balanceIn,
     zapInfo,
     amountIns,
     tokenIns,
@@ -31,9 +31,9 @@ export default function LiquidityToAdd() {
   const initUsd = zapInfo?.zapDetails.initialAmountUsd;
 
   const { balances } = useTokenBalances(tokens.map((item) => item.address));
-  console.log(balances)
 
-  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [showTokenModal, setShowTokenModal] = useState<null | number>(null);
+  const [search, setSearch] = useState("");
 
   return (
     <>
@@ -45,7 +45,7 @@ export default function LiquidityToAdd() {
           <button
             onClick={() => {
               onAddNewToken();
-              setShowTokenModal(true);
+              setShowTokenModal(tokenIns.length);
             }}
           >
             + Add Token
@@ -54,59 +54,6 @@ export default function LiquidityToAdd() {
         {tokenIns.map((tokenIn, index) => {
           return (
             <div className="input-token" key={index}>
-              {showTokenModal && (
-                <Modal
-                  isOpen={showTokenModal}
-                  onClick={() => {
-                    //
-                  }}
-                >
-                  <div>Select Token</div>
-
-                  <input
-                    style={{
-                      width: "100%",
-                      marginTop: "1rem",
-                      background: theme.layer2,
-                      height: "40px",
-                      boxShadow: "none",
-                      border: "none",
-                      borderRadius: theme.borderRadius,
-                      padding: "0 1rem",
-                      color: theme.text,
-                      boxSizing: "border-box",
-                    }}
-                    placeholder="Search by token address or symbol"
-                  />
-
-                  <div style={{ maxHeight: "500px", overflowY: "scroll" }}>
-                    {tokens.map((item) => (
-                      <div
-                        key={item.address}
-                        style={{
-                          padding: "12px 0",
-                          display: "flex",
-                          gap: "8px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => {
-                          setShowTokenModal(false);
-                          onTokenInChange(index, item);
-                        }}
-                      >
-                        <img
-                          src={item.logoURI}
-                          width="24px"
-                          height="24px"
-                          alt={item.symbol}
-                        />
-                        {item.symbol}
-                      </div>
-                    ))}
-                  </div>
-                </Modal>
-              )}
-
               <div className="balance">
                 <div className="balance-flex">
                   <button
@@ -144,7 +91,11 @@ export default function LiquidityToAdd() {
 
                 <div className="balance-flex">
                   <WalletIcon />
-                  {formatWei(balanceIn, tokenIn?.decimals)} {tokenIn?.symbol}
+                  {formatWei(
+                    balances[tokenIn?.address || ""]?.toString() || "0",
+                    tokenIn?.decimals
+                  )}{" "}
+                  {tokenIn?.symbol}
                   {tokenIns.length > 1 && (
                     <button onClick={() => onRemoveToken(index)}>-</button>
                   )}
@@ -182,7 +133,7 @@ export default function LiquidityToAdd() {
                 {!!initUsd && (
                   <div className="est-usd">~{formatCurrency(+initUsd)}</div>
                 )}
-                <button onClick={() => setShowTokenModal(true)}>
+                <button onClick={() => setShowTokenModal(index)}>
                   {tokenIn && (
                     <img
                       src={tokenIn?.logoURI}
@@ -199,6 +150,86 @@ export default function LiquidityToAdd() {
           );
         })}
       </div>
+      {showTokenModal !== null && (
+        <Modal
+          isOpen={showTokenModal !== null}
+          onClick={() => {
+            setShowTokenModal(null)
+          }}
+        >
+          <div>Select Token</div>
+
+          <input
+            style={{
+              width: "100%",
+              marginTop: "1rem",
+              background: theme.layer2,
+              height: "40px",
+              boxShadow: "none",
+              border: "none",
+              borderRadius: theme.borderRadius,
+              padding: "0 1rem",
+              color: theme.text,
+              boxSizing: "border-box",
+            }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by token address or symbol"
+          />
+
+          <div style={{ maxHeight: "500px", overflowY: "scroll" }}>
+            {tokens
+              .filter((i) =>
+                i.symbol?.toLowerCase().includes(search.trim().toLowerCase())
+              )
+              .sort((a, b) => {
+                const b1 = balances[a.address.toLowerCase()];
+                const b2 = balances[b.address.toLowerCase()];
+                if (b1 && b2 && b1.gt(b2)) return -1;
+                return 1;
+              })
+              .map((item) => {
+                const isSelected = tokenIns
+                  .map((item) => item?.address.toLowerCase())
+                  .includes(item.address.toLowerCase());
+                return (
+                  <div
+                    key={item.address}
+                    style={{
+                      padding: "12px 0",
+                      display: "flex",
+                      gap: "8px",
+                      cursor: isSelected ? "not-allowed" : "pointer",
+                      justifyContent: "space-between",
+                    }}
+                    onClick={() => {
+                      if (isSelected) return;
+                      setShowTokenModal(null);
+                      onTokenInChange(showTokenModal, item);
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <img
+                        src={item.logoURI}
+                        width="24px"
+                        height="24px"
+                        alt={item.symbol}
+                      />
+                      {item.symbol}
+                    </div>
+
+                    <div>
+                      {formatWei(
+                        balances[item.address.toLowerCase()]?.toString(),
+                        item.decimals
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

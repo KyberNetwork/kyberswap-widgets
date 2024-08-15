@@ -14,7 +14,7 @@ import {
 } from "../../hooks/useZapInState";
 import ZapRoute from "./ZapRoute";
 import EstLiqValue from "./EstLiqValue";
-import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
+import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
 import { useEffect, useState } from "react";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Header from "../Header";
@@ -25,6 +25,7 @@ import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
+import { Token } from "../../entities/Pool";
 
 export default function Content({
   onDismiss,
@@ -36,9 +37,9 @@ export default function Content({
   onTxSubmit?: (tx: string) => void;
 }) {
   const {
-    tokenIn,
+    tokenIns,
     zapInfo,
-    amountIn,
+    amountIns,
     error,
     priceLower,
     priceUpper,
@@ -57,29 +58,38 @@ export default function Content({
   const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
   const { account } = useWeb3Provider();
 
-  let amountInWei = "0";
+  let amountInWeis: string[] = [];
   try {
-    amountInWei = parseUnits(amountIn || "0", tokenIn?.decimals).toString();
+    amountInWeis = amountIns.map((item, index) =>
+      parseUnits(item || "0", tokenIns[index]?.decimals).toString()
+    );
   } catch {
     //
   }
 
-  const { loading, approvalState, approve } = useApproval(
-    amountInWei,
-    tokenIn?.address || "",
+  const { loading, approvalStates } = useApprovals(
+    amountInWeis,
+    tokenIns.map((item) => item?.address || ""),
     zapInfo?.routerAddress || ""
   );
 
-  const [clickedApprove, setClickedLoading] = useState(false);
+  // const [clickedApprove, _setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+
+  // const notApprove = tokenIns.find(
+  //   (item) =>
+  //     approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED
+  // );
+
   const hanldeClick = () => {
-    if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
-      setClickedLoading(true);
-      approve().finally(() => setClickedLoading(false));
-    } else if (
+    // if (notApprove) {
+    //   setClickedLoading(true);
+    //   approve(notApprove.address).finally(() => setClickedLoading(false));
+    // } else
+    if (
       pool &&
-      amountIn &&
-      tokenIn &&
+      // amountIn &&
+      tokenIns.every(Boolean) &&
       zapInfo &&
       priceLower &&
       priceUpper &&
@@ -90,8 +100,8 @@ export default function Content({
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
       setSnapshotState({
-        tokenIn,
-        amountIn,
+        tokenIns: tokenIns as Token[],
+        amountIns,
         pool,
         zapInfo,
         priceLower,
@@ -116,8 +126,11 @@ export default function Content({
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
-    if (approvalState === APPROVAL_STATE.NOT_APPROVED) return "Approve";
-    if (approvalState === APPROVAL_STATE.PENDING) return "Approving";
+
+    // if (addressToApprove) return "Approving";
+
+    // if (notApprove) return `Approve ${notApprove.symbol}`;
+
     return "Preview";
   })();
 
@@ -173,11 +186,13 @@ export default function Content({
     (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
 
   const disabled =
-    clickedApprove ||
+    // clickedApprove ||
     loading ||
     zapLoading ||
     !!error ||
-    approvalState === APPROVAL_STATE.PENDING ||
+    // Object.values(approvalStates).some(
+    //   (item) => item === APPROVAL_STATE.PENDING
+    // ) ||
     (piVeryHigh && !degenMode);
 
   const newPool =
@@ -378,7 +393,10 @@ export default function Content({
           disabled={disabled}
           onClick={hanldeClick}
           style={
-            !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
+            !disabled &&
+            Object.values(approvalStates).some(
+              (item) => item !== APPROVAL_STATE.NOT_APPROVED
+            )
               ? {
                   background:
                     piVeryHigh && degenMode

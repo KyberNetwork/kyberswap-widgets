@@ -80,14 +80,14 @@ export const useTokenBalances = (tokenAddresses: string[]) => {
       const fragment = erc20Interface.getFunction("balanceOf");
       const callData = erc20Interface.encodeFunctionData(fragment, [account]);
 
-      const chunks = tokenAddresses
-        .filter(
-          (item) => item.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
-        )
-        .map((address) => ({
-          target: address,
-          callData,
-        }));
+      const addresses = tokenAddresses.filter(
+        (item) => item.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+      );
+
+      const chunks = addresses.map((address) => ({
+        target: address,
+        callData,
+      }));
 
       const res = await multicallContract?.callStatic.tryBlockAndAggregate(
         false,
@@ -100,15 +100,21 @@ export const useTokenBalances = (tokenAddresses: string[]) => {
 
       setBalances({
         [NATIVE_TOKEN_ADDRESS]: nativeBalance,
+        [NATIVE_TOKEN_ADDRESS.toLowerCase()]: nativeBalance,
         ...balances.reduce(
           (
             acc: { [address: string]: BigNumber },
             item: { balance: BigNumber },
             index: number
           ) => {
+            if (
+              addresses[index].toLowerCase() ===
+              NATIVE_TOKEN_ADDRESS.toLowerCase()
+            )
+              return acc;
             return {
               ...acc,
-              [tokenAddresses[index]]: item.balance,
+              [addresses[index].toLowerCase()]: item.balance,
             };
           },
           {} as { [address: string]: BigNumber }

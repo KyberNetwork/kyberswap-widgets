@@ -41,8 +41,8 @@ import { formatUnits } from "ethers/lib/utils";
 export interface ZapState {
   pool: PoolAdapter;
   zapInfo: ZapRouteDetail;
-  tokenIn: Token;
-  amountIn: string;
+  tokenIns: Token[];
+  amountIns: string[];
   priceLower: Price;
   priceUpper: Price;
   deadline: number;
@@ -71,8 +71,8 @@ export default function Preview({
   zapState: {
     pool,
     zapInfo,
-    tokenIn,
-    amountIn,
+    tokenIns,
+    amountIns,
     priceLower,
     priceUpper,
     deadline,
@@ -351,13 +351,16 @@ export default function Preview({
 
           {!txHash && (
             <div className="subText" style={{ textAlign: "center" }}>
-              Confirm this transaction in your wallet - Zapping{" "}
+              Confirm this transaction in your wallet
+              {/*
+              - Zapping{" "}
               {formatNumber(+amountIn)} {tokenIn.symbol} into{" "}
               {positionId
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
                   } ${(pool.fee / 10_000) * 100}`}
+*/}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -488,21 +491,25 @@ export default function Preview({
 
       <div className="card" style={{ marginTop: "1rem" }}>
         <div className="card-title">Zap-in Amount</div>
-        <div className="row" style={{ marginTop: "8px" }}>
-          <img
-            src={tokenIn.logoURI}
-            alt=""
-            width="20px"
-            style={{ borderRadius: "50%" }}
-          />
+        {tokenIns.map((tokenIn, index) => {
+          return (
+            <div className="row" style={{ marginTop: "8px" }}>
+              <img
+                src={tokenIn.logoURI}
+                alt=""
+                width="20px"
+                style={{ borderRadius: "50%" }}
+              />
 
-          <div>
-            {formatNumber(+amountIn)} {tokenIn.symbol}{" "}
-            <span className="est-usd">
-              ~{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
-            </span>
-          </div>
-        </div>
+              <div>
+                {formatNumber(+amountIns[index])} {tokenIn.symbol}{" "}
+                <span className="est-usd">
+                  ~{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div

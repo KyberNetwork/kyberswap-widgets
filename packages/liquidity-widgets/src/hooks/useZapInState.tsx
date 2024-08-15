@@ -13,11 +13,11 @@ import { parseUnits } from "ethers/lib/utils";
 import useTokenBalance, { useNativeBalance } from "./useTokenBalance";
 import { Price, tickToPrice, Token } from "../entities/Pool";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
-import { BigNumber } from "ethers";
+// import { BigNumber } from "ethers";
 import useDebounce from "./useDebounce";
 
-export const ZAP_URL = "https://zap-api.kyberswap.com";
-// export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
+// export const ZAP_URL = "https://zap-api.kyberswap.com";
+export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
 
 export interface AddLiquidityAction {
   type: "ACTION_TYPE_ADD_LIQUIDITY";
@@ -146,8 +146,8 @@ const ZapContext = createContext<{
   amountIn: string;
   tokenIns: Array<Token | null>;
   amountIns: string[];
-  onAmountChange: (indeX: number, value: string) => void;
-  onTokenInChange: (indeX: number, value: Token | null) => void;
+  onAmountChange: (index: number, value: string) => void;
+  onTokenInChange: (index: number, value: Token | null) => void;
   onAddNewToken: () => void;
   onRemoveToken: (index: number) => void;
 
@@ -301,7 +301,7 @@ export const ZapContextProvider = ({
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
-  const debounceAmountIn = useDebounce(amountIn, 300);
+  const debounceAmountIns = useDebounce(amountIns, 300);
 
   const toggleRevertPrice = useCallback(() => {
     setRevertPrice((prev) => !prev);
@@ -412,31 +412,31 @@ export const ZapContextProvider = ({
     if (!account) return "Please connect wallet";
     if (chainId !== networkChainId) return "Wrong network";
 
-    if (!tokenIn) return "Select token in";
+    if (!tokenIns.length) return "Select token in";
     if (tickLower === null) return "Enter min price";
     if (tickUpper === null) return "Enter max price";
 
     if (tickLower >= tickUpper) return "Invalid price range";
 
-    if (!amountIn || +amountIn === 0) return "Enter an amount";
-    try {
-      const amountInWei = parseUnits(amountIn, tokenIn.decimals);
-      if (amountInWei.gt(BigNumber.from(balanceIn)))
-        return "Insufficient balance";
-    } catch (e) {
-      return "Invalid input amount";
-    }
+    // if (!amountIn || +amountIn === 0) return "Enter an amount";
+    // try {
+    //   const amountInWei = parseUnits(amountIn, tokenIn.decimals);
+    //   if (amountInWei.gt(BigNumber.from(balanceIn)))
+    //     return "Insufficient balance";
+    // } catch (e) {
+    //   return "Invalid input amount";
+    // }
 
     if (zapApiError) return zapApiError;
     return "";
   }, [
-    tokenIn,
+    tokenIns.length,
     tickLower,
     tickUpper,
-    amountIn,
+    // amountIn,
     account,
     zapApiError,
-    balanceIn,
+    // balanceIn,
     networkChainId,
     chainId,
   ]);
@@ -472,18 +472,24 @@ export const ZapContextProvider = ({
     if (
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
-      debounceAmountIn &&
+      debounceAmountIns &&
       pool &&
-      tokenIn?.address &&
-      +debounceAmountIn !== 0
+      +debounceAmountIns !== 0
     ) {
-      let amountInWei = "";
+      let amountInWeis: (string | null)[] = [];
       try {
-        amountInWei = parseUnits(debounceAmountIn, tokenIn.decimals).toString();
+        amountInWeis = debounceAmountIns.map((item, index) => {
+          if (tokenIns[index])
+            return parseUnits(
+              item,
+              (tokenIns[index] as Token).decimals
+            ).toString();
+          return null;
+        });
       } catch (error) {
         console.log(error);
       }
-      if (!amountInWei) {
+      if (!amountInWeis.length || !amountInWeis.every(Boolean)) {
         return;
       }
 
@@ -491,13 +497,12 @@ export const ZapContextProvider = ({
       const params: { [key: string]: string | number | boolean } = {
         dex: poolType,
         "pool.id": poolAddress,
-        "pool.token0": pool.token0.address,
-        "pool.token1": pool.token1.address,
-        "pool.fee": pool.fee,
+        "pool.tokens": `${pool.token0.address},${pool.token1.address}`,
+        // "pool.fee": pool.fee,
         "position.tickUpper": debounceTickUpper,
         "position.tickLower": debounceTickLower,
-        tokenIn: tokenIn.address,
-        amountIn: amountInWei,
+        tokensIn: tokenIns.map((item) => item?.address).join(","),
+        amountsIn: amountInWeis.join(),
         slippage,
         "aggregatorOptions.disable": !enableAggregator,
         ...(positionId ? { "position.id": positionId } : {}),
@@ -542,17 +547,16 @@ export const ZapContextProvider = ({
         });
     }
   }, [
-    debounceAmountIn,
+    debounceAmountIns,
     chainId,
     poolType,
     debounceTickLower,
     debounceTickUpper,
     feeAddress,
     feePcm,
-    tokenIn?.address,
     poolAddress,
     pool,
-    tokenIn?.decimals,
+    tokenIns,
     enableAggregator,
     slippage,
     positionId,
