@@ -1,7 +1,7 @@
 import WalletIcon from "../../assets/wallet.svg?react";
 import SwitchIcon from "../../assets/switch.svg?react";
 import { useZapState } from "../../hooks/useZapInState";
-import { formatCurrency, formatWei } from "../../utils";
+import { formatCurrency, formatWei, isAddress } from "../../utils";
 // import { BigNumber } from "ethers";
 // import { formatUnits } from "ethers/lib/utils";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
@@ -9,6 +9,8 @@ import { useState } from "react";
 import Modal from "../Modal";
 import { useTokenList } from "../../hooks/useTokenList";
 import { useTokenBalances } from "../../hooks/useTokenBalance";
+import { useTokenFromRpc } from "../../hooks/useTokenFromRpc";
+import { Token } from "../../entities/Pool";
 
 export default function LiquidityToAdd() {
   const {
@@ -26,7 +28,7 @@ export default function LiquidityToAdd() {
   } = useZapState();
   const { positionId, theme } = useWidgetInfo();
 
-  const { tokens } = useTokenList();
+  const { tokens, importedTokens, addToken } = useTokenList();
   // TODO
   const initUsd = zapInfo?.zapDetails.initialAmountUsd;
 
@@ -34,6 +36,12 @@ export default function LiquidityToAdd() {
 
   const [showTokenModal, setShowTokenModal] = useState<null | number>(null);
   const [search, setSearch] = useState("");
+
+  const filteredTokens = [...tokens, ...importedTokens].filter(
+    (i) =>
+      i.symbol?.toLowerCase().includes(search.trim().toLowerCase()) ||
+      i.address.toLowerCase() === search.toLowerCase().trim()
+  );
 
   return (
     <>
@@ -154,7 +162,7 @@ export default function LiquidityToAdd() {
         <Modal
           isOpen={showTokenModal !== null}
           onClick={() => {
-            setShowTokenModal(null)
+            setShowTokenModal(null);
           }}
         >
           <div>Select Token</div>
@@ -178,10 +186,17 @@ export default function LiquidityToAdd() {
           />
 
           <div style={{ maxHeight: "500px", overflowY: "scroll" }}>
-            {tokens
-              .filter((i) =>
-                i.symbol?.toLowerCase().includes(search.trim().toLowerCase())
-              )
+            {!filteredTokens.length && isAddress(search.trim()) && (
+              <ImportedToken
+                address={search.trim()}
+                onClick={(token) => {
+                  setShowTokenModal(null);
+                  onTokenInChange(showTokenModal, token);
+                  addToken(token);
+                }}
+              />
+            )}
+            {filteredTokens
               .sort((a, b) => {
                 const b1 = balances[a.address.toLowerCase()];
                 const b2 = balances[b.address.toLowerCase()];
@@ -233,3 +248,37 @@ export default function LiquidityToAdd() {
     </>
   );
 }
+
+const ImportedToken = ({
+  address,
+  onClick,
+}: {
+  address: string;
+  onClick: (token: Token) => void;
+}) => {
+  const token = useTokenFromRpc(address);
+  if (!token) return null;
+  return (
+    <div
+      key={token.address}
+      style={{
+        padding: "12px 0",
+        display: "flex",
+        gap: "8px",
+        // cursor: isSelected ? "not-allowed" : "pointer",
+        justifyContent: "space-between",
+      }}
+      onClick={() => onClick(token)}
+    >
+      <div style={{ display: "flex", gap: "12px" }}>
+        <img
+          src={token.logoURI}
+          width="24px"
+          height="24px"
+          alt={token.symbol}
+        />
+        {token.symbol}
+      </div>
+    </div>
+  );
+};

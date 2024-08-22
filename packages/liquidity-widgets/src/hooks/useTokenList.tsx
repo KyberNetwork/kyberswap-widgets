@@ -11,11 +11,22 @@ import { useWeb3Provider } from "./useProvider";
 interface TokenListState {
   tokens: Token[];
   loading: boolean;
+
+  importedTokens: Token[];
+  addToken: (token: Token) => void;
+  removeToken: (token: Token) => void;
 }
 
 const TokenListContext = createContext<TokenListState>({
   tokens: [],
   loading: false,
+  importedTokens: [],
+  addToken: () => {
+    //
+  },
+  removeToken: () => {
+    //
+  },
 });
 
 export const TokenListProvider = ({ children }: { children: ReactNode }) => {
@@ -37,11 +48,52 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
       });
   }, [chainId]);
 
+  const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const localStorageTokens = JSON.parse(
+          localStorage.getItem("importedTokens") || "[]"
+        );
+
+        return localStorageTokens;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    return [];
+  });
+
+  const addToken = (token: Token) => {
+    const newTokens = [
+      ...importedTokens.filter((t) => t.address !== token.address),
+      token,
+    ];
+    setImportedTokens(newTokens);
+    if (typeof window !== "undefined")
+      localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+  };
+
+  const removeToken = (token: Token) => {
+    const newTokens = importedTokens.filter(
+      (t) =>
+        t.address.toLowerCase() !== token.address.toLowerCase() &&
+        t.chainId === token.chainId
+    );
+
+    setImportedTokens(newTokens);
+    if (typeof window !== "undefined")
+      localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+  };
+
   return (
     <TokenListContext.Provider
       value={{
         tokens,
         loading,
+        importedTokens,
+        addToken,
+        removeToken,
       }}
     >
       {children}
