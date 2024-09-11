@@ -14,7 +14,21 @@ export default defineConfig({
     react(),
     svgr(),
   ],
+  optimizeDeps: {
+    // 👈 optimizedeps
+    esbuildOptions: {
+      target: 'esnext',
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis',
+      },
+      supported: {
+        bigint: true,
+      },
+    },
+  },
   build: {
+    target: ['esnext'],
     lib: {
       entry: path.resolve(__dirname, 'src/components/index.ts'),
       name: 'Widgets',

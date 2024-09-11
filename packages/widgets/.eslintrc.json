@@ -35,9 +35,6 @@
   },
   "extends": [
     "react-app",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended",
     "plugin:prettier/recommended"
   ],
   "plugins": ["better-styled-components", "unused-imports"],

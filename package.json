@@ -6,6 +6,6 @@
     "examples/*"
   ],
   "devDependencies": {
-    "lerna": "^6.3.0"
+    "turbo": "^2.1.1"
   }
 }
