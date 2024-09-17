@@ -1,5 +1,5 @@
-import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, WRAPPED_NATIVE_TOKEN } from '../constants'
 import useDebounce from './useDebounce'

@@ -5,6 +5,7 @@
     "packages/*",
     "examples/*"
   ],
+  "packageManager": "pnpm@8.9.2",
   "devDependencies": {
     "turbo": "^2.1.1"
   }

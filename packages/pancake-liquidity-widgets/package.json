@@ -10,12 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pancakeswap/sdk": "^5.8.2",
+    "@pancakeswap/v3-sdk": "^3.8.3",
     "@popperjs/core": "^2.11.8",
     "@reach/portal": "^0.18.0",
     "d3": "^7.9.0",
     "polished": "^4.3.1",
-    "@pancakeswap/sdk": "^5.8.2",
-    "@pancakeswap/v3-sdk": "^3.8.3"
+    "react-popper": "^2.3.0"
   },
   "devDependencies": {
     "@rainbow-me/rainbowkit": "2.1.0",
@@ -30,13 +31,13 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "sass": "^1.70.0",
+    "typescript": "^5.2.2",
+    "viem": "2.13.3",
     "vite": "^5.0.8",
     "vite-plugin-checker": "^0.6.2",
     "vite-plugin-dts": "^3.7.0",
     "vite-plugin-svgr": "^4.2.0",
-    "wagmi": "2.9.2",
-    "viem": "2.13.3",
-    "typescript": "^5.2.2"
+    "wagmi": "2.9.2"
   },
   "peerDependencies": {
     "react": ">=16.8.0",

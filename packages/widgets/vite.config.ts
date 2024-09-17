@@ -7,11 +7,11 @@ import eslint from 'vite-plugin-eslint'
 
 export default defineConfig({
   plugins: [
+    react(),
     dts({
       insertTypesEntry: true,
     }),
     eslint(),
-    react(),
     svgr(),
   ],
   optimizeDeps: {

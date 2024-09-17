@@ -3,13 +3,16 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
-    },
-    "lint": {
-      "outputs": []
+      "outputs": ["dist/**", ".next/**"]
     },
     "test": {
-      "outputs": []
+      "dependsOn": ["build"],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+    },
+    "lint": {},
+    "dev": {
+      "persist": true,
+      "cache": false
     }
   }
 }

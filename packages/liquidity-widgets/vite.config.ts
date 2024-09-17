@@ -29,10 +29,7 @@ export default defineConfig({
       fileName: (format) => `liquidity-widget.${format}.js`,
     },
     rollupOptions: {
-      external: [
-        "react",
-        "react-dom",
-      ],
+      external: ["react", "react-dom"],
       output: {
         globals: {
           react: "React",
