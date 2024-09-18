@@ -7,7 +7,23 @@ import { ethers } from "ethers";
 import walletConnectModule from "@web3-onboard/walletconnect";
 
 const injected = injectedModule();
-const walletConnect = walletConnectModule();
+const walletConnect = walletConnectModule({
+  projectId: "b03ed6d8451c1e05022897815db0ad0b",
+  /**
+   * Chains required to be supported by all wallets connecting to your DApp
+   */
+  requiredChains: [1],
+  /**
+   * Chains required to be supported by all wallets connecting to your DApp
+   */
+  optionalChains: [42161, 8453, 10, 137, 56],
+  /**
+   * Defaults to `appMetadata.explore` that is supplied to the web3-onboard init
+   * Strongly recommended to provide atleast one URL as it is required by some wallets (i.e. MetaMask)
+   * To connect with WalletConnect
+   */
+  dappUrl: "http://kyberswap.com",
+});
 
 // initialize Onboard
 init({
