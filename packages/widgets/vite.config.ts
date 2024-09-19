@@ -12,7 +12,7 @@ export default defineConfig({
       insertTypesEntry: true,
     }),
     eslint(),
-    svgr(),
+    svgr({ exportAsDefault: true }),
   ],
   optimizeDeps: {
     // 👈 optimizedeps
