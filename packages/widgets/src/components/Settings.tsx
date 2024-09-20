@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import useTheme from '../hooks/useTheme'
-import { ReactComponent as BackIcon } from '../assets/back1.svg'
+import BackIcon from '../assets/back1.svg'
 import { Dex } from '../hooks/useSwap'
-import { ReactComponent as AlertIcon } from '../assets/alert.svg'
+import AlertIcon from '../assets/alert.svg'
 import InfoHelper from './InfoHelper'
 
 const Label = styled.div`

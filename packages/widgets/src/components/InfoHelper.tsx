@@ -1,7 +1,7 @@
 import { Placement } from '@popperjs/core'
 import { CSSProperties, ReactNode, useCallback, useState } from 'react'
 import styled from 'styled-components'
-import { ReactComponent as Info } from '../assets/info.svg'
+import Info from '../assets/info.svg'
 
 import Tooltip from './Tooltip'
 

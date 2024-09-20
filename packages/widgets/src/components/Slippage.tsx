@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ReactComponent as DropdownIcon } from '../assets/dropdown.svg'
+import DropdownIcon from '../assets/dropdown.svg'
 import styled from 'styled-components'
 import { BPS, SlippageInput } from './Settings'
 

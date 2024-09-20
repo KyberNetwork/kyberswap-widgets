@@ -2,11 +2,11 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import nodePolyfills from "rollup-plugin-polyfill-node";
-import path from "path";
+import svgr from "@svgr/rollup";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), svgr()],
   define: {
     global: "globalThis",
   },
@@ -35,18 +35,6 @@ export default defineConfig({
           buffer: true,
         }),
       ],
-    },
-  },
-
-  server: {
-    watch: {
-      ignored: ["!**/node_modules/@kyberswap/**"],
-    },
-  },
-
-  resolve: {
-    alias: {
-      "@kyberswap/widgets": path.resolve(__dirname, "../../packages/widgets"),
     },
   },
 });

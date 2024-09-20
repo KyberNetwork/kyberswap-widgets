@@ -6,9 +6,9 @@ import { TokenInfo as TokenDetail, NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS } from '..
 import useTokenBalances from '../hooks/useTokenBalances'
 import { useImportedTokens, useTokens } from '../hooks/useTokens'
 import { useActiveWeb3 } from '../hooks/useWeb3Provider'
-import { ReactComponent as Loading } from '../assets/loader.svg'
-import { ReactComponent as Question } from '../assets/question.svg'
-import { ReactComponent as TrashIcon } from '../assets/trash.svg'
+import Loading from '../assets/loader.svg'
+import Question from '../assets/question.svg'
+import TrashIcon from '../assets/trash.svg'
 import { useToken } from '../hooks/useToken'
 import { Button } from './Widget/styled'
 
