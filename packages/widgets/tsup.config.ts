@@ -8,25 +8,14 @@ export default defineConfig({
   target: 'esnext',
   clean: true,
   dts: true, // This generates type declaration files
-  minify: true, // Set to true if you want to minify the output
+  minify: false, // Set to true if you want to minify the output
   external: ['react', 'react-dom'], // Externals
-  esbuildPlugins: [
-    svgrPlugin({
-      svgo: true, // Enable SVGO optimization
-      svgoConfig: {
-        plugins: [
-          {
-            name: 'preset-default',
-            params: {
-              overrides: { removeViewBox: false }, // Retain the viewBox attribute in SVGs
-            },
-          },
-        ],
-      },
-    }),
-  ],
+  esbuildPlugins: [svgrPlugin()],
   esbuildOptions(options) {
     options.globalName = 'Widgets'
+    options.loader = {
+      '.svg?url;': 'file', // Use 'file' loader instead of 'dataurl'
+    }
     options.define = {
       global: 'globalThis',
     }

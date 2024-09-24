@@ -8,6 +8,7 @@ import { useImportedTokens, useTokens } from '../hooks/useTokens'
 import { useActiveWeb3 } from '../hooks/useWeb3Provider'
 import Loading from '../assets/loader.svg'
 import Question from '../assets/question.svg'
+import questionImg from '../assets/question.svg?url'
 import TrashIcon from '../assets/trash.svg'
 import { useToken } from '../hooks/useToken'
 import { Button } from './Widget/styled'
@@ -244,7 +245,8 @@ function SelectCurrency({
                     }}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null // prevents looping
-                      currentTarget.src = new URL('../assets/question.svg', import.meta.url).href
+                      console.log(questionImg)
+                      currentTarget.src = questionImg
                     }}
                   />
                   <div style={{ textAlign: 'left' }}>

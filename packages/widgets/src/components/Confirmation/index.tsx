@@ -15,7 +15,7 @@ import ErrorIcon from '../../assets/error.svg'
 import Info from '../../assets/info.svg'
 import DropdownIcon from '../../assets/dropdown.svg'
 import InfoHelper from '../InfoHelper'
-import QuestionIcon from '../../assets/question.svg'
+import questionImg from '../../assets/question.svg?url'
 import { useWETHContract } from '../../hooks/useContract'
 import { friendlyError } from '../../utils/errorMessage'
 
@@ -438,7 +438,7 @@ function Confirmation({
           height="28"
           onError={({ currentTarget }) => {
             currentTarget.onerror = null // prevents looping
-            currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
+            currentTarget.src = questionImg
           }}
         />
         {+Number(amountIn).toPrecision(10)}
@@ -455,7 +455,7 @@ function Confirmation({
           height="28"
           onError={({ currentTarget }) => {
             currentTarget.onerror = null // prevents looping
-            currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
+            currentTarget.src = questionImg
           }}
         />
         {+Number(amountOut).toPrecision(10)}

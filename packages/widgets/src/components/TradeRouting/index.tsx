@@ -29,6 +29,7 @@ import { Trade, useDexes } from '../../hooks/useSwap'
 import { useTokens } from '../../hooks/useTokens'
 import { isAddress } from '../../utils'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
+import questionImg from '../../assets/question.svg?url'
 
 interface RouteRowProps {
   route: SwapRouteV2
@@ -81,7 +82,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                       style={{ borderRadius: '50%' }}
                       onError={({ currentTarget }) => {
                         currentTarget.onerror = null // prevents looping
-                        currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
+                        currentTarget.src = questionImg
                       }}
                     />
 
@@ -166,7 +167,7 @@ const Routing = ({ trade, currencyIn, currencyOut }: RoutingProps) => {
             style={{ borderRadius: '50%' }}
             onError={({ currentTarget }) => {
               currentTarget.onerror = null // prevents looping
-              currentTarget.src = new URL('../../assets/question.svg', import.meta.url).href
+              currentTarget.src = questionImg
             }}
           />
           <span>
