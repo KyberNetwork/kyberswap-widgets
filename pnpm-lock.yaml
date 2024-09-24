@@ -116,8 +116,8 @@ importers:
         specifier: ^0.1.1
         version: 0.1.1(esbuild@0.24.0)
       '@kyberswap/widgets':
-        specifier: workspace:*
-        version: link:../../packages/widgets
+        specifier: 1.3.9-tsup
+        version: 1.3.9-tsup(@babel/core@7.25.2)(react-dom@18.2.0)(react-is@18.3.1)(react@18.2.0)(typescript@5.6.2)
       '@web3-onboard/injected-wallets':
         specifier: ^2.2.4
         version: 2.11.2(typescript@5.6.2)
@@ -400,6 +400,12 @@ importers:
       '@kyber/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
+      '@svgr/core':
+        specifier: ^8.1.0
+        version: 8.1.0(typescript@5.3.2)
+      '@svgr/plugin-jsx':
+        specifier: ^8.1.0
+        version: 8.1.0(@svgr/core@8.1.0)
       '@types/lodash':
         specifier: ^4.14.196
         version: 4.17.7
@@ -418,9 +424,9 @@ importers:
       '@web3-onboard/react':
         specifier: ^2.3.6
         version: 2.9.3(react@18.3.1)(typescript@5.3.2)
-      esbuild-plugin-svgr:
-        specifier: ^2.1.0
-        version: 2.1.0(esbuild@0.19.12)(typescript@5.3.2)
+      esbuild:
+        specifier: ^0.24.0
+        version: 0.24.0
       eslint:
         specifier: ^8.37.0
         version: 8.57.0
@@ -2134,7 +2140,6 @@ packages:
     cpu: [ppc64]
     os: [aix]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/android-arm64@0.19.12:
@@ -2169,7 +2174,6 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/android-arm@0.15.18:
@@ -2212,7 +2216,6 @@ packages:
     cpu: [arm]
     os: [android]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/android-x64@0.19.12:
@@ -2247,7 +2250,6 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/darwin-arm64@0.19.12:
@@ -2282,7 +2284,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/darwin-x64@0.19.12:
@@ -2317,7 +2318,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/freebsd-arm64@0.19.12:
@@ -2352,7 +2352,6 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/freebsd-x64@0.19.12:
@@ -2387,7 +2386,6 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-arm64@0.19.12:
@@ -2422,7 +2420,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-arm@0.19.12:
@@ -2457,7 +2454,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-ia32@0.19.12:
@@ -2492,7 +2488,6 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-loong64@0.15.18:
@@ -2535,7 +2530,6 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-mips64el@0.19.12:
@@ -2570,7 +2564,6 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-ppc64@0.19.12:
@@ -2605,7 +2598,6 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-riscv64@0.19.12:
@@ -2640,7 +2632,6 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-s390x@0.19.12:
@@ -2675,7 +2666,6 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/linux-x64@0.19.12:
@@ -2710,7 +2700,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/netbsd-x64@0.19.12:
@@ -2745,7 +2734,6 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/openbsd-arm64@0.23.1:
@@ -2763,7 +2751,6 @@ packages:
     cpu: [arm64]
     os: [openbsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/openbsd-x64@0.19.12:
@@ -2798,7 +2785,6 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/sunos-x64@0.19.12:
@@ -2833,7 +2819,6 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/win32-arm64@0.19.12:
@@ -2868,7 +2853,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/win32-ia32@0.19.12:
@@ -2903,7 +2887,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@esbuild/win32-x64@0.19.12:
@@ -2938,7 +2921,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: false
     optional: true
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.57.0):
@@ -3536,6 +3518,38 @@ packages:
       - supports-color
       - utf-8-validate
       - vite
+    dev: false
+
+  /@kyberswap/widgets@1.3.9-tsup(@babel/core@7.25.2)(react-dom@18.2.0)(react-is@18.3.1)(react@18.2.0)(typescript@5.6.2):
+    resolution: {integrity: sha512-NFdnFthdWH2APmtNW7HqKaJj8cbvzIAOIWaGW++AchQohdJbVoViPqQn5nwsr97/3SsmN/oSO7S2LxoT6sFgEw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@popperjs/core': 2.11.8
+      eslint-plugin-better-styled-components: 1.1.2
+      ethers: 5.7.2
+      lodash: 4.17.21
+      lodash.throttle: 4.1.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-indiana-drag-scroll: 2.2.0(react-dom@18.2.0)(react@18.2.0)
+      react-popper: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.2.0)(react@18.2.0)
+      styled-components: 5.3.11(@babel/core@7.25.2)(react-dom@18.2.0)(react-is@18.3.1)(react@18.2.0)
+      tsup: 8.3.0(typescript@5.6.2)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@microsoft/api-extractor'
+      - '@swc/core'
+      - bufferutil
+      - jiti
+      - postcss
+      - react-is
+      - supports-color
+      - tsx
+      - typescript
+      - utf-8-validate
+      - yaml
     dev: false
 
   /@lit-labs/ssr-dom-shim@1.2.1:
@@ -5637,7 +5651,7 @@ packages:
     dependencies:
       '@babel/core': 7.25.2
       '@svgr/babel-preset': 8.1.0(@babel/core@7.25.2)
-      '@svgr/core': 8.1.0(typescript@5.6.2)
+      '@svgr/core': 8.1.0(typescript@5.3.2)
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
@@ -9888,19 +9902,6 @@ packages:
     requiresBuild: true
     optional: true
 
-  /esbuild-plugin-svgr@2.1.0(esbuild@0.19.12)(typescript@5.3.2):
-    resolution: {integrity: sha512-BKJOlQvXjLipPDPYfX+N6i2tPxSuVOhlg+hEF/nkQwMwFV6IymvuCRO0wLvf9tGyL3mc3yIZ4n9pfxcCx/7v2Q==}
-    peerDependencies:
-      esbuild: ^0.19.1
-    dependencies:
-      '@svgr/core': 8.1.0(typescript@5.3.2)
-      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0)
-      esbuild: 0.19.12
-    transitivePeerDependencies:
-      - supports-color
-      - typescript
-    dev: true
-
   /esbuild-sunos-64@0.15.18:
     resolution: {integrity: sha512-On22LLFlBeLNj/YF3FT+cXcyKPEI263nflYlAhz5crxtp3yRG1Ugfr7ITyxmCmjm4vbN/dGrb/B7w7U8yJR9yw==}
     engines: {node: '>=12'}
@@ -10085,7 +10086,6 @@ packages:
       '@esbuild/win32-arm64': 0.24.0
       '@esbuild/win32-ia32': 0.24.0
       '@esbuild/win32-x64': 0.24.0
-    dev: false
 
   /escalade@3.2.0:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
@@ -15802,6 +15802,49 @@ packages:
       tinyglobby: 0.2.6
       tree-kill: 1.2.2
       typescript: 5.3.2
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - tsx
+      - yaml
+    dev: false
+
+  /tsup@8.3.0(typescript@5.6.2):
+    resolution: {integrity: sha512-ALscEeyS03IomcuNdFdc0YWGVIkwH1Ws7nfTbAPuoILvEV2hpGQAY72LIOjglGo4ShWpZfpBqP/jpQVCzqYQag==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      '@microsoft/api-extractor': ^7.36.0
+      '@swc/core': ^1
+      postcss: ^8.4.12
+      typescript: '>=4.5.0'
+    peerDependenciesMeta:
+      '@microsoft/api-extractor':
+        optional: true
+      '@swc/core':
+        optional: true
+      postcss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      bundle-require: 5.0.0(esbuild@0.23.1)
+      cac: 6.7.14
+      chokidar: 3.6.0
+      consola: 3.2.3
+      debug: 4.3.7(supports-color@8.1.1)
+      esbuild: 0.23.1
+      execa: 5.1.1
+      joycon: 3.1.1
+      picocolors: 1.1.0
+      postcss-load-config: 6.0.1
+      resolve-from: 5.0.0
+      rollup: 4.21.2
+      source-map: 0.8.0-beta.0
+      sucrase: 3.35.0
+      tinyglobby: 0.2.6
+      tree-kill: 1.2.2
+      typescript: 5.6.2
     transitivePeerDependencies:
       - jiti
       - supports-color

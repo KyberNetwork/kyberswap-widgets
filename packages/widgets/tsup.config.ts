@@ -1,5 +1,5 @@
 import { defineConfig } from 'tsup'
-import svgrPlugin from 'esbuild-plugin-svgr'
+import svgrPlugin from './svgr-plugin'
 
 export default defineConfig({
   entry: { widget: 'src/components/index.ts' },
@@ -10,12 +10,10 @@ export default defineConfig({
   dts: true, // This generates type declaration files
   minify: false, // Set to true if you want to minify the output
   external: ['react', 'react-dom'], // Externals
+
   esbuildPlugins: [svgrPlugin()],
   esbuildOptions(options) {
     options.globalName = 'Widgets'
-    options.loader = {
-      '.svg?url;': 'file', // Use 'file' loader instead of 'dataurl'
-    }
     options.define = {
       global: 'globalThis',
     }
