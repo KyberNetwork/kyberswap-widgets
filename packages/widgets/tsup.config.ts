@@ -10,6 +10,7 @@ export default defineConfig({
   dts: true, // This generates type declaration files
   minify: false, // Set to true if you want to minify the output
   external: ['react', 'react-dom'], // Externals
+  noExternal: ['styled-components'],
 
   esbuildPlugins: [svgrPlugin()],
   esbuildOptions(options) {
