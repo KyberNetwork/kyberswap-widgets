@@ -1,5 +1,5 @@
 {
-  "name": "@kyber/ui",
+  "name": "@kyber/hooks",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
     "react": ">=16.8.0"
   },
   "exports": {
-    "./portal": "./src/portal.tsx"
+    "./use-debounce": "./src/use-debounce.ts",
+    "./use-interval": "./src/use-interval.ts"
   }
 }

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@kyber/ui": "workspace:*",
+    "@kyber/hooks": "workspace:*",
     "@pancakeswap/sdk": "^5.8.2",
     "@pancakeswap/swap-sdk-core": "^1.2.0",
     "@pancakeswap/v3-sdk": "^3.8.3",

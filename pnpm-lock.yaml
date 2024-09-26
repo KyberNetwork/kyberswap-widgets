@@ -181,6 +181,37 @@ importers:
 
   packages/config-typescript: {}
 
+  packages/hooks:
+    dependencies:
+      react:
+        specifier: '>=16.8.0'
+        version: 18.2.0
+    devDependencies:
+      '@kyber/eslint-config':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@kyber/typescript-config':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@types/eslint':
+        specifier: ^8.56.5
+        version: 8.56.12
+      '@types/node':
+        specifier: ^20.11.24
+        version: 20.16.9
+      '@types/react':
+        specifier: ^18.0.17
+        version: 18.0.26
+      '@types/react-dom':
+        specifier: ^18.0.6
+        version: 18.3.0
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      typescript:
+        specifier: 5.3.2
+        version: 5.3.2
+
   packages/liquidity-widgets:
     dependencies:
       '@pancakeswap/sdk':
@@ -274,6 +305,9 @@ importers:
 
   packages/pancake-liquidity-widgets:
     dependencies:
+      '@kyber/hooks':
+        specifier: workspace:*
+        version: link:../hooks
       '@kyber/ui':
         specifier: workspace:*
         version: link:../ui
@@ -391,9 +425,6 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
-      tsup:
-        specifier: ^8.3.0
-        version: 8.3.0(typescript@5.3.2)
       typescript:
         specifier: 5.3.2
         version: 5.3.2
@@ -437,6 +468,9 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(typescript@5.3.2)
     devDependencies:
+      '@kyber/hooks':
+        specifier: workspace:*
+        version: link:../hooks
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:*
         version: link:../svgr-esbuild-plugin
