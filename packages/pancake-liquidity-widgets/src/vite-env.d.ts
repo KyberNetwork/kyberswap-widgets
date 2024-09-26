@@ -15,3 +15,7 @@ interface Window {
     autoRefreshOnNetworkChange?: boolean;
   };
 }
+
+declare module "*.png";
+
+declare module "*.svg";
