@@ -11,11 +11,11 @@
     "prepublishOnly": "tsc && tsup"
   },
   "dependencies": {
+    "@kyber/ui": "workspace:*",
     "@pancakeswap/sdk": "^5.8.2",
     "@pancakeswap/swap-sdk-core": "^1.2.0",
     "@pancakeswap/v3-sdk": "^3.8.3",
     "@popperjs/core": "^2.11.8",
-    "@reach/portal": "^0.18.0",
     "react-popper": "^2.3.0"
   },
   "devDependencies": {

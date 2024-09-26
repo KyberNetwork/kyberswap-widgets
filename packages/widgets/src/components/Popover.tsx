@@ -1,31 +1,9 @@
 import { Placement } from '@popperjs/core'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import React, { useCallback, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 import useInterval from '../hooks/useInterval'
-
-const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const portalContainer = useRef<HTMLDivElement | null>(null)
-
-  // Dynamically create a new div element for each instance of Portal
-  useEffect(() => {
-    const div = document.createElement('div')
-    document.body.appendChild(div)
-    portalContainer.current = div
-
-    // Cleanup when the component unmounts
-    return () => {
-      if (portalContainer.current) {
-        document.body.removeChild(portalContainer.current)
-      }
-    }
-  }, [])
-
-  if (!portalContainer.current) return null
-
-  return createPortal(children, portalContainer.current)
-}
+import { Portal } from '@kyber/ui/portal'
 
 const PopoverContainer = styled.div<{ show: boolean }>`
   z-index: 9999;

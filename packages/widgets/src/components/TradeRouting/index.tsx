@@ -24,7 +24,7 @@ import {
   StyledWrapToken,
 } from './styled'
 import { SCAN_LINK, TokenInfo } from '../../constants'
-import { SwapRouteV2, getTradeComposition } from '../../utils/aggregationRouting'
+import { SwapPool, SwapRouteV2, getTradeComposition } from '../../utils/aggregationRouting'
 import { Trade, useDexes } from '../../hooks/useSwap'
 import { useTokens } from '../../hooks/useTokens'
 import { isAddress } from '../../utils'
@@ -62,7 +62,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
           {route.subRoutes.map((subRoute, index, arr) => {
             const token = route.path[index + 1]
             const id = subRoute
-              .flat()
+              .reduce((acc, item) => acc.concat(item), [] as SwapPool[])
               .map(item => item.id)
               .join('-')
 
