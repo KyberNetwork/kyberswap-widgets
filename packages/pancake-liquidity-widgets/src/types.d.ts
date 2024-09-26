@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-/// <reference types="vite-plugin-svgr/client" />
 interface Window {
   ethereum?: {
     on?: (...args: unknown[]) => void;
@@ -18,4 +16,15 @@ interface Window {
 
 declare module "*.png";
 
-declare module "*.svg";
+declare module "*.svg" {
+  import * as React from "react";
+  const ReactComponent: React.FunctionComponent<
+    React.SVGProps<SVGSVGElement> & { title?: string }
+  >;
+  export default ReactComponent;
+}
+
+declare module "*.svg?url" {
+  const src: string;
+  export default src;
+}

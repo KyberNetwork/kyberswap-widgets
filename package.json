@@ -7,6 +7,14 @@
   ],
   "packageManager": "pnpm@8.9.2",
   "devDependencies": {
+    "eslint": "8.57",
+    "eslint-config-turbo": "^1.12.4",
     "turbo": "^2.1.1"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "dev": "turbo dev",
+    "type-check": "turbo type-check"
   }
 }

@@ -1,14 +1,13 @@
 import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import { transform } from "@svgr/core";
-import { readFileSync } from "fs";
-
-import { Config } from "@svgr/core";
-import { Plugin } from "esbuild";
+import type { Config } from "@svgr/core";
+import type { Plugin } from "esbuild";
 
 const svgrPlugin = (options: Config = {}): Plugin => ({
   name: "svgr",
   setup(build) {
-    build.onResolve({ filter: /\.svg$/ }, async (args) => {
+    build.onResolve({ filter: /\.svg$/ }, (args) => {
       switch (args.kind) {
         case "import-statement":
         case "require-call":
@@ -52,4 +51,4 @@ const svgrPlugin = (options: Config = {}): Plugin => ({
   },
 });
 
-export default svgrPlugin;
+export { svgrPlugin };

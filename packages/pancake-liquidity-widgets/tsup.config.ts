@@ -1,5 +1,5 @@
 import { defineConfig } from "tsup";
-import svgrPlugin from "@kyber/svgr-esbuild-plugin";
+import { svgrPlugin } from "@kyber/svgr-esbuild-plugin";
 import { sassPlugin } from "esbuild-sass-plugin";
 
 export default defineConfig({
@@ -13,6 +13,9 @@ export default defineConfig({
   sourcemap: true,
   onSuccess: "tsc --noEmit",
   external: ["react", "react-dom", "viem"], // Externals
+  loader: {
+    ".png": "dataurl",
+  },
 
   esbuildPlugins: [svgrPlugin(), sassPlugin()],
   esbuildOptions(options) {

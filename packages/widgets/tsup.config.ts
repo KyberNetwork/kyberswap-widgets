@@ -1,5 +1,5 @@
 import { defineConfig } from 'tsup'
-import svgrPlugin from '@kyber/svgr-esbuild-plugin'
+import { svgrPlugin } from '@kyber/svgr-esbuild-plugin'
 
 export default defineConfig({
   entry: { widget: 'src/components/index.ts' },
