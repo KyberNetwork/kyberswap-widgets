@@ -238,7 +238,7 @@ export default function usePoolInfo(
   ]);
 
   useEffect(() => {
-    let i: NodeJS.Timer | undefined;
+    let i: number | undefined;
     if (!!pool && publicClient) {
       const getSlot0 = async () => {
         const multiCallRes = await publicClient.multicall({
