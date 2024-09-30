@@ -4,7 +4,7 @@ export function useInterval(
   callback: () => void,
   delay: null | number,
   leading = true
-) {
+): void {
   const savedCallback = useRef<() => void>();
 
   // Remember the latest callback.
@@ -14,7 +14,7 @@ export function useInterval(
 
   // Set up the interval.
   useEffect(() => {
-    function tick() {
+    function tick(): void {
       const current = savedCallback.current;
       current && current();
     }
@@ -22,7 +22,9 @@ export function useInterval(
     if (delay !== null) {
       if (leading) tick();
       const id = setInterval(tick, delay);
-      return () => clearInterval(id);
+      return () => {
+        clearInterval(id);
+      };
     }
     return undefined;
   }, [delay, leading]);

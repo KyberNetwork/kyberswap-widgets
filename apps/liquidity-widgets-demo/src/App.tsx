@@ -1,10 +1,10 @@
-import { LiquidityWidget } from "./components";
+import { PoolType, LiquidityWidget } from "@kyberswap/liquidity-widgets";
 import { useEffect } from "react";
 
 import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { ethers, providers } from "ethers";
-import { PoolType } from "./constants";
+import "@kyberswap/liquidity-widgets/dist/style.css";
 
 const injected = injectedModule();
 

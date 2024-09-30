@@ -90,10 +90,9 @@ function LiquidityWidgetWrapper() {
     theme: "light",
   });
 
-  const walletClientQuery = useWalletClient();
+  const { data: walletClient } = useWalletClient();
   const { address: account } = useAccount();
   const chainId = useChainId();
-  const walletClient = walletClientQuery.data;
 
   const handleUpdateParams = useCallback((params: WidgetParams) => {
     setParams(params);
@@ -118,7 +117,8 @@ function LiquidityWidgetWrapper() {
         onConnectWallet={() => {
           openConnectModal?.();
         }}
-        walletClient={walletClient}
+        // eslint-disable-next-line
+        walletClient={walletClient as any}
         account={account}
         networkChainId={chainId}
         chainId={params.chainId}

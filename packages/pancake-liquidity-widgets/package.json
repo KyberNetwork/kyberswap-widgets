@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/pancake-liquidity-widgets",
   "license": "MIT",
-  "version": "0.0.1-tsup",
+  "version": "0.0.1-tsup1",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
@@ -11,8 +11,6 @@
     "prepublishOnly": "tsc && tsup"
   },
   "dependencies": {
-    "@kyber/ui": "workspace:*",
-    "@kyber/hooks": "workspace:*",
     "@pancakeswap/sdk": "^5.8.2",
     "@pancakeswap/swap-sdk-core": "^1.2.0",
     "@pancakeswap/v3-sdk": "^3.8.3",
@@ -34,6 +32,8 @@
     "typescript": "5.3.2"
   },
   "peerDependencies": {
+    "@kyber/ui": "workspace:*",
+    "@kyber/hooks": "workspace:*",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0",
     "viem": ">=2.13.3"
