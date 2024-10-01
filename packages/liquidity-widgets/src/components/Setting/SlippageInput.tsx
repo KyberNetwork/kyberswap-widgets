@@ -76,6 +76,7 @@ const SlippageInput = () => {
             data-active={item === slippage}
             role="button"
             onClick={() => setSlippage(item)}
+            key={item}
           >
             {(item * 100) / 10_000}%
           </div>

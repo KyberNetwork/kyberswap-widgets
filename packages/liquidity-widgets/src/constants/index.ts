@@ -3,7 +3,9 @@ import { Token } from "../entities/Pool";
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
-export const NetworkInfo: {
+export const MAX_ZAP_IN_TOKENS = 5;
+
+interface NETWORK_INFO {
   [chainId: number]: {
     name: string;
     logo: string;
@@ -15,7 +17,9 @@ export const NetworkInfo: {
     };
     nativeLogo: string;
   };
-} = {
+}
+
+export const NetworkInfo: NETWORK_INFO = {
   1: {
     name: "Ethereum",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/fd07cf5c-3ddf-4215-aa51-e6ee2c60afbc1697031732146.png",
@@ -32,7 +36,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   56: {
     name: "BSC",
     nativeLogo:
@@ -65,7 +68,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   42161: {
     name: "Arbitrum",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
@@ -82,7 +84,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   43114: {
     name: "Avalanche",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/avalanche.svg",
@@ -211,7 +212,6 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-
   1101: {
     name: "Polgyon ZkEVM",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
@@ -228,6 +228,22 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+};
+
+export const chainIdToChain: { [chainId: number]: string } = {
+  1: "ethereum",
+  137: "polygon",
+  56: "bsc",
+  42161: "arbitrum",
+  43114: "avalanche",
+  8453: "base",
+  81457: "blast",
+  250: "fantom",
+  5000: "mantle",
+  10: "optimism",
+  534352: "scroll",
+  59144: "linea",
+  1101: "polygon-zkevm",
 };
 
 export const UNI_V3_BPS = 10_000;
@@ -270,4 +286,63 @@ export const NFT_MANAGER_CONTRACT: {
     534352: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
+};
+
+export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {
+  1: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
+  137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+  56: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
+  43114: "0xF2FD8219609E28C61A998cc534681f95D2740f61",
+  250: "0x878dFE971d44e9122048308301F540910Bbd934c",
+  25: "0x63Abb9973506189dC3741f61d25d4ed508151E6d",
+  42161: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+  199: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
+  10: "0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974",
+  59144: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  1101: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  324: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
+  8453: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  81457: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  5000: "0xcA11bde05977b3631167028862bE2a173976CA11",
+};
+
+export const CHAINS = [
+  {
+    id: "0x1",
+    token: "ETH",
+    label: "Ethereum Mainnet",
+    rpcUrl: "https://ethereum.kyberengineering.io",
+  },
+  {
+    id: "0x38",
+    token: "BNB",
+    label: "BSC",
+    rpcUrl: "https://bsc.kyberengineering.io",
+  },
+  {
+    id: "0x89",
+    token: "MATIC",
+    label: "Polygon",
+    rpcUrl: "https://polygon.kyberengineering.io",
+  },
+  {
+    id: "0xc7",
+    token: "BTT",
+    label: "BTTC",
+    rpcUrl: "https://bttc.kyberengineering.io",
+  },
+  {
+    id: "0x2105",
+    token: "ETH",
+    label: "Base",
+    rpcUrl: "https://base.llamarpc.com	",
+  },
+];
+
+export const PATHS = {
+  KYBERSWAP_DOCS: "https://docs.kyberswap.com",
+  INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
+  KYBERSWAP_PRICE_API: "https://price.kyberswap.com",
+  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
+  ZAP_API: "https://zap-api.kyberswap.com",
 };

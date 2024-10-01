@@ -91,35 +91,38 @@ function App() {
 
   return (
     <>
-      <button onClick={() => (wallet ? disconnect(wallet) : connect())}>
-        {!wallet ? "connect wallet" : "disconnect"}
+      <button
+        style={{ color: "#fff" }}
+        onClick={() => (wallet ? disconnect(wallet) : connect())}
+      >
+        {!wallet ? "Connect wallet" : "Disconnect"}
       </button>
       <div>{wallet?.accounts?.[0].address}</div>
       <LiquidityWidget
-        theme={{
-          text: "#FFFFFF",
-          subText: "#B6AECF",
-          icons: "#a9a9a9",
-          layer1: "#27262C",
-          dialog: "#27262C",
-          layer2: "#363046",
-          stroke: "#363046",
-          chartRange: "#5DC5D2",
-          chartArea: "#457F89",
-          accent: "#5DC5D2",
-          warning: "#F4B452",
-          error: "#FF5353",
-          success: "#189470",
-          fontFamily: "Kanit, Sans-serif",
-          borderRadius: "20px",
-          buttonRadius: "16px",
-          boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
-        }}
+        // theme={{
+        //   text: "#FFFFFF",
+        //   subText: "#B6AECF",
+        //   icons: "#a9a9a9",
+        //   layer1: "#27262C",
+        //   dialog: "#27262C",
+        //   layer2: "#363046",
+        //   stroke: "#363046",
+        //   chartRange: "#5DC5D2",
+        //   chartArea: "#457F89",
+        //   accent: "#5DC5D2",
+        //   warning: "#F4B452",
+        //   error: "#FF5353",
+        //   success: "#189470",
+        //   fontFamily: "Kanit, Sans-serif",
+        //   borderRadius: "20px",
+        //   buttonRadius: "16px",
+        //   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
+        // }}
         provider={ethersProvider}
-        chainId={137}
+        chainId={42161}
         // positionId="730708"
         poolType={PoolType.DEX_UNISWAPV3}
-        poolAddress="0xb6e57ed85c4c9dbfef2a68711e9d6f36c56e0fcb"
+        poolAddress="0x641C00A822e8b671738d32a431a4Fb6074E5c79d"
         // chainId={56}
         // positionId="24654"
         // poolType={PoolType.DEX_PANCAKESWAPV3}

@@ -14,7 +14,7 @@ const Web3Context = createContext<
       provider: providers.Web3Provider | providers.JsonRpcProvider;
       readProvider: providers.JsonRpcProvider;
       chainId: number;
-      account: string | undefined;
+      account: any;
       networkChainId: number | undefined;
     }
   | undefined

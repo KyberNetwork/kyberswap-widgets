@@ -15,7 +15,7 @@ type ContextState = {
   theme: Theme;
   feeAddress?: string;
   feePcm?: number;
-  error?: string
+  error?: string;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -79,8 +79,10 @@ const UniV3Provider = ({
   positionId,
   ...rest
 }: Omit<Props, "poolType">) => {
-  const { loading, pool, position, error } = useUniV3PoolInfo(poolAddress, positionId);
-  console.log(position)
+  const { loading, pool, position, error } = useUniV3PoolInfo(
+    poolAddress,
+    positionId
+  );
 
   const poolAdapter = useMemo(
     () => (pool ? new PoolAdapter(pool) : null),

@@ -6,7 +6,12 @@ import { Interface } from "ethers/lib/utils";
 import { useWeb3Provider } from "../useProvider";
 import { FeeAmount, Pool, Position as UniPosition } from "@uniswap/v3-sdk";
 import { BigintIsh, Token } from "@uniswap/sdk-core";
-import { NFT_MANAGER_CONTRACT, NetworkInfo, PoolType } from "../../constants";
+import {
+  NFT_MANAGER_CONTRACT,
+  NetworkInfo,
+  PATHS,
+  PoolType,
+} from "../../constants";
 import { PositionAdaper } from "../../entities/Position";
 
 export class UniToken extends Token {
@@ -106,7 +111,7 @@ export default function usePoolInfo(
       }
 
       const tokens = await fetch(
-        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${address0},${address1}`
+        `${PATHS.KYBERSWAP_SETTING_API}?chainIds=${chainId}&addresses=${address0},${address1}`
       )
         .then((res) => res.json())
         .then((res) => res?.data?.tokens || []);
@@ -124,25 +129,24 @@ export default function usePoolInfo(
       ];
 
       if (addressToImport.length) {
-        const tokens = await fetch(
-          "https://ks-setting.kyberswap.com/api/v1/tokens/import",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              tokens: addressToImport.map((item) => ({
-                chainId: chainId.toString(),
-                address: item,
-              })),
-            }),
-          }
-        )
+        const tokens = await fetch(`${PATHS.KYBERSWAP_SETTING_API}/import`, {
+          method: "POST",
+          body: JSON.stringify({
+            tokens: addressToImport.map((item) => ({
+              chainId: chainId.toString(),
+              address: item,
+            })),
+          }),
+        })
           .then((res) => res.json())
-          .then(
-            (res) =>
-              res?.data?.tokens.map((item: { data: TokenInfo }) => ({
-                ...item.data,
-                chainId: +item.data.chainId,
-              })) || []
+          .then((res) =>
+            res?.data?.tokens.map(
+              (item: { data: TokenInfo }) =>
+                ({
+                  ...item.data,
+                  chainId: +item.data.chainId,
+                } || [])
+            )
           );
 
         if (!token0Info)

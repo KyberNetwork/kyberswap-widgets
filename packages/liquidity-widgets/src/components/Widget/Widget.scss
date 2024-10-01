@@ -1,8 +1,10 @@
+@import "./fonts.scss";
+
 :root {
-  --ks-lw-text: #212121;
+  --ks-lw-text: #ffffff;
   --ks-lw-subText: #979797;
   --ks-lw-icons: #a9a9a9;
-  --ks-lw-layer1: #0f0f0f;
+  --ks-lw-layer1: #1c1c1c;
   --ks-lw-dialog: #1c1c1c;
   --ks-lw-layer2: #313131;
   --ks-lw-stroke: #313131;
@@ -19,12 +21,14 @@
   --ks-lw-buttonRadius: 24px;
 
   --ks-lw-boxShadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
+
+  font-family: "Work Sans", sans-serif;
 }
 
 .ks-lw {
   background: var(--ks-lw-layer1);
   color: var(--ks-lw-text);
-  max-width: 680px;
+  max-width: 720px;
   border-radius: var(--ks-lw-borderRadius);
   padding: 24px;
   font-family: var(--ks-lw-fontFamily);

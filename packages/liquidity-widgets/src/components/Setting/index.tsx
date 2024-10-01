@@ -96,16 +96,16 @@ export default function Setting() {
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
           width="220px"
         >
-          <div className="setting-title underline">Max Slippage</div>
+          <div className="setting-title text-underline">Slippage Tolerance</div>
         </MouseoverTooltip>
         <SlippageInput />
 
         <div className="row-btw">
           <MouseoverTooltip
-            text="Transaction will revert if it is pending for longer than the indicated time."
+            text="Your transaction will revert if it is left confirming for longer than this time."
             width="220px"
           >
-            <div className="setting-title underline">
+            <div className="setting-title text-underline">
               Transaction Time Limit
             </div>
           </MouseoverTooltip>
@@ -130,10 +130,26 @@ export default function Setting() {
 
         <div className="row-btw">
           <MouseoverTooltip
+            text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+            width="220px"
+          >
+            <div className="setting-title text-underline">Degen Mode</div>
+          </MouseoverTooltip>
+          <Toggle
+            isActive={degenMode}
+            toggle={() => {
+              if (!degenMode) setShowConfirm(true);
+              else setDegenMode(false);
+            }}
+          />
+        </div>
+
+        <div className="row-btw">
+          <MouseoverTooltip
             text="Zap will include DEX aggregator to find the best price."
             width="220px"
           >
-            <div className="setting-title underline">
+            <div className="setting-title text-underline">
               Use Aggregator for Zaps
             </div>
           </MouseoverTooltip>
@@ -141,22 +157,6 @@ export default function Setting() {
             isActive={enableAggregator}
             toggle={() => {
               setEnableAggregator(!enableAggregator);
-            }}
-          />
-        </div>
-
-        <div className="row-btw">
-          <MouseoverTooltip
-            text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
-            width="220px"
-          >
-            <div className="setting-title underline">Degen Mode</div>
-          </MouseoverTooltip>
-          <Toggle
-            isActive={degenMode}
-            toggle={() => {
-              if (!degenMode) setShowConfirm(true);
-              else setDegenMode(false);
             }}
           />
         </div>

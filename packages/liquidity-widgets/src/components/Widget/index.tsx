@@ -1,3 +1,4 @@
+import { ChainId } from "@kyberswap/ks-sdk-core";
 import { useEffect, useMemo } from "react";
 import "./Widget.scss";
 import { Web3Provider } from "../../hooks/useProvider";
@@ -8,7 +9,10 @@ import { providers } from "ethers";
 import { NetworkInfo, PoolType } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
+import { TokenListProvider } from "../../hooks/useTokenList";
 import Setting from "../Setting";
+
+import "../../globals.css";
 
 export { PoolType };
 
@@ -30,7 +34,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: number;
+  chainId: ChainId;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
@@ -70,25 +74,27 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <WidgetProvider
-        poolAddress={poolAddress}
-        poolType={poolType}
-        positionId={positionId}
-        theme={theme || defaultTheme}
-        feeAddress={feeAddress}
-        feePcm={feePcm}
-      >
-        <ZapContextProvider
-          includedSources={includedSources}
-          excludedSources={excludedSources}
-          source={source}
+      <TokenListProvider>
+        <WidgetProvider
+          poolAddress={poolAddress}
+          poolType={poolType}
+          positionId={positionId}
+          theme={theme || defaultTheme}
+          feeAddress={feeAddress}
+          feePcm={feePcm}
         >
-          <div className="ks-lw">
-            <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
-            <Setting />
-          </div>
-        </ZapContextProvider>
-      </WidgetProvider>
+          <ZapContextProvider
+            includedSources={includedSources}
+            excludedSources={excludedSources}
+            source={source}
+          >
+            <div className="ks-lw">
+              <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
+              <Setting />
+            </div>
+          </ZapContextProvider>
+        </WidgetProvider>
+      </TokenListProvider>
     </Web3Provider>
   );
 }

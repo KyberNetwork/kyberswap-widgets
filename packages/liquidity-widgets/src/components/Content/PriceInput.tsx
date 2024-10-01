@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Type, useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "../../hooks/useZapInState";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
+import { Type } from "../../hooks/types/zapInTypes";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -136,8 +137,8 @@ export default function PriceInput({ type }: { type: Type }) {
         />
         <span>
           {revertPrice
-            ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-            : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+            ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
+            : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
         </span>
       </div>
 

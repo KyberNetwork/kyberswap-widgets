@@ -5,17 +5,18 @@ import PriceInfo from "./PriceInfo";
 import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
+import { useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
   ProtocolFeeAction,
   Type,
-  useZapState,
-} from "../../hooks/useZapInState";
+  ZapAction,
+} from "../../hooks/types/zapInTypes";
 import ZapRoute from "./ZapRoute";
 import EstLiqValue from "./EstLiqValue";
-import useApproval, { APPROVAL_STATE } from "../../hooks/useApproval";
-import { useEffect, useState } from "react";
+import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
+import { useEffect, useMemo, useState } from "react";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
@@ -25,6 +26,9 @@ import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
+import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector";
+import { Token } from "@/entities/Pool";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
 
 export default function Content({
   onDismiss,
@@ -36,9 +40,7 @@ export default function Content({
   onTxSubmit?: (tx: string) => void;
 }) {
   const {
-    tokenIn,
     zapInfo,
-    amountIn,
     error,
     priceLower,
     priceUpper,
@@ -52,34 +54,195 @@ export default function Content({
     degenMode,
     revertPrice,
     marketPrice,
+    tokensIn,
+    amountsIn,
   } = useZapState();
 
   const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
   const { account } = useWeb3Provider();
 
-  let amountInWei = "0";
-  try {
-    amountInWei = parseUnits(amountIn || "0", tokenIn?.decimals).toString();
-  } catch {
-    //
-  }
+  const amountsInWei: string[] = useMemo(
+    () =>
+      !amountsIn
+        ? []
+        : amountsIn
+            .split(",")
+            .map((amount, index) =>
+              parseUnits(amount || "0", tokensIn[index]?.decimals).toString()
+            ),
+    [tokensIn, amountsIn]
+  );
 
-  const { loading, approvalState, approve } = useApproval(
-    amountInWei,
-    tokenIn?.address || "",
+  const { loading, approvalStates, addressToApprove, approve } = useApprovals(
+    amountsInWei,
+    tokensIn.map((token) => token?.address || ""),
     zapInfo?.routerAddress || ""
   );
 
+  const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+
+  const notApprove = useMemo(
+    () =>
+      tokensIn.find(
+        (item) =>
+          approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED
+      ),
+    [approvalStates, tokensIn]
+  );
+
+  const btnText = useMemo(() => {
+    if (error) return error;
+    if (zapLoading) return "Loading...";
+    if (loading) return "Checking Allowance";
+    if (addressToApprove) return "Approving";
+    if (notApprove) return `Approve ${notApprove.symbol}`;
+
+    return "Preview";
+  }, [addressToApprove, error, loading, notApprove, zapLoading]);
+
+  const pi = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | undefined;
+
+    const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenIn.amountUsd,
+      0
+    );
+
+    const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
+      (acc, item) => acc + +item.tokenOut.amountUsd,
+      0
+    );
+
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    const amountInPoolSwap =
+      poolSwapInfo?.poolSwap.swaps.reduce(
+        (acc, item) => acc + +item.tokenIn.amountUsd,
+        0
+      ) || 0;
+
+    const amountOutPoolSwap =
+      poolSwapInfo?.poolSwap.swaps.reduce(
+        (acc, item) => acc + +item.tokenOut.amountUsd,
+        0
+      ) || 0;
+
+    const swapPriceImpact =
+      swapAmountIn && swapAmountOut
+        ? ((swapAmountIn +
+            amountInPoolSwap -
+            (swapAmountOut + amountOutPoolSwap)) *
+            100) /
+          swapAmountIn
+        : null;
+
+    const feeInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.PROTOCOL_FEE
+    ) as ProtocolFeeAction | undefined;
+
+    const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+    const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+
+    const piVeryHigh =
+      (zapInfo &&
+        [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
+      (!!aggregatorSwapInfo &&
+        [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
+
+    const piHigh =
+      (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
+      (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
+
+    return { piVeryHigh, piHigh };
+  }, [zapInfo]);
+
+  const disabled = useMemo(
+    () =>
+      clickedApprove ||
+      loading ||
+      zapLoading ||
+      !!error ||
+      Object.values(approvalStates).some(
+        (item) => item === APPROVAL_STATE.PENDING
+      ) ||
+      (pi.piVeryHigh && !degenMode),
+    [
+      approvalStates,
+      clickedApprove,
+      degenMode,
+      error,
+      loading,
+      pi.piVeryHigh,
+      zapLoading,
+    ]
+  );
+
+  const newPool = useMemo(
+    () =>
+      zapInfo && pool
+        ? pool.newPool({
+            sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
+            tick: zapInfo.poolDetails.uniswapV3.newTick,
+            liquidity: BigNumber.from(pool.liquidity)
+              .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
+              .toString(),
+          })
+        : null,
+    [pool, zapInfo]
+  );
+
+  const isDevated = useMemo(
+    () =>
+      !!marketPrice &&
+      newPool &&
+      Math.abs(
+        marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
+      ) > 0.02,
+    [marketPrice, newPool]
+  );
+
+  const isOutOfRangeAfterZap = useMemo(
+    () =>
+      position && newPool
+        ? newPool.tickCurrent < position.tickLower ||
+          newPool.tickCurrent >= position.tickUpper
+        : false,
+    [newPool, position]
+  );
+
+  const marketRate = useMemo(
+    () =>
+      marketPrice
+        ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+        : null,
+    [marketPrice, revertPrice]
+  );
+
+  const price = useMemo(
+    () =>
+      newPool
+        ? (revertPrice
+            ? newPool.priceOf(newPool.token1)
+            : newPool.priceOf(newPool.token0)
+          ).toSignificant(6)
+        : "--",
+    [newPool, revertPrice]
+  );
+
   const hanldeClick = () => {
-    if (approvalState === APPROVAL_STATE.NOT_APPROVED) {
+    if (notApprove) {
       setClickedLoading(true);
-      approve().finally(() => setClickedLoading(false));
+      approve(notApprove.address).finally(() => setClickedLoading(false));
     } else if (
       pool &&
-      amountIn &&
-      tokenIn &&
+      amountsIn &&
+      tokensIn.every(Boolean) &&
       zapInfo &&
       priceLower &&
       priceUpper &&
@@ -90,8 +253,8 @@ export default function Content({
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
       setSnapshotState({
-        tokenIn,
-        amountIn,
+        tokensIn: tokensIn as Token[],
+        amountsIn,
         pool,
         zapInfo,
         priceLower,
@@ -106,114 +269,14 @@ export default function Content({
     }
   };
 
+  const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
+  const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
+
   useEffect(() => {
     if (snapshotState === null) {
       onTogglePreview?.(false);
     }
   }, [snapshotState, onTogglePreview]);
-
-  const btnText = (() => {
-    if (error) return error;
-    if (zapLoading) return "Loading...";
-    if (loading) return "Checking Allowance";
-    if (approvalState === APPROVAL_STATE.NOT_APPROVED) return "Approve";
-    if (approvalState === APPROVAL_STATE.PENDING) return "Approving";
-    return "Preview";
-  })();
-
-  const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
-  ) as AggregatorSwapAction | undefined;
-  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenIn.amountUsd,
-    0
-  );
-  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenOut.amountUsd,
-    0
-  );
-
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    ) || 0;
-  const amountOutPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amount,
-      0
-    ) || 0;
-
-  const swapPriceImpact =
-    swapAmountIn && swapAmountOut
-      ? ((swapAmountIn +
-          amountInPoolSwap -
-          (swapAmountOut + amountOutPoolSwap)) *
-          100) /
-        swapAmountIn
-      : null;
-
-  const feeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
-  ) as ProtocolFeeAction | undefined;
-
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
-
-  const piVeryHigh =
-    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
-    (!!aggregatorSwapInfo &&
-      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
-
-  const piHigh =
-    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
-    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
-
-  const disabled =
-    clickedApprove ||
-    loading ||
-    zapLoading ||
-    !!error ||
-    approvalState === APPROVAL_STATE.PENDING ||
-    (piVeryHigh && !degenMode);
-
-  const newPool =
-    zapInfo && pool
-      ? pool.newPool({
-          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-          tick: zapInfo.poolDetails.uniswapV3.newTick,
-          liquidity: BigNumber.from(pool.liquidity)
-            .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
-            .toString(),
-        })
-      : null;
-
-  const isDevated =
-    !!marketPrice &&
-    newPool &&
-    Math.abs(
-      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
-    ) > 0.02;
-
-  const isOutOfRangeAfterZap =
-    position && newPool
-      ? newPool.tickCurrent < position.tickLower ||
-        newPool.tickCurrent >= position.tickUpper
-      : false;
-
-  const marketRate = marketPrice
-    ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
-    : null;
-
-  const price = newPool
-    ? (revertPrice
-        ? newPool.priceOf(newPool.token1)
-        : newPool.priceOf(newPool.token0)
-      ).toSignificant(6)
-    : "--";
 
   return (
     <>
@@ -266,6 +329,18 @@ export default function Content({
           />
         </Modal>
       )}
+      {openTokenSelectModal && (
+        <Modal
+          isOpen
+          onClick={onCloseTokenSelectModal}
+          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px]"
+        >
+          <TokenSelector
+            onClose={onCloseTokenSelectModal}
+            mode={TOKEN_SELECT_MODE.ADD}
+          />
+        </Modal>
+      )}
       <Header onDismiss={onDismiss} />
       <div className="ks-lw-content">
         <div className="left">
@@ -296,7 +371,32 @@ export default function Content({
           </div>
           <PriceInput type={Type.PriceLower} />
           <PriceInput type={Type.PriceUpper} />
-          <LiquidityToAdd />
+
+          <div className="liquidity-to-add">
+            <div className="label">
+              Liquidity to {positionId ? "increase" : "Zap in"}
+            </div>
+            {tokensIn.map((_, tokenIndex: number) => (
+              <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
+            ))}
+          </div>
+
+          <div
+            className="mt-4 text-[var(--ks-lw-accent)] cursor-pointer"
+            onClick={onOpenTokenSelectModal}
+          >
+            + Add more token
+            <InfoHelper
+              text={`Can zap in with up to ${MAX_ZAP_IN_TOKENS} tokens`}
+              color={theme.accent}
+              style={{
+                verticalAlign: "baseline",
+                position: "relative",
+                top: 2,
+                left: 2,
+              }}
+            />
+          </div>
         </div>
 
         <div className="right">
@@ -378,18 +478,21 @@ export default function Content({
           disabled={disabled}
           onClick={hanldeClick}
           style={
-            !disabled && approvalState !== APPROVAL_STATE.NOT_APPROVED
+            !disabled &&
+            Object.values(approvalStates).some(
+              (item) => item !== APPROVAL_STATE.NOT_APPROVED
+            )
               ? {
                   background:
-                    piVeryHigh && degenMode
+                    pi.piVeryHigh && degenMode
                       ? theme.error
-                      : piHigh
+                      : pi.piHigh
                       ? theme.warning
                       : undefined,
                   border:
-                    piVeryHigh && degenMode
+                    pi.piVeryHigh && degenMode
                       ? `1px solid ${theme.error}`
-                      : piHigh
+                      : pi.piHigh
                       ? theme.warning
                       : undefined,
                 }
@@ -397,7 +500,7 @@ export default function Content({
           }
         >
           {btnText}
-          {piVeryHigh && (
+          {pi.piVeryHigh && (
             <InfoHelper
               width="300px"
               text={

@@ -2,7 +2,7 @@ import { formatUnits, getAddress } from "ethers/lib/utils";
 import { PoolType } from "../constants";
 import uniswapLogo from "../assets/uniswap.png";
 import pancakeLogo from "../assets/pancake.png";
-import { ProtocolFeeAction } from "../hooks/useZapInState";
+import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {

@@ -1,37 +1,91 @@
-import WalletIcon from "../../assets/wallet.svg";
-import SwitchIcon from "../../assets/switch.svg";
 import { useZapState } from "../../hooks/useZapInState";
-import { formatCurrency, formatWei } from "../../utils";
-import { BigNumber } from "ethers";
+import { useMemo, useState } from "react";
+import { formatCurrency, formatWei } from "@/utils";
+import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector/index";
+import Modal from "../Modal";
+import WalletIcon from "../../assets/wallet.svg";
+import DropdownIcon from "../../assets/dropdown.svg";
 import { formatUnits } from "ethers/lib/utils";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { BigNumber } from "ethers";
+import { NATIVE_TOKEN_ADDRESS } from "@/constants";
 
-export default function LiquidityToAdd() {
-  const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn, zapInfo } =
+export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
+  const { tokensIn, amountsIn, setAmountsIn, balanceTokens, tokensInUsdPrice } =
     useZapState();
-  const { positionId } = useWidgetInfo();
 
-  const initUsd = zapInfo?.zapDetails.initialAmountUsd;
+  const [openTokenSelectModal, setOpenTokenSelectModal] =
+    useState<boolean>(false);
+
+  const token = useMemo(() => tokensIn[tokenIndex], [tokensIn, tokenIndex]);
+  const amount = useMemo(
+    () => amountsIn.split(",")[tokenIndex],
+    [amountsIn, tokenIndex]
+  );
+
+  const usdAmount = useMemo(
+    () => tokensInUsdPrice[tokenIndex] * parseFloat(amount || "0"),
+    [tokensInUsdPrice, tokenIndex, amount]
+  );
+
+  const balanceInWei = useMemo(
+    () =>
+      balanceTokens[
+        token.address === NATIVE_TOKEN_ADDRESS ||
+        token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
+          ? NATIVE_TOKEN_ADDRESS
+          : token.address.toLowerCase()
+      ]?.toString() || "0",
+    [balanceTokens, token]
+  );
+
+  const onChangeAmount = (e: any) => {
+    const value = e.target.value.replace(/,/g, ".");
+    const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
+    if (
+      value === "" ||
+      inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    ) {
+      onChangeTokenAmount(value);
+    }
+  };
+
+  const onChangeTokenAmount = (newAmount: string | number) => {
+    const listAmountsIn = amountsIn.split(",");
+    listAmountsIn[tokenIndex] = newAmount.toString();
+    setAmountsIn(listAmountsIn.join(","));
+  };
+
+  const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
+  const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
   return (
-    <div className="liquidity-to-add">
-      <div className="label">
-        Liquidity to {positionId ? "increase" : "add"}
-      </div>
-      <div className="input-token">
+    <>
+      {openTokenSelectModal && (
+        <Modal
+          isOpen
+          onClick={onCloseTokenSelectModal}
+          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px]"
+        >
+          <TokenSelector
+            onClose={onCloseTokenSelectModal}
+            mode={TOKEN_SELECT_MODE.SELECT}
+            selectedTokenAddress={token.address}
+          />
+        </Modal>
+      )}
+      <div className="input-token bg-[var(--ks-lw-layer2)]">
         <div className="balance">
           <div className="balance-flex">
             <button
               className="small"
               onClick={() => {
-                if (balanceIn && tokenIn) {
-                  setAmountIn(
+                if (balanceInWei)
+                  onChangeTokenAmount(
                     formatUnits(
-                      BigNumber.from(balanceIn).toString(),
-                      tokenIn.decimals
+                      BigNumber.from(balanceInWei).toString(),
+                      token.decimals
                     )
                   );
-                }
               }}
             >
               Max
@@ -39,11 +93,11 @@ export default function LiquidityToAdd() {
             <button
               className="small"
               onClick={() => {
-                if (balanceIn && tokenIn)
-                  setAmountIn(
+                if (balanceInWei)
+                  onChangeTokenAmount(
                     formatUnits(
-                      BigNumber.from(balanceIn).div(2).toString(),
-                      tokenIn.decimals
+                      BigNumber.from(balanceInWei).div(2).toString(),
+                      token.decimals
                     )
                   );
               }}
@@ -54,24 +108,15 @@ export default function LiquidityToAdd() {
 
           <div className="balance-flex">
             <WalletIcon />
-            {formatWei(balanceIn, tokenIn?.decimals)} {tokenIn?.symbol}
+            {formatWei(balanceInWei, token.decimals) || ""}
           </div>
         </div>
 
         <div className="input-row">
           <div className="input">
             <input
-              value={amountIn}
-              onChange={(e) => {
-                const value = e.target.value.replace(/,/g, ".");
-                const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
-                if (
-                  value === "" ||
-                  inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-                ) {
-                  setAmountIn(value);
-                }
-              }}
+              value={amount}
+              onChange={onChangeAmount}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"
@@ -83,25 +128,21 @@ export default function LiquidityToAdd() {
               spellCheck="false"
             />
           </div>
-          {!!initUsd && (
-            <div className="est-usd">~{formatCurrency(+initUsd)}</div>
+          {!!usdAmount && (
+            <div className="est-usd">~{formatCurrency(usdAmount)}</div>
           )}
-          <button onClick={toggleTokenIn}>
-            {tokenIn && (
-              <img
-                src={tokenIn?.logoURI}
-                alt="TokenLogo"
-                width="20px"
-                style={{ borderRadius: "50%" }}
-              />
-            )}
-            <span>{tokenIn?.symbol}</span>
-            <SwitchIcon />
+          <button onClick={onOpenTokenSelectModal}>
+            <img
+              src={token.logoURI}
+              alt="TokenLogo"
+              width="20px"
+              style={{ borderRadius: "50%" }}
+            />
+            <span>{token.symbol}</span>
+            <DropdownIcon />
           </button>
         </div>
       </div>
-
-      <div className="note">Zap In with any tokens is coming soon</div>
-    </div>
+    </>
   );
 }

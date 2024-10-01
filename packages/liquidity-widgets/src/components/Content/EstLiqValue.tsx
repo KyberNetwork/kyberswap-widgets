@@ -1,14 +1,15 @@
 import { BigNumber } from "ethers";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
-  PartnerFeeAction,
   PoolSwapAction,
-  ProtocolFeeAction,
   RefundAction,
-  useZapState,
-} from "../../hooks/useZapInState";
+  PartnerFeeAction,
+  ProtocolFeeAction,
+  ZapAction,
+} from "../../hooks/types/zapInTypes";
 import {
   PI_LEVEL,
   formatCurrency,
@@ -19,13 +20,14 @@ import {
 import InfoHelper from "../InfoHelper";
 import { formatUnits } from "ethers/lib/utils";
 import { MouseoverTooltip } from "../Tooltip";
+import { PATHS } from "@/constants";
 
 export default function EstLiqValue() {
-  const { zapInfo, source } = useZapState();
+  const { zapInfo, source, slippage } = useZapState();
   const { pool, theme, position } = useWidgetInfo();
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
+    (item) => item.type === ZapAction.ADD_LIQUIDITY
   ) as AddLiquidityAction | undefined;
   const addedAmount0 = formatUnits(
     addLiquidityInfo?.addLiquidity.token0.amount || "0",
@@ -37,7 +39,7 @@ export default function EstLiqValue() {
   );
 
   const refundInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_REFUND"
+    (item) => item.type === ZapAction.REFUND
   ) as RefundAction | null;
   const refundToken0 =
     refundInfo?.refund.tokens.filter(
@@ -75,7 +77,7 @@ export default function EstLiqValue() {
     0;
 
   const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
+    (item) => item.type === ZapAction.AGGREGATOR_SWAP
   ) as AggregatorSwapAction | undefined;
   const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
     (acc, item) => acc + +item.tokenIn.amountUsd,
@@ -87,7 +89,7 @@ export default function EstLiqValue() {
   );
 
   const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
+    (item) => item.type === ZapAction.POOL_SWAP
   ) as PoolSwapAction | null;
   const amountInPoolSwap =
     poolSwapInfo?.poolSwap.swaps.reduce(
@@ -104,11 +106,11 @@ export default function EstLiqValue() {
   const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
 
   const feeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+    (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
   const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PARTNER_FEE"
+    (item) => item.type === ZapAction.PARTNET_FEE
   ) as PartnerFeeAction | undefined;
 
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
@@ -229,7 +231,7 @@ export default function EstLiqValue() {
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="label underline">Est. Remaining Value</div>
+            <div className="label text-underline">Est. Remaining Value</div>
           </MouseoverTooltip>
 
           <div>
@@ -254,7 +256,7 @@ export default function EstLiqValue() {
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="label underline">Swap Price Impact</div>
+            <div className="label text-underline">Swap Impact</div>
           </MouseoverTooltip>
           {aggregatorSwapInfo || poolSwapInfo ? (
             <div
@@ -276,11 +278,18 @@ export default function EstLiqValue() {
         </div>
 
         <div className="detail-row">
+          <MouseoverTooltip text="Swap Max Slippage" width="220px">
+            <div className="label text-underline">Swap Max Slippage</div>
+          </MouseoverTooltip>
+          <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
+        </div>
+
+        <div className="detail-row">
           <MouseoverTooltip
             text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
             width="220px"
           >
-            <div className="label underline">Zap Impact</div>
+            <div className="label text-underline">Zap Impact</div>
           </MouseoverTooltip>
           {zapInfo ? (
             <div
@@ -309,7 +318,7 @@ export default function EstLiqValue() {
                 You still have to pay the standard gas fees.{" "}
                 <a
                   style={{ color: theme.accent }}
-                  href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                  href={`${PATHS.KYBERSWAP_DOCS}/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model`}
                   target="_blank"
                   rel="noopener norefferer"
                 >
@@ -319,7 +328,7 @@ export default function EstLiqValue() {
             }
             width="220px"
           >
-            <div className="label underline">Zap Fee</div>
+            <div className="label text-underline">Zap Fee</div>
           </MouseoverTooltip>
 
           <MouseoverTooltip
@@ -333,7 +342,7 @@ export default function EstLiqValue() {
                 : ""
             }
           >
-            <div className="underline">
+            <div>
               {feeInfo
                 ? parseFloat((protocolFee + partnerFee).toFixed(3)) + "%"
                 : "--"}

@@ -55,27 +55,22 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
       <div className="ks-lw-header">
         <div className="pool-info">
           <div className="pool-tokens-logo">
-            <img src={token0.logoURI} alt="" width="24px" height="24px" />
-            <img src={token1.logoURI} alt="" width="24px" height="24px" />
-            <img
-              className="network-logo"
-              src={NetworkInfo[chainId].logo}
-              width="12px"
-              height="12px"
-            />
+            <img src={token0.logoURI} alt="token0 logo" />
+            <img src={token1.logoURI} alt="token1 logo" />
+            <img className="network-logo" src={NetworkInfo[chainId].logo} />
           </div>
 
           <span className="symbol">
             {token0.symbol}/{token1.symbol}
           </span>
 
-          <div style={{ display: "flex", gap: "4px" }}>
-            <div className="tag">Fee {fee / UNI_V3_BPS}%</div>
-            <div className="dex-type">
-              <span>|</span>
-              <img src={logo} width={16} height={16} alt="" />
-              <span>{name}</span>
+          <div className="dex-type">
+            <div className="rounded-full text-[12px] bg-[--ks-lw-layer2] text-[--ks-lw-text] px-[12px] py-[2px]">
+              Fee {fee / UNI_V3_BPS}%
             </div>
+            <span className="divide">|</span>
+            <img src={logo} width={16} height={16} alt="" />
+            <span>{name}</span>
           </div>
         </div>
 
