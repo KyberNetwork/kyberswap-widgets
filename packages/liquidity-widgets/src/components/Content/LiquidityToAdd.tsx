@@ -8,10 +8,17 @@ import DropdownIcon from "../../assets/dropdown.svg";
 import { formatUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
+import { X } from "lucide-react";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
-  const { tokensIn, amountsIn, setAmountsIn, balanceTokens, tokensInUsdPrice } =
-    useZapState();
+  const {
+    tokensIn,
+    setTokensIn,
+    amountsIn,
+    setAmountsIn,
+    balanceTokens,
+    tokensInUsdPrice,
+  } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] =
     useState<boolean>(false);
@@ -58,6 +65,16 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
+  const onClickRemoveToken = () => {
+    const cloneTokensIn = [...tokensIn];
+    cloneTokensIn.splice(tokenIndex, 1);
+    setTokensIn(cloneTokensIn);
+
+    const listAmountsIn = amountsIn.split(",");
+    listAmountsIn.splice(tokenIndex, 1);
+    setAmountsIn(listAmountsIn.join(","));
+  };
+
   return (
     <>
       {openTokenSelectModal && (
@@ -73,7 +90,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           />
         </Modal>
       )}
-      <div className="input-token bg-[var(--ks-lw-layer2)]">
+      <div className="input-token bg-[var(--ks-lw-layer2)] relative">
         <div className="balance">
           <div className="balance-flex">
             <button
@@ -142,6 +159,15 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             <DropdownIcon />
           </button>
         </div>
+
+        {tokensIn.length > 1 ? (
+          <div
+            className="text-[--ks-lw-subText] cursor-pointer hover:text-[--ks-lw-text] w-fit absolute top-[-16px] right-[3px] brightness-75"
+            onClick={onClickRemoveToken}
+          >
+            <X size={14} />
+          </div>
+        ) : null}
       </div>
     </>
   );

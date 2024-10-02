@@ -210,12 +210,16 @@
       }
 
       .input-token {
-        margin-top: 8px;
+        margin-top: 10px;
         border: 1px solid var(--ks-lw-stroke);
         background: var(--ks-lw-layer2);
         border-radius: var(--ks-lw-borderRadius);
         padding: 12px;
         filter: brightness(84%);
+
+        &:nth-child(n + 3) {
+          margin-top: 18px;
+        }
 
         .balance {
           display: flex;
