@@ -95,11 +95,15 @@ export const ZapContextProvider = ({
   source,
   excludedSources,
   includedSources,
+  initDepositTokens,
+  initAmounts,
 }: {
   children: ReactNode;
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  initDepositTokens?: string;
+  initAmounts?: string;
 }) => {
   const {
     pool,
@@ -264,9 +268,32 @@ export const ZapContextProvider = ({
   }, [position?.tickUpper, position?.tickLower]);
 
   useEffect(() => {
+    if (!pool || tokensIn.length) return;
+    if (initDepositTokens && tokens.length) {
+      const listInitTokens = initDepositTokens
+        .split(",")
+        .map((address: string) =>
+          tokens.find(
+            (token: Token) =>
+              token.address.toLowerCase() === address.toLowerCase()
+          )
+        )
+        .filter((item) => !!item);
+      const listInitAmounts = initAmounts?.split(",") || [];
+      const parseListAmountsIn: string[] = [];
+
+      if (listInitTokens.length) {
+        listInitTokens.forEach((_: Token | undefined, index: number) => {
+          parseListAmountsIn.push(listInitAmounts[index] || "");
+        });
+        setTokensIn(listInitTokens);
+        setAmountsIn(parseListAmountsIn.join(","));
+      }
+
+      return;
+    }
     if (
-      pool &&
-      !tokensIn.length &&
+      !initDepositTokens &&
       token0Price &&
       token1Price &&
       Object.keys(balances).length
@@ -313,6 +340,9 @@ export const ZapContextProvider = ({
     token0Price,
     token1Price,
     balances,
+    initDepositTokens,
+    tokens,
+    initAmounts,
   ]);
 
   useEffect(() => {

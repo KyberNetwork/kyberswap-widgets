@@ -42,6 +42,8 @@ export interface WidgetProps {
   source: string;
   includedSources?: string;
   excludedSources?: string;
+  initDepositTokens?: string;
+  initAmounts?: string;
 }
 
 export default function Widget({
@@ -58,6 +60,8 @@ export default function Widget({
   includedSources,
   excludedSources,
   source,
+  initDepositTokens,
+  initAmounts,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -87,6 +91,8 @@ export default function Widget({
             includedSources={includedSources}
             excludedSources={excludedSources}
             source={source}
+            initDepositTokens={initDepositTokens}
+            initAmounts={initAmounts}
           >
             <div className="ks-lw">
               <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
