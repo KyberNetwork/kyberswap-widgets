@@ -117,21 +117,9 @@
       margin-top: 1rem;
     }
 
-    .label-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-
-      .outline-btn {
-        font-size: 12px;
-        border-radius: 4px;
-        padding: 4px 6px;
-      }
-    }
-
     .price-input {
-      margin-top: 0.5rem;
-      padding: 10px 12px 10px 8px;
+      margin-top: 0.6rem;
+      padding: 10px 14px;
       gap: 10px;
       display: flex;
       border: 1px solid var(--ks-lw-stroke);

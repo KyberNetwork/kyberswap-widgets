@@ -346,3 +346,17 @@ export const PATHS = {
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
   ZAP_API: "https://zap-api.kyberswap.com",
 };
+
+export const DEFAULT_PRICE_RANGE = {
+  LOW_POOL_FEE: 0.01,
+  MEDIUM_POOL_FEE: 0.1,
+  HIGH_POOL_FEE: 0.5,
+};
+
+export const FULL_PRICE_RANGE = "Full Range";
+
+export const PRICE_RANGE = {
+  LOW_POOL_FEE: [FULL_PRICE_RANGE, 0.01, 0.005, 0.001],
+  MEDIUM_POOL_FEE: [FULL_PRICE_RANGE, 0.2, 0.1, 0.05],
+  HIGH_POOL_FEE: [FULL_PRICE_RANGE, 0.5, 0.2, 0.1],
+};

@@ -22,13 +22,24 @@ import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
-import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
+import {
+  PI_LEVEL,
+  correctPrice,
+  formatNumber,
+  getPriceImpact,
+} from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector";
 import { Token } from "@/entities/Pool";
-import { MAX_ZAP_IN_TOKENS } from "@/constants";
+import {
+  FULL_PRICE_RANGE,
+  MAX_ZAP_IN_TOKENS,
+  PRICE_RANGE,
+  UNI_V3_BPS,
+} from "@/constants";
+import { Button } from "../ui/button";
 
 export default function Content({
   onDismiss,
@@ -58,8 +69,16 @@ export default function Content({
     amountsIn,
   } = useZapState();
 
-  const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
+  const {
+    pool,
+    theme,
+    error: loadPoolError,
+    position,
+    poolType,
+  } = useWidgetInfo();
   const { account } = useWeb3Provider();
+
+  const { fee = 0 } = pool || {};
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -82,6 +101,18 @@ export default function Content({
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+
+  const priceRanges = useMemo(
+    () =>
+      !fee
+        ? []
+        : fee / UNI_V3_BPS <= 0.0001
+        ? PRICE_RANGE.LOW_POOL_FEE
+        : fee / UNI_V3_BPS > 0.001
+        ? PRICE_RANGE.HIGH_POOL_FEE
+        : PRICE_RANGE.MEDIUM_POOL_FEE,
+    [fee]
+  );
 
   const notApprove = useMemo(
     () =>
@@ -269,6 +300,46 @@ export default function Content({
     }
   };
 
+  const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
+    if (!pool) return;
+    if (range === FULL_PRICE_RANGE) {
+      setTick(Type.PriceLower, revertPrice ? pool.maxTick : pool.minTick);
+      setTick(Type.PriceUpper, revertPrice ? pool.minTick : pool.maxTick);
+      return;
+    }
+
+    const currentPoolPrice = pool
+      ? revertPrice
+        ? pool.priceOf(pool.token1)
+        : pool.priceOf(pool.token0)
+      : undefined;
+
+    if (!currentPoolPrice) return;
+
+    const left = +currentPoolPrice.toSignificant(18) * (1 - range);
+    const right = +currentPoolPrice.toSignificant(18) * (1 + range);
+    correctPrice(
+      left.toString(),
+      Type.PriceLower,
+      pool,
+      tickLower,
+      tickUpper,
+      poolType,
+      revertPrice,
+      setTick
+    );
+    correctPrice(
+      right.toString(),
+      Type.PriceUpper,
+      pool,
+      tickLower,
+      tickUpper,
+      poolType,
+      revertPrice,
+      setTick
+    );
+  };
+
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
@@ -346,28 +417,21 @@ export default function Content({
         <div className="left">
           <PriceInfo />
           <LiquidityChart />
-          <div className="label-row" style={{ marginTop: "1rem" }}>
-            {positionId === undefined
-              ? "Price ranges"
-              : "Your position price ranges"}
-            {positionId === undefined && (
-              <button
-                className="outline-btn"
-                onClick={() => {
-                  if (!pool) return;
-                  setTick(
-                    Type.PriceLower,
-                    revertPrice ? pool.maxTick : pool.minTick
-                  );
-                  setTick(
-                    Type.PriceUpper,
-                    revertPrice ? pool.minTick : pool.maxTick
-                  );
-                }}
+          <div className="flex gap-[6px] mb-[10px]">
+            {priceRanges.map((item: string | number, index: number) => (
+              <Button
+                key={index}
+                variant="outline"
+                className="flex-1 bg-transparent text-[--ks-lw-subText] border-[--ks-lw-stroke] rounded-full hover:bg-transparent hover:text-[--ks-lw-accent] hover:border-[--ks-lw-accent] focus:outline-none text-[14px] font-normal"
+                onClick={() =>
+                  handleSelectPriceRange(
+                    item as typeof FULL_PRICE_RANGE | number
+                  )
+                }
               >
-                Full range
-              </button>
-            )}
+                {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}
+              </Button>
+            ))}
           </div>
           <PriceInput type={Type.PriceLower} />
           <PriceInput type={Type.PriceUpper} />

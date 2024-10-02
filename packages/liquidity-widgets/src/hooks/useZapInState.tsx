@@ -320,7 +320,7 @@ export const ZapContextProvider = ({
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
       pool &&
-      !error
+      (!error || error === zapApiError)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";
@@ -418,6 +418,7 @@ export const ZapContextProvider = ({
     tokensIn,
     debounceAmountsIn,
     error,
+    zapApiError,
   ]);
 
   return (

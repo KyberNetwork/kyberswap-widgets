@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useZapState } from "../../hooks/useZapInState";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { nearestUsableTick, tryParseTick } from "../../entities/Pool";
+import { nearestUsableTick } from "../../entities/Pool";
 import { Type } from "../../hooks/types/zapInTypes";
+import { correctPrice } from "@/utils";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -72,25 +73,18 @@ export default function PriceInput({ type }: { type: Type }) {
     }
   };
 
-  const correctPrice = (value: string) => {
+  const wrappedCorrectPrice = (value: string) => {
     if (!pool) return;
-    if (revertPrice) {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
-    } else {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
-    }
+    correctPrice(
+      value,
+      type,
+      pool,
+      tickLower,
+      tickUpper,
+      poolType,
+      revertPrice,
+      setTick
+    );
   };
 
   useEffect(() => {
@@ -123,7 +117,7 @@ export default function PriceInput({ type }: { type: Type }) {
               setLocalValue(value);
             }
           }}
-          onBlur={(e) => correctPrice(e.target.value)}
+          onBlur={(e) => wrappedCorrectPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"

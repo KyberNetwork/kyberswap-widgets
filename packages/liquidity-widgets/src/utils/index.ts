@@ -2,7 +2,8 @@ import { formatUnits, getAddress } from "ethers/lib/utils";
 import { PoolType } from "../constants";
 import uniswapLogo from "../assets/uniswap.png";
 import pancakeLogo from "../assets/pancake.png";
-import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
+import { ProtocolFeeAction, Type } from "@/hooks/types/zapInTypes";
+import { nearestUsableTick, PoolAdapter, tryParseTick } from "@/entities/Pool";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -268,4 +269,33 @@ export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Stable]) return 0.1;
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
   return 1;
+};
+
+export const correctPrice = (
+  value: string,
+  type: Type,
+  pool: PoolAdapter,
+  tickLower: number | null,
+  tickUpper: number | null,
+  poolType: PoolType,
+  revertPrice: boolean,
+  setTick: (type: Type, value: number) => void
+) => {
+  if (!pool) return;
+  const defaultTick =
+    (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
+
+  if (revertPrice) {
+    const tick =
+      tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
+      defaultTick;
+    if (Number.isInteger(tick))
+      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
+  } else {
+    const tick =
+      tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
+      defaultTick;
+    if (Number.isInteger(tick))
+      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
+  }
 };
