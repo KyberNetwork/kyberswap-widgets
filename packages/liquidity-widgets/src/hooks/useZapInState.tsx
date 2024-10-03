@@ -286,7 +286,7 @@ export const ZapContextProvider = ({
         listInitTokens.forEach((_: Token | undefined, index: number) => {
           parseListAmountsIn.push(listInitAmounts[index] || "");
         });
-        setTokensIn(listInitTokens);
+        setTokensIn(listInitTokens as Token[]);
         setAmountsIn(parseListAmountsIn.join(","));
       }
 

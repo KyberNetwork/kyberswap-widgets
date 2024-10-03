@@ -32,14 +32,21 @@ import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector";
-import { Token } from "@/entities/Pool";
+import { Price, Token } from "@/entities/Pool";
 import {
+  DEFAULT_PRICE_RANGE,
   FULL_PRICE_RANGE,
   MAX_ZAP_IN_TOKENS,
   PRICE_RANGE,
   UNI_V3_BPS,
 } from "@/constants";
 import { Button } from "../ui/button";
+
+interface SelectedRange {
+  range: typeof FULL_PRICE_RANGE | number;
+  priceLower: Price | null;
+  priceUpper: Price | null;
+}
 
 export default function Content({
   onDismiss,
@@ -101,6 +108,9 @@ export default function Content({
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(
+    null
+  );
 
   const priceRanges = useMemo(
     () =>
@@ -302,9 +312,11 @@ export default function Content({
 
   const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
     if (!pool) return;
+
     if (range === FULL_PRICE_RANGE) {
       setTick(Type.PriceLower, revertPrice ? pool.maxTick : pool.minTick);
       setTick(Type.PriceUpper, revertPrice ? pool.minTick : pool.maxTick);
+      setSelectedRange({ range, priceLower: null, priceUpper: null });
       return;
     }
 
@@ -338,6 +350,7 @@ export default function Content({
       revertPrice,
       setTick
     );
+    setSelectedRange({ range, priceLower: null, priceUpper: null });
   };
 
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
@@ -348,6 +361,38 @@ export default function Content({
       onTogglePreview?.(false);
     }
   }, [snapshotState, onTogglePreview]);
+
+  // Set to show selected range on UI
+  useEffect(() => {
+    if (selectedRange?.range && priceLower && priceUpper) {
+      if (!selectedRange?.priceLower && !selectedRange?.priceUpper) {
+        setSelectedRange({
+          ...selectedRange,
+          priceLower,
+          priceUpper,
+        });
+      } else if (
+        selectedRange.priceLower?.toFixed() !== priceLower.toFixed() ||
+        selectedRange.priceUpper?.toFixed() !== priceUpper.toFixed()
+      )
+        setSelectedRange(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [priceLower, priceUpper]);
+
+  // Set default price range depending on protocol fee
+  useEffect(() => {
+    if (!fee) return;
+    if (!selectedRange)
+      handleSelectPriceRange(
+        fee / UNI_V3_BPS <= 0.0001
+          ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
+          : fee / UNI_V3_BPS > 0.001
+          ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
+          : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fee]);
 
   return (
     <>
@@ -422,7 +467,23 @@ export default function Content({
               <Button
                 key={index}
                 variant="outline"
-                className="flex-1 bg-transparent text-[--ks-lw-subText] border-[--ks-lw-stroke] rounded-full hover:bg-transparent hover:text-[--ks-lw-accent] hover:border-[--ks-lw-accent] focus:outline-none text-[14px] font-normal"
+                className={`
+                  flex-1 bg-transparent
+                  text-[--ks-lw-subText]
+                  border-[--ks-lw-stroke]
+                  rounded-full
+                  hover:bg-transparent
+                  hover:text-[--ks-lw-accent]
+                  hover:border-[--ks-lw-accent]
+                  focus:outline-none
+                  text-[14px]
+                  font-normal
+                  ${
+                    item === selectedRange?.range
+                      ? " text-[--ks-lw-accent] border-[--ks-lw-accent]"
+                      : ""
+                  }
+                `}
                 onClick={() =>
                   handleSelectPriceRange(
                     item as typeof FULL_PRICE_RANGE | number
