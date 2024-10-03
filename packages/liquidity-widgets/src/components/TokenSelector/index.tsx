@@ -91,8 +91,10 @@ export default function TokenSelector({
           (a: CustomizeToken, b: CustomizeToken) =>
             parseFloat(b.balance) - parseFloat(a.balance)
         )
-        .sort((a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected)
-        .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair),
+        .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair)
+        .sort(
+          (a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected
+        ),
     [tokens, mode, tokensIn, selectedTokenAddress, balanceTokens, pool]
   );
 
