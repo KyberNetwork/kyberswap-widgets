@@ -15,8 +15,8 @@ export default function Setting() {
     ttl,
     setTtl,
     toggleSetting,
-    enableAggregator,
-    setEnableAggregator,
+    // enableAggregator,
+    // setEnableAggregator,
     degenMode,
     setDegenMode,
   } = useZapState();
@@ -144,7 +144,7 @@ export default function Setting() {
           />
         </div>
 
-        <div className="row-btw">
+        {/* <div className="row-btw">
           <MouseoverTooltip
             text="Zap will include DEX aggregator to find the best price."
             width="220px"
@@ -159,7 +159,7 @@ export default function Setting() {
               setEnableAggregator(!enableAggregator);
             }}
           />
-        </div>
+        </div> */}
       </div>
     </>
   );

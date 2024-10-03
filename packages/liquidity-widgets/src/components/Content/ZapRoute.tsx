@@ -93,7 +93,7 @@ export default function ZapRoute() {
       <div className="subTitle">
         The actual Zap Routes could be adjusted with on-chain states
       </div>
-      <div className="divider" />
+      <div className="divider mt-[4px]" />
 
       {swapInfo.map((item, index) => (
         <div className="row" key={index}>
