@@ -47,6 +47,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
 
   const onChangeAmount = (e: any) => {
     const value = e.target.value.replace(/,/g, ".");
+    if (value === ".") return;
     const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
     if (
       value === "" ||

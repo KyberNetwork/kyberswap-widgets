@@ -9,8 +9,6 @@ import "./Preview.scss";
 import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
-  AggregatorSwapAction,
-  PoolSwapAction,
   RefundAction,
   ProtocolFeeAction,
   ZapRouteDetail,
@@ -25,6 +23,7 @@ import {
 import { useWeb3Provider } from "../../hooks/useProvider";
 import {
   PI_LEVEL,
+  PI_TYPE,
   formatCurrency,
   formatNumber,
   formatWei,
@@ -231,47 +230,16 @@ export default function Preview({
   ) as ProtocolFeeAction | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-
-  const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === ZapAction.AGGREGATOR_SWAP
-  ) as AggregatorSwapAction | undefined;
-  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenIn.amountUsd,
-    0
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    PI_TYPE.ZAP,
+    feeInfo
   );
-  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenOut.amountUsd,
-    0
-  );
-
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === ZapAction.POOL_SWAP
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    ) || 0;
-  const amountOutPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amount,
-      0
-    ) || 0;
-  const totalSwapIn = (swapAmountIn || 0) + amountInPoolSwap;
-  const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
-  const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
-
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
 
   const piVeryHigh =
-    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
-    (!!aggregatorSwapInfo &&
-      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
+    zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
 
-  const piHigh =
-    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
-    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
+  const piHigh = zapInfo && piRes.level === PI_LEVEL.HIGH;
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
@@ -714,24 +682,22 @@ export default function Preview({
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="summary-title text-underline">
-              Swap price impact
-            </div>
+            <div className="summary-title text-underline">Zap impact</div>
           </MouseoverTooltip>
-          {aggregatorSwapInfo || poolSwapInfo ? (
+          {zapInfo ? (
             <div
               className="summary-value"
               style={{
                 color:
-                  swapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                  swapPiRes.level === PI_LEVEL.INVALID
+                  piRes.level === PI_LEVEL.VERY_HIGH ||
+                  piRes.level === PI_LEVEL.INVALID
                     ? theme.error
-                    : swapPiRes.level === PI_LEVEL.HIGH
+                    : piRes.level === PI_LEVEL.HIGH
                     ? theme.warning
                     : theme.text,
               }}
             >
-              {swapPiRes.display}
+              {piRes.display}
             </div>
           ) : (
             "--"
@@ -786,31 +752,12 @@ export default function Preview({
         </div>
       )}
 
-      {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className="warning-msg"
-          style={{
-            backgroundColor:
-              swapPiRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color:
-              swapPiRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
-          }}
-        >
-          Swap {swapPiRes.msg}
-        </div>
-      )}
-
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className="warning-msg"
           style={{
-            backgroundColor:
-              piRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-            color: piRes.level === PI_LEVEL.HIGH ? theme.warning : theme.error,
+            backgroundColor: piHigh ? `${theme.warning}33` : `${theme.error}33`,
+            color: piHigh ? theme.warning : theme.error,
           }}
         >
           {piRes.msg}

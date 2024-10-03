@@ -24,6 +24,7 @@ import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
 import {
   PI_LEVEL,
+  PI_TYPE,
   correctPrice,
   formatNumber,
   getPriceImpact,
@@ -148,57 +149,53 @@ export default function Content({
       (item) => item.type === ZapAction.AGGREGATOR_SWAP
     ) as AggregatorSwapAction | undefined;
 
-    const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    );
-
-    const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amountUsd,
-      0
-    );
-
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
-
-    const amountInPoolSwap =
-      poolSwapInfo?.poolSwap.swaps.reduce(
-        (acc, item) => acc + +item.tokenIn.amountUsd,
-        0
-      ) || 0;
-
-    const amountOutPoolSwap =
-      poolSwapInfo?.poolSwap.swaps.reduce(
-        (acc, item) => acc + +item.tokenOut.amountUsd,
-        0
-      ) || 0;
-
-    const swapPriceImpact =
-      swapAmountIn && swapAmountOut
-        ? ((swapAmountIn +
-            amountInPoolSwap -
-            (swapAmountOut + amountOutPoolSwap)) *
-            100) /
-          swapAmountIn
-        : null;
 
     const feeInfo = zapInfo?.zapDetails.actions.find(
       (item) => item.type === ZapAction.PROTOCOL_FEE
     ) as ProtocolFeeAction | undefined;
 
-    const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-    const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
+    const piRes = getPriceImpact(
+      zapInfo?.zapDetails.priceImpact,
+      PI_TYPE.ZAP,
+      feeInfo
+    );
+
+    const aggregatorSwapPi =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        return getPriceImpact(pi, PI_TYPE.SWAP, feeInfo);
+      }) || [];
+    const poolSwapPi =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        return getPriceImpact(pi, PI_TYPE.SWAP, feeInfo);
+      }) || [];
+
+    const swapPiHigh = !!aggregatorSwapPi
+      .concat(poolSwapPi)
+      .find((item) => item.level === PI_LEVEL.HIGH);
+
+    const swapPiVeryHigh = !!aggregatorSwapPi
+      .concat(poolSwapPi)
+      .find((item) => item.level === PI_LEVEL.VERY_HIGH);
 
     const piVeryHigh =
       (zapInfo &&
         [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
-      (!!aggregatorSwapInfo &&
-        [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
+      swapPiVeryHigh;
 
-    const piHigh =
-      (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
-      (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
+    const piHigh = (zapInfo && piRes.level === PI_LEVEL.HIGH) || swapPiHigh;
 
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
