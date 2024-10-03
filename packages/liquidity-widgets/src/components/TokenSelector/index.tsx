@@ -8,15 +8,17 @@ import { useTokenList } from "../../hooks/useTokenList";
 import { formatWei } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",
   ADD = "ADD",
 }
 
-interface TokenWithBalanceAndSelected extends Token {
+interface CustomizeToken extends Token {
   balance: string;
   selected: number;
+  inPair: number;
 }
 
 export default function TokenSelector({
@@ -28,6 +30,7 @@ export default function TokenSelector({
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
 }) {
+  const { pool } = useWidgetInfo();
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } =
     useZapState();
   const { tokens } = useTokenList();
@@ -74,31 +77,37 @@ export default function TokenSelector({
             )
               ? 1
               : 0,
+            inPair:
+              token.address.toLowerCase() ===
+              pool?.token0?.address.toLowerCase()
+                ? 2
+                : token.address.toLowerCase() ===
+                  pool?.token1?.address.toLowerCase()
+                ? 1
+                : 0,
           };
         })
         .sort(
-          (a: TokenWithBalanceAndSelected, b: TokenWithBalanceAndSelected) =>
+          (a: CustomizeToken, b: CustomizeToken) =>
             parseFloat(b.balance) - parseFloat(a.balance)
         )
-        .sort(
-          (a: TokenWithBalanceAndSelected, b: TokenWithBalanceAndSelected) =>
-            b.selected - a.selected
-        ),
-    [tokens, mode, tokensIn, selectedTokenAddress, balanceTokens]
+        .sort((a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected)
+        .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair),
+    [tokens, mode, tokensIn, selectedTokenAddress, balanceTokens, pool]
   );
 
   const filteredTokens = useMemo(() => {
     const search = searchTerm.toLowerCase().trim();
 
     return listTokens.filter(
-      (item: TokenWithBalanceAndSelected) =>
+      (item: CustomizeToken) =>
         item.name?.toLowerCase().includes(search) ||
         item.symbol?.toLowerCase().includes(search) ||
         item.address?.toLowerCase().includes(search)
     );
   }, [listTokens, searchTerm]);
 
-  const onClickToken = (newToken: TokenWithBalanceAndSelected) => {
+  const onClickToken = (newToken: CustomizeToken) => {
     if (mode === TOKEN_SELECT_MODE.SELECT) {
       const index = tokensIn.findIndex(
         (token: Token) => token.address === selectedTokenAddress
@@ -155,12 +164,12 @@ export default function TokenSelector({
               ? "Add more tokens"
               : "Select a token"}
           </h2>
-          <button
-            className="text-[var(--ks-lw-subText)] hover:text-white"
+          <div
+            className="text-[var(--ks-lw-subText)] hover:text-white cursor-pointer"
             onClick={onClose}
           >
             <X className="h-6 w-6" />
-          </button>
+          </div>
         </div>
         {mode === TOKEN_SELECT_MODE.SELECT && (
           <p className="text-sm text-[var(--ks-lw-subText)] px-[24px]">
@@ -188,49 +197,59 @@ export default function TokenSelector({
           </p>
         )}
         <ScrollArea className="h-[300px] custom-scrollbar">
-          {filteredTokens.map((token: TokenWithBalanceAndSelected) => (
-            <div
-              key={token.symbol}
-              className={`flex items-center justify-between py-2 cursor-pointer px-[24px] hover:bg-[#0f0f0f] ${
-                mode === TOKEN_SELECT_MODE.SELECT &&
-                token.address?.toLowerCase() ===
-                  selectedTokenAddress?.toLowerCase()
-                  ? "bg-[#1d7a5f26]"
-                  : ""
-              }`}
-              onClick={() => onClickToken(token)}
-            >
-              <div className="flex items-center space-x-3">
-                {mode === TOKEN_SELECT_MODE.ADD && (
-                  <div
-                    className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer mr-1 ${
-                      modalTokensInAddress.includes(
-                        token.address?.toLowerCase()
-                      )
-                        ? "bg-emerald-400"
-                        : "bg-gray-700"
-                    }`}
-                  >
-                    {modalTokensInAddress.includes(token.address) && (
-                      <Check className="h-3 w-3 text-black" />
-                    )}
+          {filteredTokens?.length > 0 ? (
+            filteredTokens.map((token: CustomizeToken) => (
+              <div
+                key={token.symbol}
+                className={`flex items-center justify-between py-2 cursor-pointer px-[24px] hover:bg-[#0f0f0f] ${
+                  mode === TOKEN_SELECT_MODE.SELECT &&
+                  token.address?.toLowerCase() ===
+                    selectedTokenAddress?.toLowerCase()
+                    ? "bg-[#1d7a5f26]"
+                    : ""
+                }`}
+                onClick={() => onClickToken(token)}
+              >
+                <div className="flex items-center space-x-3">
+                  {mode === TOKEN_SELECT_MODE.ADD && (
+                    <div
+                      className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer mr-1 ${
+                        modalTokensInAddress.includes(
+                          token.address?.toLowerCase()
+                        )
+                          ? "bg-emerald-400"
+                          : "bg-gray-700"
+                      }`}
+                    >
+                      {modalTokensInAddress.includes(token.address) && (
+                        <Check className="h-3 w-3 text-black" />
+                      )}
+                    </div>
+                  )}
+                  <img
+                    className="h-[24px] w-[24px]"
+                    src={token.logoURI}
+                    alt=""
+                  />
+                  <div>
+                    <p className="font-medium">{token.symbol}</p>
+                    <p className="text-sm text-[var(--ks-lw-subText)]">
+                      {token.name}
+                    </p>
                   </div>
-                )}
-                <img className="h-[24px] w-[24px]" src={token.logoURI} alt="" />
-                <div>
-                  <p className="font-medium">{token.symbol}</p>
-                  <p className="text-sm text-[var(--ks-lw-subText)]">
-                    {token.name}
-                  </p>
                 </div>
+                <p className="text-right">{token.balance}</p>
               </div>
-              <p className="text-right">{token.balance}</p>
+            ))
+          ) : (
+            <div className="text-center text-[#6C7284] font-medium">
+              No results found.
             </div>
-          ))}
+          )}
         </ScrollArea>
 
         {mode === TOKEN_SELECT_MODE.ADD && (
-          <div className="flex space-x-4 p-4 rounded-lg">
+          <div className="flex space-x-4 rounded-lg px-4">
             <Button
               variant="outline"
               className="flex-1 bg-transparent text-[--ks-lw-subText] border-[--ks-lw-subText] rounded-full hover:bg-transparent hover:text-[--ks-lw-accent] hover:border-[--ks-lw-accent]"
