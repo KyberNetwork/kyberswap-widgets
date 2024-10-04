@@ -18,7 +18,7 @@ const Modal = ({
   return ReactDOM.createPortal(
     <div className="ks-lw-modal-overlay" onClick={onClick}>
       <div
-        className={`ks-lw-modal-content ${modalContentClass}`}
+        className={`ks-lw-modal-content ${modalContentClass || ""}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

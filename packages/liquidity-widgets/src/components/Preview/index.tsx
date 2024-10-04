@@ -25,7 +25,6 @@ import {
   PI_LEVEL,
   PI_TYPE,
   formatCurrency,
-  formatNumber,
   formatWei,
   friendlyError,
   getDexName,
@@ -39,6 +38,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
 import { formatUnits } from "ethers/lib/utils";
+import { formatDisplayNumber } from "@/utils/number";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -364,7 +364,7 @@ export default function Preview({
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
-                  } ${(pool.fee / 10_000) * 100}`}
+                  } ${pool.fee / UNI_V3_BPS}%`}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -589,14 +589,19 @@ export default function Preview({
                   />
                 )}
                 <div className="text-end">
-                  {formatNumber(position ? +position.amount0 : +addedAmount0)}{" "}
+                  {formatDisplayNumber(
+                    position ? +position.amount0 : +addedAmount0,
+                    { significantDigits: 5 }
+                  )}{" "}
                   {pool?.token0.symbol}
                 </div>
               </div>
 
               {position && (
                 <div>
-                  + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                  +{" "}
+                  {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
+                  {pool?.token0.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-[--ks-lw-subText]">
@@ -616,13 +621,18 @@ export default function Preview({
                   />
                 )}
                 <div className="text-end">
-                  {formatNumber(position ? +position.amount1 : +addedAmount1)}{" "}
+                  {formatDisplayNumber(
+                    position ? +position.amount1 : +addedAmount1,
+                    { significantDigits: 5 }
+                  )}{" "}
                   {pool?.token1.symbol}
                 </div>
               </div>
               {position && (
                 <div className="text-end">
-                  + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                  +{" "}
+                  {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}
+                  {pool?.token1.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-[--ks-lw-subText]">
