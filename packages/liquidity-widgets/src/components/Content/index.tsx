@@ -117,9 +117,9 @@ export default function Content({
     () =>
       !fee
         ? []
-        : fee / UNI_V3_BPS <= 0.0001
+        : fee / UNI_V3_BPS <= 0.01
         ? PRICE_RANGE.LOW_POOL_FEE
-        : fee / UNI_V3_BPS > 0.001
+        : fee / UNI_V3_BPS > 0.1
         ? PRICE_RANGE.HIGH_POOL_FEE
         : PRICE_RANGE.MEDIUM_POOL_FEE,
     [fee]
@@ -382,9 +382,9 @@ export default function Content({
     if (!fee) return;
     if (!selectedRange)
       handleSelectPriceRange(
-        fee / UNI_V3_BPS <= 0.0001
+        fee / UNI_V3_BPS <= 0.01
           ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee / UNI_V3_BPS > 0.001
+          : fee / UNI_V3_BPS > 0.1
           ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
           : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
       );
