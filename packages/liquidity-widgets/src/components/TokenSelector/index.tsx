@@ -19,6 +19,7 @@ interface CustomizeToken extends Token {
   balance: string;
   selected: number;
   inPair: number;
+  disabled: boolean;
 }
 
 export default function TokenSelector({
@@ -47,20 +48,12 @@ export default function TokenSelector({
   const listTokens = useMemo(
     () =>
       tokens
-        .filter((token: Token) => {
-          if (mode === TOKEN_SELECT_MODE.ADD) return true;
-
+        .map((token: Token) => {
           const foundTokenSelected = tokensIn.find(
             (tokenIn: Token) =>
               tokenIn.address.toLowerCase() === token.address.toLowerCase()
           );
 
-          return (
-            !foundTokenSelected ||
-            foundTokenSelected.address === selectedTokenAddress
-          );
-        })
-        .map((token: Token) => {
           return {
             ...token,
             balance: formatWei(
@@ -71,6 +64,12 @@ export default function TokenSelector({
               ]?.toString() || "0",
               token.decimals
             ),
+            disabled:
+              mode === TOKEN_SELECT_MODE.ADD ||
+              !foundTokenSelected ||
+              foundTokenSelected.address === selectedTokenAddress
+                ? false
+                : true,
             selected: tokensIn.find(
               (tokenIn: Token) =>
                 tokenIn.address.toLowerCase() === token.address.toLowerCase()
@@ -209,8 +208,12 @@ export default function TokenSelector({
                     selectedTokenAddress?.toLowerCase()
                     ? "bg-[#1d7a5f26]"
                     : ""
+                } ${
+                  token.disabled
+                    ? "bg-[--ks-lw-stroke] hover:bg-[--ks-lw-stroke] cursor-not-allowed brightness-50"
+                    : ""
                 }`}
-                onClick={() => onClickToken(token)}
+                onClick={() => !token.disabled && onClickToken(token)}
               >
                 <div className="flex items-center space-x-3">
                   {mode === TOKEN_SELECT_MODE.ADD && (
