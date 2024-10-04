@@ -2,7 +2,6 @@ import "./Content.scss";
 import X from "../../assets/x.svg";
 import ErrorIcon from "../../assets/error.svg";
 import PriceInfo from "./PriceInfo";
-import LiquidityChart from "./LiquidityChart";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
 import { useZapState } from "../../hooks/useZapInState";
@@ -458,8 +457,8 @@ export default function Content({
       <div className="ks-lw-content">
         <div className="left">
           <PriceInfo />
-          <LiquidityChart />
-          <div className="flex gap-[6px] mb-[10px]">
+          {/* <LiquidityChart /> */}
+          <div className="flex gap-[6px] my-[10px]">
             {priceRanges.map((item: string | number, index: number) => (
               <Button
                 key={index}
@@ -504,7 +503,7 @@ export default function Content({
           </div>
 
           <div
-            className="mt-4 text-[var(--ks-lw-accent)] cursor-pointer"
+            className="mt-4 text-[var(--ks-lw-accent)] cursor-pointer w-fit"
             onClick={onOpenTokenSelectModal}
           >
             + Add more token
