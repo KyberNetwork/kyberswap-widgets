@@ -210,7 +210,7 @@ export default function TokenSelector({
                     : ""
                 } ${
                   token.disabled
-                    ? "bg-[--ks-lw-stroke] hover:bg-[--ks-lw-stroke] cursor-not-allowed brightness-50"
+                    ? "bg-[--ks-lw-stroke] hover:bg-[--ks-lw-stroke] !cursor-not-allowed brightness-50"
                     : ""
                 }`}
                 onClick={() => !token.disabled && onClickToken(token)}
