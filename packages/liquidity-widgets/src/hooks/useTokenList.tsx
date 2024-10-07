@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { Token } from "@/entities/Pool";
@@ -14,16 +15,22 @@ type TokenListContextState = {
   tokens: Token[];
   loading: boolean;
   importedTokens: Token[];
+  allTokens: Token[];
   addToken: (token: Token) => void;
   removeToken: (token: Token) => void;
+  removeAllTokens: () => void;
+  fetchTokenInfo: (address: string) => Promise<Token[]>;
 };
 
 const TokenListContext = createContext<TokenListContextState>({
   tokens: [],
   loading: false,
   importedTokens: [],
+  allTokens: [],
   addToken: () => {},
   removeToken: () => {},
+  removeAllTokens: () => {},
+  fetchTokenInfo: () => Promise.resolve([]),
 });
 
 export const TokenListProvider = ({ children }: { children: ReactNode }) => {
@@ -47,27 +54,44 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
     return [];
   });
 
-  const addToken = (token: Token) => {
-    const newTokens = [
-      ...importedTokens.filter((t) => t.address !== token.address),
-      token,
-    ];
-    setImportedTokens(newTokens);
-    if (typeof window !== "undefined")
-      localStorage.setItem("importedTokens", JSON.stringify(newTokens));
-  };
+  const allTokens = useMemo(
+    () => tokens.concat(importedTokens),
+    [tokens, importedTokens]
+  );
 
-  const removeToken = (token: Token) => {
-    const newTokens = importedTokens.filter(
-      (t) =>
-        t.address.toLowerCase() !== token.address.toLowerCase() &&
-        t.chainId === token.chainId
-    );
+  const addToken = useCallback(
+    (token: Token) => {
+      const newTokens = [
+        ...importedTokens.filter((t) => t.address !== token.address),
+        token,
+      ];
+      setImportedTokens(newTokens);
+      if (typeof window !== "undefined")
+        localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+    },
+    [importedTokens]
+  );
 
-    setImportedTokens(newTokens);
+  const removeToken = useCallback(
+    (token: Token) => {
+      const newTokens = importedTokens.filter(
+        (t) =>
+          t.address.toLowerCase() !== token.address.toLowerCase() &&
+          t.chainId === token.chainId
+      );
+
+      setImportedTokens(newTokens);
+      if (typeof window !== "undefined")
+        localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+    },
+    [importedTokens]
+  );
+
+  const removeAllTokens = useCallback(() => {
+    setImportedTokens([]);
     if (typeof window !== "undefined")
-      localStorage.setItem("importedTokens", JSON.stringify(newTokens));
-  };
+      localStorage.removeItem("importedTokens");
+  }, []);
 
   const fetchTokenList = useCallback(() => {
     setLoading(true);
@@ -81,6 +105,25 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
       });
   }, [chainId]);
 
+  const fetchTokenInfo = useCallback(
+    async (address: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `${PATHS.KYBERSWAP_SETTING_API}?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
+        );
+        const { data } = await res.json();
+
+        return data.tokens;
+      } catch (error) {
+        /* empty */
+      } finally {
+        setLoading(false);
+      }
+    },
+    [chainId]
+  );
+
   useEffect(() => {
     fetchTokenList();
   }, [fetchTokenList]);
@@ -91,8 +134,11 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
         tokens,
         loading,
         importedTokens,
+        allTokens,
         addToken,
         removeToken,
+        removeAllTokens,
+        fetchTokenInfo,
       }}
     >
       {children}

@@ -14,7 +14,7 @@ import { Token } from "@/entities/Pool";
 export default function ZapRoute() {
   const { zapInfo } = useZapState();
   const { pool, poolType } = useWidgetInfo();
-  const { tokens } = useTokenList();
+  const { allTokens } = useTokenList();
 
   const swapInfo = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -27,11 +27,11 @@ export default function ZapRoute() {
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
+        const tokenIn = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = tokens.find(
+        const tokenOut = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -46,11 +46,11 @@ export default function ZapRoute() {
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
+        const tokenIn = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = tokens.find(
+        const tokenOut = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -64,7 +64,7 @@ export default function ZapRoute() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [poolType, tokens, zapInfo?.zapDetails.actions]);
+  }, [poolType, allTokens, zapInfo?.zapDetails.actions]);
 
   const addedLiquidityInfo = useMemo(() => {
     const data = zapInfo?.zapDetails.actions.find(

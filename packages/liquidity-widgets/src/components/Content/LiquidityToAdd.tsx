@@ -9,6 +9,7 @@ import { formatUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { X } from "lucide-react";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const {
@@ -82,7 +83,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
         <Modal
           isOpen
           onClick={onCloseTokenSelectModal}
-          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px]"
+          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px] max-w-[435px]"
         >
           <TokenSelector
             onClose={onCloseTokenSelectModal}
@@ -155,6 +156,10 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               alt="TokenLogo"
               width="20px"
               style={{ borderRadius: "50%" }}
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
             />
             <span>{token.symbol}</span>
             <DropdownIcon />

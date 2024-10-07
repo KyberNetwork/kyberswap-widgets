@@ -2,6 +2,7 @@ import "./Header.scss";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import SettingIcon from "../../assets/setting.svg";
 import X from "../../assets/x.svg";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";
@@ -55,9 +56,30 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
       <div className="ks-lw-header">
         <div className="pool-info">
           <div className="pool-tokens-logo">
-            <img src={token0.logoURI} alt="token0 logo" />
-            <img src={token1.logoURI} alt="token1 logo" />
-            <img className="network-logo" src={NetworkInfo[chainId].logo} />
+            <img
+              src={token0.logoURI}
+              alt="token0 logo"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
+            <img
+              src={token1.logoURI}
+              alt="token1 logo"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
+            <img
+              className="network-logo"
+              src={NetworkInfo[chainId].logo}
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
           </div>
 
           <span className="symbol">
@@ -69,7 +91,16 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               Fee {fee / UNI_V3_BPS}%
             </div>
             <span className="divide">|</span>
-            <img src={logo} width={16} height={16} alt="" />
+            <img
+              src={logo}
+              width={16}
+              height={16}
+              alt=""
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
             <span>{name}</span>
           </div>
         </div>

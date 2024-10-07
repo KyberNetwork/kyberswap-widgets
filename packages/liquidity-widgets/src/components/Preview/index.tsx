@@ -39,6 +39,7 @@ import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
 import { formatUnits } from "ethers/lib/utils";
 import { formatDisplayNumber } from "@/utils/number";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -457,6 +458,10 @@ export default function Preview({
             width="36px"
             height="36px"
             style={{ borderRadius: "50%" }}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
           <img
             src={(pool.token1 as Token).logoURI}
@@ -464,6 +469,10 @@ export default function Preview({
             width="36px"
             height="36px"
             style={{ borderRadius: "50%" }}
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
 
           <img
@@ -471,6 +480,10 @@ export default function Preview({
             src={NetworkInfo[chainId].logo}
             width="18px"
             height="18px"
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
         </div>
 
@@ -500,7 +513,15 @@ export default function Preview({
         <div className="mt-[8px]">
           {tokensIn.map((token: Token, index: number) => (
             <div className="flex items-center gap-2 mt-1" key={token.address}>
-              <img src={token.logoURI} width="18px" height="18px" />
+              <img
+                src={token.logoURI}
+                width="18px"
+                height="18px"
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
+              />
               <span>
                 {listAmountsIn[index]} {token.symbol}
               </span>
@@ -586,6 +607,10 @@ export default function Preview({
                   <img
                     src={pool.token0.logoURI}
                     className="w-[16px] h-[16px] mt-[4px] rounded-full relative top-[-2px]"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
                 <div className="text-end">
@@ -618,6 +643,10 @@ export default function Preview({
                   <img
                     src={pool.token1.logoURI}
                     className="w-[16px] h-[16px] mt-[4px] rounded-full relative top-[-2px]"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
                 <div className="text-end">

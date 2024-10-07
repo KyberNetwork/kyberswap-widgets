@@ -32,11 +32,12 @@ import { useMemo } from "react";
 import { useTokenList } from "@/hooks/useTokenList";
 import { Token } from "@/entities/Pool";
 import { formatDisplayNumber } from "@/utils/number";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage } = useZapState();
   const { pool, theme, position } = useWidgetInfo();
-  const { tokens } = useTokenList();
+  const { allTokens } = useTokenList();
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.ADD_LIQUIDITY
@@ -116,11 +117,11 @@ export default function EstLiqValue() {
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
+        const tokenIn = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = tokens.find(
+        const tokenOut = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -145,11 +146,11 @@ export default function EstLiqValue() {
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
+        const tokenIn = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = tokens.find(
+        const tokenOut = allTokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -173,7 +174,7 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, tokens, zapInfo]);
+  }, [feeInfo, allTokens, zapInfo]);
 
   const swapPiLevel = useMemo(() => {
     if (swapPi.find((item) => item.piRes.level === PI_LEVEL.INVALID))
@@ -220,6 +221,10 @@ export default function EstLiqValue() {
                     src={pool.token0.logoURI}
                     width="14px"
                     style={{ marginTop: "2px", borderRadius: "50%" }}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
                 {position ? (
@@ -261,6 +266,10 @@ export default function EstLiqValue() {
                     src={pool?.token1?.logoURI}
                     width="14px"
                     style={{ marginTop: "2px", borderRadius: "50%" }}
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
 

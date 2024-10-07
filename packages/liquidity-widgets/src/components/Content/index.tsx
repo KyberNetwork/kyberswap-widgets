@@ -445,7 +445,7 @@ export default function Content({
         <Modal
           isOpen
           onClick={onCloseTokenSelectModal}
-          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px]"
+          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px] max-w-[435px]"
         >
           <TokenSelector
             onClose={onCloseTokenSelectModal}

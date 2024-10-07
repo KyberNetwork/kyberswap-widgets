@@ -115,8 +115,8 @@ export const ZapContextProvider = ({
     feeAddress,
   } = useWidgetInfo();
   const { chainId, account, networkChainId } = useWeb3Provider();
-  const { tokens } = useTokenList();
-  const { balances } = useTokenBalances(tokens.map((item) => item.address));
+  const { allTokens } = useTokenList();
+  const { balances } = useTokenBalances(allTokens.map((item) => item.address));
 
   const [showSetting, setShowSeting] = useState(false);
   const [slippage, setSlippage] = useState(10);
@@ -269,11 +269,11 @@ export const ZapContextProvider = ({
 
   useEffect(() => {
     if (!pool || tokensIn.length) return;
-    if (initDepositTokens && tokens.length) {
+    if (initDepositTokens && allTokens.length) {
       const listInitTokens = initDepositTokens
         .split(",")
         .map((address: string) =>
-          tokens.find(
+          allTokens.find(
             (token: Token) =>
               token.address.toLowerCase() === address.toLowerCase()
           )
@@ -341,7 +341,7 @@ export const ZapContextProvider = ({
     token1Price,
     balances,
     initDepositTokens,
-    tokens,
+    allTokens,
     initAmounts,
   ]);
 

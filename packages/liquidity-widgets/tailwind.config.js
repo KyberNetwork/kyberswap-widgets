@@ -19,14 +19,18 @@ module.exports = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
+        border: "var(--ks-lw-stroke)",
+        input: "var(--ks-lw-layer2)",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        background: "var(--ks-lw-layer1)",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "var(--ks-lw-accent)",
           foreground: "hsl(var(--primary-foreground))",
+        },
+        subText: "var(--ks-lw-subText)",
+        icon: {
+          DEFAULT: "var(--ks-lw-icons)",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -54,9 +58,9 @@ module.exports = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "calc(var(--ks-lw-borderRadius) + 2px)",
+        md: "var(--ks-lw-borderRadius)",
+        sm: "calc(var(--ks-lw-borderRadius) - 2px)",
       },
       keyframes: {
         "accordion-down": {
