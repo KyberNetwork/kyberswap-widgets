@@ -345,7 +345,7 @@ export default function TokenSelector({
                 <div className="flex items-center space-x-3">
                   {mode === TOKEN_SELECT_MODE.ADD && (
                     <div
-                      className={`w-4 h-4 rounded-sm flex items-center justify-center cursor-pointer mr-1 ${
+                      className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer mr-1 ${
                         modalTokensInAddress.includes(
                           token.address?.toLowerCase()
                         )

@@ -25,6 +25,18 @@ import { formatWei } from "@/utils";
 import { ZapRouteDetail, Type } from "./types/zapInTypes";
 import useMarketPrice from "./useMarketPrice";
 
+const ERROR_MESSAGE = {
+  CONNECT_WALLET: "Please connect wallet",
+  WRONG_NETWORK: "Wrong network",
+  SELECT_TOKEN_IN: "Select token in",
+  ENTER_MIN_PRICE: "Enter min price",
+  ENTER_MAX_PRICE: "Enter max price",
+  INVALID_PRICE_RANGE: "Invalid price range",
+  ENTER_AMOUNT: "Enter amount for",
+  INSUFFICIENT_BALANCE: "Insufficient balance",
+  INVALID_INPUT_AMOUNTT: "Invalid input amount",
+};
+
 const ZapContext = createContext<{
   revertPrice: boolean;
   tickLower: number | null;
@@ -178,14 +190,14 @@ export const ZapContextProvider = ({
   }, [pool, tickUpper, poolType]);
 
   const error = useMemo(() => {
-    if (!account) return "Please connect wallet";
-    if (chainId !== networkChainId) return "Wrong network";
+    if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
+    if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
 
-    if (!tokensIn.length) return "Select token in";
-    if (tickLower === null) return "Enter min price";
-    if (tickUpper === null) return "Enter max price";
+    if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
+    if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
+    if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
 
-    if (tickLower >= tickUpper) return "Invalid price range";
+    if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
 
     const listAmountsIn = debounceAmountsIn.split(",");
     const listTokenEmptyAmount = tokensIn.filter(
@@ -195,9 +207,11 @@ export const ZapContextProvider = ({
         !parseFloat(listAmountsIn[index])
     );
     if (listTokenEmptyAmount.length)
-      return `Enter amount for ${listTokenEmptyAmount
-        .map((token: Token) => token.symbol)
-        .join(", ")}`;
+      return (
+        ERROR_MESSAGE.ENTER_AMOUNT +
+        " " +
+        listTokenEmptyAmount.map((token: Token) => token.symbol).join(", ")
+      );
 
     try {
       for (let i = 0; i < tokensIn.length; i++) {
@@ -212,10 +226,10 @@ export const ZapContextProvider = ({
         );
 
         if (parseFloat(listAmountsIn[i]) > parseFloat(balance))
-          return "Insufficient balance";
+          return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
       }
     } catch (e) {
-      return "Invalid input amount";
+      return ERROR_MESSAGE.INVALID_INPUT_AMOUNTT;
     }
 
     if (zapApiError) return zapApiError;
@@ -350,7 +364,9 @@ export const ZapContextProvider = ({
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
       pool &&
-      (!error || error === zapApiError)
+      (!error ||
+        error === zapApiError ||
+        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";
