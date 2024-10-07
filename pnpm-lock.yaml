@@ -21,7 +21,7 @@ importers:
   apps/liquidity-widgets-demo:
     dependencies:
       '@kyberswap/liquidity-widgets':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/liquidity-widgets
       '@web3-onboard/injected-wallets':
         specifier: ^2.11.2

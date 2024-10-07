@@ -357,7 +357,7 @@ export default function Preview({
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
-                  } ${(pool.fee / 10_000) * 100}`}
+                  } ${pool.fee / 10_000}%`}
             </div>
           )}
           {txHash && txStatus === "" && (
