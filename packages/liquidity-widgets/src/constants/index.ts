@@ -62,9 +62,9 @@ export const NetworkInfo: NETWORK_INFO = {
     defaultRpc: "https://polygon.kyberengineering.io",
     wrappedToken: {
       chainId: 137,
-      name: "WMATIC",
+      name: "POL",
       address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-      symbol: "WMATIC",
+      symbol: "POL",
       decimals: 18,
     },
   },
@@ -305,39 +305,6 @@ export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {
   81457: "0xcA11bde05977b3631167028862bE2a173976CA11",
   5000: "0xcA11bde05977b3631167028862bE2a173976CA11",
 };
-
-export const CHAINS = [
-  {
-    id: "0x1",
-    token: "ETH",
-    label: "Ethereum Mainnet",
-    rpcUrl: "https://ethereum.kyberengineering.io",
-  },
-  {
-    id: "0x38",
-    token: "BNB",
-    label: "BSC",
-    rpcUrl: "https://bsc.kyberengineering.io",
-  },
-  {
-    id: "0x89",
-    token: "MATIC",
-    label: "Polygon",
-    rpcUrl: "https://polygon.kyberengineering.io",
-  },
-  {
-    id: "0xc7",
-    token: "BTT",
-    label: "BTTC",
-    rpcUrl: "https://bttc.kyberengineering.io",
-  },
-  {
-    id: "0x2105",
-    token: "ETH",
-    label: "Base",
-    rpcUrl: "https://base.llamarpc.com	",
-  },
-];
 
 export const PATHS = {
   KYBERSWAP_DOCS: "https://docs.kyberswap.com",
