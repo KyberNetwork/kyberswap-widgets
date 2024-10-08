@@ -12,7 +12,6 @@ import {
 } from "../../hooks/types/zapInTypes";
 import {
   PI_LEVEL,
-  PI_TYPE,
   formatCurrency,
   formatNumber,
   formatWei,
@@ -100,11 +99,7 @@ export default function EstLiqValue() {
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const piRes = getPriceImpact(
-    zapInfo?.zapDetails.priceImpact,
-    PI_TYPE.ZAP,
-    feeInfo
-  );
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
 
   const swapPi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -133,7 +128,7 @@ export default function EstLiqValue() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, PI_TYPE.SWAP, feeInfo);
+        const piRes = getPriceImpact(pi, feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -162,7 +157,7 @@ export default function EstLiqValue() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, PI_TYPE.SWAP, feeInfo);
+        const piRes = getPriceImpact(pi, feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",

@@ -29,6 +29,7 @@ module.exports = {
           foreground: "hsl(var(--primary-foreground))",
         },
         subText: "var(--ks-lw-subText)",
+        warning: "var(--ks-lw-warning)",
         icon: {
           DEFAULT: "var(--ks-lw-icons)",
         },

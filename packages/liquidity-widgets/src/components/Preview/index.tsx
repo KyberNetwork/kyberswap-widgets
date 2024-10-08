@@ -23,7 +23,6 @@ import {
 import { useWeb3Provider } from "../../hooks/useProvider";
 import {
   PI_LEVEL,
-  PI_TYPE,
   formatCurrency,
   formatWei,
   friendlyError,
@@ -231,11 +230,7 @@ export default function Preview({
   ) as ProtocolFeeAction | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const piRes = getPriceImpact(
-    zapInfo?.zapDetails.priceImpact,
-    PI_TYPE.ZAP,
-    feeInfo
-  );
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
 
   const piVeryHigh =
     zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);

@@ -21,6 +21,7 @@ export default function PriceInput({ type }: { type: Type }) {
   const price = useMemo(() => {
     const leftPrice = !revertPrice ? priceLower : priceUpper?.invert();
     const rightPrice = !revertPrice ? priceUpper : priceLower?.invert();
+
     return type === Type.PriceLower ? leftPrice : rightPrice;
   }, [type, priceLower, revertPrice, priceUpper]);
 

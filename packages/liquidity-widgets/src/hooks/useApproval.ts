@@ -159,7 +159,7 @@ export const useApprovals = (
   }, [pendingTx, provider, addressToApprove, approvalStates]);
 
   useEffect(() => {
-    if (account && spender) {
+    if (account && spender && addreses.length === amounts.length) {
       setLoading(true);
       Promise.all(
         addreses.map((address, index) => {

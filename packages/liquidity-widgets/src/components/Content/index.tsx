@@ -21,32 +21,14 @@ import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
-import {
-  PI_LEVEL,
-  PI_TYPE,
-  correctPrice,
-  formatNumber,
-  getPriceImpact,
-} from "../../utils";
+import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector";
-import { Price, Token } from "@/entities/Pool";
-import {
-  DEFAULT_PRICE_RANGE,
-  FULL_PRICE_RANGE,
-  MAX_ZAP_IN_TOKENS,
-  PRICE_RANGE,
-  UNI_V3_BPS,
-} from "@/constants";
-import { Button } from "../ui/button";
-
-interface SelectedRange {
-  range: typeof FULL_PRICE_RANGE | number;
-  priceLower: Price | null;
-  priceUpper: Price | null;
-}
+import { Token } from "@/entities/Pool";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
+import PriceRange from "../PriceRange";
 
 export default function Content({
   onDismiss,
@@ -64,7 +46,6 @@ export default function Content({
     priceUpper,
     ttl,
     loading: zapLoading,
-    setTick,
     tickLower,
     tickUpper,
     slippage,
@@ -76,16 +57,8 @@ export default function Content({
     amountsIn,
   } = useZapState();
 
-  const {
-    pool,
-    theme,
-    error: loadPoolError,
-    position,
-    poolType,
-  } = useWidgetInfo();
+  const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
   const { account } = useWeb3Provider();
-
-  const { fee = 0 } = pool || {};
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -108,21 +81,6 @@ export default function Content({
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
-  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(
-    null
-  );
-
-  const priceRanges = useMemo(
-    () =>
-      !fee
-        ? []
-        : fee / UNI_V3_BPS <= 0.01
-        ? PRICE_RANGE.LOW_POOL_FEE
-        : fee / UNI_V3_BPS > 0.1
-        ? PRICE_RANGE.HIGH_POOL_FEE
-        : PRICE_RANGE.MEDIUM_POOL_FEE,
-    [fee]
-  );
 
   const notApprove = useMemo(
     () =>
@@ -132,16 +90,6 @@ export default function Content({
       ),
     [approvalStates, tokensIn]
   );
-
-  const btnText = useMemo(() => {
-    if (error) return error;
-    if (zapLoading) return "Loading...";
-    if (loading) return "Checking Allowance";
-    if (addressToApprove) return "Approving";
-    if (notApprove) return `Approve ${notApprove.symbol}`;
-
-    return "Preview";
-  }, [addressToApprove, error, loading, notApprove, zapLoading]);
 
   const pi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -156,11 +104,7 @@ export default function Content({
       (item) => item.type === ZapAction.PROTOCOL_FEE
     ) as ProtocolFeeAction | undefined;
 
-    const piRes = getPriceImpact(
-      zapInfo?.zapDetails.priceImpact,
-      PI_TYPE.ZAP,
-      feeInfo
-    );
+    const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
 
     const aggregatorSwapPi =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
@@ -169,7 +113,7 @@ export default function Content({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, PI_TYPE.SWAP, feeInfo);
+        return getPriceImpact(pi, feeInfo);
       }) || [];
     const poolSwapPi =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
@@ -178,7 +122,7 @@ export default function Content({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, PI_TYPE.SWAP, feeInfo);
+        return getPriceImpact(pi, feeInfo);
       }) || [];
 
     const swapPiHigh = !!aggregatorSwapPi
@@ -198,6 +142,17 @@ export default function Content({
 
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
+
+  const btnText = useMemo(() => {
+    if (error) return error;
+    if (zapLoading) return "Loading...";
+    if (loading) return "Checking Allowance";
+    if (addressToApprove) return "Approving";
+    if (notApprove) return `Approve ${notApprove.symbol}`;
+    if (pi.piVeryHigh) return "Zap anyway";
+
+    return "Preview";
+  }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
 
   const disabled = useMemo(
     () =>
@@ -234,7 +189,7 @@ export default function Content({
     [pool, zapInfo]
   );
 
-  const isDevated = useMemo(
+  const isDeviated = useMemo(
     () =>
       !!marketPrice &&
       newPool &&
@@ -306,49 +261,6 @@ export default function Content({
     }
   };
 
-  const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
-    if (!pool) return;
-
-    if (range === FULL_PRICE_RANGE) {
-      setTick(Type.PriceLower, revertPrice ? pool.maxTick : pool.minTick);
-      setTick(Type.PriceUpper, revertPrice ? pool.minTick : pool.maxTick);
-      setSelectedRange({ range, priceLower: null, priceUpper: null });
-      return;
-    }
-
-    const currentPoolPrice = pool
-      ? revertPrice
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      : undefined;
-
-    if (!currentPoolPrice) return;
-
-    const left = +currentPoolPrice.toSignificant(18) * (1 - range);
-    const right = +currentPoolPrice.toSignificant(18) * (1 + range);
-    correctPrice(
-      left.toString(),
-      Type.PriceLower,
-      pool,
-      tickLower,
-      tickUpper,
-      poolType,
-      revertPrice,
-      setTick
-    );
-    correctPrice(
-      right.toString(),
-      Type.PriceUpper,
-      pool,
-      tickLower,
-      tickUpper,
-      poolType,
-      revertPrice,
-      setTick
-    );
-    setSelectedRange({ range, priceLower: null, priceUpper: null });
-  };
-
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
@@ -357,38 +269,6 @@ export default function Content({
       onTogglePreview?.(false);
     }
   }, [snapshotState, onTogglePreview]);
-
-  // Set to show selected range on UI
-  useEffect(() => {
-    if (selectedRange?.range && priceLower && priceUpper) {
-      if (!selectedRange?.priceLower && !selectedRange?.priceUpper) {
-        setSelectedRange({
-          ...selectedRange,
-          priceLower,
-          priceUpper,
-        });
-      } else if (
-        selectedRange.priceLower?.toFixed() !== priceLower.toFixed() ||
-        selectedRange.priceUpper?.toFixed() !== priceUpper.toFixed()
-      )
-        setSelectedRange(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [priceLower, priceUpper]);
-
-  // Set default price range depending on protocol fee
-  useEffect(() => {
-    if (!fee) return;
-    if (!selectedRange)
-      handleSelectPriceRange(
-        fee / UNI_V3_BPS <= 0.01
-          ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee / UNI_V3_BPS > 0.1
-          ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
-          : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
-      );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fee]);
 
   return (
     <>
@@ -435,9 +315,7 @@ export default function Content({
           <Preview
             onTxSubmit={onTxSubmit}
             zapState={snapshotState}
-            onDismiss={() => {
-              setSnapshotState(null);
-            }}
+            onDismiss={() => setSnapshotState(null)}
           />
         </Modal>
       )}
@@ -458,38 +336,7 @@ export default function Content({
         <div className="left">
           <PriceInfo />
           {/* <LiquidityChart /> */}
-          <div className="flex gap-[6px] my-[10px]">
-            {priceRanges.map((item: string | number, index: number) => (
-              <Button
-                key={index}
-                variant="outline"
-                className={`
-                  flex-1 bg-transparent
-                  text-[--ks-lw-subText]
-                  border-[--ks-lw-stroke]
-                  rounded-full
-                  hover:bg-transparent
-                  hover:text-[--ks-lw-accent]
-                  hover:border-[--ks-lw-accent]
-                  focus:outline-none
-                  text-[14px]
-                  font-normal
-                  ${
-                    item === selectedRange?.range
-                      ? " text-[--ks-lw-accent] border-[--ks-lw-accent]"
-                      : ""
-                  }
-                `}
-                onClick={() =>
-                  handleSelectPriceRange(
-                    item as typeof FULL_PRICE_RANGE | number
-                  )
-                }
-              >
-                {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}
-              </Button>
-            ))}
-          </div>
+          <PriceRange />
           <PriceInput type={Type.PriceLower} />
           <PriceInput type={Type.PriceUpper} />
 
@@ -526,17 +373,16 @@ export default function Content({
 
           {isOutOfRangeAfterZap && (
             <div
-              className="price-warning"
+              className="price-warning !text-warning"
               style={{
                 backgroundColor: `${theme.warning}33`,
-                color: theme.warning,
               }}
             >
               The position will be inactive after zapping and won’t earn any
               fees until the pool price moves back to select price range
             </div>
           )}
-          {isDevated && (
+          {isDeviated && (
             <div
               className="price-warning"
               style={{ backgroundColor: `${theme.warning}33` }}
@@ -577,10 +423,9 @@ export default function Content({
             account &&
             position.owner.toLowerCase() !== account.toLowerCase() && (
               <div
-                className="price-warning"
+                className="price-warning text-warning"
                 style={{
                   backgroundColor: `${theme.warning}33`,
-                  color: theme.warning,
                 }}
               >
                 You are not the current owner of the position #{positionId},
@@ -623,6 +468,7 @@ export default function Content({
           {btnText}
           {pi.piVeryHigh && (
             <InfoHelper
+              color={disabled ? theme.subText : theme.layer1}
               width="300px"
               text={
                 degenMode
