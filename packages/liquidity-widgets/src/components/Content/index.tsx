@@ -29,6 +29,7 @@ import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector";
 import { Token } from "@/entities/Pool";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import PriceRange from "../PriceRange";
+import PositionLiquidity from "../PositionLiquidity";
 
 export default function Content({
   onDismiss,
@@ -337,8 +338,14 @@ export default function Content({
           <PriceInfo />
           {/* <LiquidityChart /> */}
           <PriceRange />
-          <PriceInput type={Type.PriceLower} />
-          <PriceInput type={Type.PriceUpper} />
+          {positionId === undefined ? (
+            <>
+              <PriceInput type={Type.PriceLower} />
+              <PriceInput type={Type.PriceUpper} />
+            </>
+          ) : (
+            <PositionLiquidity />
+          )}
 
           <div className="liquidity-to-add">
             <div className="label">
@@ -373,7 +380,7 @@ export default function Content({
 
           {isOutOfRangeAfterZap && (
             <div
-              className="price-warning !text-warning"
+              className="price-warning !text-warning !mt-4"
               style={{
                 backgroundColor: `${theme.warning}33`,
               }}

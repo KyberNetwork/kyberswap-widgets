@@ -32,19 +32,23 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
     <>
       <div className="ks-lw-title">
-        <div style={{ display: "flex", alignItems: "center" }}>
-          Zap in {pool.token0.symbol}/{pool.token1.symbol}{" "}
+        <div className="flex items-center gap-[6px]">
+          {positionId !== undefined ? "Increase Liquidity" : "Zap in"}{" "}
+          {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
             <>
-              <div style={{ marginLeft: "4px", color: "var(--ks-lw-accent)" }}>
-                #{positionId}
-              </div>
+              <div className="text-[--ks-lw-accent]">#{positionId}</div>
               <div
-                className={`tag ${
-                  !isOutOfRange ? "tag-primary" : "tag-warning"
-                }`}
+                className={`rounded-full text-[12px] px-[8px] py-[4px] font-normal text-[--ks-lw-${
+                  isOutOfRange ? "warning" : "accent"
+                }]`}
+                style={{
+                  background: `${
+                    isOutOfRange ? theme.warning : theme.accent
+                  }33`,
+                }}
               >
-                {isOutOfRange ? "Inactive" : "Active"}
+                {isOutOfRange ? "● Out of range" : "Active"}
               </div>
             </>
           )}

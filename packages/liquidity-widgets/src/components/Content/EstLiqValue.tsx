@@ -222,18 +222,13 @@ export default function EstLiqValue() {
                     }}
                   />
                 )}
-                {position ? (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount0)} {pool?.token0.symbol}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+addedAmount0)} {pool?.token0.symbol}
-                  </div>
-                )}
+                <div className="text-end">
+                  {formatNumber(position ? +position.amount0 : +addedAmount0)}{" "}
+                  {pool?.token0.symbol}
+                </div>
               </div>
               {position && (
-                <div style={{ textAlign: "end" }}>
+                <div className="text-end">
                   + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
                 </div>
               )}
@@ -267,19 +262,13 @@ export default function EstLiqValue() {
                     }}
                   />
                 )}
-
-                {position ? (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+position.amount1)} {pool?.token1.symbol}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "end" }}>
-                    {formatNumber(+addedAmount1)} {pool?.token1.symbol}
-                  </div>
-                )}
+                <div className="text-end">
+                  {formatNumber(position ? +position.amount1 : +addedAmount1)}{" "}
+                  {pool?.token1.symbol}
+                </div>
               </div>
               {position && (
-                <div style={{ textAlign: "end" }}>
+                <div className="text-end">
                   + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
                 </div>
               )}

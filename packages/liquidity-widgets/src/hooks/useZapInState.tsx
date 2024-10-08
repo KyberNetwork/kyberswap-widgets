@@ -70,6 +70,8 @@ const ZapContext = createContext<{
     [key: string]: BigNumber;
   };
   tokensInUsdPrice: number[];
+  token0Price: number;
+  token1Price: number;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -100,6 +102,8 @@ const ZapContext = createContext<{
   source: "",
   balanceTokens: {},
   tokensInUsdPrice: [],
+  token0Price: 0,
+  token1Price: 0,
 });
 
 export const ZapContextProvider = ({
@@ -500,6 +504,8 @@ export const ZapContextProvider = ({
         source,
         balanceTokens: balances,
         tokensInUsdPrice,
+        token0Price,
+        token1Price,
       }}
     >
       {children}

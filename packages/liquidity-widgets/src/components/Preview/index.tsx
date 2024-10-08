@@ -38,6 +38,7 @@ import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
 import { formatUnits } from "ethers/lib/utils";
 import { formatDisplayNumber } from "@/utils/number";
+import { Copy, CircleCheckBig } from "lucide-react";
 import defaultTokenLogo from "@/assets/question.svg?url";
 
 export interface ZapState {
@@ -59,6 +60,9 @@ export interface PreviewProps {
   onDismiss: () => void;
   onTxSubmit?: (tx: string) => void;
 }
+
+const COPY_TIMEOUT = 2000;
+let hideCopied: NodeJS.Timeout;
 
 function calculateGasMargin(value: BigNumber): BigNumber {
   const defaultGasLimitMargin = BigNumber.from(20_000);
@@ -84,7 +88,8 @@ export default function Preview({
   onTxSubmit,
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
-  const { poolType, positionId, theme, position } = useWidgetInfo();
+  const { poolType, positionId, theme, position, poolAddress } =
+    useWidgetInfo();
   const {
     source,
     revertPrice: revert,
@@ -99,6 +104,7 @@ export default function Preview({
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
@@ -239,6 +245,13 @@ export default function Preview({
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
+  const handleCopy = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(poolAddress);
+      setCopied(true);
+    }
+  };
+
   useEffect(() => {
     fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
       method: "POST",
@@ -283,6 +296,16 @@ export default function Preview({
         }
       });
   }, [account, chainId, deadline, provider, source, zapInfo.route]);
+
+  useEffect(() => {
+    if (copied) {
+      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
+    }
+
+    return () => {
+      clearTimeout(hideCopied);
+    };
+  }, [copied]);
 
   const handleClick = async () => {
     setAttempTx(true);
@@ -353,9 +376,8 @@ export default function Preview({
           <div>{txStatusText}</div>
 
           {!txHash && (
-            <div className="subText" style={{ textAlign: "center" }}>
+            <div className="subText text-center">
               Confirm this transaction in your wallet - Zapping{" "}
-              {/* {formatNumber(+amountIn)} {tokenIn.symbol} into{" "} */}
               {positionId
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
@@ -483,11 +505,18 @@ export default function Preview({
         </div>
 
         <div>
-          <div>
-            {pool.token0.symbol}/{pool.token1.symbol}
+          <div className="flex items-center gap-2">
+            {pool.token0.symbol}/{pool.token1.symbol}{" "}
+            {!copied ? (
+              <Copy
+                className="w-3 h-3 text-subText cursor-pointer"
+                onClick={handleCopy}
+              />
+            ) : (
+              <CircleCheckBig className="w-3 h-3 text-[--ks-lw-accent]" />
+            )}
           </div>
           <div className="pool-info">
-            <div className="tag tag-primary">{getDexName(poolType)}</div>
             <div className="tag tag-default">Fee {pool.fee / UNI_V3_BPS}%</div>
             {positionId !== undefined && (
               <div className="tag tag-primary">
@@ -618,7 +647,7 @@ export default function Preview({
               </div>
 
               {position && (
-                <div>
+                <div className="text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
                   {pool?.token0.symbol}

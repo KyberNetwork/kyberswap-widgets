@@ -23,16 +23,10 @@ const PriceRange = () => {
     null
   );
 
-  const {
-    priceLower,
-    priceUpper,
-    setTick,
-    tickLower,
-    tickUpper,
-    revertPrice,
-  } = useZapState();
+  const { priceLower, priceUpper, setTick, tickLower, tickUpper, revertPrice } =
+    useZapState();
 
-  const { pool, poolType } = useWidgetInfo();
+  const { pool, poolType, positionId, loading } = useWidgetInfo();
 
   const { fee = 0 } = pool || {};
 
@@ -47,6 +41,26 @@ const PriceRange = () => {
         : PRICE_RANGE.MEDIUM_POOL_FEE,
     [fee]
   );
+
+  const minPrice = useMemo(() => {
+    if (
+      (!revertPrice && pool?.minTick === tickLower) ||
+      (revertPrice && pool?.maxTick === tickUpper)
+    )
+      return "0";
+
+    return (!revertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6);
+  }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper]);
+
+  const maxPrice = useMemo(() => {
+    if (
+      (!revertPrice && pool?.maxTick === tickUpper) ||
+      (revertPrice && pool?.minTick === tickLower)
+    )
+      return "∞";
+
+    return (!revertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6);
+  }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
 
   const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
     if (!pool) return;
@@ -123,7 +137,7 @@ const PriceRange = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fee]);
 
-  return (
+  return !positionId ? (
     <div className="flex gap-[6px] my-[10px]">
       {priceRanges.map((item: string | number, index: number) => (
         <Button
@@ -153,6 +167,34 @@ const PriceRange = () => {
           {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}
         </Button>
       ))}
+    </div>
+  ) : (
+    <div className="px-[16px] py-[12px] mt-4 text-sm border rounded-md">
+      <p className="text-subText mb-3">
+        {!loading ? "Your Position Price Ranges" : "Loading..."}
+      </p>
+      {!loading && (
+        <div className="flex items-center gap-4">
+          <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+            <p className="text-subText">Min Price</p>
+            <p>{minPrice}</p>
+            <p className="text-subText">
+              {revertPrice
+                ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
+                : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+            </p>
+          </div>
+          <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+            <p className="text-subText">Max Price</p>
+            <p>{maxPrice}</p>
+            <p className="text-subText">
+              {revertPrice
+                ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
+                : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
