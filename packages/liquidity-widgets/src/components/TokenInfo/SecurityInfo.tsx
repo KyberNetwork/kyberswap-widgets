@@ -27,8 +27,6 @@ const SecurityInfo = ({ token }: { token: Token }) => {
 
   const { securityInfo, loading } = useSecurityTokenInfo(tokenAddress);
 
-  console.log("securityInfo", securityInfo);
-
   return (
     <>
       <div

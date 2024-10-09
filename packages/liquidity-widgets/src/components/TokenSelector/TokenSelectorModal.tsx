@@ -19,7 +19,7 @@ const TokenSelectorModal = ({
     <Modal
       isOpen
       onClick={onClose}
-      modalContentClass={`bg-[var(--ks-lw-layer2)] p-0 ${
+      modalContentClass={`bg-[var(--ks-lw-layer2)] p-0 !max-h-[80vh] ${
         tokenToShow ? "" : "pb-[24px]"
       } max-w-[435px]`}
     >
