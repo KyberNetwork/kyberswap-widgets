@@ -29,6 +29,7 @@ module.exports = {
         subText: "var(--ks-lw-subText)",
         text: "var(--ks-lw-text)",
         warning: "var(--ks-lw-warning)",
+        error: "var(--ks-lw-error)",
         icon: {
           DEFAULT: "var(--ks-lw-icons)",
         },

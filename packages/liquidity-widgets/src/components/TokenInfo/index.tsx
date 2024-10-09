@@ -12,7 +12,7 @@ const TokenInfo = ({
 }) => {
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
-      <div className="flex items-center gap-1 p-4">
+      <div className="flex items-center gap-1 p-4 pb-[14px]">
         <ChevronLeft
           className="text-subText w-[26px] h-[26px] cursor-pointer hover:text-text"
           onClick={onGoBack}

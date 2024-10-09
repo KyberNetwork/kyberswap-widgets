@@ -13,24 +13,23 @@ const TokenSelectorModal = ({
   mode: TOKEN_SELECT_MODE;
   onClose: () => void;
 }) => {
-  const [tokenInfoToShow, setTokenInfoToShow] = useState<Token | null>(null);
+  const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
 
   return (
     <Modal
       isOpen
       onClick={onClose}
-      modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px] max-w-[435px]"
+      modalContentClass={`bg-[var(--ks-lw-layer2)] p-0 ${
+        tokenToShow ? "" : "pb-[24px]"
+      } max-w-[435px]`}
     >
-      {tokenInfoToShow ? (
-        <TokenInfo
-          token={tokenInfoToShow}
-          onGoBack={() => setTokenInfoToShow(null)}
-        />
+      {tokenToShow ? (
+        <TokenInfo token={tokenToShow} onGoBack={() => setTokenToShow(null)} />
       ) : (
         <TokenSelector
           selectedTokenAddress={selectedTokenAddress}
           mode={mode}
-          setTokenInfoToShow={setTokenInfoToShow}
+          setTokenToShow={setTokenToShow}
           onClose={onClose}
         />
       )}

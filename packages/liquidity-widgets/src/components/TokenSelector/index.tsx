@@ -33,12 +33,12 @@ interface CustomizeToken extends Token {
 export default function TokenSelector({
   selectedTokenAddress,
   mode,
-  setTokenInfoToShow,
+  setTokenToShow,
   onClose,
 }: {
   selectedTokenAddress?: string;
   mode: TOKEN_SELECT_MODE;
-  setTokenInfoToShow: (token: Token) => void;
+  setTokenToShow: (token: Token) => void;
   onClose: () => void;
 }) {
   const { pool } = useWidgetInfo();
@@ -215,7 +215,7 @@ export default function TokenSelector({
 
   const handleShowTokenInfo = (e: MouseEvent<SVGSVGElement>, token: Token) => {
     e.stopPropagation();
-    setTokenInfoToShow(token);
+    setTokenToShow(token);
   };
 
   useEffect(() => {
@@ -303,7 +303,7 @@ export default function TokenSelector({
           </div>
         ) : null}
 
-        <ScrollArea className="h-[300px] custom-scrollbar !mt-0">
+        <ScrollArea className="h-[280px] custom-scrollbar !mt-0">
           {tabSelected === TOKEN_TAB.ALL &&
             unImportedTokens.map((token: Token) => (
               <div

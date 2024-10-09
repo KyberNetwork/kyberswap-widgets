@@ -5,8 +5,6 @@ export const NATIVE_TOKEN_ADDRESS =
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
-export const COINGECKO_API_URL = "https://api.coingecko.com/api/v3";
-
 interface NETWORK_INFO {
   [chainId: number]: {
     name: string;
@@ -344,6 +342,8 @@ export const PATHS = {
   KYBERSWAP_PRICE_API: "https://price.kyberswap.com",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
   ZAP_API: "https://zap-api.kyberswap.com",
+  COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
+  GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
 };
 
 export const DEFAULT_PRICE_RANGE = {

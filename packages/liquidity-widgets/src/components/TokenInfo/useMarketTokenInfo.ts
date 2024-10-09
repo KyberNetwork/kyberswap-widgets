@@ -1,40 +1,30 @@
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { COINGECKO_API_URL, NetworkInfo } from "@/constants";
-import { useEffect, useState } from "react";
-
-export interface TokenInfo {
-  price: number;
-  marketCap: number;
-  marketCapRank: number;
-  circulatingSupply: number;
-  totalSupply: number;
-  allTimeHigh: number;
-  allTimeLow: number;
-  tradingVolume: number;
-  description: { en: string };
-  name: string;
-}
+import { PATHS, NetworkInfo } from "@/constants";
+import { useEffect, useMemo, useState } from "react";
+import { TokenInfo, parseMarketTokenInfo } from "@/components/TokenInfo/utils";
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: NodeJS.Timeout;
 
-export default function useMarketTokenInfo(tokenAddress: string): {
-  marketTokenInfo: TokenInfo | null;
-  loading: boolean;
-} {
+export default function useMarketTokenInfo(tokenAddress: string) {
   const { chainId } = useWeb3Provider();
   const [marketTokenInfo, setMarketTokenInfo] = useState<TokenInfo | null>(
     null
   );
   const [loading, setLoading] = useState<boolean>(false);
 
+  const parsedMarketTokenInfo = useMemo(
+    () => parseMarketTokenInfo(marketTokenInfo),
+    [marketTokenInfo]
+  );
+
   const handleFetchCoingeckoData = () => {
     if (!tokenAddress) return;
     setLoading(true);
     fetch(
       tokenAddress === NetworkInfo[chainId].wrappedToken.address.toLowerCase()
-        ? `${COINGECKO_API_URL}/coins/${NetworkInfo[chainId].coingeckoNativeTokenId}`
-        : `${COINGECKO_API_URL}/coins/${NetworkInfo[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
+        ? `${PATHS.COINGECKO_API_URL}/coins/${NetworkInfo[chainId].coingeckoNativeTokenId}`
+        : `${PATHS.COINGECKO_API_URL}/coins/${NetworkInfo[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
     )
       .then((res) => res.json())
       .then((data) =>
@@ -51,6 +41,10 @@ export default function useMarketTokenInfo(tokenAddress: string): {
           name: data?.name || "",
         })
       )
+      .catch((e) => {
+        console.log(e.message);
+        setMarketTokenInfo(null);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -70,5 +64,5 @@ export default function useMarketTokenInfo(tokenAddress: string): {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenAddress]);
 
-  return { marketTokenInfo, loading };
+  return { marketTokenInfo: parsedMarketTokenInfo, loading };
 }
