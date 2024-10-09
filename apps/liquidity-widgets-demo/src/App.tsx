@@ -134,26 +134,26 @@ function App() {
 
       <LiquidityWidget
         key={key}
+        provider={ethersProvider}
         theme={{
-          text: "#FFFFFF",
-          subText: "#B6AECF",
+          text: "#ffffff",
+          subText: "#979797",
           icons: "#a9a9a9",
-          layer1: "#27262C",
-          dialog: "#27262C",
-          layer2: "#363046",
-          stroke: "#363046",
-          chartRange: "#5DC5D2",
-          chartArea: "#457F89",
-          accent: "#5DC5D2",
-          warning: "#F4B452",
-          error: "#FF5353",
+          layer1: "#1C1C1C",
+          dialog: "#1c1c1c",
+          layer2: "#313131",
+          stroke: "#313131",
+          chartRange: "#28e0b9",
+          chartArea: "#047855",
+          accent: "#31cb9e",
+          warning: "#ff9901",
+          error: "#ff537b",
           success: "#189470",
-          fontFamily: "Kanit, Sans-serif",
+          fontFamily: "Work Sans",
           borderRadius: "20px",
-          buttonRadius: "16px",
+          buttonRadius: "24px",
           boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
         }}
-        provider={ethersProvider}
         onDismiss={() => {
           window.location.reload();
         }}
@@ -372,3 +372,24 @@ function Params({
     </>
   );
 }
+
+//theme={{
+//  text: "#FFFFFF",
+//  subText: "#B6AECF",
+//  icons: "#a9a9a9",
+//  layer1: "#27262C",
+//  dialog: "#27262C",
+//  layer2: "#363046",
+//  stroke: "#363046",
+//  chartRange: "#5DC5D2",
+//  chartArea: "#457F89",
+//  accent: "#5DC5D2",
+//  warning: "#F4B452",
+//  error: "#FF5353",
+//  success: "#189470",
+//  fontFamily: "Kanit, Sans-serif",
+//  borderRadius: "20px",
+//  buttonRadius: "16px",
+//  boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
+//}}
+//
