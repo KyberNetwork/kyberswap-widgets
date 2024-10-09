@@ -1,9 +1,9 @@
-import Info from "../../assets/info.svg";
-import DropdownIcon from "../../assets/dropdown.svg";
-import Spinner from "../../assets/loader.svg";
-import SwitchIcon from "../../assets/switch.svg";
-import SuccessIcon from "../../assets/success.svg";
-import ErrorIcon from "../../assets/error.svg";
+import Info from "@/assets/svg/info.svg";
+import DropdownIcon from "@/assets/svg/dropdown.svg";
+import Spinner from "@/assets/svg/loader.svg";
+import SwitchIcon from "@/assets/svg/switch.svg";
+import SuccessIcon from "@/assets/svg/success.svg";
+import ErrorIcon from "@/assets/svg/error.svg";
 import "./Preview.scss";
 
 import { useZapState } from "../../hooks/useZapInState";
@@ -38,8 +38,9 @@ import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "../Tooltip";
 import { formatUnits } from "ethers/lib/utils";
 import { formatDisplayNumber } from "@/utils/number";
-import { Copy, CircleCheckBig } from "lucide-react";
-import defaultTokenLogo from "@/assets/question.svg?url";
+import { CircleCheckBig } from "lucide-react";
+import IconCopy from "@/assets/svg/copy.svg";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -508,7 +509,7 @@ export default function Preview({
           <div className="flex items-center gap-2">
             {pool.token0.symbol}/{pool.token1.symbol}{" "}
             {!copied ? (
-              <Copy
+              <IconCopy
                 className="w-3 h-3 text-subText cursor-pointer"
                 onClick={handleCopy}
               />

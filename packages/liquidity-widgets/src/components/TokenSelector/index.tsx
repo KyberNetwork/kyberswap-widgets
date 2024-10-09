@@ -9,8 +9,9 @@ import { formatWei, isAddress } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
-import defaultTokenLogo from "@/assets/question.svg?url";
-import TrashIcon from "@/assets/trash.svg";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import TrashIcon from "@/assets/svg/trash.svg";
+import Info from "@/assets/svg/info.svg";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",
@@ -30,13 +31,15 @@ interface CustomizeToken extends Token {
 }
 
 export default function TokenSelector({
-  onClose,
-  mode,
   selectedTokenAddress,
+  mode,
+  setTokenInfoToShow,
+  onClose,
 }: {
-  onClose: () => void;
-  mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
+  mode: TOKEN_SELECT_MODE;
+  setTokenInfoToShow: (token: Token) => void;
+  onClose: () => void;
 }) {
   const { pool } = useWidgetInfo();
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } =
@@ -134,7 +137,7 @@ export default function TokenSelector({
     );
   }, [listTokens, searchTerm]);
 
-  const onClickToken = (newToken: CustomizeToken) => {
+  const handleClickToken = (newToken: CustomizeToken) => {
     if (mode === TOKEN_SELECT_MODE.SELECT) {
       const index = tokensIn.findIndex(
         (token: Token) => token.address === selectedTokenAddress
@@ -173,7 +176,7 @@ export default function TokenSelector({
     }
   };
 
-  const onClickSave = () => {
+  const handleSaveSelected = () => {
     if (mode === TOKEN_SELECT_MODE.ADD) {
       setTokensIn(modalTokensIn);
       setAmountsIn(modalAmountsIn);
@@ -182,7 +185,7 @@ export default function TokenSelector({
     }
   };
 
-  const onChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     if (unImportedTokens.length) setUnImportedTokens([]);
   };
@@ -210,6 +213,11 @@ export default function TokenSelector({
     removeToken(token);
   };
 
+  const handleShowTokenInfo = (e: MouseEvent<SVGSVGElement>, token: Token) => {
+    e.stopPropagation();
+    setTokenInfoToShow(token);
+  };
+
   useEffect(() => {
     const search = searchTerm.toLowerCase().trim();
 
@@ -222,7 +230,7 @@ export default function TokenSelector({
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
-        <div className="flex justify-between items-center p-[24px] pb-0">
+        <div className="flex justify-between items-center p-6 pb-0">
           <h2 className="text-[20px]">
             {mode === TOKEN_SELECT_MODE.ADD
               ? "Add more tokens"
@@ -249,7 +257,7 @@ export default function TokenSelector({
               placeholder="Search by token name, token symbol or address"
               className="tienkane h-[45px] pl-4 pr-10 py-2 bg-[#0f0f0f] border-[1.5px] border-[#0f0f0f] text-white placeholder-[var(--ks-lw-subText)] rounded-full focus:border-[--ks-lw-success]"
               value={searchTerm}
-              onChange={onChangeSearch}
+              onChange={handleChangeSearch}
             />
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ks-lw-subText)]" />
           </div>
@@ -296,35 +304,36 @@ export default function TokenSelector({
         ) : null}
 
         <ScrollArea className="h-[300px] custom-scrollbar !mt-0">
-          {unImportedTokens.map((token: Token) => (
-            <div
-              key={token.symbol}
-              className="flex items-center justify-between py-2 px-[24px]"
-              style={{ color: "red" }}
-            >
-              <div className="flex items-center gap-[8px]">
-                <img
-                  className="h-[24px] w-[24px]"
-                  src={token.logoURI}
-                  alt=""
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
-                <p className="ml-[8px] text-[--ks-lw-subText]">
-                  {token.symbol}
-                </p>
-                <p className="text-xs text-[#6C7284]">{token.name}</p>
-              </div>
-              <Button
-                className="rounded-full !bg-[--ks-lw-accent] font-normal !text-[#222222] px-[12px] py-[6px] h-fit hover:brightness-75"
-                onClick={() => handleAddToken(token)}
+          {tabSelected === TOKEN_TAB.ALL &&
+            unImportedTokens.map((token: Token) => (
+              <div
+                key={token.symbol}
+                className="flex items-center justify-between py-2 px-[24px]"
+                style={{ color: "red" }}
               >
-                Import
-              </Button>
-            </div>
-          ))}
+                <div className="flex items-center gap-[8px]">
+                  <img
+                    className="h-[24px] w-[24px]"
+                    src={token.logoURI}
+                    alt=""
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                  <p className="ml-[8px] text-[--ks-lw-subText]">
+                    {token.symbol}
+                  </p>
+                  <p className="text-xs text-[#6C7284]">{token.name}</p>
+                </div>
+                <Button
+                  className="rounded-full !bg-[--ks-lw-accent] font-normal !text-[#222222] px-[12px] py-[6px] h-fit hover:brightness-75"
+                  onClick={() => handleAddToken(token)}
+                >
+                  Import
+                </Button>
+              </div>
+            ))}
           {filteredTokens?.length > 0 && !unImportedTokens.length ? (
             filteredTokens.map((token: CustomizeToken) => (
               <div
@@ -340,7 +349,7 @@ export default function TokenSelector({
                     ? "bg-[--ks-lw-stroke] hover:bg-[--ks-lw-stroke] !cursor-not-allowed brightness-50"
                     : ""
                 }`}
-                onClick={() => !token.disabled && onClickToken(token)}
+                onClick={() => !token.disabled && handleClickToken(token)}
               >
                 <div className="flex items-center space-x-3">
                   {mode === TOKEN_SELECT_MODE.ADD && (
@@ -380,16 +389,20 @@ export default function TokenSelector({
                     </p>
                   </div>
                 </div>
-                <p className="text-right">
+                <div className="flex items-center gap-2 justify-end">
                   {tabSelected === TOKEN_TAB.ALL ? (
-                    token.balance
+                    <span>{token.balance}</span>
                   ) : (
                     <TrashIcon
-                      className="w-[18px]"
+                      className="w-[18px] text-subText hover:text-[--ks-lw-text]"
                       onClick={(e) => handleRemoveImportedToken(e, token)}
                     />
                   )}
-                </p>
+                  <Info
+                    className="w-[18px] h-[18px] text-subText hover:text-[--ks-lw-text]"
+                    onClick={(e) => handleShowTokenInfo(e, token)}
+                  />
+                </div>
               </div>
             ))
           ) : !unImportedTokens.length ? (
@@ -413,7 +426,7 @@ export default function TokenSelector({
             <Button
               className="flex-1 bg-[--ks-lw-accent] text-black rounded-full hover:bg-[--ks-lw-accent] hover:text-black hover:brightness-110"
               disabled={!modalTokensIn.length}
-              onClick={onClickSave}
+              onClick={handleSaveSelected}
             >
               Save
             </Button>

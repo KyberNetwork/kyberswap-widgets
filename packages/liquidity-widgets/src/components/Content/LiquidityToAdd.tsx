@@ -1,15 +1,15 @@
 import { useZapState } from "../../hooks/useZapInState";
 import { useMemo, useState } from "react";
 import { formatCurrency, formatWei } from "@/utils";
-import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector/index";
-import Modal from "../Modal";
-import WalletIcon from "../../assets/wallet.svg";
-import DropdownIcon from "../../assets/dropdown.svg";
+import { TOKEN_SELECT_MODE } from "../TokenSelector/index";
+import WalletIcon from "@/assets/svg/wallet.svg";
+import DropdownIcon from "@/assets/svg/dropdown.svg";
 import { formatUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { X } from "lucide-react";
-import defaultTokenLogo from "@/assets/question.svg?url";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const {
@@ -80,17 +80,11 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   return (
     <>
       {openTokenSelectModal && (
-        <Modal
-          isOpen
-          onClick={onCloseTokenSelectModal}
-          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px] max-w-[435px]"
-        >
-          <TokenSelector
-            onClose={onCloseTokenSelectModal}
-            mode={TOKEN_SELECT_MODE.SELECT}
-            selectedTokenAddress={token.address}
-          />
-        </Modal>
+        <TokenSelectorModal
+          selectedTokenAddress={token.address}
+          mode={TOKEN_SELECT_MODE.ADD}
+          onClose={onCloseTokenSelectModal}
+        />
       )}
       <div className="input-token bg-[var(--ks-lw-layer2)] relative">
         <div className="balance">

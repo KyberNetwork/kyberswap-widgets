@@ -5,6 +5,8 @@ export const NATIVE_TOKEN_ADDRESS =
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
+export const COINGECKO_API_URL = "https://api.coingecko.com/api/v3";
+
 interface NETWORK_INFO {
   [chainId: number]: {
     name: string;
@@ -16,8 +18,12 @@ interface NETWORK_INFO {
       symbol: string;
     };
     nativeLogo: string;
+    coingeckoNetworkId: string | null;
+    coingeckoNativeTokenId: string | null;
   };
 }
+
+const NOT_SUPPORT = null;
 
 export const NetworkInfo: NETWORK_INFO = {
   1: {
@@ -28,6 +34,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://etherscan.io",
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
     defaultRpc: "https://ethereum.kyberengineering.io",
+    coingeckoNetworkId: "ethereum",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 1,
       name: "WETH",
@@ -44,6 +52,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://bscscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://bsc.kyberengineering.io",
+    coingeckoNetworkId: "binance-smart-chain",
+    coingeckoNativeTokenId: "binancecoin",
     wrappedToken: {
       chainId: 56,
       name: "WBNB",
@@ -60,6 +70,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://polygonscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://polygon.kyberengineering.io",
+    coingeckoNetworkId: "polygon-pos",
+    coingeckoNativeTokenId: "matic-network",
     wrappedToken: {
       chainId: 137,
       name: "POL",
@@ -76,6 +88,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://arbiscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://arbitrum.kyberengineering.io",
+    coingeckoNetworkId: "arbitrum-one",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 42161,
       name: "WETH",
@@ -92,6 +106,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://snowscan.xyz",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://avalanche.kyberengineering.io",
+    coingeckoNetworkId: "avalanche",
+    coingeckoNativeTokenId: "avalanche-2",
     wrappedToken: {
       chainId: 43114,
       name: "WAVAX",
@@ -108,6 +124,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://basescan.org",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://mainnet.base.org",
+    coingeckoNetworkId: "base",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 8453,
       name: "ETH",
@@ -124,6 +142,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://blastscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.blast.io",
+    coingeckoNetworkId: "blast",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 81457,
       name: "ETH",
@@ -140,6 +160,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://ftmscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.fantom.network	",
+    coingeckoNetworkId: "fantom",
+    coingeckoNativeTokenId: "fantom",
     wrappedToken: {
       chainId: 250,
       name: "WFTM",
@@ -156,6 +178,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://lineascan.build",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.linea.build",
+    coingeckoNetworkId: NOT_SUPPORT,
+    coingeckoNativeTokenId: NOT_SUPPORT,
     wrappedToken: {
       chainId: 59144,
       name: "WETH",
@@ -172,6 +196,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://mantlescan.info",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.mantle.xyz",
+    coingeckoNetworkId: "mantle",
+    coingeckoNativeTokenId: "mnt",
     wrappedToken: {
       chainId: 5000,
       name: "WMNT",
@@ -188,6 +214,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://optimistic.etherscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://optimism.kyberengineering.io",
+    coingeckoNetworkId: "optimistic-ethereum",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 10,
       name: "WETH",
@@ -204,6 +232,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://scrollscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://rpc.scroll.io",
+    coingeckoNetworkId: "scroll",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 534352,
       name: "WETH",
@@ -220,6 +250,8 @@ export const NetworkInfo: NETWORK_INFO = {
     scanLink: "https://zkevm.polygonscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     defaultRpc: "https://zkevm-rpc.com",
+    coingeckoNetworkId: "polygon-zkevm",
+    coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
       chainId: 1101,
       name: "WETH",

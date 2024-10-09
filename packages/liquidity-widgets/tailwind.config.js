@@ -21,41 +21,19 @@ module.exports = {
       colors: {
         border: "var(--ks-lw-stroke)",
         input: "var(--ks-lw-layer2)",
-        ring: "hsl(var(--ring))",
         background: "var(--ks-lw-layer1)",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
-          foreground: "hsl(var(--primary-foreground))",
         },
         subText: "var(--ks-lw-subText)",
+        text: "var(--ks-lw-text)",
         warning: "var(--ks-lw-warning)",
         icon: {
           DEFAULT: "var(--ks-lw-icons)",
         },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "var(--ks-lw-accent)",
         },
       },
       borderRadius: {

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import X from "../../assets/x.svg";
+import X from "@/assets/svg/x.svg";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { useZapState } from "../../hooks/useZapInState";
 import Toggle from "../Toggle";

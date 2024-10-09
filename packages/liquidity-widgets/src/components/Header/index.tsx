@@ -1,8 +1,8 @@
 import "./Header.scss";
 import { useWeb3Provider } from "../../hooks/useProvider";
-import SettingIcon from "../../assets/setting.svg";
-import X from "../../assets/x.svg";
-import defaultTokenLogo from "@/assets/question.svg?url";
+import SettingIcon from "@/assets/svg/setting.svg";
+import X from "@/assets/svg/x.svg";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { NetworkInfo, UNI_V3_BPS } from "../../constants";

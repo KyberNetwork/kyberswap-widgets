@@ -1,6 +1,6 @@
 import "./Content.scss";
-import X from "../../assets/x.svg";
-import ErrorIcon from "../../assets/error.svg";
+import X from "@/assets/svg/x.svg";
+import ErrorIcon from "@/assets/svg/error.svg";
 import PriceInfo from "./PriceInfo";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
@@ -25,11 +25,12 @@ import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { useWeb3Provider } from "../../hooks/useProvider";
-import TokenSelector, { TOKEN_SELECT_MODE } from "../TokenSelector";
+import { TOKEN_SELECT_MODE } from "../TokenSelector";
 import { Token } from "@/entities/Pool";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import PriceRange from "../PriceRange";
 import PositionLiquidity from "../PositionLiquidity";
+import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
 
 export default function Content({
   onDismiss,
@@ -321,16 +322,10 @@ export default function Content({
         </Modal>
       )}
       {openTokenSelectModal && (
-        <Modal
-          isOpen
-          onClick={onCloseTokenSelectModal}
-          modalContentClass="bg-[var(--ks-lw-layer2)] p-0 pb-[24px] max-w-[435px]"
-        >
-          <TokenSelector
-            onClose={onCloseTokenSelectModal}
-            mode={TOKEN_SELECT_MODE.ADD}
-          />
-        </Modal>
+        <TokenSelectorModal
+          mode={TOKEN_SELECT_MODE.ADD}
+          onClose={onCloseTokenSelectModal}
+        />
       )}
       <Header onDismiss={onDismiss} />
       <div className="ks-lw-content">

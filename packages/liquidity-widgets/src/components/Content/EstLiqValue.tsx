@@ -31,7 +31,7 @@ import { useMemo } from "react";
 import { useTokenList } from "@/hooks/useTokenList";
 import { Token } from "@/entities/Pool";
 import { formatDisplayNumber } from "@/utils/number";
-import defaultTokenLogo from "@/assets/question.svg?url";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage } = useZapState();

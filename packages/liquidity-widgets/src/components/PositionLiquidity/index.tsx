@@ -1,7 +1,7 @@
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useZapState } from "@/hooks/useZapInState";
 import { formatCurrency, formatNumber } from "@/utils";
-import defaultTokenLogo from "@/assets/question.svg?url";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 const PositionLiquidity = () => {
   const { loading, pool, position } = useWidgetInfo();
