@@ -4,6 +4,7 @@ import { PoolAdapter } from "../entities/Pool";
 import { PoolType } from "../constants";
 import { defaultTheme, Theme } from "../theme";
 import { PositionAdaper } from "../entities/Position";
+import { assertUnreachable } from "../utils";
 
 type ContextState = {
   loading: boolean;
@@ -77,11 +78,13 @@ const UniV3Provider = ({
   poolAddress,
   children,
   positionId,
+  poolType,
   ...rest
-}: Omit<Props, "poolType">) => {
+}: Props) => {
   const { loading, pool, position, error } = useUniV3PoolInfo(
     poolAddress,
-    positionId
+    positionId,
+    poolType
   );
 
   const poolAdapter = useMemo(
@@ -97,7 +100,7 @@ const UniV3Provider = ({
         pool: poolAdapter,
         positionId,
         position,
-        poolType: PoolType.DEX_UNISWAPV3,
+        poolType,
         error,
         ...rest,
       }}
@@ -111,8 +114,14 @@ export const WidgetProvider = (props: Props) => {
   if (props.poolType === PoolType.DEX_PANCAKESWAPV3) {
     return <PancakeV3Provider {...props} />;
   }
+  if (
+    props.poolType === PoolType.DEX_UNISWAPV3 ||
+    props.poolType === PoolType.DEX_METAVAULTV3
+  ) {
+    return <UniV3Provider {...props} />;
+  }
 
-  return <UniV3Provider {...props} />;
+  return assertUnreachable(props.poolType);
 };
 
 export const useWidgetInfo = () => {

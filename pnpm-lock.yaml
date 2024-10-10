@@ -326,6 +326,9 @@ importers:
       lodash.partition:
         specifier: ^4.6.0
         version: 4.6.0
+      numeral:
+        specifier: ^2.0.6
+        version: 2.0.6
       polished:
         specifier: ^4.3.1
         version: 4.3.1
@@ -357,6 +360,9 @@ importers:
       '@types/lodash':
         specifier: ^4.14.196
         version: 4.17.9
+      '@types/numeral':
+        specifier: ^2.0.5
+        version: 2.0.5
       '@types/react':
         specifier: ^18.0.17
         version: 18.3.9
@@ -399,12 +405,6 @@ importers:
 
   packages/pancake-liquidity-widgets:
     dependencies:
-      '@kyber/hooks':
-        specifier: workspace:*
-        version: link:../hooks
-      '@kyber/ui':
-        specifier: workspace:*
-        version: link:../ui
       '@pancakeswap/sdk':
         specifier: ^5.8.2
         version: 5.8.8(bufferutil@4.0.8)(typescript@5.3.2)(utf-8-validate@6.0.4)
@@ -430,9 +430,15 @@ importers:
         specifier: '>=2.13.3'
         version: 2.21.15(bufferutil@4.0.8)(typescript@5.3.2)(utf-8-validate@6.0.4)
     devDependencies:
+      '@kyber/hooks':
+        specifier: workspace:*
+        version: link:../hooks
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
+      '@kyber/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@types/react':
         specifier: ^18.0.17
         version: 18.3.9
@@ -3549,6 +3555,9 @@ packages:
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
+
+  '@types/numeral@2.0.5':
+    resolution: {integrity: sha512-kH8I7OSSwQu9DS9JYdFWbuvhVzvFRoCPCkGxNwoGgaPeDfEPJlcxNvEOypZhQ3XXHsGbfIuYcxcJxKUfJHnRfw==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -7009,6 +7018,9 @@ packages:
 
   nullthrows@1.1.1:
     resolution: {integrity: sha512-2vPPEi+Z7WqML2jZYddDIfy5Dqb0r2fze2zTxNNknZaFpVHU3mFB3R+DWeJWGVx0ecvttSGlJTI+WG+8Z4cDWw==}
+
+  numeral@2.0.6:
+    resolution: {integrity: sha512-qaKRmtYPZ5qdw4jWJD6bxEf1FJEqllJrwxCLIm0sQU/A7v2/czigzOb+C2uSiFsa9lBUzeH7M1oK+Q+OLxL3kA==}
 
   ob1@0.80.12:
     resolution: {integrity: sha512-VMArClVT6LkhUGpnuEoBuyjG9rzUyEzg4PDkav6wK1cLhOK02gPCYFxoiB4mqVnrMhDpIzJcrGNAMVi9P+hXrw==}
@@ -12508,6 +12520,8 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
+  '@types/numeral@2.0.5': {}
+
   '@types/parse-json@4.0.2': {}
 
   '@types/pbkdf2@3.1.2':
@@ -16970,11 +16984,11 @@ snapshots:
     dependencies:
       ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
 
-  isows@1.0.4(ws@8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)):
+  isows@1.0.4(ws@8.13.0(bufferutil@4.0.8)):
     dependencies:
       ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
 
-  isows@1.0.4(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@6.0.4)):
+  isows@1.0.4(ws@8.17.1(bufferutil@4.0.8)):
     dependencies:
       ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@6.0.4)
 
@@ -17769,6 +17783,8 @@ snapshots:
       boolbase: 1.0.0
 
   nullthrows@1.1.1: {}
+
+  numeral@2.0.6: {}
 
   ob1@0.80.12:
     dependencies:
@@ -19574,7 +19590,7 @@ snapshots:
       '@scure/bip32': 1.3.2
       '@scure/bip39': 1.2.1
       abitype: 1.0.0(typescript@5.3.2)
-      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4))
+      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8))
       ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     optionalDependencies:
       typescript: 5.3.2
@@ -19591,7 +19607,7 @@ snapshots:
       '@scure/bip32': 1.3.2
       '@scure/bip39': 1.2.1
       abitype: 1.0.0(typescript@5.6.2)
-      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4))
+      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8))
       ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     optionalDependencies:
       typescript: 5.6.2
@@ -19608,7 +19624,7 @@ snapshots:
       '@scure/bip32': 1.3.2
       '@scure/bip39': 1.2.1
       abitype: 1.0.0(typescript@5.3.2)
-      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4))
+      isows: 1.0.4(ws@8.13.0(bufferutil@4.0.8))
       ws: 8.13.0(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     optionalDependencies:
       typescript: 5.3.2
@@ -19625,7 +19641,7 @@ snapshots:
       '@scure/bip32': 1.4.0
       '@scure/bip39': 1.4.0
       abitype: 1.0.5(typescript@5.3.2)
-      isows: 1.0.4(ws@8.17.1(bufferutil@4.0.8)(utf-8-validate@6.0.4))
+      isows: 1.0.4(ws@8.17.1(bufferutil@4.0.8))
       webauthn-p256: 0.0.5
       ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@6.0.4)
     optionalDependencies:

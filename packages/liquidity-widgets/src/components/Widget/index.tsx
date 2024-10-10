@@ -1,4 +1,4 @@
-import { ChainId } from "@kyberswap/ks-sdk-core";
+import { ChainId as KSChainId } from "@kyberswap/ks-sdk-core";
 import { useEffect, useMemo } from "react";
 import "./Widget.scss";
 import { Web3Provider } from "../../hooks/useProvider";
@@ -6,7 +6,7 @@ import { Web3Provider } from "../../hooks/useProvider";
 import { Theme, defaultTheme } from "../../theme";
 import { WidgetProvider } from "../../hooks/useWidgetInfo";
 import { providers } from "ethers";
-import { NetworkInfo, PoolType } from "../../constants";
+import { NetworkInfo, PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import { TokenListProvider } from "../../hooks/useTokenList";
@@ -14,7 +14,7 @@ import Setting from "../Setting";
 
 import "../../globals.css";
 
-export { PoolType };
+export { PoolType, ChainId };
 
 // createModalRoot.js
 const createModalRoot = () => {
@@ -34,7 +34,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: ChainId;
+  chainId: KSChainId;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;

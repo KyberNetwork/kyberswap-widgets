@@ -1,0 +1,33 @@
+#root {
+  margin: auto;
+  max-width: 960px;
+}
+
+button {
+  outline: none;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: #28e0b9;
+  color: #313131;
+  cursor: pointer;
+  box-shadow: 0px 4px 4px rgb(0 0 0 / 4%);
+}
+
+.title {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.App {
+  display: flex;
+  gap: 4rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}

@@ -85,6 +85,23 @@
     }
   }
 
+  .tag {
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 16px;
+    background: var(--ks-lw-layer2);
+    padding: 0 8px;
+    height: max-content;
+  }
+
+  .tag-primary {
+    background: var(--ks-lw-success);
+  }
+
+  .tag-warning {
+    background: var(--ks-lw-warning);
+  }
+
   .card {
     background: var(--ks-lw-layer2);
     border-radius: var(--ks-lw-borderRadius);

@@ -23,9 +23,6 @@
     "prepublishOnly": "tsc && tsup",
     "type-check": "tsc --noEmit"
   },
-  "resolutions": {
-    "@uniswap/sdk-core": "4.1.4"
-  },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
     "@kyberswap/ks-sdk-core": "^1.1.5",
@@ -45,6 +42,7 @@
     "ethers": "^5.7.0",
     "jsbi": "^3.2.5",
     "lodash.partition": "^4.6.0",
+    "numeral": "^2.0.6",
     "polished": "^4.3.1",
     "react-popper": "^2.3.0",
     "tailwind-merge": "^2.5.2",
@@ -55,6 +53,7 @@
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@types/d3": "^7.4.3",
     "@types/lodash": "^4.14.196",
+    "@types/numeral": "^2.0.5",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",

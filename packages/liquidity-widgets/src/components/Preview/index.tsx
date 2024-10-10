@@ -115,6 +115,9 @@ export default function Preview({
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
+  const isOutOfRange =
+    tickLower > pool.tickCurrent || pool.tickCurrent >= tickUpper;
+
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
@@ -411,7 +414,7 @@ export default function Preview({
         recipient: account,
         route: zapInfo.route,
         deadline,
-        source: "zap-widget",
+        source,
       }),
     })
       .then((res) => res.json())
@@ -474,7 +477,7 @@ export default function Preview({
                 ? `Position #${positionId}`
                 : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
-                  } ${pool.fee / UNI_V3_BPS}%`}
+                  } ${pool.fee / 10_000}%`}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -617,6 +620,24 @@ export default function Preview({
             )}
           </div>
         </div>
+
+        {isOutOfRange && (
+          <div
+            className="tag tag-warning"
+            style={{
+              marginLeft: "auto",
+              padding: "2px 8px",
+            }}
+          >
+            Inactive{" "}
+            <InfoHelper
+              width="300px"
+              color={"#ffffff"}
+              text="The position is inactive and not earning trading fees due to the current price being out of the set price range."
+              size={16}
+            />
+          </div>
+        )}
       </div>
 
       <div className="card" style={{ marginTop: "1rem" }}>
