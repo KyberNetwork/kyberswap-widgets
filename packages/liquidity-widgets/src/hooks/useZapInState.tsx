@@ -285,8 +285,11 @@ export const ZapContextProvider = ({
     }
   }, [position?.tickUpper, position?.tickLower]);
 
+  // set init tokens in
   useEffect(() => {
     if (!pool || tokensIn.length) return;
+
+    // with params
     if (initDepositTokens && allTokens.length) {
       const listInitTokens = initDepositTokens
         .split(",")
@@ -310,6 +313,19 @@ export const ZapContextProvider = ({
 
       return;
     }
+
+    // without wallet connect
+    if (!account) {
+      const isToken0Native =
+        pool?.token0.address.toLowerCase() ===
+        NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+
+      const token0 = isToken0Native ? nativeToken : pool.token0;
+
+      setTokensIn([token0]);
+    }
+
+    // with balance compare
     if (
       !initDepositTokens &&
       token0Price &&
@@ -361,8 +377,10 @@ export const ZapContextProvider = ({
     initDepositTokens,
     allTokens,
     initAmounts,
+    account,
   ]);
 
+  // Get zap route
   useEffect(() => {
     if (
       debounceTickLower !== null &&
