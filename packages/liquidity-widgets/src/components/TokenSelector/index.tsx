@@ -1,5 +1,5 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
-import { Search, X, Check } from "lucide-react";
+import { X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Token } from "@/entities/Pool";
@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
+import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
 
 export enum TOKEN_SELECT_MODE {
@@ -258,7 +259,7 @@ export default function TokenSelector({
               value={searchTerm}
               onChange={handleChangeSearch}
             />
-            <Search className="ks-absolute ks-right-3 ks-top-1/2 ks-transform -ks-translate-y-1/2 ks-text-subText" />
+            <IconSearch className="ks-absolute ks-right-3 ks-top-1/2 ks-transform -ks-translate-y-1/2 ks-text-subText ks-h-[18px]" />
           </div>
         </div>
 

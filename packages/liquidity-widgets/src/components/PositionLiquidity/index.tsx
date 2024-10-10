@@ -8,7 +8,7 @@ const PositionLiquidity = () => {
   const { token0Price, token1Price } = useZapState();
 
   return (
-    <div className="ks-px-4 ks-py-3 ks-mt-4 ks-border ks-rounded-md">
+    <div className="ks-px-4 ks-py-3 ks-mt-4 ks-border ks-border-stroke ks-rounded-md">
       <p className="ks-text-subText ks-mb-3 ks-text-sm">
         {!loading ? "Your Position Liquidity" : "Loading..."}
       </p>

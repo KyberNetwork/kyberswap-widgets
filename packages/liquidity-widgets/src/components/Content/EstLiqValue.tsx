@@ -358,19 +358,13 @@ export default function EstLiqValue() {
                             significantDigits: 4,
                           })}{" "}
                           {item.tokenInSymbol} {"→ "}
-                          {item.amountOut} {item.tokenOutSymbol}
+                          {formatDisplayNumber(item.amountOut, {
+                            significantDigits: 4,
+                          })}{" "}
+                          {item.tokenOutSymbol}
                         </div>
                       </MouseoverTooltip>
-                      <MouseoverTooltip
-                        text={
-                          item.piRes.level === PI_LEVEL.HIGH ||
-                          item.piRes.level === PI_LEVEL.VERY_HIGH
-                            ? item.piRes.msg
-                            : ""
-                        }
-                      >
-                        <div>{item.piRes.display}</div>
-                      </MouseoverTooltip>
+                      <div>{item.piRes.display}</div>
                     </div>
                   ))}
                 </AccordionContent>

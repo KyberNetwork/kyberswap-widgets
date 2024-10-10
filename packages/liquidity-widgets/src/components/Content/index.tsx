@@ -302,7 +302,11 @@ export default function Content({
         </Modal>
       )}
       {snapshotState && (
-        <Modal isOpen onClick={() => setSnapshotState(null)}>
+        <Modal
+          isOpen
+          onClick={() => setSnapshotState(null)}
+          modalContentClass="!ks-max-h-[90vh]"
+        >
           <div className="ks-lw-modal-headline">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div

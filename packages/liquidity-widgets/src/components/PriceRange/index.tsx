@@ -165,7 +165,7 @@ const PriceRange = () => {
       ))}
     </div>
   ) : (
-    <div className="ks-px-4 ks-py-3 ks-mt-4 ks-text-sm ks-border ks-rounded-md">
+    <div className="ks-px-4 ks-py-3 ks-mt-4 ks-text-sm ks-border ks-border-stroke ks-rounded-md">
       <p className="ks-text-subText ks-mb-3">
         {!loading ? "Your Position Price Ranges" : "Loading..."}
       </p>

@@ -121,7 +121,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
           </div>
         </div>
         <div
-          className="text-xs ks-text-accent ks-cursor-pointer ks-mx-auto ks-w-fit ks-flex ks-items-center"
+          className="ks-text-xs ks-text-accent ks-cursor-pointer ks-mx-auto ks-w-fit ks-flex ks-items-center"
           onClick={handleChangeExpand}
         >
           <span>{!expand ? "View more" : "View less"}</span>
