@@ -5,6 +5,8 @@ export const NATIVE_TOKEN_ADDRESS =
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
+export const NO_DATA = "--";
+
 interface NETWORK_INFO {
   [chainId: number]: {
     name: string;

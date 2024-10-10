@@ -11,10 +11,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { NO_DATA } from "@/constants";
 import IconAlertOctagon from "@/assets/svg/alert-octagon.svg";
 import Loader from "@/components/LiquidityChartRangeInput/Loader";
-
-const NO_DATA = "--";
 
 const CollapseInfoItem = ({
   icon,

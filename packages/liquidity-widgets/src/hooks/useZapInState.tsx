@@ -169,7 +169,7 @@ export const ZapContextProvider = ({
   const token1Price = useMarketPrice(pool?.token1.address || "")?.[0];
 
   const marketPrice = useMemo(() => {
-    return token0Price && token1Price ? token0Price / token1Price : null;
+    return token0Price && token1Price ? token0Price / token1Price : undefined;
   }, [token0Price, token1Price]);
 
   const nativeToken = useMemo(

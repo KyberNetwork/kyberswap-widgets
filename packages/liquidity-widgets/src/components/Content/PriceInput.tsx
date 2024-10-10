@@ -4,6 +4,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { nearestUsableTick } from "../../entities/Pool";
 import { Type } from "../../hooks/types/zapInTypes";
 import { correctPrice } from "@/utils";
+import { NO_DATA } from "@/constants";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -131,9 +132,11 @@ export default function PriceInput({ type }: { type: Type }) {
           spellCheck="false"
         />
         <span>
-          {revertPrice
-            ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-            : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+          {pool
+            ? revertPrice
+              ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
+              : `${pool?.token1.symbol}/${pool?.token0.symbol}`
+            : NO_DATA}
         </span>
       </div>
 
