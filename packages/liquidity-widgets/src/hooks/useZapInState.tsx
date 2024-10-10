@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useWidgetInfo } from "./useWidgetInfo";
 import { useWeb3Provider } from "./useProvider";
-import { parseUnits } from "ethers/lib/utils";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { Price, tickToPrice, Token } from "../entities/Pool";
 import {
   NATIVE_TOKEN_ADDRESS,
@@ -219,7 +219,7 @@ export const ZapContextProvider = ({
 
     try {
       for (let i = 0; i < tokensIn.length; i++) {
-        const balance = formatWei(
+        const balance = formatUnits(
           balances[
             tokensIn[i]?.address === NATIVE_TOKEN_ADDRESS ||
             tokensIn[i]?.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
