@@ -1,5 +1,3 @@
-@import "./fonts.scss";
-
 :root {
   --ks-lw-text: #ffffff;
   --ks-lw-subText: #979797;
@@ -22,7 +20,7 @@
 
   --ks-lw-boxShadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
 
-  font-family: "Work Sans", sans-serif;
+  font-family: var(--ks-lw-fontFamily), sans-serif;
 }
 
 .ks-lw {
@@ -31,7 +29,7 @@
   max-width: 760px;
   border-radius: var(--ks-lw-borderRadius);
   padding: 24px;
-  font-family: var(--ks-lw-fontFamily);
+  font-family: var(--ks-lw-fontFamily), sans-serif;
   position: relative;
   transition: all 0.2s;
 }
