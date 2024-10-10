@@ -9,6 +9,7 @@ import { formatWei, isAddress } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { formatUnits } from "ethers/lib/utils";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
@@ -26,6 +27,7 @@ export enum TOKEN_TAB {
 
 interface CustomizeToken extends Token {
   balance: string;
+  balanceToSort: string;
   selected: number;
   inPair: number;
   disabled: boolean;
@@ -73,17 +75,17 @@ export default function TokenSelector({
             (tokenIn: Token) =>
               tokenIn.address.toLowerCase() === token.address.toLowerCase()
           );
+          const balanceInWei =
+            balanceTokens[
+              token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
+                ? NATIVE_TOKEN_ADDRESS
+                : token.address.toLowerCase()
+            ]?.toString() || "0";
 
           return {
             ...token,
-            balance: formatWei(
-              balanceTokens[
-                token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
-                  ? NATIVE_TOKEN_ADDRESS
-                  : token.address.toLowerCase()
-              ]?.toString() || "0",
-              token.decimals
-            ),
+            balance: formatWei(balanceInWei, token.decimals),
+            balanceToSort: formatUnits(balanceInWei, token.decimals),
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
               !foundTokenSelected ||
@@ -108,7 +110,7 @@ export default function TokenSelector({
         })
         .sort(
           (a: CustomizeToken, b: CustomizeToken) =>
-            parseFloat(b.balance) - parseFloat(a.balance)
+            parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort)
         )
         .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair)
         .sort(
