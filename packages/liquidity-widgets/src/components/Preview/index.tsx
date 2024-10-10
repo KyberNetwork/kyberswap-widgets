@@ -6,21 +6,18 @@ import SuccessIcon from "@/assets/svg/success.svg";
 import ErrorIcon from "@/assets/svg/error.svg";
 import "./Preview.scss";
 
-import { useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "@/hooks/useZapInState";
 import {
   AddLiquidityAction,
   RefundAction,
   ProtocolFeeAction,
   ZapRouteDetail,
   ZapAction,
-} from "../../hooks/types/zapInTypes";
-import {
-  NetworkInfo,
-  PATHS,
-  UNI_V3_BPS,
-  chainIdToChain,
-} from "../../constants";
-import { useWeb3Provider } from "../../hooks/useProvider";
+  AggregatorSwapAction,
+  PoolSwapAction,
+} from "@/hooks/types/zapInTypes";
+import { NetworkInfo, PATHS, UNI_V3_BPS, chainIdToChain } from "@/constants";
+import { useWeb3Provider } from "@/hooks/useProvider";
 import {
   PI_LEVEL,
   formatCurrency,
@@ -29,18 +26,25 @@ import {
   getDexName,
   getPriceImpact,
   getWarningThreshold,
-} from "../../utils";
+} from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { BigNumber } from "ethers";
-import { PoolAdapter, Token, Price } from "../../entities/Pool";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { PoolAdapter, Token, Price } from "@/entities/Pool";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import InfoHelper from "../InfoHelper";
-import { MouseoverTooltip } from "../Tooltip";
+import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
 import { formatDisplayNumber } from "@/utils/number";
 import { CircleCheckBig } from "lucide-react";
 import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import { useTokenList } from "@/hooks/useTokenList";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -99,6 +103,7 @@ export default function Preview({
     amountsIn,
     tokensInUsdPrice,
   } = useZapState();
+  const { allTokens } = useTokenList();
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
@@ -106,6 +111,7 @@ export default function Preview({
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [gasUsd, setGasUsd] = useState<number | null>(null);
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
@@ -244,7 +250,92 @@ export default function Preview({
 
   const piHigh = zapInfo && piRes.level === PI_LEVEL.HIGH;
 
-  const [gasUsd, setGasUsd] = useState<number | null>(null);
+  const swapPi = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | null;
+
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: Token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [feeInfo, allTokens, zapInfo]);
+
+  const swapPiRes = useMemo(() => {
+    const invalidRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.INVALID
+    );
+    if (invalidRes) return invalidRes;
+
+    const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    if (highRes) return highRes;
+
+    const veryHighRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.HIGH
+    );
+    if (veryHighRes) return veryHighRes;
+
+    return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
+  }, [swapPi]);
 
   const handleCopy = () => {
     if (navigator.clipboard) {
@@ -744,6 +835,79 @@ export default function Preview({
         </div>
 
         <div className="row-between">
+          {swapPi.length ? (
+            <Accordion type="single" collapsible className="ks-w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  <MouseoverTooltip
+                    text="View all the detailed estimated price impact of each swap"
+                    width="220px"
+                  >
+                    <div
+                      className={`label text-underline ks-text-xs ${
+                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
+                          ? ""
+                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
+                          ? "!ks-text-warning !ks-border-warning"
+                          : "!ks-text-error !ks-border-error"
+                      }`}
+                    >
+                      Swap Impact
+                    </div>
+                  </MouseoverTooltip>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {swapPi.map((item, index: number) => (
+                    <div
+                      className={`ks-text-xs ks-flex ks-justify-between ks-align-middle ${
+                        item.piRes.level === PI_LEVEL.NORMAL
+                          ? "ks-text-subText ks-brightness-125"
+                          : item.piRes.level === PI_LEVEL.HIGH
+                          ? "ks-text-warning"
+                          : "ks-text-error"
+                      }`}
+                      key={index}
+                    >
+                      <MouseoverTooltip
+                        text={
+                          item.piRes.level === PI_LEVEL.HIGH ||
+                          item.piRes.level === PI_LEVEL.VERY_HIGH
+                            ? item.piRes.msg
+                            : ""
+                        }
+                        width="220px"
+                      >
+                        <div className="ks-ml-3">
+                          {formatDisplayNumber(item.amountIn, {
+                            significantDigits: 4,
+                          })}{" "}
+                          {item.tokenInSymbol} {"→ "}
+                          {formatDisplayNumber(item.amountOut, {
+                            significantDigits: 4,
+                          })}{" "}
+                          {item.tokenOutSymbol}
+                        </div>
+                      </MouseoverTooltip>
+                      <div>{item.piRes.display}</div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          ) : (
+            <>
+              <MouseoverTooltip
+                text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
+                width="220px"
+              >
+                <div className="label text-underline">Swap Impact</div>
+              </MouseoverTooltip>
+              <span>--</span>
+            </>
+          )}
+        </div>
+
+        <div className="row-between">
           <MouseoverTooltip
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
@@ -829,6 +993,26 @@ export default function Preview({
           {piRes.msg}
         </div>
       )}
+
+      {zapInfo &&
+        piRes.level === PI_LEVEL.NORMAL &&
+        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+          <div
+            className="warning-msg"
+            style={{
+              backgroundColor:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? `${theme.warning}33`
+                  : `${theme.error}33`,
+              color:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? theme.warning
+                  : theme.error,
+            }}
+          >
+            {swapPiRes.piRes.msg}
+          </div>
+        )}
 
       <button
         className="primary-btn"

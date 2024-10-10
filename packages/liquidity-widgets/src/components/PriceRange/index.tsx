@@ -145,15 +145,14 @@ const PriceRange = () => {
           variant="outline"
           className={`
             ks-flex-1
-            ks-text-subText
             ks-rounded-full
             focus:ks-outline-none
             ks-text-[14px]
             ks-font-normal
             ${
               item === selectedRange?.range
-                ? " ks-text-accent ks-border-accent"
-                : ""
+                ? " ks-text-accent !ks-border-accent"
+                : " ks-text-subText"
             }
         `}
           onClick={() =>

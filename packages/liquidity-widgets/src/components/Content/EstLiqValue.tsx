@@ -171,15 +171,21 @@ export default function EstLiqValue() {
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
   }, [feeInfo, allTokens, zapInfo]);
 
-  const swapPiLevel = useMemo(() => {
-    if (swapPi.find((item) => item.piRes.level === PI_LEVEL.INVALID))
-      return PI_LEVEL.INVALID;
-    if (swapPi.find((item) => item.piRes.level === PI_LEVEL.VERY_HIGH))
-      return PI_LEVEL.VERY_HIGH;
-    if (swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH))
-      return PI_LEVEL.HIGH;
+  const swapPiRes = useMemo(() => {
+    const invalidRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.INVALID
+    );
+    if (invalidRes) return invalidRes;
 
-    return PI_LEVEL.NORMAL;
+    const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    if (highRes) return highRes;
+
+    const veryHighRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.HIGH
+    );
+    if (veryHighRes) return veryHighRes;
+
+    return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
   const positionAmount0Usd =
@@ -322,9 +328,9 @@ export default function EstLiqValue() {
                   >
                     <div
                       className={`label text-underline ks-text-xs ${
-                        swapPiLevel === PI_LEVEL.NORMAL
+                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
-                          : swapPiLevel === PI_LEVEL.HIGH
+                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
                           ? "!ks-text-warning !ks-border-warning"
                           : "!ks-text-error !ks-border-error"
                       }`}
@@ -352,6 +358,7 @@ export default function EstLiqValue() {
                             ? item.piRes.msg
                             : ""
                         }
+                        width="220px"
                       >
                         <div className="ks-ml-3">
                           {formatDisplayNumber(item.amountIn, {
@@ -471,6 +478,26 @@ export default function EstLiqValue() {
           {piRes.msg}
         </div>
       )}
+
+      {zapInfo &&
+        piRes.level === PI_LEVEL.NORMAL &&
+        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+          <div
+            className="warning-msg"
+            style={{
+              backgroundColor:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? `${theme.warning}33`
+                  : `${theme.error}33`,
+              color:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? theme.warning
+                  : theme.error,
+            }}
+          >
+            {swapPiRes.piRes.msg}
+          </div>
+        )}
     </>
   );
 }

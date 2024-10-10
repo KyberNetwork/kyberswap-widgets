@@ -392,7 +392,7 @@ export const ZapContextProvider = ({
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";
-      const listAmountsIn = debounceAmountsIn.split(",");
+      const listAmountsIn = amountsIn.split(",");
 
       try {
         formattedTokensIn = tokensIn
@@ -408,7 +408,14 @@ export const ZapContextProvider = ({
         console.log(error);
       }
 
-      if (!formattedTokensIn || !formattedAmountsInWeis) {
+      if (
+        !formattedTokensIn ||
+        !formattedAmountsInWeis ||
+        !formattedAmountsInWeis.length ||
+        !formattedAmountsInWeis[0] ||
+        formattedAmountsInWeis[0] === "0"
+      ) {
+        setZapInfo(null);
         return;
       }
 
@@ -468,6 +475,7 @@ export const ZapContextProvider = ({
           setLoading(false);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     chainId,
     poolType,
