@@ -8,7 +8,7 @@ module.exports = {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
-  prefix: "",
+  prefix: "ks-",
   theme: {
     container: {
       center: true,
@@ -22,20 +22,27 @@ module.exports = {
         border: "var(--ks-lw-stroke)",
         input: "var(--ks-lw-layer2)",
         background: "var(--ks-lw-layer1)",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "var(--ks-lw-accent)",
-        },
         subText: "var(--ks-lw-subText)",
         text: "var(--ks-lw-text)",
         warning: "var(--ks-lw-warning)",
         error: "var(--ks-lw-error)",
+        stroke: "var(--ks-lw-stroke)",
+        layer1: "var(--ks-lw-layer1)",
+        layer2: "var(--ks-lw-layer2)",
+        dialog: "var(--ks-lw-dialog)",
+        chartRange: "var(--ks-lw-chart-range)",
+        chartArea: "var(--ks-lw-chart-area)",
+        succuss: "var(--ks-lw-success)",
+        primary: {
+          DEFAULT: "var(--ks-lw-accent)",
+        },
         icon: {
           DEFAULT: "var(--ks-lw-icons)",
         },
         accent: {
           DEFAULT: "var(--ks-lw-accent)",
         },
+        foreground: "hsl(var(--foreground))",
       },
       borderRadius: {
         lg: "calc(var(--ks-lw-borderRadius) + 2px)",

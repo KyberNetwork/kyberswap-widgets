@@ -84,7 +84,7 @@ export function MouseoverTooltip({
       <div
         onMouseOver={open}
         onMouseLeave={close}
-        style={{ display: "flex", alignItems: "center" }}
+        className="ks-flex ks-items-center"
       >
         {children}
       </div>

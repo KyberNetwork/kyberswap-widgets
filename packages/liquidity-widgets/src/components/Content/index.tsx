@@ -352,7 +352,7 @@ export default function Content({
           </div>
 
           <div
-            className="mt-4 text-[var(--ks-lw-accent)] cursor-pointer w-fit"
+            className="ks-mt-4 ks-text-accent ks-cursor-pointer ks-w-fit"
             onClick={onOpenTokenSelectModal}
           >
             + Add more token
@@ -375,7 +375,7 @@ export default function Content({
 
           {isOutOfRangeAfterZap && (
             <div
-              className="price-warning !text-warning !mt-4"
+              className="price-warning !ks-text-warning !ks-mt-4"
               style={{
                 backgroundColor: `${theme.warning}33`,
               }}
@@ -425,7 +425,7 @@ export default function Content({
             account &&
             position.owner.toLowerCase() !== account.toLowerCase() && (
               <div
-                className="price-warning text-warning"
+                className="price-warning ks-text-warning"
                 style={{
                   backgroundColor: `${theme.warning}33`,
                 }}

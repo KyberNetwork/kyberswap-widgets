@@ -506,15 +506,15 @@ export default function Preview({
         </div>
 
         <div>
-          <div className="flex items-center gap-2">
+          <div className="ks-flex ks-items-center ks-gap-2">
             {pool.token0.symbol}/{pool.token1.symbol}{" "}
             {!copied ? (
               <IconCopy
-                className="w-3 h-3 text-subText cursor-pointer"
+                className="ks-w-3 ks-h-3 ks-text-subText ks-cursor-pointer"
                 onClick={handleCopy}
               />
             ) : (
-              <CircleCheckBig className="w-3 h-3 text-[--ks-lw-accent]" />
+              <CircleCheckBig className="ks-w-3 ks-h-3 ks-text-accent" />
             )}
           </div>
           <div className="pool-info">
@@ -535,13 +535,15 @@ export default function Preview({
             {formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
           </p>
         </div>
-        <div className="mt-[8px]">
+        <div className="ks-mt-2">
           {tokensIn.map((token: Token, index: number) => (
-            <div className="flex items-center gap-2 mt-1" key={token.address}>
+            <div
+              className="ks-flex ks-items-center ks-gap-2 ks-mt-1"
+              key={token.address}
+            >
               <img
                 src={token.logoURI}
-                width="18px"
-                height="18px"
+                className="ks-w-[18px] ks-h-[18px]"
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null;
                   currentTarget.src = defaultTokenLogo;
@@ -550,7 +552,7 @@ export default function Preview({
               <span>
                 {listAmountsIn[index]} {token.symbol}
               </span>
-              <span className="ml-1 text-[--ks-lw-subText]">
+              <span className="ks-ml-1 ks-text-subText">
                 ~
                 {formatCurrency(
                   tokensInUsdPrice[index] * parseFloat(listAmountsIn[index])
@@ -625,20 +627,20 @@ export default function Preview({
       <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
         <div className="row-between" style={{ alignItems: "flex-start" }}>
           <div className="summary-title">Est. Pooled Amount</div>
-          <div className="text-[14px] flex gap-4">
+          <div className="ks-text-[14px] ks-flex ks-gap-4">
             <div>
-              <div className="flex gap-[4px]">
+              <div className="ks-flex ks-gap-[4px]">
                 {pool?.token0?.logoURI && (
                   <img
                     src={pool.token0.logoURI}
-                    className="w-[16px] h-[16px] mt-[4px] rounded-full relative top-[-2px]"
+                    className="ks-w-4 ks-h-4 ks-mt-1 ks-rounded-full ks-relative ks-top-[-2px]"
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div className="ks-text-end">
                   {formatDisplayNumber(
                     position ? +position.amount0 : +addedAmount0,
                     { significantDigits: 5 }
@@ -648,13 +650,13 @@ export default function Preview({
               </div>
 
               {position && (
-                <div className="text-end">
+                <div className="ks-text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
                   {pool?.token0.symbol}
                 </div>
               )}
-              <div className="ml-auto w-fit text-[--ks-lw-subText]">
+              <div className="ks-ml-auto ks-w-fit ks-text-subText">
                 ~
                 {formatCurrency(
                   +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
@@ -663,18 +665,18 @@ export default function Preview({
               </div>
             </div>
             <div>
-              <div className="flex gap-[4px]">
+              <div className="ks-flex ks-gap-1">
                 {pool?.token1?.logoURI && (
                   <img
                     src={pool.token1.logoURI}
-                    className="w-[16px] h-[16px] mt-[4px] rounded-full relative top-[-2px]"
+                    className="ks-w-4 ks-h-4 ks-mt-1 ks-rounded-full ks-relative ks-top-[-2px]"
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div className="ks-text-end">
                   {formatDisplayNumber(
                     position ? +position.amount1 : +addedAmount1,
                     { significantDigits: 5 }
@@ -683,13 +685,13 @@ export default function Preview({
                 </div>
               </div>
               {position && (
-                <div className="text-end">
+                <div className="ks-text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}
                   {pool?.token1.symbol}
                 </div>
               )}
-              <div className="ml-auto w-fit text-[--ks-lw-subText]">
+              <div className="ks-ml-auto ks-w-fit ks-text-subText">
                 ~
                 {formatCurrency(
                   +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +

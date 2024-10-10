@@ -88,12 +88,12 @@ export default function ZapRoute() {
   ]);
 
   return (
-    <div className="zap-route mb-4">
+    <div className="zap-route ks-mb-4">
       <div className="title">Zap Summary</div>
       <div className="subTitle">
         The actual Zap Routes could be adjusted with on-chain states
       </div>
-      <div className="divider mt-[4px]" />
+      <div className="divider ks-mt-1" />
 
       {swapInfo.map((item, index) => (
         <div className="row" key={index}>
@@ -101,7 +101,7 @@ export default function ZapRoute() {
           <div className="text">
             Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
             {item.tokenOutSymbol} via{" "}
-            <span className="font-medium text-[--ks-lw-text]">{item.pool}</span>
+            <span className="ks-font-medium ks-text-text">{item.pool}</span>
           </div>
         </div>
       ))}
@@ -111,7 +111,7 @@ export default function ZapRoute() {
         <div className="text">
           Build LP using {addedLiquidityInfo.addedAmount0} {pool?.token0.symbol}{" "}
           and {addedLiquidityInfo.addedAmount1} {pool?.token1.symbol} on{" "}
-          <span className="font-medium text-[--ks-lw-text]">
+          <span className="ks-font-medium ks-text-text">
             {getDexName(poolType)}
           </span>
         </div>

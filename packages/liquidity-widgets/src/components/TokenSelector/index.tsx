@@ -228,59 +228,58 @@ export default function TokenSelector({
   }, [filteredTokens]);
 
   return (
-    <div className="w-full mx-auto text-white overflow-hidden">
-      <div className="space-y-4">
-        <div className="flex justify-between items-center p-6 pb-0">
-          <h2 className="text-[20px]">
+    <div className="ks-w-full ks-mx-auto ks-text-white ks-overflow-hidden">
+      <div className="ks-space-y-4">
+        <div className="ks-flex ks-justify-between ks-items-center ks-p-6 ks-pb-0">
+          <h2 className="ks-text-xl">
             {mode === TOKEN_SELECT_MODE.ADD
               ? "Add more tokens"
               : "Select a token"}
           </h2>
           <div
-            className="text-[var(--ks-lw-subText)] hover:text-white cursor-pointer"
+            className="ks-text-subText hover:ks-text-white ks-cursor-pointer"
             onClick={onClose}
           >
-            <X className="h-6 w-6" />
+            <X className="ks-h-6 ks-w-6" />
           </div>
         </div>
         {mode === TOKEN_SELECT_MODE.SELECT && (
-          <p className="text-sm text-[var(--ks-lw-subText)] px-[24px]">
+          <p className="ks-text-sm ks-text-subText ks-px-6">
             You can search and select{" "}
-            <span className="text-[var(--ks-lw-text)]">any token</span> on
-            KyberSwap
+            <span className="ks-text-subText">any token</span> on KyberSwap
           </p>
         )}
-        <div className="px-[24px]">
-          <div className="relative border-0">
+        <div className="ks-px-6">
+          <div className="ks-relative ks-border-0">
             <Input
               type="text"
               placeholder="Search by token name, token symbol or address"
-              className="tienkane h-[45px] pl-4 pr-10 py-2 bg-[#0f0f0f] border-[1.5px] border-[#0f0f0f] text-white placeholder-[var(--ks-lw-subText)] rounded-full focus:border-[--ks-lw-success]"
+              className="ks-h-[45px] ks-pl-4 ks-pr-10 ks-py-2 ks-bg-[#0f0f0f] ks-border-[1.5px] ks-border-[#0f0f0f] ks-text-white ks-placeholder-subText ks-rounded-full focus:ks-border-success"
               value={searchTerm}
               onChange={handleChangeSearch}
             />
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--ks-lw-subText)]" />
+            <Search className="ks-absolute ks-right-3 ks-top-1/2 ks-transform -ks-translate-y-1/2 ks-text-subText" />
           </div>
         </div>
 
         {mode === TOKEN_SELECT_MODE.ADD && (
-          <p className="text-sm text-[var(--ks-lw-subText)] px-[24px]">
+          <p className="ks-text-sm ks-text-subText ks-px-6">
             The maximum number of tokens selected is {MAX_ZAP_IN_TOKENS}.
           </p>
         )}
 
-        <div className="px-[24px] pb-[12px] flex gap-4 border-b border-[#505050]">
+        <div className="ks-px-6 ks-pb-3 ks-flex ks-gap-4 ks-border-b ks-border-[#505050]">
           <div
-            className={`text-sm cursor-pointer ${
-              tabSelected === TOKEN_TAB.ALL ? "text-[--ks-lw-accent]" : ""
+            className={`ks-text-sm ks-cursor-pointer ${
+              tabSelected === TOKEN_TAB.ALL ? "ks-text-accent" : ""
             }`}
             onClick={() => setTabSelected(TOKEN_TAB.ALL)}
           >
             All
           </div>
           <div
-            className={`text-sm cursor-pointer ${
-              tabSelected === TOKEN_TAB.IMPORTED ? "text-[--ks-lw-accent]" : ""
+            className={`ks-text-sm ks-cursor-pointer ${
+              tabSelected === TOKEN_TAB.IMPORTED ? "ks-text-accent" : ""
             }`}
             onClick={() => setTabSelected(TOKEN_TAB.IMPORTED)}
           >
@@ -289,31 +288,31 @@ export default function TokenSelector({
         </div>
 
         {tabSelected === TOKEN_TAB.IMPORTED && importedTokens.length ? (
-          <div className="flex items-center justify-between px-[24px] !mt-0 py-[10px]">
-            <span className="text-xs text-icon">
+          <div className="ks-flex ks-items-center ks-justify-between ks-px-6 !mt-0 ks-py-[10px]">
+            <span className="ks-text-xs ks-text-icon">
               {importedTokens.length} Custom Tokens
             </span>
             <Button
-              className="rounded-full !text-icon flex items-center gap-2 text-xs px-[10px] py-[5px] h-fit font-normal !bg-[#a9a9a933]"
+              className="ks-rounded-full !ks-text-icon ks-flex ks-items-center ks-gap-2 ks-text-xs ks-px-[10px] ks-py-[5px] ks-h-fit ks-font-normal !ks-bg-[#a9a9a933]"
               onClick={removeAllTokens}
             >
-              <TrashIcon className="w-[13px] h-[13px]" />
+              <TrashIcon className="ks-w-[13px] ks-h-[13px]" />
               Clear All
             </Button>
           </div>
         ) : null}
 
-        <ScrollArea className="h-[280px] custom-scrollbar !mt-0">
+        <ScrollArea className="ks-h-[280px] ks-custom-scrollbar !ks-mt-0">
           {tabSelected === TOKEN_TAB.ALL &&
             unImportedTokens.map((token: Token) => (
               <div
                 key={token.symbol}
-                className="flex items-center justify-between py-2 px-[24px]"
+                className="ks-flex ks-items-center ks-justify-between ks-py-2 ks-px-6"
                 style={{ color: "red" }}
               >
-                <div className="flex items-center gap-[8px]">
+                <div className="ks-flex ks-items-center ks-gap-2">
                   <img
-                    className="h-[24px] w-[24px]"
+                    className="ks-h-6 ks-w-6"
                     src={token.logoURI}
                     alt=""
                     onError={({ currentTarget }) => {
@@ -321,13 +320,11 @@ export default function TokenSelector({
                       currentTarget.src = defaultTokenLogo;
                     }}
                   />
-                  <p className="ml-[8px] text-[--ks-lw-subText]">
-                    {token.symbol}
-                  </p>
-                  <p className="text-xs text-[#6C7284]">{token.name}</p>
+                  <p className="ks-ml-2 ks-text-subText">{token.symbol}</p>
+                  <p className="ks-text-xs ks-text-[#6C7284]">{token.name}</p>
                 </div>
                 <Button
-                  className="rounded-full !bg-[--ks-lw-accent] font-normal !text-[#222222] px-[12px] py-[6px] h-fit hover:brightness-75"
+                  className="ks-rounded-full !ks-bg-accent ks-font-normal !ks-text-[#222222] ks-px-3 ks-py-[6px] ks-h-fit hover:ks-brightness-75"
                   onClick={() => handleAddToken(token)}
                 >
                   Import
@@ -338,37 +335,37 @@ export default function TokenSelector({
             filteredTokens.map((token: CustomizeToken) => (
               <div
                 key={token.symbol}
-                className={`flex items-center justify-between py-2 px-[24px] cursor-pointer hover:bg-[#0f0f0f] ${
+                className={`ks-flex ks-items-center ks-justify-between ks-py-2 ks-px-6 ks-cursor-pointer hover:ks-bg-[#0f0f0f] ${
                   mode === TOKEN_SELECT_MODE.SELECT &&
                   token.address?.toLowerCase() ===
                     selectedTokenAddress?.toLowerCase()
-                    ? "bg-[#1d7a5f26]"
+                    ? "ks-bg-[#1d7a5f26]"
                     : ""
                 } ${
                   token.disabled
-                    ? "bg-[--ks-lw-stroke] hover:bg-[--ks-lw-stroke] !cursor-not-allowed brightness-50"
+                    ? "!ks-bg-stroke !ks-cursor-not-allowed ks-brightness-50"
                     : ""
                 }`}
                 onClick={() => !token.disabled && handleClickToken(token)}
               >
-                <div className="flex items-center space-x-3">
+                <div className="ks-flex ks-items-center ks-space-x-3">
                   {mode === TOKEN_SELECT_MODE.ADD && (
                     <div
-                      className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer mr-1 ${
+                      className={`ks-w-4 ks-h-4 ks-rounded-[4px] ks-flex ks-items-center ks-justify-center ks-cursor-pointer ks-mr-1 ${
                         modalTokensInAddress.includes(
                           token.address?.toLowerCase()
                         )
-                          ? "bg-emerald-400"
-                          : "bg-gray-700"
+                          ? "ks-bg-emerald-400"
+                          : "ks-bg-gray-700"
                       }`}
                     >
                       {modalTokensInAddress.includes(token.address) && (
-                        <Check className="h-3 w-3 text-black" />
+                        <Check className="ks-h-3 ks-w-3 ks-text-black" />
                       )}
                     </div>
                   )}
                   <img
-                    className="h-[24px] w-[24px]"
+                    className="ks-h-6 ks-w-6"
                     src={token.logoURI}
                     alt=""
                     onError={({ currentTarget }) => {
@@ -380,8 +377,8 @@ export default function TokenSelector({
                     <p>{token.symbol}</p>
                     <p
                       className={`${
-                        tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""
-                      } text-[var(--ks-lw-subText)]`}
+                        tabSelected === TOKEN_TAB.ALL ? "ks-text-xs" : ""
+                      } ks-text-subText`}
                     >
                       {tabSelected === TOKEN_TAB.ALL
                         ? token.name
@@ -389,24 +386,24 @@ export default function TokenSelector({
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 justify-end">
+                <div className="ks-flex ks-items-center ks-gap-2 ks-justify-end">
                   {tabSelected === TOKEN_TAB.ALL ? (
                     <span>{token.balance}</span>
                   ) : (
                     <TrashIcon
-                      className="w-[18px] text-subText hover:text-[--ks-lw-text]"
+                      className="ks-w-[18px] ks-text-subText hover:ks-text-text"
                       onClick={(e) => handleRemoveImportedToken(e, token)}
                     />
                   )}
                   <Info
-                    className="w-[18px] h-[18px] text-subText hover:text-[--ks-lw-text]"
+                    className="ks-w-[18px] ks-h-[18px] ks-text-subText hover:ks-text-text"
                     onClick={(e) => handleShowTokenInfo(e, token)}
                   />
                 </div>
               </div>
             ))
           ) : !unImportedTokens.length ? (
-            <div className="text-center text-[#6C7284] font-medium mt-4">
+            <div className="ks-text-center ks-text-[#6C7284] ks-font-medium ks-mt-4">
               No results found.
             </div>
           ) : (
@@ -415,16 +412,16 @@ export default function TokenSelector({
         </ScrollArea>
 
         {mode === TOKEN_SELECT_MODE.ADD && (
-          <div className="flex space-x-4 rounded-lg px-4">
+          <div className="ks-flex ks-space-x-4 ks-rounded-lg ks-px-4">
             <Button
               variant="outline"
-              className="flex-1 bg-transparent text-[--ks-lw-subText] border-[--ks-lw-subText] rounded-full hover:bg-transparent hover:text-[--ks-lw-accent] hover:border-[--ks-lw-accent]"
+              className="ks-flex-1 !ks-bg-transparent ks-text-subText ks-border-subText ks-rounded-full hover:ks-text-accent hover:ks-border-accent"
               onClick={onClose}
             >
               Cancel
             </Button>
             <Button
-              className="flex-1 bg-[--ks-lw-accent] text-black rounded-full hover:bg-[--ks-lw-accent] hover:text-black hover:brightness-110"
+              className="ks-flex-1 !ks-bg-accent ks-text-black ks-rounded-full hover:ks-text-black hover:ks-brightness-110"
               disabled={!modalTokensIn.length}
               onClick={handleSaveSelected}
             >

@@ -5,27 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-neutral-300",
+  "ks-inline-flex ks-items-center ks-justify-center ks-whitespace-nowrap ks-rounded-md ks-text-sm ks-font-medium ks-transition-colors focus-visible:ks-outline-none focus-visible:ks-ring-1 focus-visible:ks-ring-neutral-950 disabled:ks-pointer-events-none disabled:ks-opacity-50 dark:focus-visible:ks-ring-neutral-300",
   {
     variants: {
       variant: {
-        default:
-          "bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/90 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/90",
+        default: "ks-bg-accent ks-text-black ks-shadow hover:ks-bg-accent",
         destructive:
-          "bg-red-500 text-neutral-50 shadow-sm hover:bg-red-500/90 dark:bg-red-900 dark:text-neutral-50 dark:hover:bg-red-900/90",
+          "ks-bg-red-500 ks-text-neutral-50 ks-shadow-sm hover:ks-bg-red-500/90",
         outline:
-          "border border-neutral-200 bg-white shadow-sm hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
+          "ks-border ks-border-stroke ks-bg-transparent ks-shadow-sm hover:ks-bg-transparent hover:ks-text-accent hover:ks-border-accent",
         secondary:
-          "bg-neutral-100 text-neutral-900 shadow-sm hover:bg-neutral-100/80 dark:bg-neutral-800 dark:text-neutral-50 dark:hover:bg-neutral-800/80",
-        ghost:
-          "hover:bg-neutral-100 hover:text-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-50",
-        link: "text-neutral-900 underline-offset-4 hover:underline dark:text-neutral-50",
+          "ks-bg-neutral-100 ks-text-neutral-900 ks-shadow-sm hover:ks-bg-neutral-100/80 dark:ks-bg-neutral-800 dark:ks-text-neutral-50 dark:hover:ks-bg-neutral-800/80",
+        ghost: "hover:ks-bg-accent hover:ks-text-neutral-900",
+        link: "ks-text-accent ks-underline-offset-4 hover:ks-underline",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        default: "ks-h-9 ks-px-4 ks-py-2",
+        sm: "ks-h-8 ks-rounded-md ks-px-3 ks-text-xs",
+        lg: "ks-h-10 ks-rounded-md ks-px-8",
+        icon: "ks-h-9 ks-w-9",
       },
     },
     defaultVariants: {
