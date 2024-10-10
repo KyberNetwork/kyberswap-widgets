@@ -37,11 +37,13 @@ export default function TokenSelector({
   selectedTokenAddress,
   mode,
   setTokenToShow,
+  setTokenToImport,
   onClose,
 }: {
   selectedTokenAddress?: string;
   mode: TOKEN_SELECT_MODE;
   setTokenToShow: (token: Token) => void;
+  setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
   const { pool } = useWidgetInfo();
@@ -51,7 +53,6 @@ export default function TokenSelector({
     importedTokens,
     allTokens,
     fetchTokenInfo,
-    addToken,
     removeToken,
     removeAllTokens,
   } = useTokenList();
@@ -193,20 +194,19 @@ export default function TokenSelector({
     if (unImportedTokens.length) setUnImportedTokens([]);
   };
 
-  const handleAddToken = (token: Token) => {
-    addToken(token);
-
-    const cloneUnImportedTokens = [...unImportedTokens];
-    const removeIndex = unImportedTokens.findIndex(
-      (unImportedToken: Token) => unImportedToken.address === token.address
-    );
-
-    if (removeIndex > -1) {
-      cloneUnImportedTokens.splice(removeIndex, 1);
+  useEffect(() => {
+    if (unImportedTokens?.length) {
+      const cloneUnImportedTokens = [...unImportedTokens].filter(
+        (token) =>
+          !importedTokens.find(
+            (importedToken) => importedToken.address === token.address
+          )
+      );
       setUnImportedTokens(cloneUnImportedTokens);
       setSearchTerm("");
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [importedTokens]);
 
   const handleRemoveImportedToken = (
     e: MouseEvent<SVGSVGElement>,
@@ -291,7 +291,7 @@ export default function TokenSelector({
         </div>
 
         {tabSelected === TOKEN_TAB.IMPORTED && importedTokens.length ? (
-          <div className="ks-flex ks-items-center ks-justify-between ks-px-6 !mt-0 ks-py-[10px]">
+          <div className="ks-flex ks-items-center ks-justify-between ks-px-6 !ks-mt-0 ks-py-[10px]">
             <span className="ks-text-xs ks-text-icon">
               {importedTokens.length} Custom Tokens
             </span>
@@ -328,7 +328,7 @@ export default function TokenSelector({
                 </div>
                 <Button
                   className="ks-rounded-full !ks-bg-accent ks-font-normal !ks-text-[#222222] ks-px-3 ks-py-[6px] ks-h-fit hover:ks-brightness-75"
-                  onClick={() => handleAddToken(token)}
+                  onClick={() => setTokenToImport(token)}
                 >
                   Import
                 </Button>

@@ -388,7 +388,8 @@ export const ZapContextProvider = ({
       pool &&
       (!error ||
         error === zapApiError ||
-        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE)
+        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
+        error === ERROR_MESSAGE.CONNECT_WALLET)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";

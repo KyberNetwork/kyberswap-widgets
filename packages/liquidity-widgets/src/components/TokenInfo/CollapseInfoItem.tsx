@@ -75,7 +75,7 @@ const CollapseInfoItem = ({
               <IconAlertOctagon className="ks-h-4 ks-w-4 ks-text-error" />
               <span>{totalRisk <= 1 ? "Risky Item" : "Risky Item(s)"}</span>
             </div>
-            <span className="ks-text-error">{totalRisk}</span>
+            <span className="ks-text-error ks-font-medium">{totalRisk}</span>
           </div>
 
           <div className="ks-flex ks-items-center ks-gap-[6px] ks-justify-between ks-basis-[45%] ks-text-xs ks-text-subText">
@@ -85,7 +85,9 @@ const CollapseInfoItem = ({
                 {totalWarning <= 1 ? "Attention Item" : "Attention Item(s)"}
               </span>
             </div>
-            <span className="ks-text-warning">{totalWarning}</span>
+            <span className="ks-text-warning ks-font-medium">
+              {totalWarning}
+            </span>
           </div>
 
           {data.map((item) => {
@@ -118,7 +120,7 @@ const CollapseInfoItem = ({
               >
                 <span>{label}</span>
                 <span
-                  className={`${
+                  className={`ks-font-medium ${
                     isItemRisky(item)
                       ? isNumber
                         ? colorRiskyByAmount

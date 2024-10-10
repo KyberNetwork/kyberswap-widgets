@@ -24,7 +24,10 @@ module.exports = {
         background: "var(--ks-lw-layer1)",
         subText: "var(--ks-lw-subText)",
         text: "var(--ks-lw-text)",
-        warning: "var(--ks-lw-warning)",
+        warning: {
+          DEFAULT: "var(--ks-lw-warning)",
+          200: "#ff990133",
+        },
         error: "var(--ks-lw-error)",
         stroke: "var(--ks-lw-stroke)",
         layer1: "var(--ks-lw-layer1)",

@@ -112,7 +112,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
                     onClick={handleCopy}
                   />
                 ) : (
-                  <CircleCheckBig className="ks-w-3 ks-h-3 text-[--ks-lw-accent]" />
+                  <CircleCheckBig className="ks-w-3 ks-h-3 ks-text-accent" />
                 )}
               </>
             ) : (

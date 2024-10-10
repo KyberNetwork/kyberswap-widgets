@@ -351,26 +351,16 @@ export default function EstLiqValue() {
                       }`}
                       key={index}
                     >
-                      <MouseoverTooltip
-                        text={
-                          item.piRes.level === PI_LEVEL.HIGH ||
-                          item.piRes.level === PI_LEVEL.VERY_HIGH
-                            ? item.piRes.msg
-                            : ""
-                        }
-                        width="220px"
-                      >
-                        <div className="ks-ml-3">
-                          {formatDisplayNumber(item.amountIn, {
-                            significantDigits: 4,
-                          })}{" "}
-                          {item.tokenInSymbol} {"→ "}
-                          {formatDisplayNumber(item.amountOut, {
-                            significantDigits: 4,
-                          })}{" "}
-                          {item.tokenOutSymbol}
-                        </div>
-                      </MouseoverTooltip>
+                      <div className="ks-ml-3">
+                        {formatDisplayNumber(item.amountIn, {
+                          significantDigits: 4,
+                        })}{" "}
+                        {item.tokenInSymbol} {"→ "}
+                        {formatDisplayNumber(item.amountOut, {
+                          significantDigits: 4,
+                        })}{" "}
+                        {item.tokenOutSymbol}
+                      </div>
                       <div>{item.piRes.display}</div>
                     </div>
                   ))}
