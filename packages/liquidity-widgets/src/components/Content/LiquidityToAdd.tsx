@@ -82,7 +82,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
       {openTokenSelectModal && (
         <TokenSelectorModal
           selectedTokenAddress={token.address}
-          mode={TOKEN_SELECT_MODE.ADD}
+          mode={TOKEN_SELECT_MODE.SELECT}
           onClose={onCloseTokenSelectModal}
         />
       )}
