@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Token } from "@/entities/Pool";
 import TokenImportConfirm from "./TokenImportConfirm";
 import TokenInfo from "../TokenInfo";
 import TokenSelector, { TOKEN_SELECT_MODE } from ".";
 import Modal from "../Modal";
+import { useZapState } from "@/hooks/useZapInState";
 
 const TokenSelectorModal = ({
   selectedTokenAddress,
@@ -14,8 +15,20 @@ const TokenSelectorModal = ({
   mode: TOKEN_SELECT_MODE;
   onClose: () => void;
 }) => {
+  const { tokensIn, amountsIn } = useZapState();
+
+  const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
+  const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
   const [tokenToImport, setTokenToImport] = useState<Token | null>(null);
+
+  useEffect(() => {
+    setModalTokensIn([...tokensIn]);
+  }, [tokensIn]);
+
+  useEffect(() => {
+    setModalAmountsIn(amountsIn);
+  }, [amountsIn]);
 
   return (
     <Modal
@@ -30,6 +43,12 @@ const TokenSelectorModal = ({
       ) : tokenToImport ? (
         <TokenImportConfirm
           token={tokenToImport}
+          mode={mode}
+          selectedTokenAddress={selectedTokenAddress}
+          modalTokensIn={modalTokensIn}
+          modalAmountsIn={modalAmountsIn}
+          setModalTokensIn={setModalTokensIn}
+          setModalAmountsIn={setModalAmountsIn}
           setTokenToImport={setTokenToImport}
           onGoBack={() => setTokenToImport(null)}
           onClose={onClose}
@@ -38,6 +57,10 @@ const TokenSelectorModal = ({
         <TokenSelector
           selectedTokenAddress={selectedTokenAddress}
           mode={mode}
+          modalTokensIn={modalTokensIn}
+          modalAmountsIn={modalAmountsIn}
+          setModalTokensIn={setModalTokensIn}
+          setModalAmountsIn={setModalAmountsIn}
           setTokenToShow={setTokenToShow}
           setTokenToImport={setTokenToImport}
           onClose={onClose}

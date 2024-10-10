@@ -7,23 +7,24 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useWidgetInfo } from "./useWidgetInfo";
-import { useWeb3Provider } from "./useProvider";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { useTokenList } from "@/hooks/useTokenList";
+import { ZapRouteDetail, Type } from "@/hooks/types/zapInTypes";
+import useMarketPrice from "@/hooks/useMarketPrice";
+import useDebounce from "@/hooks/useDebounce";
+import useTokenBalances from "@/hooks/useTokenBalances";
+
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { Price, tickToPrice, Token } from "../entities/Pool";
+import { BigNumber } from "ethers";
+import { Price, tickToPrice, Token } from "@/entities/Pool";
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
   PATHS,
   chainIdToChain,
-} from "../constants";
-import useDebounce from "./useDebounce";
-import useTokenBalances from "./useTokenBalances";
-import { useTokenList } from "./useTokenList";
-import { BigNumber } from "ethers";
+} from "@/constants";
 import { formatWei } from "@/utils";
-import { ZapRouteDetail, Type } from "./types/zapInTypes";
-import useMarketPrice from "./useMarketPrice";
 
 const ERROR_MESSAGE = {
   CONNECT_WALLET: "Please connect wallet",
@@ -469,7 +470,7 @@ export const ZapContextProvider = ({
           }
         })
         .catch((e) => {
-          setZapInfo(null);
+          // setZapInfo(null);
           setZapApiError(e.message || "Something went wrong");
         })
         .finally(() => {

@@ -33,15 +33,26 @@ interface CustomizeToken extends Token {
   disabled: boolean;
 }
 
+const MESSAGE_TIMEOUT = 4_000;
+let messageTimeout: NodeJS.Timeout;
+
 export default function TokenSelector({
   selectedTokenAddress,
   mode,
+  modalTokensIn,
+  modalAmountsIn,
+  setModalTokensIn,
+  setModalAmountsIn,
   setTokenToShow,
   setTokenToImport,
   onClose,
 }: {
   selectedTokenAddress?: string;
   mode: TOKEN_SELECT_MODE;
+  modalTokensIn: Token[];
+  modalAmountsIn: string;
+  setModalTokensIn: (tokens: Token[]) => void;
+  setModalAmountsIn: (amounts: string) => void;
   setTokenToShow: (token: Token) => void;
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
@@ -58,10 +69,9 @@ export default function TokenSelector({
   } = useTokenList();
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
-  const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
+  const [message, setMessage] = useState<string>("");
 
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
@@ -90,10 +100,11 @@ export default function TokenSelector({
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
               !foundTokenSelected ||
-              foundTokenSelected.address === selectedTokenAddress
+              foundTokenSelected.address === selectedTokenAddress ||
+              tabSelected === TOKEN_TAB.IMPORTED
                 ? false
                 : true,
-            selected: tokensIn.find(
+            selected: modalTokensIn.find(
               (tokenIn: Token) =>
                 tokenIn.address.toLowerCase() === token.address.toLowerCase()
             )
@@ -117,11 +128,12 @@ export default function TokenSelector({
         .sort(
           (a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected
         ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       tabSelected,
       allTokens,
       importedTokens,
-      tokensIn,
+      unImportedTokens, // modalTokensIn
       balanceTokens,
       mode,
       selectedTokenAddress,
@@ -194,6 +206,126 @@ export default function TokenSelector({
     if (unImportedTokens.length) setUnImportedTokens([]);
   };
 
+  const handleRemoveImportedToken = (
+    e: MouseEvent<SVGSVGElement>,
+    token: Token
+  ) => {
+    e.stopPropagation();
+
+    const index = tokensIn.findIndex(
+      (tokenIn: Token) => tokenIn.address === token.address
+    );
+
+    if (index > -1) {
+      if (tokensIn.length === 1) {
+        setMessage(
+          "You cannot remove the only selected token, please select another token first."
+        );
+        return;
+      }
+
+      const clonedTokensIn = [...tokensIn];
+      const listAmountsIn = amountsIn.split(",");
+      clonedTokensIn.splice(index, 1);
+      listAmountsIn.splice(index, 1);
+      setTokensIn(clonedTokensIn);
+      setAmountsIn(listAmountsIn.join(","));
+
+      removeToken(token);
+
+      if (
+        token.address === selectedTokenAddress &&
+        mode === TOKEN_SELECT_MODE.SELECT
+      )
+        onClose();
+
+      return;
+    }
+
+    removeToken(token);
+  };
+
+  const handleRemoveAllImportedToken = () => {
+    if (
+      tokensIn.find((tokenIn: Token) =>
+        importedTokens.find(
+          (importedToken) => tokenIn.address === importedToken.address
+        )
+      )
+    ) {
+      if (tokensIn.length === 1) {
+        setMessage(
+          "You cannot remove the only selected token, please select another token first."
+        );
+        return;
+      }
+
+      const clonedTokensIn: (Token | null)[] = [...tokensIn];
+      const listAmountsIn: (string | null)[] = amountsIn.split(",");
+
+      for (let i = 0; i < clonedTokensIn.length; i++) {
+        if (
+          importedTokens.find(
+            (importedToken) =>
+              importedToken.address === clonedTokensIn[i]?.address
+          )
+        ) {
+          clonedTokensIn[i] = null;
+          listAmountsIn[i] = null;
+        }
+      }
+
+      const removedTokensIn = clonedTokensIn.filter((token) => token !== null);
+      const removedAmountsIn = listAmountsIn.filter(
+        (amount) => amount !== null
+      );
+      setTokensIn(removedTokensIn as Token[]);
+      setAmountsIn(removedAmountsIn.join(","));
+
+      const needClose =
+        mode === TOKEN_SELECT_MODE.SELECT &&
+        importedTokens.find(
+          (importedToken) => importedToken.address === selectedTokenAddress
+        );
+      removeAllTokens();
+
+      if (needClose) onClose();
+
+      return;
+    }
+
+    removeAllTokens();
+  };
+
+  const handleShowTokenInfo = (e: MouseEvent<SVGSVGElement>, token: Token) => {
+    e.stopPropagation();
+    setTokenToShow(token);
+  };
+
+  const handleImportToken = (token: Token) => {
+    if (
+      mode === TOKEN_SELECT_MODE.ADD &&
+      modalTokensIn.length >= MAX_ZAP_IN_TOKENS
+    ) {
+      setMessage(
+        "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
+      );
+      return;
+    }
+    setTokenToImport(token);
+  };
+
+  useEffect(() => {
+    if (message) {
+      if (messageTimeout) clearTimeout(messageTimeout);
+      messageTimeout = setTimeout(() => setMessage(""), MESSAGE_TIMEOUT);
+    }
+
+    return () => {
+      clearTimeout(messageTimeout);
+    };
+  }, [message]);
+
   useEffect(() => {
     if (unImportedTokens?.length) {
       const cloneUnImportedTokens = [...unImportedTokens].filter(
@@ -208,23 +340,14 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importedTokens]);
 
-  const handleRemoveImportedToken = (
-    e: MouseEvent<SVGSVGElement>,
-    token: Token
-  ) => {
-    e.stopPropagation();
-    removeToken(token);
-  };
-
-  const handleShowTokenInfo = (e: MouseEvent<SVGSVGElement>, token: Token) => {
-    e.stopPropagation();
-    setTokenToShow(token);
-  };
-
   useEffect(() => {
     const search = searchTerm.toLowerCase().trim();
 
-    if (!filteredTokens.length && isAddress(search)) {
+    if (
+      !filteredTokens.length &&
+      isAddress(search) &&
+      !unImportedTokens.length
+    ) {
       fetchTokenInfo(search).then((res) => setUnImportedTokens(res));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -297,7 +420,7 @@ export default function TokenSelector({
             </span>
             <Button
               className="ks-rounded-full !ks-text-icon ks-flex ks-items-center ks-gap-2 ks-text-xs ks-px-[10px] ks-py-[5px] ks-h-fit ks-font-normal !ks-bg-[#a9a9a933]"
-              onClick={removeAllTokens}
+              onClick={handleRemoveAllImportedToken}
             >
               <TrashIcon className="ks-w-[13px] ks-h-[13px]" />
               Clear All
@@ -328,12 +451,13 @@ export default function TokenSelector({
                 </div>
                 <Button
                   className="ks-rounded-full !ks-bg-accent ks-font-normal !ks-text-[#222222] ks-px-3 ks-py-[6px] ks-h-fit hover:ks-brightness-75"
-                  onClick={() => setTokenToImport(token)}
+                  onClick={() => handleImportToken(token)}
                 >
                   Import
                 </Button>
               </div>
             ))}
+
           {filteredTokens?.length > 0 && !unImportedTokens.length ? (
             filteredTokens.map((token: CustomizeToken) => (
               <div
@@ -405,13 +529,24 @@ export default function TokenSelector({
                 </div>
               </div>
             ))
-          ) : !unImportedTokens.length ? (
+          ) : !unImportedTokens.length ||
+            (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
             <div className="ks-text-center ks-text-[#6C7284] ks-font-medium ks-mt-4">
               No results found.
             </div>
           ) : (
             <></>
           )}
+
+          <div
+            className={`ks-text-warning ks-bg-warning-200 ks-text-xs ks-mx-6 ks-rounded-md ks-transition-all ks-ease-in-out ks-duration-300 ${
+              message
+                ? "ks-opacity-100 ks-py-3 ks-px-4 ks-mt-2"
+                : "ks-opacity-0"
+            }`}
+          >
+            {message}
+          </div>
         </ScrollArea>
 
         {mode === TOKEN_SELECT_MODE.ADD && (

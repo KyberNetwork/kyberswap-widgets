@@ -1,28 +1,41 @@
-import { Token } from "@/entities/Pool";
-import { X } from "lucide-react";
-import { Button } from "../ui/button";
-import { shortenAddress } from "../TokenInfo/utils";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { useEffect, useState } from "react";
-import { CircleCheckBig } from "lucide-react";
+import { CircleCheckBig, X } from "lucide-react";
+import { Token } from "@/entities/Pool";
+import { Button } from "@/components/ui/button";
+import { shortenAddress } from "@/components/TokenInfo/utils";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { getEtherscanLink } from "@/utils";
+import { useTokenList } from "@/hooks/useTokenList";
+import { TOKEN_SELECT_MODE } from ".";
 import IconBack from "@/assets/svg/arrow-left.svg";
 import IconAlertTriangle from "@/assets/svg/alert-triangle.svg";
 import IconCopy from "@/assets/svg/copy.svg";
 import IconExternalLink from "@/assets/svg/external-link.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { getEtherscanLink } from "@/lib/utils";
-import { useTokenList } from "@/hooks/useTokenList";
+import { useZapState } from "@/hooks/useZapInState";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
 
 const TokenImportConfirm = ({
   token,
+  mode,
+  selectedTokenAddress,
+  modalTokensIn,
+  modalAmountsIn,
+  setModalTokensIn,
+  setModalAmountsIn,
   setTokenToImport,
   onGoBack,
   onClose,
 }: {
   token: Token;
+  mode: TOKEN_SELECT_MODE;
+  selectedTokenAddress?: string;
+  modalTokensIn: Token[];
+  modalAmountsIn: string;
+  setModalTokensIn: (tokens: Token[]) => void;
+  setModalAmountsIn: (amounts: string) => void;
   setTokenToImport: (token: Token | null) => void;
   onGoBack: () => void;
   onClose: () => void;
@@ -30,6 +43,7 @@ const TokenImportConfirm = ({
   const { chainId } = useWeb3Provider();
   const [copied, setCopied] = useState(false);
 
+  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
   const { addToken } = useTokenList();
 
   const handleCopy = () => {
@@ -46,6 +60,27 @@ const TokenImportConfirm = ({
 
   const handleAddToken = () => {
     addToken(token);
+    if (mode === TOKEN_SELECT_MODE.SELECT) {
+      const index = tokensIn.findIndex(
+        (tokenIn: Token) => tokenIn.address === selectedTokenAddress
+      );
+      if (index > -1) {
+        const clonedTokensIn = [...tokensIn];
+        clonedTokensIn[index] = token;
+        setTokensIn(clonedTokensIn);
+
+        const listAmountsIn = amountsIn.split(",");
+        listAmountsIn[index] = "";
+        setAmountsIn(listAmountsIn.join(","));
+
+        onClose();
+      }
+    } else {
+      const clonedModalTokensIn = [...modalTokensIn];
+      clonedModalTokensIn.push(token);
+      setModalTokensIn(clonedModalTokensIn);
+      setModalAmountsIn(`${modalAmountsIn},`);
+    }
     setTokenToImport(null);
   };
 

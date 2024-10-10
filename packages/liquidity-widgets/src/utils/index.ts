@@ -1,7 +1,8 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
-import { PoolType } from "../constants";
+import { NetworkInfo, PoolType } from "../constants";
 import { ProtocolFeeAction, Type } from "@/hooks/types/zapInTypes";
 import { nearestUsableTick, PoolAdapter, tryParseTick } from "@/entities/Pool";
+import { ChainId } from "@kyberswap/ks-sdk-core";
 import uniswapLogo from "@/assets/png/uniswap.png";
 import pancakeLogo from "@/assets/png/pancake.png";
 
@@ -299,3 +300,28 @@ export const correctPrice = (
       setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
   }
 };
+
+export function getEtherscanLink(
+  chainId: ChainId,
+  data: string,
+  type: "transaction" | "token" | "address" | "block"
+): string {
+  const prefix = NetworkInfo[chainId].scanLink;
+
+  switch (type) {
+    case "transaction": {
+      return `${prefix}/tx/${data}`;
+    }
+    case "token": {
+      if (chainId === ChainId.ZKSYNC) return `${prefix}/address/${data}`;
+      return `${prefix}/token/${data}`;
+    }
+    case "block": {
+      return `${prefix}/block/${data}`;
+    }
+    case "address":
+    default: {
+      return `${prefix}/address/${data}`;
+    }
+  }
+}
