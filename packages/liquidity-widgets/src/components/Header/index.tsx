@@ -5,7 +5,7 @@ import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { NetworkInfo, UNI_V3_BPS } from "../../constants";
+import { NetworkInfo } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { getDexLogo, getDexName } from "../../utils";
 import { MouseoverTooltip } from "../Tooltip";
@@ -92,7 +92,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
           <div className="dex-type">
             <div className="ks-rounded-full ks-text-xs ks-bg-layer2 ks-text-text ks-px-3 ks-py-[2px]">
-              Fee {fee / UNI_V3_BPS}%
+              Fee {fee / 10_000}%
             </div>
             <span className="divide">|</span>
             <img

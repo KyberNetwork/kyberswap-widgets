@@ -292,8 +292,6 @@ export const chainIdToChain: { [chainId: number]: string } = {
   1101: "polygon-zkevm",
 };
 
-export const UNI_V3_BPS = 10_000;
-
 export enum PoolType {
   DEX_UNISWAPV3 = "DEX_UNISWAPV3",
   DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",

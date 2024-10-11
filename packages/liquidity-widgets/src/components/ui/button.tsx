@@ -14,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           "ks-bg-red-500 ks-text-neutral-50 ks-shadow-sm hover:ks-bg-red-500/90",
         outline:
-          "ks-border ks-border-stroke ks-bg-transparent ks-shadow-sm hover:ks-bg-transparent hover:ks-text-accent hover:ks-border-accent",
+          "ks-border ks-border-stroke focus:ks-outline-none ks-text-sm ks-font-normal !ks-bg-transparent ks-shadow-sm hover:ks-text-accent hover:ks-border-accent",
         secondary:
           "ks-bg-neutral-100 ks-text-neutral-900 ks-shadow-sm hover:ks-bg-neutral-100/80 dark:ks-bg-neutral-800 dark:ks-text-neutral-50 dark:hover:ks-bg-neutral-800/80",
         ghost: "hover:ks-bg-accent hover:ks-text-neutral-900",

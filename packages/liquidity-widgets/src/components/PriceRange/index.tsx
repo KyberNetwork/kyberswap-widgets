@@ -2,7 +2,6 @@ import {
   DEFAULT_PRICE_RANGE,
   FULL_PRICE_RANGE,
   PRICE_RANGE,
-  UNI_V3_BPS,
 } from "@/constants";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useEffect, useMemo, useState } from "react";
@@ -34,9 +33,9 @@ const PriceRange = () => {
     () =>
       !fee
         ? []
-        : fee / UNI_V3_BPS <= 0.01
+        : fee / 10_000 <= 0.01
         ? PRICE_RANGE.LOW_POOL_FEE
-        : fee / UNI_V3_BPS > 0.1
+        : fee / 10_000 > 0.1
         ? PRICE_RANGE.HIGH_POOL_FEE
         : PRICE_RANGE.MEDIUM_POOL_FEE,
     [fee]
@@ -128,9 +127,9 @@ const PriceRange = () => {
     if (!fee) return;
     if (!selectedRange)
       handleSelectPriceRange(
-        fee / UNI_V3_BPS <= 0.01
+        fee / 10_000 <= 0.01
           ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee / UNI_V3_BPS > 0.1
+          : fee / 10_000 > 0.1
           ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
           : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
       );
@@ -143,18 +142,11 @@ const PriceRange = () => {
         <Button
           key={index}
           variant="outline"
-          className={`
-            ks-flex-1
-            ks-rounded-full
-            focus:ks-outline-none
-            ks-text-[14px]
-            ks-font-normal
-            ${
-              item === selectedRange?.range
-                ? " ks-text-accent !ks-border-accent"
-                : " ks-text-subText"
-            }
-        `}
+          className={`ks-flex-1 ${
+            item === selectedRange?.range
+              ? " ks-text-accent !ks-border-accent"
+              : " ks-text-subText"
+          }`}
           onClick={() =>
             handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)
           }

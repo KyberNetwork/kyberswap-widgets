@@ -16,7 +16,7 @@ import {
   AggregatorSwapAction,
   PoolSwapAction,
 } from "@/hooks/types/zapInTypes";
-import { NetworkInfo, PATHS, UNI_V3_BPS, chainIdToChain } from "@/constants";
+import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import {
   PI_LEVEL,
@@ -612,7 +612,7 @@ export default function Preview({
             )}
           </div>
           <div className="pool-info">
-            <div className="tag tag-default">Fee {pool.fee / UNI_V3_BPS}%</div>
+            <div className="tag tag-default">Fee {pool.fee / 10_000}%</div>
             {positionId !== undefined && (
               <div className="tag tag-primary">
                 <Info width={12} /> ID {positionId}
