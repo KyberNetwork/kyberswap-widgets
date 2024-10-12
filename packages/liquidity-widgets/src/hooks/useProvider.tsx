@@ -39,6 +39,7 @@ export const Web3Provider = ({
 
   useEffect(() => {
     provider.listAccounts().then((res) => {
+      console.log("listAccounts", res);
       setAccount(res[0]);
     });
     provider.getNetwork().then(({ chainId }) => setNetWorkChainId(chainId));

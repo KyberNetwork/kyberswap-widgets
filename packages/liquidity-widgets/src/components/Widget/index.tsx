@@ -1,4 +1,3 @@
-import { ChainId as KSChainId } from "@kyberswap/ks-sdk-core";
 import { useEffect, useMemo } from "react";
 import "./Widget.scss";
 import { Web3Provider } from "../../hooks/useProvider";
@@ -34,7 +33,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: KSChainId;
+  chainId: ChainId;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
