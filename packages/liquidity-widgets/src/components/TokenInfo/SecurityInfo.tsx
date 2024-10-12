@@ -17,11 +17,12 @@ const SecurityInfo = ({ token }: { token: Token }) => {
 
   const tokenAddress = useMemo(
     () =>
-      token?.address
+      (token?.address
         ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
           ? NetworkInfo[chainId].wrappedToken.address
           : token.address
-        : "",
+        : ""
+      ).toLowerCase(),
     [token, chainId]
   );
 
