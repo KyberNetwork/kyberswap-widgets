@@ -3,7 +3,7 @@
   "compilerOptions": {
     "useDefineForClassFields": true,
     "allowJs": false,
-    "resolveJsonModule": true,
+    "resolveJsonModule": true
   },
   "include": [
     "src"

@@ -1,4 +1,5 @@
 import Info from "../../assets/info.svg";
+import { captureException } from "@sentry/react";
 import DropdownIcon from "../../assets/dropdown.svg";
 import Spinner from "../../assets/loader.svg";
 import SwitchIcon from "../../assets/switch.svg";
@@ -100,6 +101,9 @@ export default function Preview({
             setTxStatus("success");
           } else {
             setTxStatus("failed");
+            const e = new Error("Transaction Failed");
+            e.name = "Transation Error";
+            captureException(e, { extra: { txHash, receipt: res } });
           }
         });
     }
@@ -319,9 +323,13 @@ export default function Preview({
             });
             setTxHash(hash);
             onTxSubmit?.(hash);
-          } catch (e) {
+          } catch (error) {
             setAttempTx(false);
-            setTxError(e as Error);
+            setTxError(error as Error);
+            const e = new Error("EstimateGas Error");
+            (e as any).cause = error;
+            e.name = "EstimateGas Error";
+            captureException(e, { extra: { txData } });
           }
         }
       })
