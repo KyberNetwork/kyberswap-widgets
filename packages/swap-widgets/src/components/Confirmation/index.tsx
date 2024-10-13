@@ -3,6 +3,7 @@ import { Trade } from '../../hooks/useSwap'
 import Warning from '../../assets/warning.svg'
 import { Button, Detail, DetailLabel, DetailRight, DetailRow, ModalHeader, ModalTitle } from '../Widget/styled'
 import useTheme from '../../hooks/useTheme'
+import { captureException } from '@sentry/react'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
@@ -239,7 +240,12 @@ function Confirmation({
 
           if (res.status) {
             setTxStatus('success')
-          } else setTxStatus('failed')
+          } else {
+            setTxStatus('failed')
+            const e = new Error('Transaction Failed')
+            e.name = 'Transation Error'
+            captureException(e, { extra: { txHash, receipt: res } })
+          }
         })
       }, 10_000)
 
@@ -258,6 +264,7 @@ function Confirmation({
 
   const confirmSwap = async () => {
     setSnapshotTrade({ amountIn, amountOut })
+    let estimateGasOption
     try {
       setAttempTx(true)
       setTxHash('')
@@ -318,7 +325,7 @@ function Confirmation({
         throw new Error('Build route failed: ' + JSON.stringify(buildRes.details))
       }
 
-      const estimateGasOption = {
+      estimateGasOption = {
         from: account,
         to: trade?.routerAddress,
         data: buildRes.data.data,
@@ -335,10 +342,14 @@ function Confirmation({
       setTxHash(res?.hash || '')
       onTxSubmit?.(res?.hash || '', res)
       setAttempTx(false)
-    } catch (e) {
+    } catch (error) {
       setAttempTx(false)
-      setTxError(e)
-      onError?.(e)
+      setTxError(error)
+      onError?.(error)
+      const e = new Error('EstimateGas Error')
+      ;(e as any).cause = error
+      e.name = 'EstimateGas Error'
+      captureException(e, { extra: { estimateGasOption } })
     }
   }
 
