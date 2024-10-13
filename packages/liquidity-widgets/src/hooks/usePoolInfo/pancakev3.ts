@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Pancakev3PoolABI from "../../abis/pancakev3_pool.json";
 import Pancakev3PosManagerABI from "../../abis/pancakev3_pos_manager.json";
 import { useContract, useMulticalContract } from "../useContract";
@@ -82,6 +82,37 @@ export default function usePoolInfo(
 
   const [error, setError] = useState("");
 
+  const handleGetPosition = useCallback(
+    async (pool: Pool) => {
+      if (positionId && posManagerContract) {
+        const [ownerRes, res] = await Promise.all([
+          posManagerContract.ownerOf(positionId),
+          posManagerContract.positions(positionId),
+        ]);
+
+        if (
+          res.token0.toLowerCase() !== pool.token0.address.toLowerCase() ||
+          res.token1.toLowerCase() !== pool.token1.address.toLowerCase() ||
+          res.fee !== pool.fee
+        ) {
+          setError(
+            `Position ${positionId} does not belong to the pool ${pool.token0.symbol}-${pool.token1.symbol}`
+          );
+          return;
+        }
+        const pos = new PancakePosition({
+          pool,
+          tickLower: res.tickLower,
+          tickUpper: res.tickUpper,
+          liquidity: res.liquidity.toString(),
+        });
+        const posAdapter = new PositionAdaper(pos, ownerRes);
+        setPosition(posAdapter);
+      }
+    },
+    [positionId, posManagerContract]
+  );
+
   useEffect(() => {
     const getPoolInfo = async () => {
       if (!multicallContract || !!pool) return;
@@ -150,13 +181,10 @@ export default function usePoolInfo(
         })
           .then((res) => res.json())
           .then((res) =>
-            res?.data?.tokens.map(
-              (item: { data: TokenInfo }) =>
-                ({
-                  ...item.data,
-                  chainId: +item.data.chainId,
-                } || [])
-            )
+            res?.data?.tokens.map((item: { data: TokenInfo }) => ({
+              ...item.data,
+              chainId: +item.data.chainId,
+            }))
           );
 
         if (!token0Info)
@@ -194,31 +222,7 @@ export default function usePoolInfo(
         );
         setPool(pool);
 
-        if (positionId && posManagerContract) {
-          const [ownerRes, res] = await Promise.all([
-            posManagerContract.ownerOf(positionId),
-            posManagerContract.positions(positionId),
-          ]);
-
-          if (
-            res.token0.toLowerCase() !== pool.token0.address.toLowerCase() ||
-            res.token1.toLowerCase() !== pool.token1.address.toLowerCase() ||
-            res.fee !== pool.fee
-          ) {
-            setError(
-              `Position ${positionId} does not belong to the pool ${pool.token0.symbol}-${pool.token1.symbol}`
-            );
-            return;
-          }
-          const pos = new PancakePosition({
-            pool,
-            tickLower: res.tickLower,
-            tickUpper: res.tickUpper,
-            liquidity: res.liquidity.toString(),
-          });
-          const posAdapter = new PositionAdaper(pos, ownerRes);
-          setPosition(posAdapter);
-        }
+        handleGetPosition(pool);
       }
       setLoading(false);
     };
@@ -230,7 +234,12 @@ export default function usePoolInfo(
     pool,
     positionId,
     posManagerContract,
+    handleGetPosition,
   ]);
+
+  useEffect(() => {
+    if (pool) handleGetPosition(pool);
+  }, [handleGetPosition, pool]);
 
   useEffect(() => {
     let i: NodeJS.Timeout | undefined;

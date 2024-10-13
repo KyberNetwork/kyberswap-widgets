@@ -112,7 +112,10 @@ function App() {
   return (
     <div className="demo-app">
       <div className="header">
-        <button onClick={() => (wallet ? disconnect(wallet) : connect())}>
+        <button
+          className="ks-btn"
+          onClick={() => (wallet ? disconnect(wallet) : connect())}
+        >
           {!wallet ? "Connect wallet" : "Disconnect"}
         </button>
         <div>{wallet?.accounts?.[0].address}</div>
@@ -255,7 +258,9 @@ function Params({
         </div>
       </div>
 
-      <button onClick={() => setParams(localParams)}>Save and Reload</button>
+      <button className="ks-btn" onClick={() => setParams(localParams)}>
+        Save and Reload
+      </button>
     </>
   );
 }
