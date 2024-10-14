@@ -43,10 +43,9 @@ export const Web3Provider = ({
     getAccountRunning.current = true;
     provider.listAccounts().then((res) => {
       if (getAccountRunning.current) {
-        console.log("listAccounts", res);
         setAccount(res[0]);
+        getAccountRunning.current = false;
       }
-      getAccountRunning.current = false;
     });
     provider.getNetwork().then(({ chainId }) => setNetWorkChainId(chainId));
   }, [provider]);
