@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Token } from "@/entities/Pool";
+import { useZapState } from "@/hooks/useZapInState";
 import TokenImportConfirm from "./TokenImportConfirm";
 import TokenInfo from "../TokenInfo";
 import TokenSelector, { TOKEN_SELECT_MODE } from ".";
@@ -14,9 +15,11 @@ const TokenSelectorModal = ({
   mode: TOKEN_SELECT_MODE;
   onClose: () => void;
 }) => {
+  const { tokensIn } = useZapState();
+
   const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
   const [tokenToImport, setTokenToImport] = useState<Token | null>(null);
-  const [selectedTokens, setSelectedTokens] = useState<Token[]>([]);
+  const [selectedTokens, setSelectedTokens] = useState<Token[]>([...tokensIn]);
 
   return (
     <Modal
