@@ -78,6 +78,15 @@ function App() {
     setKey(Date.now());
   }, []);
 
+  const handleConnectWallet = () => {
+    if (wallet) {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("connectedWallets");
+      }
+      disconnect(wallet);
+    } else connect();
+  };
+
   useEffect(() => {
     if (!connectedWallets.length) return;
     const connectedWalletsLabelArray = connectedWallets.map(
@@ -112,10 +121,7 @@ function App() {
   return (
     <div className="demo-app">
       <div className="header">
-        <button
-          className="ks-btn"
-          onClick={() => (wallet ? disconnect(wallet) : connect())}
-        >
+        <button className="ks-btn" onClick={handleConnectWallet}>
           {!wallet ? "Connect wallet" : "Disconnect"}
         </button>
         <div>{wallet?.accounts?.[0].address}</div>
