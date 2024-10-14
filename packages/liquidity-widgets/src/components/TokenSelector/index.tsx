@@ -39,20 +39,16 @@ let messageTimeout: NodeJS.Timeout;
 export default function TokenSelector({
   selectedTokenAddress,
   mode,
-  modalTokensIn,
-  modalAmountsIn,
-  setModalTokensIn,
-  setModalAmountsIn,
+  selectedTokens,
+  setSelectedTokens,
   setTokenToShow,
   setTokenToImport,
   onClose,
 }: {
   selectedTokenAddress?: string;
   mode: TOKEN_SELECT_MODE;
-  modalTokensIn: Token[];
-  modalAmountsIn: string;
-  setModalTokensIn: (tokens: Token[]) => void;
-  setModalAmountsIn: (amounts: string) => void;
+  selectedTokens: Token[];
+  setSelectedTokens: (tokens: Token[]) => void;
   setTokenToShow: (token: Token) => void;
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
@@ -72,6 +68,9 @@ export default function TokenSelector({
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
   const [message, setMessage] = useState<string>("");
+
+  const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
+  const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
 
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
@@ -100,16 +99,20 @@ export default function TokenSelector({
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
               !foundTokenSelected ||
-              foundTokenSelected.address === selectedTokenAddress ||
-              tabSelected === TOKEN_TAB.IMPORTED
+              foundTokenSelected.address === selectedTokenAddress
                 ? false
                 : true,
-            selected: modalTokensIn.find(
-              (tokenIn: Token) =>
-                tokenIn.address.toLowerCase() === token.address.toLowerCase()
-            )
-              ? 1
-              : 0,
+            selected:
+              tokensIn.find(
+                (tokenIn: Token) =>
+                  tokenIn.address.toLowerCase() === token.address.toLowerCase()
+              ) ||
+              selectedTokens.find(
+                (tokenIn: Token) =>
+                  tokenIn.address.toLowerCase() === token.address.toLowerCase()
+              )
+                ? 1
+                : 0,
             inPair:
               token.address.toLowerCase() ===
               pool?.token0?.address.toLowerCase()
@@ -133,8 +136,8 @@ export default function TokenSelector({
       tabSelected,
       allTokens,
       importedTokens,
-      unImportedTokens, // modalTokensIn
-      balanceTokens,
+      tokensIn,
+      // balanceTokens,
       mode,
       selectedTokenAddress,
       pool?.token0?.address,
@@ -180,6 +183,8 @@ export default function TokenSelector({
         clonedModalTokensIn.splice(index, 1);
         setModalTokensIn(clonedModalTokensIn);
 
+        setSelectedTokens(clonedModalTokensIn);
+
         const listModalAmountsIn = modalAmountsIn.split(",");
         listModalAmountsIn.splice(index, 1);
         setModalAmountsIn(listModalAmountsIn.join(","));
@@ -187,7 +192,12 @@ export default function TokenSelector({
         const clonedModalTokensIn = [...modalTokensIn];
         clonedModalTokensIn.push(newToken);
         setModalTokensIn(clonedModalTokensIn);
+        setSelectedTokens(clonedModalTokensIn);
         setModalAmountsIn(`${modalAmountsIn},`);
+      } else {
+        setMessage(
+          "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
+        );
       }
     }
   };
@@ -230,6 +240,8 @@ export default function TokenSelector({
       listAmountsIn.splice(index, 1);
       setTokensIn(clonedTokensIn);
       setAmountsIn(listAmountsIn.join(","));
+
+      setSelectedTokens(clonedTokensIn);
 
       removeToken(token);
 
@@ -282,6 +294,8 @@ export default function TokenSelector({
       setTokensIn(removedTokensIn as Token[]);
       setAmountsIn(removedAmountsIn.join(","));
 
+      setSelectedTokens(removedTokensIn as Token[]);
+
       const needClose =
         mode === TOKEN_SELECT_MODE.SELECT &&
         importedTokens.find(
@@ -303,15 +317,15 @@ export default function TokenSelector({
   };
 
   const handleImportToken = (token: Token) => {
-    if (
-      mode === TOKEN_SELECT_MODE.ADD &&
-      modalTokensIn.length >= MAX_ZAP_IN_TOKENS
-    ) {
-      setMessage(
-        "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
-      );
-      return;
-    }
+    // if (
+    //   mode === TOKEN_SELECT_MODE.ADD &&
+    //   modalTokensIn.length >= MAX_ZAP_IN_TOKENS
+    // ) {
+    //   setMessage(
+    //     "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
+    //   );
+    //   return;
+    // }
     setTokenToImport(token);
   };
 
@@ -343,15 +357,33 @@ export default function TokenSelector({
   useEffect(() => {
     const search = searchTerm.toLowerCase().trim();
 
-    if (
-      !filteredTokens.length &&
-      isAddress(search) &&
-      !unImportedTokens.length
-    ) {
+    if (!filteredTokens.length && isAddress(search)) {
       fetchTokenInfo(search).then((res) => setUnImportedTokens(res));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredTokens]);
+
+  useEffect(() => {
+    const cloneTokensIn = [...tokensIn];
+    const cloneAmountsIn = amountsIn.split(",");
+
+    selectedTokens.forEach((token: Token) => {
+      if (
+        !cloneTokensIn.find(
+          (tokenIn: Token) =>
+            tokenIn.address.toLowerCase() === token.address.toLowerCase()
+        )
+      ) {
+        cloneTokensIn.push(token);
+        cloneAmountsIn.push("");
+      }
+    });
+
+    setModalTokensIn(cloneTokensIn);
+    setModalAmountsIn(cloneAmountsIn.join(","));
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tokensIn, amountsIn]);
 
   return (
     <div className="ks-w-full ks-mx-auto ks-text-white ks-overflow-hidden">
@@ -518,12 +550,12 @@ export default function TokenSelector({
                     <span>{token.balance}</span>
                   ) : (
                     <TrashIcon
-                      className="ks-w-[18px] ks-text-subText hover:ks-text-text"
+                      className="ks-w-[18px] ks-text-subText hover:ks-text-text !ks-cursor-pointer"
                       onClick={(e) => handleRemoveImportedToken(e, token)}
                     />
                   )}
                   <Info
-                    className="ks-w-[18px] ks-h-[18px] ks-text-subText hover:ks-text-text"
+                    className="ks-w-[18px] ks-h-[18px] ks-text-subText hover:ks-text-text !ks-cursor-pointer"
                     onClick={(e) => handleShowTokenInfo(e, token)}
                   />
                 </div>
@@ -537,17 +569,15 @@ export default function TokenSelector({
           ) : (
             <></>
           )}
+        </ScrollArea>
 
+        {message && (
           <div
-            className={`ks-text-warning ks-bg-warning-200 ks-text-xs ks-mx-6 ks-rounded-md ks-transition-all ks-ease-in-out ks-duration-300 ${
-              message
-                ? "ks-opacity-100 ks-py-3 ks-px-4 ks-mt-2"
-                : "ks-opacity-0"
-            }`}
+            className={`ks-text-warning ks-bg-warning-200 ks-py-3 ks-px-4 ks-mt-2 ks-text-xs ks-mx-6 ks-rounded-md ks-transition-all ks-ease-in-out ks-duration-300`}
           >
             {message}
           </div>
-        </ScrollArea>
+        )}
 
         {mode === TOKEN_SELECT_MODE.ADD && (
           <div className="ks-flex ks-space-x-4 ks-rounded-lg ks-px-4">

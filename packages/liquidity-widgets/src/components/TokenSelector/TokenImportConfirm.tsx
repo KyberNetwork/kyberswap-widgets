@@ -13,6 +13,7 @@ import IconCopy from "@/assets/svg/copy.svg";
 import IconExternalLink from "@/assets/svg/external-link.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useZapState } from "@/hooks/useZapInState";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
@@ -21,10 +22,7 @@ const TokenImportConfirm = ({
   token,
   mode,
   selectedTokenAddress,
-  modalTokensIn,
-  modalAmountsIn,
-  setModalTokensIn,
-  setModalAmountsIn,
+  selectedTokens,
   setTokenToImport,
   onGoBack,
   onClose,
@@ -32,10 +30,7 @@ const TokenImportConfirm = ({
   token: Token;
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
-  modalTokensIn: Token[];
-  modalAmountsIn: string;
-  setModalTokensIn: (tokens: Token[]) => void;
-  setModalAmountsIn: (amounts: string) => void;
+  selectedTokens?: Token[];
   setTokenToImport: (token: Token | null) => void;
   onGoBack: () => void;
   onClose: () => void;
@@ -75,11 +70,11 @@ const TokenImportConfirm = ({
 
         onClose();
       }
-    } else {
-      const clonedModalTokensIn = [...modalTokensIn];
-      clonedModalTokensIn.push(token);
-      setModalTokensIn(clonedModalTokensIn);
-      setModalAmountsIn(`${modalAmountsIn},`);
+    } else if ((selectedTokens || []).length < MAX_ZAP_IN_TOKENS) {
+      const clonedTokensIn = [...tokensIn];
+      clonedTokensIn.push(token);
+      setTokensIn(clonedTokensIn);
+      setAmountsIn(`${amountsIn},`);
     }
     setTokenToImport(null);
   };
