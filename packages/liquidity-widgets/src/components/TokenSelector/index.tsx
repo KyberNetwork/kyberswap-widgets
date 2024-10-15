@@ -460,7 +460,7 @@ export default function TokenSelector({
           </div>
         ) : null}
 
-        <ScrollArea className="h-[255px] custom-scrollbar !mt-0">
+        <ScrollArea className="h-[280px] custom-scrollbar !mt-0">
           {tabSelected === TOKEN_TAB.ALL &&
             unImportedTokens.map((token: Token) => (
               <div
@@ -533,7 +533,7 @@ export default function TokenSelector({
                     }}
                   />
                   <div>
-                    <p>{token.symbol}</p>
+                    <p className="leading-6">{token.symbol}</p>
                     <p
                       className={`${
                         tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""
