@@ -393,6 +393,9 @@ importers:
       postcss:
         specifier: ^8.4.47
         version: 8.4.47
+      postcss-prefix-selector:
+        specifier: ^2.1.0
+        version: 2.1.0(postcss@8.4.47)
       sass:
         specifier: ^1.70.0
         version: 1.79.3
@@ -7346,6 +7349,11 @@ packages:
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.2.14
+
+  postcss-prefix-selector@2.1.0:
+    resolution: {integrity: sha512-UJjQ5CJZuvDGbrGzanqZyH1R/dUSxil/IxfQyeUg+POmZGhG4nz4FERhrgy75+JiUESw0ws3+GxXofapOBbdkg==}
+    peerDependencies:
+      postcss: ^8.0.0
 
   postcss-selector-parser@6.1.2:
     resolution: {integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==}
@@ -18092,6 +18100,10 @@ snapshots:
     dependencies:
       postcss: 8.4.47
       postcss-selector-parser: 6.1.2
+
+  postcss-prefix-selector@2.1.0(postcss@8.4.47):
+    dependencies:
+      postcss: 8.4.47
 
   postcss-selector-parser@6.1.2:
     dependencies:
