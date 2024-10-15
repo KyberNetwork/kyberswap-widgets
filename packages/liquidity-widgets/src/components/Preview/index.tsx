@@ -600,15 +600,15 @@ export default function Preview({
         </div>
 
         <div>
-          <div className="ks-flex ks-items-center ks-gap-2">
+          <div className="flex items-center gap-2">
             {pool.token0.symbol}/{pool.token1.symbol}{" "}
             {!copied ? (
               <IconCopy
-                className="ks-w-3 ks-h-3 ks-text-subText ks-cursor-pointer"
+                className="w-3 h-3 text-subText cursor-pointer"
                 onClick={handleCopy}
               />
             ) : (
-              <CircleCheckBig className="ks-w-3 ks-h-3 ks-text-accent" />
+              <CircleCheckBig className="w-3 h-3 text-accent" />
             )}
           </div>
           <div className="pool-info mt-[2px]">
@@ -623,7 +623,7 @@ export default function Preview({
 
         {isOutOfRange && (
           <div
-            className="ks-rounded-full ks-text-xs ks-px-2 ks-py-1 ks-font-normal ks-text-warning"
+            className="rounded-full text-xs px-2 py-1 font-normal text-warning"
             style={{
               marginLeft: "auto",
               background: `${theme.warning}33`,
@@ -648,15 +648,12 @@ export default function Preview({
             {formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
           </p>
         </div>
-        <div className="ks-mt-2">
+        <div className="mt-2">
           {tokensIn.map((token: Token, index: number) => (
-            <div
-              className="ks-flex ks-items-center ks-gap-2 ks-mt-1"
-              key={token.address}
-            >
+            <div className="flex items-center gap-2 mt-1" key={token.address}>
               <img
                 src={token.logoURI}
-                className="ks-w-[18px] ks-h-[18px]"
+                className="w-[18px] h-[18px]"
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null;
                   currentTarget.src = defaultTokenLogo;
@@ -665,7 +662,7 @@ export default function Preview({
               <span>
                 {listAmountsIn[index]} {token.symbol}
               </span>
-              <span className="ks-ml-1 ks-text-subText">
+              <span className="ml-1 text-subText">
                 ~
                 {formatCurrency(
                   tokensInUsdPrice[index] * parseFloat(listAmountsIn[index])
@@ -740,20 +737,22 @@ export default function Preview({
       <div className="flex-col" style={{ gap: "12px", marginTop: "1rem" }}>
         <div className="row-between" style={{ alignItems: "flex-start" }}>
           <div className="summary-title">Est. Pooled Amount</div>
-          <div className="ks-text-[14px] ks-flex ks-gap-4">
+          <div className="text-[14px] flex gap-4">
             <div>
-              <div className="ks-flex ks-gap-[4px]">
+              <div className="flex gap-[4px]">
                 {pool?.token0?.logoURI && (
                   <img
                     src={pool.token0.logoURI}
-                    className="ks-w-4 ks-h-4 ks-mt-1 ks-rounded-full ks-relative ks-top-[-2px]"
+                    className={`w-4 h-4 rounded-full relative ${
+                      positionId ? "" : "mt-1 top-[-4px]"
+                    }`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
                     }}
                   />
                 )}
-                <div className="ks-text-end">
+                <div className="text-end">
                   {formatDisplayNumber(
                     position ? +position.amount0 : +addedAmount0,
                     { significantDigits: 5 }
@@ -763,13 +762,13 @@ export default function Preview({
               </div>
 
               {position && (
-                <div className="ks-text-end">
+                <div className="text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
                   {pool?.token0.symbol}
                 </div>
               )}
-              <div className="ks-ml-auto ks-w-fit ks-text-subText">
+              <div className="ml-auto w-fit text-subText">
                 ~
                 {formatCurrency(
                   +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
@@ -778,18 +777,20 @@ export default function Preview({
               </div>
             </div>
             <div>
-              <div className="ks-flex ks-gap-1">
+              <div className="flex gap-1">
                 {pool?.token1?.logoURI && (
                   <img
                     src={pool.token1.logoURI}
-                    className="ks-w-4 ks-h-4 ks-mt-1 ks-rounded-full ks-relative ks-top-[-2px]"
+                    className={`w-4 h-4 rounded-full relative ${
+                      positionId ? "" : "mt-1 top-[-4px]"
+                    }`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
                     }}
                   />
                 )}
-                <div className="ks-text-end">
+                <div className="text-end">
                   {formatDisplayNumber(
                     position ? +position.amount1 : +addedAmount1,
                     { significantDigits: 5 }
@@ -798,13 +799,13 @@ export default function Preview({
                 </div>
               </div>
               {position && (
-                <div className="ks-text-end">
+                <div className="text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}
                   {pool?.token1.symbol}
                 </div>
               )}
-              <div className="ks-ml-auto ks-w-fit ks-text-subText">
+              <div className="ml-auto w-fit text-subText">
                 ~
                 {formatCurrency(
                   +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +
@@ -858,7 +859,7 @@ export default function Preview({
 
         <div className="row-between">
           {swapPi.length ? (
-            <Accordion type="single" collapsible className="ks-w-full">
+            <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>
                   <MouseoverTooltip
@@ -866,12 +867,12 @@ export default function Preview({
                     width="220px"
                   >
                     <div
-                      className={`label text-underline ks-text-xs ${
+                      className={`label text-underline text-xs ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!ks-text-warning !ks-border-warning"
-                          : "!ks-text-error !ks-border-error"
+                          ? "!text-warning !border-warning"
+                          : "!text-error !border-error"
                       }`}
                     >
                       Swap Impact
@@ -881,16 +882,16 @@ export default function Preview({
                 <AccordionContent>
                   {swapPi.map((item, index: number) => (
                     <div
-                      className={`ks-text-xs ks-flex ks-justify-between ks-align-middle ${
+                      className={`text-xs flex justify-between align-middle ${
                         item.piRes.level === PI_LEVEL.NORMAL
-                          ? "ks-text-subText ks-brightness-125"
+                          ? "text-subText brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "ks-text-warning"
-                          : "ks-text-error"
+                          ? "text-warning"
+                          : "text-error"
                       }`}
                       key={index}
                     >
-                      <div className="ks-ml-3">
+                      <div className="ml-3">
                         {formatDisplayNumber(item.amountIn, {
                           significantDigits: 4,
                         })}{" "}

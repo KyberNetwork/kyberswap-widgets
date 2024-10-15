@@ -25,9 +25,9 @@ const TokenSelectorModal = ({
     <Modal
       isOpen
       onClick={onClose}
-      modalContentClass={`ks-bg-layer2 ks-p-0 !ks-max-h-[80vh] ${
-        tokenToShow || tokenToImport ? "" : "ks-pb-6"
-      } ${tokenToImport ? "ks-max-w-[420px]" : "ks-max-w-[435px]"}`}
+      modalContentClass={`bg-layer2 p-0 !max-h-[80vh] ${
+        tokenToShow || tokenToImport ? "" : "pb-6"
+      } ${tokenToImport ? "max-w-[420px]" : "max-w-[435px]"}`}
     >
       {tokenToShow ? (
         <TokenInfo token={tokenToShow} onGoBack={() => setTokenToShow(null)} />

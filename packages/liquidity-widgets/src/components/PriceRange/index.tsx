@@ -137,15 +137,15 @@ const PriceRange = () => {
   }, [fee]);
 
   return !positionId ? (
-    <div className="ks-flex ks-gap-[6px] ks-my-[10px]">
+    <div className="flex gap-[6px] my-[10px]">
       {priceRanges.map((item: string | number, index: number) => (
         <Button
           key={index}
           variant="outline"
-          className={`ks-flex-1 ${
+          className={`flex-1 ${
             item === selectedRange?.range
-              ? " ks-text-accent !ks-border-accent"
-              : " ks-text-subText"
+              ? " text-accent !border-accent"
+              : " text-subText"
           }`}
           onClick={() =>
             handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)
@@ -156,25 +156,25 @@ const PriceRange = () => {
       ))}
     </div>
   ) : (
-    <div className="ks-px-4 ks-py-3 ks-mt-4 ks-text-sm ks-border ks-border-stroke ks-rounded-md">
-      <p className="ks-text-subText ks-mb-3">
+    <div className="px-4 py-3 mt-4 text-sm border border-stroke rounded-md">
+      <p className="text-subText mb-3">
         {!loading ? "Your Position Price Ranges" : "Loading..."}
       </p>
       {!loading && (
-        <div className="ks-flex ks-items-center ks-gap-4">
-          <div className="ks-bg-white ks-bg-opacity-[0.04] ks-rounded-md ks-py-3 ks-w-1/2 ks-flex ks-flex-col ks-items-center ks-justify-center ks-gap-1">
-            <p className="ks-text-subText">Min Price</p>
+        <div className="flex items-center gap-4">
+          <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+            <p className="text-subText">Min Price</p>
             <p>{minPrice}</p>
-            <p className="ks-text-subText">
+            <p className="text-subText">
               {revertPrice
                 ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
                 : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
             </p>
           </div>
-          <div className="ks-bg-white ks-bg-opacity-[0.04] ks-rounded-md ks-py-3 ks-w-1/2 ks-flex ks-flex-col ks-items-center ks-justify-center ks-gap-1">
-            <p className="ks-text-subText">Max Price</p>
+          <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+            <p className="text-subText">Max Price</p>
             <p>{maxPrice}</p>
-            <p className="ks-text-subText">
+            <p className="text-subText">
               {revertPrice
                 ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
                 : `${pool?.token1.symbol}/${pool?.token0.symbol}`}

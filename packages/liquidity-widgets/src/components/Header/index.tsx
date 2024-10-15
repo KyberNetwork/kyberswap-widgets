@@ -32,14 +32,14 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
     <>
       <div className="ks-lw-title">
-        <div className="ks-flex ks-items-center ks-gap-[6px]">
+        <div className="flex items-center gap-[6px]">
           {positionId !== undefined ? "Increase Liquidity" : "Zap in"}{" "}
           {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
             <>
-              <div className="ks-text-accent">#{positionId}</div>
+              <div className="text-accent">#{positionId}</div>
               <div
-                className={`ks-rounded-full ks-text-xs ks-px-2 ks-py-1 ks-font-normal ks-text-${
+                className={`rounded-full text-xs px-2 py-1 font-normal text-${
                   isOutOfRange ? "warning" : "accent"
                 }`}
                 style={{
@@ -91,7 +91,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           </span>
 
           <div className="dex-type">
-            <div className="ks-rounded-full ks-text-xs ks-bg-layer2 ks-text-text ks-px-3 ks-py-[2px]">
+            <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
               Fee {fee / 10_000}%
             </div>
             <span className="divide">|</span>

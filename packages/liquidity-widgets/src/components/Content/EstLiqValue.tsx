@@ -228,13 +228,13 @@ export default function EstLiqValue() {
                     }}
                   />
                 )}
-                <div className="ks-text-end">
+                <div className="text-end">
                   {formatNumber(position ? +position.amount0 : +addedAmount0)}{" "}
                   {pool?.token0.symbol}
                 </div>
               </div>
               {position && (
-                <div className="ks-text-end">
+                <div className="text-end">
                   + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
                 </div>
               )}
@@ -268,13 +268,13 @@ export default function EstLiqValue() {
                     }}
                   />
                 )}
-                <div className="ks-text-end">
+                <div className="text-end">
                   {formatNumber(position ? +position.amount1 : +addedAmount1)}{" "}
                   {pool?.token1.symbol}
                 </div>
               </div>
               {position && (
-                <div className="ks-text-end">
+                <div className="text-end">
                   + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
                 </div>
               )}
@@ -319,7 +319,7 @@ export default function EstLiqValue() {
 
         <div className="detail-row">
           {swapPi.length ? (
-            <Accordion type="single" collapsible className="ks-w-full">
+            <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>
                   <MouseoverTooltip
@@ -327,12 +327,12 @@ export default function EstLiqValue() {
                     width="220px"
                   >
                     <div
-                      className={`label text-underline ks-text-xs ${
+                      className={`label text-underline text-xs ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!ks-text-warning !ks-border-warning"
-                          : "!ks-text-error !ks-border-error"
+                          ? "!text-warning !border-warning"
+                          : "!text-error !border-error"
                       }`}
                     >
                       Swap Impact
@@ -342,16 +342,16 @@ export default function EstLiqValue() {
                 <AccordionContent>
                   {swapPi.map((item, index: number) => (
                     <div
-                      className={`ks-text-xs ks-flex ks-justify-between ks-align-middle ${
+                      className={`text-xs flex justify-between align-middle ${
                         item.piRes.level === PI_LEVEL.NORMAL
-                          ? "ks-text-subText ks-brightness-125"
+                          ? "text-subText brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "ks-text-warning"
-                          : "ks-text-error"
+                          ? "text-warning"
+                          : "text-error"
                       }`}
                       key={index}
                     >
-                      <div className="ks-ml-3">
+                      <div className="ml-3">
                         {formatDisplayNumber(item.amountIn, {
                           significantDigits: 4,
                         })}{" "}

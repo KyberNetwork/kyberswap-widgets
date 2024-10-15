@@ -31,27 +31,27 @@ const SecurityInfo = ({ token }: { token: Token }) => {
   return (
     <>
       <div
-        className="ks-flex ks-items-center ks-justify-between ks-px-4 ks-py-2 ks-text-text"
+        className="flex items-center justify-between px-4 py-2 text-text"
         style={{ background: `${theme.icons}33` }}
       >
-        <div className="ks-flex ks-items-center ks-gap-2">
+        <div className="flex items-center gap-2">
           {" "}
-          <IconSecurity className="ks-h-6 ks-w-6" />
+          <IconSecurity className="h-6 w-6" />
           <MouseoverTooltip
             text="Token security info provided by Goplus. Please conduct your own research before trading"
             width="250px"
           >
-            <span className="ks-border-dashed ks-border-b ks-border-text">
+            <span className="border-dashed border-b border-text">
               Security Info
             </span>
           </MouseoverTooltip>
         </div>
-        <div className="ks-flex ks-items-center ks-gap-1">
-          <span className="ks-text-subText ks-text-[10px]">Powered by</span>{" "}
-          <LogoGoPlus className="ks-h-4 ks-w-14" />
+        <div className="flex items-center gap-1">
+          <span className="text-subText text-[10px]">Powered by</span>{" "}
+          <LogoGoPlus className="h-4 w-14" />
         </div>
       </div>
-      <div className="ks-flex ks-flex-col ks-gap-[14px] ks-p-[14px]">
+      <div className="flex flex-col gap-[14px] p-[14px]">
         <CollapseInfoItem
           icon={<IconSecurityTrading />}
           title={`Trading Security`}

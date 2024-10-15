@@ -86,7 +86,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <div className="input-token ks-bg-layer2 ks-relative">
+      <div className="input-token bg-layer2 relative">
         <div className="balance">
           <div className="balance-flex">
             <button
@@ -162,7 +162,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
 
         {tokensIn.length > 1 ? (
           <div
-            className="ks-text-subText ks-cursor-pointer hover:ks-text-text ks-w-fit ks-absolute ks-top-[-16px] ks-right-[3px] ks-brightness-75"
+            className="text-subText cursor-pointer hover:text-text w-fit absolute top-[-16px] right-[3px] brightness-75"
             onClick={onClickRemoveToken}
           >
             <X size={14} />

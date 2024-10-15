@@ -90,29 +90,26 @@ const TokenImportConfirm = ({
   }, [copied]);
 
   return (
-    <div className="ks-w-full ks-text-white">
-      <div className="ks-flex ks-items-center ks-justify-between ks-p-4 ks-pb-2 ks-border-b ks-border-[#40444f]">
+    <div className="w-full text-white">
+      <div className="flex items-center justify-between p-4 pb-2 border-b border-[#40444f]">
         <IconBack
-          className="ks-w-6 ks-h-6 ks-cursor-pointer hover:ks-text-subText"
+          className="w-6 h-6 cursor-pointer hover:text-subText"
           onClick={onGoBack}
         />
-        <span className="ks-text-xl">Import Token</span>
-        <X
-          className="ks-cursor-pointer hover:ks-text-subText"
-          onClick={onClose}
-        />
+        <span className="text-xl">Import Token</span>
+        <X className="cursor-pointer hover:text-subText" onClick={onClose} />
       </div>
-      <div className="ks-p-4 ks-flex ks-flex-col ks-gap-4">
-        <div className="ks-bg-warning-200 ks-p-[15px] ks-flex ks-rounded-md ks-text-warning ks-items-start ks-gap-2">
-          <IconAlertTriangle className="ks-h-[18px]" />
-          <p className="ks-text-sm">
+      <div className="p-4 flex flex-col gap-4">
+        <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
+          <IconAlertTriangle className="h-[18px]" />
+          <p className="text-sm">
             This token isn’t frequently swapped. Please do your own research
             before trading.
           </p>
         </div>
-        <div className="ks-bg-[#0f0f0f] ks-rounded-md ks-p-8 ks-flex ks-gap-[10px] ks-items-start">
+        <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
           <img
-            className="ks-w-[44px] ks-h-[44px]"
+            className="w-[44px] h-[44px]"
             src={token.logoURI}
             alt="token logo"
             onError={({ currentTarget }) => {
@@ -120,21 +117,21 @@ const TokenImportConfirm = ({
               currentTarget.src = defaultTokenLogo;
             }}
           />
-          <div className="ks-flex ks-flex-col ks-gap-1">
-            <p className="ks-text-lg">{token.symbol}</p>
-            <p className="ks-text-subText ks-text-sm">{token.name}</p>
-            <p className="ks-text-xs ks-flex ks-items-center ks-gap-[5px]">
+          <div className="flex flex-col gap-1">
+            <p className="text-lg">{token.symbol}</p>
+            <p className="text-subText text-sm">{token.name}</p>
+            <p className="text-xs flex items-center gap-[5px]">
               <span>Address: {shortenAddress(chainId, token.address, 7)}</span>
               {!copied ? (
                 <IconCopy
-                  className="ks-w-[14px] ks-h-[14px] ks-text-subText hover:ks-text-text ks-cursor-pointer"
+                  className="w-[14px] h-[14px] text-subText hover:text-text cursor-pointer"
                   onClick={handleCopy}
                 />
               ) : (
-                <CircleCheckBig className="ks-w-[14px] ks-h-[14px] ks-text-accent" />
+                <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
               )}
               <IconExternalLink
-                className="ks-w-4 ks-text-subText hover:ks-text-text ks-cursor-pointer"
+                className="w-4 text-subText hover:text-text cursor-pointer"
                 onClick={handleOpenExternalLink}
               />
             </p>

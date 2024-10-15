@@ -195,7 +195,7 @@ function Params({
           onChange={(e) => {
             setLocalParams((params) => ({
               ...params,
-              positionId: e.target.value,
+              positionId: e.target.value !== "" ? e.target.value : undefined,
             }));
           }}
         />

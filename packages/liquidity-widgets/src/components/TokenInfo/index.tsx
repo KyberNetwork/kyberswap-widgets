@@ -11,14 +11,14 @@ const TokenInfo = ({
   onGoBack: () => void;
 }) => {
   return (
-    <div className="ks-w-full ks-mx-auto ks-text-white ks-overflow-hidden">
-      <div className="ks-flex ks-items-center ks-gap-1 ks-p-4 ks-pb-[14px]">
+    <div className="w-full mx-auto text-white overflow-hidden">
+      <div className="flex items-center gap-1 p-4 pb-[14px]">
         <ChevronLeft
-          className="ks-text-subText ks-w-[26px] ks-h-[26px] ks-cursor-pointer hover:ks-text-text"
+          className="text-subText w-[26px] h-[26px] cursor-pointer hover:text-text"
           onClick={onGoBack}
         />
-        <span className="ks-ml-1">{token.symbol || ""}</span>
-        <span className="ks-text-xs ks-text-subText ks-mt-1">
+        <span className="ml-1">{token.symbol || ""}</span>
+        <span className="text-xs text-subText mt-1">
           {token.name || ""}
         </span>
       </div>
