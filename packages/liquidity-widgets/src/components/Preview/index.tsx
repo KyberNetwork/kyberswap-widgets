@@ -611,7 +611,7 @@ export default function Preview({
               <CircleCheckBig className="ks-w-3 ks-h-3 ks-text-accent" />
             )}
           </div>
-          <div className="pool-info">
+          <div className="pool-info mt-[2px]">
             <div className="tag tag-default">Fee {pool.fee / 10_000}%</div>
             {positionId !== undefined && (
               <div className="tag tag-primary">
@@ -623,18 +623,19 @@ export default function Preview({
 
         {isOutOfRange && (
           <div
-            className="tag tag-warning"
+            className="ks-rounded-full ks-text-xs ks-px-2 ks-py-1 ks-font-normal ks-text-warning"
             style={{
               marginLeft: "auto",
-              padding: "2px 8px",
+              background: `${theme.warning}33`,
             }}
           >
             Inactive{" "}
             <InfoHelper
               width="300px"
-              color={"#ffffff"}
+              color={theme.warning}
               text="The position is inactive and not earning trading fees due to the current price being out of the set price range."
               size={16}
+              style={{ position: "relative", top: "-1px", margin: 0 }}
             />
           </div>
         )}

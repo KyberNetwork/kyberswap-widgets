@@ -460,7 +460,7 @@ export default function TokenSelector({
           </div>
         ) : null}
 
-        <ScrollArea className="ks-h-[280px] ks-custom-scrollbar !ks-mt-0">
+        <ScrollArea className="ks-h-[255px] ks-custom-scrollbar !ks-mt-0">
           {tabSelected === TOKEN_TAB.ALL &&
             unImportedTokens.map((token: Token) => (
               <div

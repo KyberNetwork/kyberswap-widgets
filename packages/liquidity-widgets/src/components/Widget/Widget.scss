@@ -19,8 +19,6 @@
   --ks-lw-buttonRadius: 24px;
 
   --ks-lw-boxShadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
-
-  font-family: var(--ks-lw-fontFamily), sans-serif;
 }
 
 .ks-lw {
@@ -32,4 +30,60 @@
   font-family: var(--ks-lw-fontFamily), sans-serif;
   position: relative;
   transition: all 0.2s;
+}
+
+.ks-lw-style {
+  .outline-btn {
+    background: none;
+    border: 1px solid var(--ks-lw-accent);
+    border-radius: var(--ks-lw-buttonRadius);
+    color: var(--ks-lw-accent);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    justify-self: flex-end;
+    align-items: center;
+
+    &:hover {
+      filter: brightness(120%);
+    }
+
+    &:active {
+      transform: scale(0.99);
+    }
+  }
+
+  .primary-btn {
+    background: var(--ks-lw-accent);
+    border: 1px solid var(--ks-lw-accent);
+    border-radius: var(--ks-lw-buttonRadius);
+    color: var(--ks-lw-layer1);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    justify-self: flex-end;
+    align-items: center;
+
+    &:hover {
+      filter: brightness(110%);
+    }
+
+    &:enabled:active {
+      transform: scale(0.99);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: var(--ks-lw-subText);
+      background: var(--ks-lw-layer2);
+      border-color: var(--ks-lw-layer2);
+      filter: brightness(108%);
+    }
+  }
 }

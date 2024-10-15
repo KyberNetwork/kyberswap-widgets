@@ -10,16 +10,8 @@ import Modal from "../Modal";
 import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export default function Setting() {
-  const {
-    showSetting,
-    ttl,
-    setTtl,
-    toggleSetting,
-    // enableAggregator,
-    // setEnableAggregator,
-    degenMode,
-    setDegenMode,
-  } = useZapState();
+  const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode } =
+    useZapState();
   const { theme } = useWidgetInfo();
   const ref = useRef(null);
   useOnClickOutside(ref, () => {
@@ -143,23 +135,6 @@ export default function Setting() {
             }}
           />
         </div>
-
-        {/* <div className="row-btw">
-          <MouseoverTooltip
-            text="Zap will include DEX aggregator to find the best price."
-            width="220px"
-          >
-            <div className="setting-title text-underline">
-              Use Aggregator for Zaps
-            </div>
-          </MouseoverTooltip>
-          <Toggle
-            isActive={enableAggregator}
-            toggle={() => {
-              setEnableAggregator(!enableAggregator);
-            }}
-          />
-        </div> */}
       </div>
     </>
   );

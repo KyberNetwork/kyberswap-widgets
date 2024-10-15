@@ -60,8 +60,6 @@ const ZapContext = createContext<{
   toggleSetting: () => void;
   setShowSeting: (val: boolean) => void;
   showSetting: boolean;
-  setEnableAggregator: (val: boolean) => void;
-  enableAggregator: boolean;
   degenMode: boolean;
   setDegenMode: (val: boolean) => void;
   positionId?: string;
@@ -95,8 +93,6 @@ const ZapContext = createContext<{
   toggleSetting: () => {},
   setShowSeting: () => {},
   showSetting: false,
-  enableAggregator: true,
-  setEnableAggregator: () => {},
   degenMode: false,
   setDegenMode: () => {},
   marketPrice: undefined,
@@ -138,7 +134,6 @@ export const ZapContextProvider = ({
   const [showSetting, setShowSeting] = useState(false);
   const [slippage, setSlippage] = useState(10);
   const [ttl, setTtl] = useState(20);
-  const [enableAggregator, setEnableAggregator] = useState(true);
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(
     position?.tickLower ?? null
@@ -433,7 +428,7 @@ export const ZapContextProvider = ({
         tokensIn: formattedTokensIn,
         amountsIn: formattedAmountsInWeis,
         slippage,
-        "aggregatorOptions.disable": !enableAggregator,
+        "aggregatorOptions.disable": false,
         ...(positionId ? { "position.id": positionId } : {}),
         ...(feeAddress ? { feeAddress, feePcm } : {}),
         ...(includedSources
@@ -487,7 +482,6 @@ export const ZapContextProvider = ({
     feePcm,
     poolAddress,
     pool,
-    enableAggregator,
     slippage,
     positionId,
     includedSources,
@@ -523,8 +517,6 @@ export const ZapContextProvider = ({
         toggleSetting,
         setShowSeting,
         showSetting,
-        enableAggregator,
-        setEnableAggregator,
         positionId,
         degenMode,
         setDegenMode,

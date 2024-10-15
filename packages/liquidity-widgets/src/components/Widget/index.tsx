@@ -22,6 +22,7 @@ const createModalRoot = () => {
   if (!modalRoot) {
     modalRoot = document.createElement("div");
     modalRoot.id = "ks-lw-modal-root";
+    modalRoot.className = "ks-lw-style";
     document.body.appendChild(modalRoot);
   }
 };
@@ -94,7 +95,7 @@ export default function Widget({
             initDepositTokens={initDepositTokens}
             initAmounts={initAmounts}
           >
-            <div className="ks-lw">
+            <div className="ks-lw ks-lw-style">
               <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
               <Setting />
             </div>
