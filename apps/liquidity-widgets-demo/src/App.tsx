@@ -119,16 +119,16 @@ function App() {
   }, [connect]);
 
   return (
-    <div className="demo-app">
-      <div className="header">
-        <button className="ks-btn" onClick={handleConnectWallet}>
+    <div className="ks-demo-app">
+      <div className="ks-demo-header">
+        <button className="ks-demo-btn" onClick={handleConnectWallet}>
           {!wallet ? "Connect wallet" : "Disconnect"}
         </button>
         <div>{wallet?.accounts?.[0].address}</div>
       </div>
 
-      <div className="app-wrapper">
-        <div className="params-wrapper">
+      <div className="ks-demo-app-wrapper">
+        <div className="ks-demo-params-wrapper">
           <Params params={params} setParams={handleUpdateParams} />
         </div>
 
@@ -175,9 +175,10 @@ function Params({
 
   return (
     <>
-      <div className="params-container">
+      <div className="ks-demo-params-container">
         <span>chainId</span>
         <input
+          className="ks-demo-input"
           value={String(localParams.chainId)}
           onChange={(e) => {
             setLocalParams((params) => ({
@@ -189,6 +190,7 @@ function Params({
 
         <span>positionId</span>
         <input
+          className="ks-demo-input"
           value={localParams.positionId}
           onChange={(e) => {
             setLocalParams((params) => ({
@@ -200,6 +202,7 @@ function Params({
 
         <span>poolAddress</span>
         <input
+          className="ks-demo-input"
           value={localParams.poolAddress}
           onChange={(e) => {
             setLocalParams((params) => ({
@@ -210,9 +213,10 @@ function Params({
         />
 
         <span>PoolType</span>
-        <div className="pool-type-container">
-          <div className="pool-type-item">
+        <div className="ks-demo-pool-type-container">
+          <div className="ks-demo-pool-type-item">
             <input
+              className="ks-demo-input"
               type="radio"
               id="1"
               name={PoolType.DEX_METAVAULTV3}
@@ -228,8 +232,9 @@ function Params({
             <label htmlFor="1">{PoolType.DEX_METAVAULTV3}</label>
           </div>
 
-          <div className="pool-type-item">
+          <div className="ks-demo-pool-type-item">
             <input
+              className="ks-demo-input"
               type="radio"
               id="2"
               name={PoolType.DEX_UNISWAPV3}
@@ -245,8 +250,9 @@ function Params({
             <label htmlFor="2">{PoolType.DEX_UNISWAPV3}</label>
           </div>
 
-          <div className="pool-type-item">
+          <div className="ks-demo-pool-type-item">
             <input
+              className="ks-demo-input"
               type="radio"
               id="3"
               name={PoolType.DEX_PANCAKESWAPV3}
@@ -264,7 +270,7 @@ function Params({
         </div>
       </div>
 
-      <button className="ks-btn" onClick={() => setParams(localParams)}>
+      <button className="ks-demo-btn" onClick={() => setParams(localParams)}>
         Save and Reload
       </button>
     </>
