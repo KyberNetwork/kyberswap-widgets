@@ -1,5 +1,3 @@
-import { Address } from "viem";
-
 interface Token {
   chainId: number;
   address: string;
@@ -239,7 +237,7 @@ export const NetworkInfo: {
   },
 };
 
-export const PANCAKE_NFT_MANAGER_CONTRACT: { [chainId: number]: Address } = {
+export const PANCAKE_NFT_MANAGER_CONTRACT: { [chainId: number]: string } = {
   1: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   56: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   137: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",

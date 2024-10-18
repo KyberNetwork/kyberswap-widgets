@@ -1,42 +1,88 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: auto;
+  background-color: rgb(15, 15, 15);
+  min-width: 100vw;
+  min-height: 100vh
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+body {
+  margin: 0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.ks-demo-app {
+  width: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.ks-demo-header {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 0;
+  background-color: #1c1c1c;
+  color: #fff;
 }
 
-.card {
-  padding: 2em;
+.ks-demo-app-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0;
+  gap: 1rem;
 }
 
-.read-the-docs {
-  color: #888;
+.ks-demo-params-wrapper {
+  color: #fff;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ks-demo-params-container {
+  display: grid;
+  grid-template-columns: 100px 500px;
+  gap: 1rem;
+}
+
+.ks-demo-pool-type-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  row-gap: 0.5rem;
+}
+
+.ks-demo-pool-type-item {
+  display: flex;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.ks-demo-btn {
+  outline: none;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: #28e0b9;
+  color: #313131;
+  cursor: pointer;
+  box-shadow: 0px 4px 4px rgb(0 0 0 / 4%);
+  width: fit-content;
+}
+
+.ks-demo-input {
+  background-color: #1c1c1c;
+  border-radius: 16px;
+  padding: 8px 16px;
+  outline: none;
+  border: 1px solid transparent;
+  transition: 0.2s ease-in-out;
+  color: #fff;
+}
+
+.ks-demo-input:focus,
+.ks-demo-input:active {
+  border-color: #31cb9e;
 }
