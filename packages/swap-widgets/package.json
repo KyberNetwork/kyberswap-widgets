@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@sentry/react": "^8.34.0",
+    "@types/styled-components": "5.1.26",
     "eslint-plugin-better-styled-components": "^1.1.2",
     "ethers": "^5.7.0",
     "lodash": "^4.17.21",
@@ -19,14 +21,13 @@
     "react-indiana-drag-scroll": "^2.2.0",
     "react-popper": "^2.3.0",
     "styled-components": "^5.3.5",
-    "@types/styled-components": "5.1.26",
     "tsup": "^8.3.0"
   },
   "devDependencies": {
-    "@kyber/typescript-config": "workspace:*",
-    "@kyber/svgr-esbuild-plugin": "workspace:*",
-    "@kyber/ui": "workspace:*",
     "@kyber/hooks": "workspace:*",
+    "@kyber/svgr-esbuild-plugin": "workspace:*",
+    "@kyber/typescript-config": "workspace:*",
+    "@kyber/ui": "workspace:*",
     "@types/lodash": "^4.14.196",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
