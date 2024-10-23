@@ -3,6 +3,7 @@ import "./index.css";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { ChainId, Dex, DexFrom, DexTo } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
+import { usePositionStore } from "./stores/useFromPositionStore";
 import { useEffect } from "react";
 import { Header } from "./components/Header";
 import { FromPool } from "./components/FromPool";
@@ -37,6 +38,11 @@ export const ZapMigration = ({
 //feeConfig,
 ZapMigrationProps) => {
   const { getPools } = usePoolsStore();
+  const { position, fetchPosition } = usePositionStore();
+
+  useEffect(() => {
+    fetchPosition(from.dex, chainId, +from.positionId);
+  }, [chainId, from, from.dex]);
 
   useEffect(() => {
     const params = {

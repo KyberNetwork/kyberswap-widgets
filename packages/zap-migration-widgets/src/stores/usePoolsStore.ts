@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ChainId, Dex, Pool, tick, token } from "../schema";
+import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
 import { z } from "zod";
 
 interface GetPoolParams {
@@ -58,7 +58,7 @@ const poolResponse = z.object({
   }),
 });
 
-export const usePoolsStore = create<PoolsState>()((set) => ({
+export const usePoolsStore = create<PoolsState>((set) => ({
   pools: "loading",
   error: "",
   getPools: async ({
@@ -98,11 +98,34 @@ export const usePoolsStore = create<PoolsState>()((set) => ({
       const toPoolToken0 = toPool.tokens[0];
       const toPoolToken1 = toPool.tokens[1];
 
-      // TODO:(viet-nv) enrich logo
+      const addresses = [
+        fromPoolToken0,
+        fromPoolToken1,
+        toPoolToken0,
+        toPoolToken1,
+      ]
+        .map((item) => item.address)
+        .join(",");
+
+      const tokens: { address: string; logoURI?: string }[] = await fetch(
+        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${addresses}`
+      )
+        .then((res) => res.json())
+        .then((res) => res?.data?.tokens || [])
+        .catch(() => []);
+
+      const enrichLogo = (token: Token) => {
+        return {
+          ...token,
+          logo: tokens.find(
+            (item) => item.address.toLowerCase() === token.address.toLowerCase()
+          )?.logoURI,
+        };
+      };
 
       const pool0: Pool = {
-        token0: fromPoolToken0,
-        token1: fromPoolToken1,
+        token0: enrichLogo(fromPoolToken0),
+        token1: enrichLogo(fromPoolToken1),
         dex: dexFrom,
         fee: fromPool.swapFee,
         tick: fromPool.positionInfo.tick,
@@ -113,8 +136,8 @@ export const usePoolsStore = create<PoolsState>()((set) => ({
       };
 
       const pool1: Pool = {
-        token0: toPoolToken0,
-        token1: toPoolToken1,
+        token0: enrichLogo(toPoolToken0),
+        token1: enrichLogo(toPoolToken1),
         dex: dexTo,
         fee: fromPool.swapFee,
         tick: fromPool.positionInfo.tick,

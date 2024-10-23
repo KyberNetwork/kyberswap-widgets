@@ -16,6 +16,8 @@ export const token = z.object({
   logo: z.string().optional(),
 });
 
+export type Token = z.infer<typeof token>;
+
 export const chain = z.object({
   chainId,
   logo: z.string(),
@@ -115,25 +117,42 @@ export const tick = z.object({
 });
 export type Tick = z.infer<typeof tick>;
 
-const poolCommonField = z.object({
+const univ3PoolCommonField = z.object({
   token0: token,
   token1: token,
   fee: z.number(),
+  tick: z.number(),
+  liquidity: z.string(),
+  sqrtPriceX96: z.string(),
+  tickSpacing: z.number(),
+  ticks: z.array(tick),
 });
 
 export const pool = z.discriminatedUnion("dex", [
-  poolCommonField.extend({
+  univ3PoolCommonField.extend({
     dex: z.literal(Dex.Uniswapv3),
-    tick: z.number(),
-    liquidity: z.string(),
-    sqrtPriceX96: z.string(),
-    tickSpacing: z.number(),
-    ticks: z.array(tick),
   }),
 
-  poolCommonField.extend({
+  univ3PoolCommonField.extend({
     dex: z.literal(Dex.Pancakev3),
   }),
 ]);
 
 export type Pool = z.infer<typeof pool>;
+
+const univ3Position = z.object({
+  liquidity: z.string(),
+  tickLower: z.number(),
+  tickUpper: z.number(),
+});
+
+export const position = z.discriminatedUnion("dex", [
+  univ3Position.extend({
+    dex: z.literal(Dex.Uniswapv3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.Pancakev3),
+  }),
+]);
+
+export type Position = z.infer<typeof position>;

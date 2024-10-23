@@ -1,8 +1,22 @@
+import { Skeleton } from "@kyber/ui/skeleton";
 import { DexInfos, NetworkInfo } from "../constants";
 import { ChainId, Pool } from "../schema";
 import { Image } from "./Image";
 
-export function PoolInfo({ chainId, pool }: { pool: Pool; chainId: ChainId }) {
+export function PoolInfo({
+  chainId,
+  pool,
+}: {
+  pool: "loading" | Pool;
+  chainId: ChainId;
+}) {
+  if (pool === "loading")
+    return (
+      <>
+        <Skeleton className="w-[150px] h-6" />
+        <Skeleton className="w-[120px] h-5 mt-2.5" />
+      </>
+    );
   return (
     <>
       <div className="flex gap-1 items-center">
@@ -11,13 +25,11 @@ export function PoolInfo({ chainId, pool }: { pool: Pool; chainId: ChainId }) {
             src={pool.token0.logo || ""}
             alt={pool.token0.symbol}
             className="w-6 h-6 z-0"
-            style={{ filter: "invert(1)" }}
           />
           <Image
             src={pool.token1.logo || ""}
             alt={pool.token1.symbol}
             className="w-6 h-6 -ml-3 z-10"
-            style={{ filter: "invert(1)" }}
           />
           <Image
             src={NetworkInfo[chainId].logo}

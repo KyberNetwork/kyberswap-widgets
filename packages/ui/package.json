@@ -8,18 +8,24 @@
   },
   "devDependencies": {
     "@kyber/eslint-config": "workspace:*",
+    "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
+    "@kyber/utils": "workspace:^",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
+    "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
     "typescript": "5.3.2"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
   },
   "exports": {
-    "./portal": "./src/portal.tsx"
+    "./portal": "./src/portal.tsx",
+    "./skeleton": "./src/components/ui/skeleton.tsx"
   }
 }

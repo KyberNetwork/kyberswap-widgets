@@ -2,6 +2,7 @@ import { usePoolsStore } from "../stores/usePoolsStore";
 import X from "../assets/icons/x.svg";
 import { PoolInfo } from "./PoolInfo";
 import { ChainId } from "..";
+import { Skeleton } from "@kyber/ui/skeleton";
 
 export function Header({
   onClose,
@@ -14,9 +15,9 @@ export function Header({
 
   return (
     <>
-      <div className="flex item-centers justify-between text-xl font-medium">
+      <div className="flex items-center justify-between text-xl font-medium">
         {pools === "loading" ? (
-          <div>Loading...</div>
+          <Skeleton className="w-[300px] h-7" />
         ) : (
           <div>
             Migrate from {pools[0].token0.symbol}/{pools[0].token1.symbol} to{" "}
@@ -29,18 +30,18 @@ export function Header({
       </div>
 
       <div className="flex gap-[48px] mt-8">
-        {pools === "loading" ? (
-          <div>Loading</div>
-        ) : (
-          <>
-            <div className="flex-1">
-              <PoolInfo pool={pools[0]} chainId={chainId} />
-            </div>
-            <div className="flex-1">
-              <PoolInfo pool={pools[1]} chainId={chainId} />
-            </div>
-          </>
-        )}
+        <div className="flex-1">
+          <PoolInfo
+            pool={pools === "loading" ? "loading" : pools[0]}
+            chainId={chainId}
+          />
+        </div>
+        <div className="flex-1">
+          <PoolInfo
+            pool={pools === "loading" ? "loading" : pools[1]}
+            chainId={chainId}
+          />
+        </div>
       </div>
     </>
   );
