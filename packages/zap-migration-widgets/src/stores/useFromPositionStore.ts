@@ -52,10 +52,16 @@ export const usePositionStore = create<{
 
     const { result, error } = await response.json();
 
-    console.log(result);
     if (result && result !== "0x") {
       const data = decodePosition(result);
-      console.log(data);
+      set({
+        position: {
+          dex,
+          liquidity: data.liquidity,
+          tickLower: data.tickLower,
+          tickUpper: data.tickUpper,
+        },
+      });
       return;
     }
 

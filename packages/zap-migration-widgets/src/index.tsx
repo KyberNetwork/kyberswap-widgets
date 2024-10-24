@@ -1,4 +1,5 @@
 import "./index.css";
+import "@kyber/ui/styles.css";
 
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { ChainId, Dex, DexFrom, DexTo } from "./schema";
@@ -9,6 +10,13 @@ import { Header } from "./components/Header";
 import { FromPool } from "./components/FromPool";
 import { ToPool } from "./components/ToPool";
 import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@kyber/ui/dialog";
 
 export { Dex, ChainId };
 
@@ -37,11 +45,17 @@ export const ZapMigration = ({
 }: //aggregatorOptions,
 //feeConfig,
 ZapMigrationProps) => {
-  const { getPools } = usePoolsStore();
-  const { position, fetchPosition } = usePositionStore();
+  const { getPools, error: poolError } = usePoolsStore();
+  const { fetchPosition, error: posError } = usePositionStore();
 
   useEffect(() => {
     fetchPosition(from.dex, chainId, +from.positionId);
+
+    const interval = setInterval(() => {
+      fetchPosition(from.dex, chainId, +from.positionId);
+    }, 10_000);
+
+    return () => clearInterval(interval);
   }, [chainId, from, from.dex]);
 
   useEffect(() => {
@@ -62,20 +76,34 @@ ZapMigrationProps) => {
     return () => clearInterval(interval);
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex]);
 
+  console.log(poolError, posError, Boolean(poolError || posError));
   return (
-    <div
-      className={cn(
-        "bg-background w-full max-w-[760px] border rounded-md p-6 border-stroke",
-        "text-text",
-        className
-      )}
-    >
-      <Header onClose={onClose} chainId={chainId} />
-      <div className="flex gap-3 items-center mt-5">
-        <FromPool />
-        <CircleChevronRight className="text-primary w-8 h-8 p-1" />
-        <ToPool />
+    <>
+      <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Error</DialogTitle>
+            <DialogDescription className="text-red-500 mt-4">
+              {poolError || posError}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <div
+        className={cn(
+          "bg-background w-full max-w-[760px] border rounded-md p-6 border-stroke",
+          "text-text",
+          className
+        )}
+      >
+        <Header onClose={onClose} chainId={chainId} />
+        <div className="flex gap-3 items-center mt-5">
+          <FromPool />
+          <CircleChevronRight className="text-primary w-8 h-8 p-1" />
+          <ToPool />
+        </div>
       </div>
-    </div>
+    </>
   );
 };

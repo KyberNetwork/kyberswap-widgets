@@ -141,7 +141,7 @@ export const pool = z.discriminatedUnion("dex", [
 export type Pool = z.infer<typeof pool>;
 
 const univ3Position = z.object({
-  liquidity: z.string(),
+  liquidity: z.bigint(),
   tickLower: z.number(),
   tickUpper: z.number(),
 });
