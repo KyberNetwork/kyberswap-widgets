@@ -3,15 +3,8 @@ import { decodeAddress, decodeInt24, decodeUint } from "./crypto";
 // Constants
 const Q96: bigint = 2n ** 96n; // 2^96 as BigInt
 
-// Function to convert sqrtPriceX96 to the actual price
-export function getPriceFromSqrtPriceX96(sqrtPriceX96: bigint): bigint {
-  // (sqrtPriceX96 / Q96) ^ 2
-  const ratio: bigint = (sqrtPriceX96 * sqrtPriceX96) / Q96;
-  return ratio; // This is already in BigInt format.
-}
-
 // Function to convert tick to sqrt(price)
-export function getSqrtPriceFromTick(tick: number): bigint {
+export function getSqrtPriceX96FromTick(tick: number): bigint {
   // 1.0001^tick, sqrt
   const base: number = 1.0001;
   const sqrtPrice: number = Math.sqrt(base ** tick);
@@ -80,18 +73,18 @@ export function decodePosition(rawData: string) {
   let hexData = rawData.slice(2);
 
   // Decode fields according to the ABI layout
-  const nonce = decodeUint(hexData.slice(0, 64)); // uint96: first 12 bytes (24 hex chars)
-  const operator = decodeAddress(hexData.slice(64, 128)); // address: next 32 bytes
-  const token0 = decodeAddress(hexData.slice(128, 192)); // address: next 32 bytes
-  const token1 = decodeAddress(hexData.slice(192, 256)); // address: next 32 bytes
-  const fee = parseInt(hexData.slice(144, 150), 16); // uint24: next 3 bytes (6 hex chars)
-  const tickLower = decodeInt24(hexData.slice(150, 156)); // int24: next 3 bytes (6 hex chars)
-  const tickUpper = decodeInt24(hexData.slice(156, 162)); // int24: next 3 bytes (6 hex chars)
-  const liquidity = decodeUint(hexData.slice(162, 194)); // uint128: next 16 bytes (32 hex chars)
-  const feeGrowthInside0LastX128 = decodeUint(hexData.slice(194, 258)); // uint256: next 32 bytes
-  const feeGrowthInside1LastX128 = decodeUint(hexData.slice(258, 322)); // uint256: next 32 bytes
-  const tokensOwed0 = decodeUint(hexData.slice(322, 354)); // uint128: next 16 bytes (32 hex chars)
-  const tokensOwed1 = decodeUint(hexData.slice(354, 386)); // uint128: next 16 bytes (32 hex chars)
+  const nonce = decodeUint(hexData.slice(0, 64)); // uint96: first 12 bytes and padding (64 hex chars)
+  const operator = decodeAddress(hexData.slice(64, 128)); // address: next 32 bytes (64 hex chars)
+  const token0 = decodeAddress(hexData.slice(128, 192)); // address: next 32 bytes (64 hex chars)
+  const token1 = decodeAddress(hexData.slice(192, 256)); // address: next 32 bytes (64 hex chars)
+  const fee = parseInt(hexData.slice(256, 320), 16); // uint24: next 32 bytes (64 hex chars)
+  const tickLower = decodeInt24(hexData.slice(320, 384));
+  const tickUpper = decodeInt24(hexData.slice(384, 448));
+  const liquidity = decodeUint(hexData.slice(448, 512));
+  const feeGrowthInside0LastX128 = decodeUint(hexData.slice(512, 576));
+  const feeGrowthInside1LastX128 = decodeUint(hexData.slice(576, 640));
+  const tokensOwed0 = decodeUint(hexData.slice(640, 704));
+  const tokensOwed1 = decodeUint(hexData.slice(704, 768));
 
   return {
     nonce,
