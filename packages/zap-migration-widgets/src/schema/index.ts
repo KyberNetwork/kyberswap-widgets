@@ -14,6 +14,7 @@ export const token = z.object({
   name: z.string(),
   decimals: z.number(),
   logo: z.string().optional(),
+  price: z.number().optional(),
 });
 
 export type Token = z.infer<typeof token>;
@@ -27,6 +28,7 @@ export const chain = z.object({
   nativeLogo: z.string(),
   wrappedToken: token,
   defaultRpc: z.string(),
+  pricePath: z.string(),
 });
 
 export enum Dex {

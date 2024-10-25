@@ -22,7 +22,8 @@
   "exports": {
     "./tailwind-helpers": "./src/tailwind-helpers.ts",
     "./uniswapv3": "./src/uniswapv3.ts",
-    "./crypto": "./src/crypto.ts"
+    "./crypto": "./src/crypto.ts",
+    "./number": "./src/number.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

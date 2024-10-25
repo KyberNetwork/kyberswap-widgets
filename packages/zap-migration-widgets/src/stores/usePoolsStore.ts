@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
 import { z } from "zod";
+import { NetworkInfo } from "../constants";
 
 interface GetPoolParams {
   chainId: ChainId;
@@ -114,18 +115,30 @@ export const usePoolsStore = create<PoolsState>((set) => ({
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      const enrichLogo = (token: Token) => {
+      const prices: { address: string; price: number; marketPrice: number }[] =
+        await fetch(
+          `https://price.kyberswap.com/${NetworkInfo[chainId].pricePath}/api/v1/prices?ids=${addresses}`
+        )
+          .then((res) => res.json())
+          .then((res) => res?.data?.prices || [])
+          .catch(() => []);
+
+      const enrichLogoAndPrice = (token: Token) => {
+        const price = prices.find(
+          (item) => item.address.toLowerCase() === token.address.toLowerCase()
+        );
         return {
           ...token,
           logo: tokens.find(
             (item) => item.address.toLowerCase() === token.address.toLowerCase()
           )?.logoURI,
+          price: price?.marketPrice || price?.price || token.price || 0,
         };
       };
 
       const pool0: Pool = {
-        token0: enrichLogo(fromPoolToken0),
-        token1: enrichLogo(fromPoolToken1),
+        token0: enrichLogoAndPrice(fromPoolToken0),
+        token1: enrichLogoAndPrice(fromPoolToken1),
         dex: dexFrom,
         fee: fromPool.swapFee,
         tick: fromPool.positionInfo.tick,
@@ -136,8 +149,8 @@ export const usePoolsStore = create<PoolsState>((set) => ({
       };
 
       const pool1: Pool = {
-        token0: enrichLogo(toPoolToken0),
-        token1: enrichLogo(toPoolToken1),
+        token0: enrichLogoAndPrice(toPoolToken0),
+        token1: enrichLogoAndPrice(toPoolToken1),
         dex: dexTo,
         fee: fromPool.swapFee,
         tick: fromPool.positionInfo.tick,

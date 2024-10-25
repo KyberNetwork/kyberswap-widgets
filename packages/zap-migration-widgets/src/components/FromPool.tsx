@@ -3,6 +3,21 @@ import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
 import { usePositionStore } from "../stores/useFromPositionStore";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+import {
+  formatDollarAmount,
+  formatTokenAmount,
+  toRawString,
+} from "@kyber/utils/number";
+
+export const LiquiditySkeleton = () => (
+  <>
+    <Skeleton className="w-16 h-5" />
+    <div className="flex flex-col items-end">
+      <Skeleton className="w-10 h-4" />
+      <Skeleton className="w-14 h-3 mt-1" />
+    </div>
+  </>
+);
 
 export function FromPool() {
   const { pools } = usePoolsStore();
@@ -19,7 +34,6 @@ export function FromPool() {
       position.liquidity
     ));
   }
-  console.log(amount0, amount1);
 
   return (
     <div className="flex-1 border border-stroke rounded-md px-4 py-3">
@@ -28,13 +42,7 @@ export function FromPool() {
       </div>
       <div className="mt-2 flex items-start justify-between">
         {pools === "loading" || position === "loading" ? (
-          <>
-            <Skeleton className="w-16 h-5" />
-            <div className="flex flex-col items-end">
-              <Skeleton className="w-10 h-4" />
-              <Skeleton className="w-14 h-3 mt-1" />
-            </div>
-          </>
+          <LiquiditySkeleton />
         ) : (
           <>
             <div className="flex gap-1 items-center">
@@ -45,9 +53,14 @@ export function FromPool() {
               />
               <span className="text-base">{pools[0].token0.symbol}</span>
             </div>
-            <div className="text-base">
-              256
-              <div className="text-subText text-xs">$123</div>
+            <div className="text-base flex flex-col items-end">
+              {formatTokenAmount(amount0, pools[0].token0.decimals, 10)}
+              <div className="text-subText text-xs">
+                {formatDollarAmount(
+                  (pools[0].token0.price || 0) *
+                    Number(toRawString(amount0, pools[0].token0.decimals))
+                )}
+              </div>
             </div>
           </>
         )}
@@ -55,26 +68,25 @@ export function FromPool() {
 
       <div className="mt-2 flex items-start justify-between">
         {pools === "loading" || position === "loading" ? (
-          <>
-            <Skeleton className="w-16 h-5" />
-            <div className="flex flex-col items-end">
-              <Skeleton className="w-10 h-4" />
-              <Skeleton className="w-14 h-3 mt-1" />
-            </div>
-          </>
+          <LiquiditySkeleton />
         ) : (
           <>
             <div className="flex gap-1 items-center">
               <Image
-                src={pools[1].token0.logo || ""}
-                alt={pools[1].token0.symbol}
+                src={pools[0].token1.logo || ""}
+                alt={pools[0].token1.symbol}
                 className="w-4 h-4"
               />
-              <span className="text-base">{pools[1].token0.symbol}</span>
+              <span className="text-base">{pools[0].token1.symbol}</span>
             </div>
-            <div className="text-base">
-              256
-              <div className="text-subText text-xs">$123</div>
+            <div className="text-base flex flex-col items-end">
+              {formatTokenAmount(amount1, pools[0].token1.decimals, 10)}
+              <div className="text-subText text-xs">
+                {formatDollarAmount(
+                  (pools[0].token1.price || 0) *
+                    Number(toRawString(amount1, pools[0].token1.decimals))
+                )}
+              </div>
             </div>
           </>
         )}

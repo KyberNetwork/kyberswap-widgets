@@ -28,7 +28,8 @@ const config: Omit<Config, "content"> = {
         dialog: "var(--ks-lw-dialog)",
         chartRange: "var(--ks-lw-chart-range)",
         chartArea: "var(--ks-lw-chart-area)",
-        succuss: "var(--ks-lw-success)",
+        success: "var(--ks-lw-success)",
+        "primary-20": "var(--ks-lw-accent-20)",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
         },

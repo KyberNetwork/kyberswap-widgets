@@ -17,6 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kyber/ui/dialog";
+import { SourcePoolState } from "./components/SourcePoolState";
+import { TargetPoolState } from "./components/TargetPoolState";
 
 export { Dex, ChainId };
 
@@ -48,6 +50,7 @@ ZapMigrationProps) => {
   const { getPools, error: poolError } = usePoolsStore();
   const { fetchPosition, error: posError } = usePositionStore();
 
+  // fetch position on load
   useEffect(() => {
     fetchPosition(from.dex, chainId, +from.positionId);
 
@@ -58,6 +61,7 @@ ZapMigrationProps) => {
     return () => clearInterval(interval);
   }, [chainId, from, from.dex]);
 
+  // fetch pool on load
   useEffect(() => {
     const params = {
       chainId,
@@ -76,7 +80,6 @@ ZapMigrationProps) => {
     return () => clearInterval(interval);
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex]);
 
-  console.log(poolError, posError, Boolean(poolError || posError));
   return (
     <>
       <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
@@ -102,6 +105,11 @@ ZapMigrationProps) => {
           <FromPool />
           <CircleChevronRight className="text-primary w-8 h-8 p-1" />
           <ToPool />
+        </div>
+
+        <div className="flex gap-[48px] mt-4">
+          <SourcePoolState />
+          <TargetPoolState />
         </div>
       </div>
     </>

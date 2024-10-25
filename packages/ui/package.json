@@ -29,9 +29,11 @@
     "./styles.css": "./dist/index.css",
     "./portal": "./src/portal.tsx",
     "./skeleton": "./src/components/ui/skeleton.tsx",
-    "./dialog": "./src/components/ui/dialog.tsx"
+    "./dialog": "./src/components/ui/dialog.tsx",
+    "./slider": "./src/components/ui/slider.tsx"
   },
   "dependencies": {
-    "@radix-ui/react-dialog": "^1.1.2"
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-slider": "^1.2.1"
   }
 }

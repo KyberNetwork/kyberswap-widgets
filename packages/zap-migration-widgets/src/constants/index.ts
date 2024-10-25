@@ -21,6 +21,7 @@ export const NetworkInfo: Record<ChainId, Chain> = {
       symbol: "WETH",
       decimals: 18,
     },
+    pricePath: "ethereum",
   },
   [ChainId.Bsc]: {
     chainId: ChainId.Bsc,
@@ -37,6 +38,7 @@ export const NetworkInfo: Record<ChainId, Chain> = {
       symbol: "WBNB",
       decimals: 18,
     },
+    pricePath: "bsc",
   },
   //137: {
   //  name: "Polygon POS",

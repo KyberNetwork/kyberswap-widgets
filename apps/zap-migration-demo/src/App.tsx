@@ -8,7 +8,7 @@ function App() {
       <div className="ks-demo-app-wrapper">
         <ZapMigration
           onClose={() => {
-            // close
+            window.location.reload();
           }}
           chainId={ChainId.Ethereum}
           from={{
