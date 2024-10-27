@@ -12,10 +12,10 @@ export function PoolInfo({
 }) {
   if (pool === "loading")
     return (
-      <>
+      <div className="ui-h-[62px]">
         <Skeleton className="w-[150px] h-6" />
-        <Skeleton className="w-[120px] h-5 mt-2.5" />
-      </>
+        <Skeleton className="w-[120px] h-5 mt-3" />
+      </div>
     );
   return (
     <>
@@ -29,12 +29,12 @@ export function PoolInfo({
           <Image
             src={pool.token1.logo || ""}
             alt={pool.token1.symbol}
-            className="w-6 h-6 -ml-3 z-10"
+            className="w-6 h-6 -ml-2 z-10"
           />
           <Image
             src={NetworkInfo[chainId].logo}
             alt={NetworkInfo[chainId].name}
-            className="w-3 h-3 -ml-2 z-20"
+            className="w-3 h-3 -ml-1.5 z-20"
           />
         </div>
         <div className="text-xl self-center">

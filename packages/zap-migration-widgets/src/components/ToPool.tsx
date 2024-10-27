@@ -14,8 +14,8 @@ export function ToPool() {
           <>
             <div className="flex gap-1 items-center">
               <Image
-                src={pools[0].token0.logo || ""}
-                alt={pools[0].token0.symbol}
+                src={pools[1].token0.logo || ""}
+                alt={pools[1].token0.symbol}
                 className="w-4 h-4"
               />
               <span className="text-base">{pools[1].token0.symbol}</span>

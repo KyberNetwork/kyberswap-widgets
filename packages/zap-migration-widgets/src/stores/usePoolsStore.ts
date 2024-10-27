@@ -152,12 +152,12 @@ export const usePoolsStore = create<PoolsState>((set) => ({
         token0: enrichLogoAndPrice(toPoolToken0),
         token1: enrichLogoAndPrice(toPoolToken1),
         dex: dexTo,
-        fee: fromPool.swapFee,
-        tick: fromPool.positionInfo.tick,
-        liquidity: fromPool.positionInfo.liquidity,
-        sqrtPriceX96: fromPool.positionInfo.sqrtPriceX96,
-        tickSpacing: fromPool.positionInfo.tickSpacing,
-        ticks: fromPool.positionInfo.ticks,
+        fee: toPool.swapFee,
+        tick: toPool.positionInfo.tick,
+        liquidity: toPool.positionInfo.liquidity,
+        sqrtPriceX96: toPool.positionInfo.sqrtPriceX96,
+        tickSpacing: toPool.positionInfo.tickSpacing,
+        ticks: toPool.positionInfo.ticks,
       };
 
       set({ pools: [pool0, pool1] });

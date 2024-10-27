@@ -1,4 +1,5 @@
 import { decodeAddress, decodeInt24, decodeUint } from "./crypto";
+import { divideBigIntToString } from "./number";
 
 const MaxUint256 = BigInt(
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
@@ -10,12 +11,14 @@ const MIN_TICK: number = -887272;
 const MAX_TICK: number = -MIN_TICK;
 
 const Q96: bigint = 2n ** 96n; // 2^96 as BigInt
-const Q32 = 2n ** 32n;
+const Q32: bigint = 2n ** 32n;
+const Q192: bigint = Q96 ** 2n;
 
 function mulShift(val: bigint, mulBy: string): bigint {
   return (val * BigInt(mulBy)) >> 128n;
 }
-// Function to convert tick to sqrt(price)
+
+// Function to convert tick to sqrt(price) Q96
 export function getSqrtRatioAtTick(tick: number): bigint {
   if (tick < MIN_TICK || tick > MAX_TICK || !Number.isInteger(tick)) {
     throw new Error("TICK must be within bounds MIN_TICK and MAX_TICK");
@@ -241,4 +244,21 @@ export function decodePosition(rawData: string) {
     tokensOwed0,
     tokensOwed1,
   };
+}
+
+export function tickToPrice(
+  tick: number,
+  baseDecimal: number,
+  quoteDecimal: number,
+  revert = false
+): string {
+  const sqrtRatioX96 = getSqrtRatioAtTick(tick);
+  const ratioX192 = sqrtRatioX96 * sqrtRatioX96; // 1.0001 ** tick * Q192
+
+  const numerator = ratioX192 * 10n ** BigInt(baseDecimal);
+  const denominator = Q192 * 10n ** BigInt(quoteDecimal);
+
+  return revert
+    ? divideBigIntToString(denominator, numerator, 18)
+    : divideBigIntToString(numerator, denominator, 18);
 }

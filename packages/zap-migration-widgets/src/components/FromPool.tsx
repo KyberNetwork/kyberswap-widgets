@@ -4,7 +4,7 @@ import { Image } from "./Image";
 import { usePositionStore } from "../stores/useFromPositionStore";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
-  formatDollarAmount,
+  formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
@@ -12,9 +12,9 @@ import {
 export const LiquiditySkeleton = () => (
   <>
     <Skeleton className="w-16 h-5" />
-    <div className="flex flex-col items-end">
-      <Skeleton className="w-10 h-4" />
-      <Skeleton className="w-14 h-3 mt-1" />
+    <div className="flex flex-col items-end h-[40px]">
+      <Skeleton className="w-20 h-4" />
+      <Skeleton className="w-10 h-3 mt-1" />
     </div>
   </>
 );
@@ -56,9 +56,10 @@ export function FromPool() {
             <div className="text-base flex flex-col items-end">
               {formatTokenAmount(amount0, pools[0].token0.decimals, 10)}
               <div className="text-subText text-xs">
-                {formatDollarAmount(
+                {formatDisplayNumber(
                   (pools[0].token0.price || 0) *
-                    Number(toRawString(amount0, pools[0].token0.decimals))
+                    Number(toRawString(amount0, pools[0].token0.decimals)),
+                  { style: "currency" }
                 )}
               </div>
             </div>
@@ -82,9 +83,10 @@ export function FromPool() {
             <div className="text-base flex flex-col items-end">
               {formatTokenAmount(amount1, pools[0].token1.decimals, 10)}
               <div className="text-subText text-xs">
-                {formatDollarAmount(
+                {formatDisplayNumber(
                   (pools[0].token1.price || 0) *
-                    Number(toRawString(amount1, pools[0].token1.decimals))
+                    Number(toRawString(amount1, pools[0].token1.decimals)),
+                  { style: "currency" }
                 )}
               </div>
             </div>
