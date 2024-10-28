@@ -17,6 +17,7 @@ const config: Omit<Config, "content"> = {
         background: "var(--ks-lw-layer1)",
         subText: "var(--ks-lw-subText)",
         text: "var(--ks-lw-text)",
+        textRevert: "var(--ks-lw-textRevert)",
         warning: {
           DEFAULT: "var(--ks-lw-warning)",
           200: "#ff990133",

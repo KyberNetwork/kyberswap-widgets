@@ -1,9 +1,29 @@
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
 import { LiquiditySkeleton } from "./FromPool";
+import { useZapStateStore } from "../stores/useZapStateStore";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+import {
+  formatDisplayNumber,
+  formatTokenAmount,
+  toRawString,
+} from "@kyber/utils/number";
 
 export function ToPool() {
   const { pools } = usePoolsStore();
+  const { tickUpper, tickLower, route } = useZapStateStore();
+
+  let amount0 = 0n;
+  let amount1 = 0n;
+  if (route !== null && tickLower !== null && tickUpper !== null) {
+    ({ amount0, amount1 } = getPositionAmounts(
+      route.poolDetails.uniswapV3.newTick,
+      tickLower,
+      tickUpper,
+      BigInt(route.poolDetails.uniswapV3.newSqrtP),
+      BigInt(route.positionDetails.addedLiquidity)
+    ));
+  }
 
   return (
     <div className="flex-1 border border-stroke rounded-md px-4 py-3">
@@ -23,8 +43,15 @@ export function ToPool() {
             </div>
 
             <div className="text-base flex flex-col items-end">
-              TODO
-              <div className="text-subText text-xs">$TODO</div>
+              {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
+              <div className="text-subText text-xs">
+                ~
+                {formatDisplayNumber(
+                  (pools[1].token0.price || 0) *
+                    Number(toRawString(amount0, pools[1].token0.decimals)),
+                  { style: "currency" }
+                )}
+              </div>
             </div>
           </>
         )}
@@ -45,8 +72,15 @@ export function ToPool() {
             </div>
 
             <div className="text-base flex flex-col items-end">
-              TODO
-              <div className="text-subText text-xs">$TODO</div>
+              {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
+              <div className="text-subText text-xs">
+                ~
+                {formatDisplayNumber(
+                  (pools[1].token1.price || 0) *
+                    Number(toRawString(amount1, pools[1].token1.decimals)),
+                  { style: "currency" }
+                )}
+              </div>
             </div>
           </>
         )}

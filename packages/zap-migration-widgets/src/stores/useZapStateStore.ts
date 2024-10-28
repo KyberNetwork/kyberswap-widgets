@@ -3,6 +3,7 @@ import { usePoolsStore } from "./usePoolsStore";
 import { usePositionStore } from "./useFromPositionStore";
 import { NetworkInfo } from "../constants";
 import { ChainId } from "..";
+import { z } from "zod";
 
 interface ZapState {
   liquidityOut: bigint;
@@ -12,6 +13,8 @@ interface ZapState {
   setTickUpper: (tickUpper: number) => void;
   setLiquidityOut: (liquidity: bigint) => void;
   fetchZapRoute: (chainId: ChainId) => Promise<void>;
+  fetchingRoute: boolean;
+  route: GetRouteResponse | null;
 }
 
 const ZAP_URL = "https://zap-api.kyberswap.com";
@@ -20,6 +23,8 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
   liquidityOut: 0n,
   tickLower: null,
   tickUpper: null,
+  fetchingRoute: false,
+  route: null,
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
@@ -37,6 +42,8 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
     )
       return;
 
+    set({ fetchingRoute: true });
+
     const params: { [key: string]: string | number | boolean } = {
       dexFrom: pools[0].dex,
       "poolFrom.id": pools[0].address,
@@ -52,13 +59,109 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       tmp = `${tmp}&${key}=${params[key]}`;
     });
 
-    // TODO: x-client-id
-    const res = await fetch(
-      `${ZAP_URL}/${
-        NetworkInfo[chainId].zapPath
-      }/api/v1/migrate/route?${tmp.slice(1)}`
-    ).then((res) => res.json());
+    try {
+      // TODO: x-client-id
+      const res = await fetch(
+        `${ZAP_URL}/${
+          NetworkInfo[chainId].zapPath
+        }/api/v1/migrate/route?${tmp.slice(1)}`
+      ).then((res) => res.json());
 
-    console.log(res);
+      apiResponse.parse(res.data);
+      set({ route: res.data, fetchingRoute: false });
+    } catch (e) {
+      console.log(e);
+      set({ fetchingRoute: false });
+    }
   },
 }));
+
+const token = z.object({
+  address: z.string(),
+  amount: z.string(),
+  amountUsd: z.string(),
+});
+
+const apiResponse = z.object({
+  poolDetails: z.object({
+    category: z.string(), // TODO: "exotic_pair",
+    uniswapV3: z.object({
+      tick: z.number(),
+      newTick: z.number(),
+      sqrtP: z.string(),
+      newSqrtP: z.string(),
+    }),
+  }),
+
+  positionDetails: z.object({
+    addedLiquidity: z.string(),
+    addedAmountUsd: z.string(),
+  }),
+
+  zapDetails: z.object({
+    initialAmountUsd: z.string(),
+    actions: z.array(
+      z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
+          removeLiquidity: z.object({
+            tokens: z.array(token),
+          }),
+        }),
+        z.object({
+          type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+          protocolFee: z.object({
+            pcm: z.number(),
+            tokens: z.array(token),
+          }),
+        }),
+
+        z.object({
+          type: z.literal("ACTION_TYPE_AGGREGATOR_SWAP"),
+          aggregatorSwap: z.object({
+            swaps: z.array(
+              z.object({
+                tokenIn: token,
+                tokenOut: token,
+              })
+            ),
+          }),
+        }),
+
+        z.object({
+          type: z.literal("ACTION_TYPE_POOL_SWAP"),
+          poolSwap: z.object({
+            swaps: z.array(
+              z.object({
+                tokenIn: token,
+                tokenOut: token,
+              })
+            ),
+          }),
+        }),
+
+        z.object({
+          type: z.literal("ACTION_TYPE_ADD_LIQUIDITY"),
+          addLiquidity: z.object({
+            token0: token,
+            token1: token,
+          }),
+        }),
+
+        z.object({
+          type: z.literal("ACTION_TYPE_REFUND"),
+          refund: z.object({
+            tokens: z.array(token),
+          }),
+        }),
+      ])
+    ),
+
+    finalAmountUsd: z.string(),
+    priceImpact: z.number(),
+  }),
+  route: z.string(),
+  routerAddress: z.string(),
+});
+
+type GetRouteResponse = z.infer<typeof apiResponse>;
