@@ -1,20 +1,16 @@
 import { Token } from "@/entities/Pool";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { shortenAddress } from "./utils";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { CircleCheckBig } from "lucide-react";
 import useMarketTokenInfo from "@/components/TokenInfo/useMarketTokenInfo";
 import IconZiczac from "@/assets/svg/ziczac.svg";
 import LogoCoingecko from "@/assets/svg/coingecko.svg";
 import IconDown from "@/assets/svg/down.svg";
-import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import Loader from "@/components/LiquidityChartRangeInput/Loader";
-
-const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+import useCopy from "@/hooks/useCopy";
 
 const MarketInfo = ({ token }: { token: Token }) => {
   const { theme } = useWidgetInfo();
@@ -30,29 +26,16 @@ const MarketInfo = ({ token }: { token: Token }) => {
       ).toLowerCase(),
     [token, chainId]
   );
+  const Copy = useCopy({
+    text: tokenAddress,
+    copyClassName: "w-3 h-3 text-text hover:text-subText",
+    successClassName: "w-3 h-3",
+  });
 
   const { marketTokenInfo, loading } = useMarketTokenInfo(tokenAddress);
   const [expand, setExpand] = useState<boolean>(false);
-  const [copied, setCopied] = useState(false);
 
   const handleChangeExpand = () => setExpand((prev) => !prev);
-
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(tokenAddress);
-      setCopied(true);
-    }
-  };
-
-  useEffect(() => {
-    if (copied) {
-      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
-    }
-
-    return () => {
-      clearTimeout(hideCopied);
-    };
-  }, [copied]);
 
   return (
     <>
@@ -107,14 +90,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
                   }}
                 />
                 <span>{shortenAddress(chainId, tokenAddress, 3)}</span>
-                {!copied ? (
-                  <IconCopy
-                    className="w-3 h-3 hover:text-subText cursor-pointer"
-                    onClick={handleCopy}
-                  />
-                ) : (
-                  <CircleCheckBig className="w-3 h-3 text-accent" />
-                )}
+                {Copy}
               </>
             ) : (
               <Loader className="animate-spin w-[10px] h-[10px]" />

@@ -35,8 +35,6 @@ import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
 import { formatDisplayNumber } from "@/utils/number";
-import { CircleCheckBig } from "lucide-react";
-import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useTokenList } from "@/hooks/useTokenList";
 import {
@@ -45,6 +43,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import useCopy from "@/hooks/useCopy";
 
 export interface ZapState {
   pool: PoolAdapter;
@@ -65,9 +64,6 @@ export interface PreviewProps {
   onDismiss: () => void;
   onTxSubmit?: (tx: string) => void;
 }
-
-const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
 
 function calculateGasMargin(value: BigNumber): BigNumber {
   const defaultGasLimitMargin = BigNumber.from(20_000);
@@ -104,13 +100,13 @@ export default function Preview({
     tokensInUsdPrice,
   } = useZapState();
   const { allTokens } = useTokenList();
+  const Copy = useCopy({ text: poolAddress });
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
@@ -340,13 +336,6 @@ export default function Preview({
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(poolAddress);
-      setCopied(true);
-    }
-  };
-
   useEffect(() => {
     fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
       method: "POST",
@@ -391,16 +380,6 @@ export default function Preview({
         }
       });
   }, [account, chainId, deadline, provider, source, zapInfo.route]);
-
-  useEffect(() => {
-    if (copied) {
-      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
-    }
-
-    return () => {
-      clearTimeout(hideCopied);
-    };
-  }, [copied]);
 
   const handleClick = async () => {
     setAttempTx(true);
@@ -601,15 +580,7 @@ export default function Preview({
 
         <div>
           <div className="flex items-center gap-2">
-            {pool.token0.symbol}/{pool.token1.symbol}{" "}
-            {!copied ? (
-              <IconCopy
-                className="w-3 h-3 text-subText cursor-pointer"
-                onClick={handleCopy}
-              />
-            ) : (
-              <CircleCheckBig className="w-3 h-3 text-accent" />
-            )}
+            {pool.token0.symbol}/{pool.token1.symbol} {Copy}
           </div>
           <div className="pool-info mt-[2px]">
             <div className="tag tag-default">Fee {pool.fee / 10_000}%</div>

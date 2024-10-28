@@ -129,10 +129,17 @@
         }
       }
     }
+  }
+
+  .right {
+    flex: 1;
+    width: 50%;
+
+    @media screen and (max-width: 666px) {
+      width: 100%;
+    }
 
     .liquidity-to-add {
-      margin-top: 1rem;
-
       .note {
         color: var(--ks-lw-subText);
         font-style: italic;
@@ -240,15 +247,6 @@
           }
         }
       }
-    }
-  }
-
-  .right {
-    flex: 1;
-    width: 50%;
-
-    @media screen and (max-width: 666px) {
-      width: 100%;
     }
 
     .price-warning {

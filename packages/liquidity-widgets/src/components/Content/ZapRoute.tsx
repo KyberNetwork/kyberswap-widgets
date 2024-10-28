@@ -7,14 +7,23 @@ import {
   ZapAction,
 } from "../../hooks/types/zapInTypes";
 import { formatWei, getDexName } from "../../utils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTokenList } from "../../hooks/useTokenList";
 import { Token } from "@/entities/Pool";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function ZapRoute() {
   const { zapInfo } = useZapState();
   const { pool, poolType } = useWidgetInfo();
   const { allTokens } = useTokenList();
+  const [expanded, setExpanded] = useState(true);
+
+  const onExpand = () => setExpanded((prev) => !prev);
 
   const swapInfo = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -88,32 +97,58 @@ export default function ZapRoute() {
   ]);
 
   return (
-    <div className="zap-route mb-4">
-      <div className="title">Zap Summary</div>
-      <div className="subTitle">
-        The actual Zap Routes could be adjusted with on-chain states
-      </div>
-      <div className="divider mt-1" />
+    <>
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full mt-4"
+        value={expanded ? "item-1" : ""}
+      >
+        <AccordionItem value="item-1">
+          <AccordionTrigger
+            className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
+              expanded ? "rounded-b-none border-b-0 pb-1" : ""
+            }`}
+            onClick={onExpand}
+          >
+            Zap Summary
+          </AccordionTrigger>
+          <AccordionContent className="px-4 pb-4 pt-0 border border-stroke border-t-0 rounded-b-md">
+            <p className="text-subText text-xs italic">
+              The actual Zap Routes could be adjusted with on-chain states
+            </p>
 
-      {swapInfo.map((item, index) => (
-        <div className="row" key={index}>
-          <div className="step">{index + 1}</div>
-          <div className="text">
-            Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
-            {item.tokenOutSymbol} via{" "}
-            <span className="font-medium text-text">{item.pool}</span>
-          </div>
-        </div>
-      ))}
+            <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
-      <div className="row">
-        <div className="step">{swapInfo.length + 1}</div>
-        <div className="text">
-          Build LP using {addedLiquidityInfo.addedAmount0} {pool?.token0.symbol}{" "}
-          and {addedLiquidityInfo.addedAmount1} {pool?.token1.symbol} on{" "}
-          <span className="font-medium text-text">{getDexName(poolType)}</span>
-        </div>
-      </div>
-    </div>
+            {swapInfo.map((item, index) => (
+              <div className="flex gap-3 items-center mt-3 text-xs" key={index}>
+                <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">
+                  {index + 1}
+                </div>
+                <div className="flex-1 text-subText leading-4">
+                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
+                  {item.tokenOutSymbol} via{" "}
+                  <span className="font-medium text-text">{item.pool}</span>
+                </div>
+              </div>
+            ))}
+
+            <div className="flex gap-3 items-center text-xs mt-3">
+              <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">
+                {swapInfo.length + 1}
+              </div>
+              <div className="flex-1 text-subText leading-4">
+                Build LP using {addedLiquidityInfo.addedAmount0}{" "}
+                {pool?.token0.symbol} and {addedLiquidityInfo.addedAmount1}{" "}
+                {pool?.token1.symbol} on{" "}
+                <span className="font-medium text-text">
+                  {getDexName(poolType)}
+                </span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </>
   );
 }

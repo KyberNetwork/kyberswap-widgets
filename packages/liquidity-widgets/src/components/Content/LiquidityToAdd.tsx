@@ -7,7 +7,7 @@ import DropdownIcon from "@/assets/svg/dropdown.svg";
 import { formatUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
-import { X } from "lucide-react";
+import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
 
@@ -165,7 +165,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             className="text-subText cursor-pointer hover:text-text w-fit absolute top-[-16px] right-[3px] brightness-75"
             onClick={onClickRemoveToken}
           >
-            <X size={14} />
+            <X className="w-[14px] h-[14px]" />
           </div>
         ) : null}
       </div>
