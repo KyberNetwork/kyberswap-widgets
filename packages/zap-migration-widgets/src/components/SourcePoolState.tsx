@@ -1,7 +1,7 @@
 import { Skeleton } from "@kyber/ui/skeleton";
 import { Slider } from "@kyber/ui/slider";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
 import { usePositionStore } from "../stores/useFromPositionStore";
@@ -11,12 +11,20 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
+import { useZapStateStore } from "../stores/useZapStateStore";
 
 export function SourcePoolState() {
   const { pools } = usePoolsStore();
   const { position } = usePositionStore();
 
+  const { liquidityOut, setLiquidityOut } = useZapStateStore();
+
   const [percent, setPercent] = useState(100);
+
+  useEffect(() => {
+    if (position === "loading") return;
+    setLiquidityOut((position.liquidity * BigInt(percent)) / BigInt(100));
+  }, [percent, position]);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -26,7 +34,7 @@ export function SourcePoolState() {
       position.tickLower,
       position.tickUpper,
       BigInt(pools[0].sqrtPriceX96),
-      (position.liquidity * BigInt(percent)) / BigInt(100)
+      liquidityOut
     ));
   }
 

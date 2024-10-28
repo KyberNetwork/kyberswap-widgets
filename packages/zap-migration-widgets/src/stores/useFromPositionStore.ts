@@ -56,6 +56,7 @@ export const usePositionStore = create<{
       const data = decodePosition(result);
       set({
         position: {
+          id: positionId,
           dex,
           liquidity: data.liquidity,
           tickLower: data.tickLower,

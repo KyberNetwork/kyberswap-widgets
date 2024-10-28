@@ -3,6 +3,7 @@ import { usePoolsStore } from "../stores/usePoolsStore";
 import {
   MAX_TICK,
   MIN_TICK,
+  nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
@@ -22,29 +23,50 @@ export function TargetPoolState() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
+  const isMinTick =
+    pool !== "loading" &&
+    tickLower === nearestUsableTick(MIN_TICK, pool.tickSpacing);
+  const isMaxTick =
+    pool !== "loading" &&
+    tickUpper === nearestUsableTick(MAX_TICK, pool.tickSpacing);
+
   useEffect(() => {
     if (pool !== "loading" && tickUpper)
       setMaxPrice(
-        (+tickToPrice(
-          tickUpper,
-          pool.token0.decimals,
-          pool.token1.decimals,
-          revertDisplay
-        )).toFixed(6)
+        isMaxTick
+          ? revertDisplay
+            ? "0"
+            : "∞"
+          : formatDisplayNumber(
+              +tickToPrice(
+                tickUpper,
+                pool.token0.decimals,
+                pool.token1.decimals,
+                revertDisplay
+              ),
+              { significantDigits: 8 }
+            )
       );
-  }, [tickUpper, pool, revertDisplay]);
+  }, [tickUpper, pool, revertDisplay, isMaxTick]);
 
   useEffect(() => {
     if (pool !== "loading" && tickLower)
       setMinPrice(
-        (+tickToPrice(
-          tickLower,
-          pool.token0.decimals,
-          pool.token1.decimals,
-          revertDisplay
-        )).toFixed(6)
+        isMinTick
+          ? revertDisplay
+            ? "∞"
+            : "0"
+          : formatDisplayNumber(
+              +tickToPrice(
+                tickLower,
+                pool.token0.decimals,
+                pool.token1.decimals,
+                revertDisplay
+              ),
+              { significantDigits: 8 }
+            )
       );
-  }, [tickLower, pool, revertDisplay]);
+  }, [tickLower, pool, revertDisplay, isMinTick]);
 
   const priceLabel =
     pool === "loading" ? (
@@ -55,6 +77,46 @@ export function TargetPoolState() {
         {revertDisplay ? pool.token1.symbol : pool.token0.symbol}
       </>
     );
+
+  const poolTick =
+    pool === "loading"
+      ? undefined
+      : pool.tick % pool.tickSpacing === 0
+      ? pool.tick
+      : nearestUsableTick(pool.tick, pool.tickSpacing);
+
+  const increaseTickLower = () => {
+    if (pool === "loading" || poolTick === undefined) return;
+    const newTick =
+      tickLower !== null
+        ? tickLower + pool.tickSpacing
+        : poolTick + pool.tickSpacing;
+    if (newTick <= MAX_TICK) setTickLower(newTick);
+  };
+
+  const increaseTickUpper = () => {
+    if (pool === "loading" || poolTick === undefined) return;
+    const newTick =
+      tickUpper !== null
+        ? tickUpper + pool.tickSpacing
+        : poolTick + pool.tickSpacing;
+    if (newTick <= MAX_TICK) setTickUpper(newTick);
+  };
+
+  const decreaseTickLower = () => {
+    if (pool === "loading" || poolTick === undefined) return;
+    const newTick =
+      (tickLower !== null ? tickLower : pool.tick) - pool.tickSpacing;
+
+    if (newTick >= MIN_TICK) setTickLower(newTick);
+  };
+  const decreaseTickUpper = () => {
+    if (pool === "loading" || poolTick === undefined) return;
+    const newTick =
+      (tickUpper !== null ? tickUpper : poolTick) - pool.tickSpacing;
+
+    if (newTick >= MIN_TICK) setTickUpper(newTick);
+  };
 
   return (
     <div className="flex-1">
@@ -93,6 +155,40 @@ export function TargetPoolState() {
               "border rounded-full border-stroke px-3 py-1 flex items-center justify-center",
               percent === 100 ? "w-max-content" : "flex-1"
             )}
+            onClick={() => {
+              if (pool === "loading") return;
+              if (percent === 100) {
+                setTickUpper(nearestUsableTick(MAX_TICK, pool.tickSpacing));
+                setTickLower(nearestUsableTick(MIN_TICK, pool.tickSpacing));
+                return;
+              }
+
+              const currentPrice = tickToPrice(
+                pool.tick,
+                pool.token0.decimals,
+                pool.token1.decimals,
+                false
+              );
+              if (!currentPrice) return;
+
+              const lower = priceToClosestTick(
+                (+currentPrice * (1 - percent / 100)).toString(),
+                pool.token0.decimals,
+                pool.token1.decimals,
+                false
+              );
+              const upper = priceToClosestTick(
+                (+currentPrice * (1 + percent / 100)).toString(),
+                pool.token0.decimals,
+                pool.token1.decimals,
+                false
+              );
+
+              if (lower)
+                setTickLower(nearestUsableTick(lower, pool.tickSpacing));
+              if (upper)
+                setTickUpper(nearestUsableTick(upper, pool.tickSpacing));
+            }}
           >
             {percent === 100 ? "Full Range" : `${percent}%`}
           </button>
@@ -113,7 +209,7 @@ export function TargetPoolState() {
               placeholder="0.0"
               minLength={1}
               maxLength={79}
-              value={minPrice}
+              value={revertDisplay ? maxPrice : minPrice}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, ".");
                 const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
@@ -121,7 +217,7 @@ export function TargetPoolState() {
                   value === "" ||
                   inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
                 ) {
-                  setMinPrice(value);
+                  revertDisplay ? setMaxPrice(value) : setMinPrice(value);
                 }
               }}
               onBlur={(e) => {
@@ -133,15 +229,11 @@ export function TargetPoolState() {
                   revertDisplay
                 );
                 if (tick !== undefined) {
-                  setTickLower(tick);
-                  setMinPrice(
-                    (+tickToPrice(
-                      tick,
-                      pool.token0.decimals,
-                      pool.token1.decimals,
-                      revertDisplay
-                    )).toFixed(6)
-                  );
+                  const t =
+                    tick % pool.tickSpacing === 0
+                      ? tick
+                      : nearestUsableTick(tick, pool.tickSpacing);
+                  revertDisplay ? setTickUpper(t) : setTickLower(t);
                 }
               }}
             />
@@ -150,22 +242,20 @@ export function TargetPoolState() {
 
           <div className="flex flex-col gap-3">
             <button
-              className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center"
+              className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
               onClick={() => {
-                if (pool === "loading") return;
-                const newTick = (tickLower || pool.tick) + pool.tickSpacing;
-                if (newTick <= MAX_TICK) setTickLower(newTick);
+                revertDisplay ? decreaseTickUpper() : increaseTickLower();
               }}
+              disabled={revertDisplay ? isMaxTick : isMinTick}
             >
               +
             </button>
             <button
-              className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center"
+              className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
               onClick={() => {
-                if (pool === "loading") return;
-                const newTick = (tickLower || pool.tick) - pool.tickSpacing;
-                if (newTick >= MIN_TICK) setTickLower(newTick);
+                revertDisplay ? increaseTickUpper() : decreaseTickLower();
               }}
+              disabled={revertDisplay ? isMaxTick : isMinTick}
             >
               -
             </button>
@@ -187,7 +277,7 @@ export function TargetPoolState() {
               placeholder="0.0"
               minLength={1}
               maxLength={79}
-              value={maxPrice}
+              value={revertDisplay ? minPrice : maxPrice}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, ".");
                 const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
@@ -195,7 +285,7 @@ export function TargetPoolState() {
                   value === "" ||
                   inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
                 ) {
-                  setMaxPrice(value);
+                  revertDisplay ? setMinPrice(value) : setMaxPrice(value);
                 }
               }}
               onBlur={(e) => {
@@ -207,7 +297,11 @@ export function TargetPoolState() {
                   revertDisplay
                 );
                 if (tick !== undefined) {
-                  setTickUpper(tick);
+                  const t =
+                    tick % pool.tickSpacing === 0
+                      ? tick
+                      : nearestUsableTick(tick, pool.tickSpacing);
+                  revertDisplay ? setTickLower(t) : setTickUpper(t);
                 }
               }}
             />
@@ -215,10 +309,22 @@ export function TargetPoolState() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <button className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center">
+            <button
+              className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
+              onClick={() => {
+                revertDisplay ? decreaseTickLower() : increaseTickUpper();
+              }}
+              disabled={!revertDisplay ? isMaxTick : isMinTick}
+            >
               +
             </button>
-            <button className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center">
+            <button
+              className="border border-stroke w-6 h-6 rounded-[6px] text-[20px] flex items-center justify-center disabled:cursor-not-allowed"
+              onClick={() => {
+                revertDisplay ? increaseTickLower() : decreaseTickUpper();
+              }}
+              disabled={!revertDisplay ? isMaxTick : isMinTick}
+            >
               -
             </button>
           </div>

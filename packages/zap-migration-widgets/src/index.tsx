@@ -19,6 +19,7 @@ import {
 } from "@kyber/ui/dialog";
 import { SourcePoolState } from "./components/SourcePoolState";
 import { TargetPoolState } from "./components/TargetPoolState";
+import { EstimateLiqValue } from "./components/EstimateLiqValue";
 
 export { Dex, ChainId };
 
@@ -56,7 +57,7 @@ ZapMigrationProps) => {
 
     const interval = setInterval(() => {
       fetchPosition(from.dex, chainId, +from.positionId);
-    }, 10_000);
+    }, 15_000);
 
     return () => clearInterval(interval);
   }, [chainId, from, from.dex]);
@@ -75,7 +76,7 @@ ZapMigrationProps) => {
     // refresh pools every 10s
     const interval = setInterval(() => {
       getPools(params);
-    }, 10_000);
+    }, 15_000);
 
     return () => clearInterval(interval);
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex]);
@@ -111,6 +112,7 @@ ZapMigrationProps) => {
           <SourcePoolState />
           <TargetPoolState />
         </div>
+        <EstimateLiqValue chainId={chainId} />
       </div>
     </>
   );

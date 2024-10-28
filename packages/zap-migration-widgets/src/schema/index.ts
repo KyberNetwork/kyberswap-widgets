@@ -29,6 +29,7 @@ export const chain = z.object({
   wrappedToken: token,
   defaultRpc: z.string(),
   pricePath: z.string(),
+  zapPath: z.string(),
 });
 
 export enum Dex {
@@ -120,6 +121,7 @@ export const tick = z.object({
 export type Tick = z.infer<typeof tick>;
 
 const univ3PoolCommonField = z.object({
+  address: z.string(),
   token0: token,
   token1: token,
   fee: z.number(),
@@ -143,6 +145,7 @@ export const pool = z.discriminatedUnion("dex", [
 export type Pool = z.infer<typeof pool>;
 
 const univ3Position = z.object({
+  id: z.number(),
   liquidity: z.bigint(),
   tickLower: z.number(),
   tickUpper: z.number(),

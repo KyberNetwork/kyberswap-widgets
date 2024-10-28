@@ -22,6 +22,7 @@ export const NetworkInfo: Record<ChainId, Chain> = {
       decimals: 18,
     },
     pricePath: "ethereum",
+    zapPath: "ethereum",
   },
   [ChainId.Bsc]: {
     chainId: ChainId.Bsc,
@@ -39,6 +40,7 @@ export const NetworkInfo: Record<ChainId, Chain> = {
       decimals: 18,
     },
     pricePath: "bsc",
+    zapPath: "bsc",
   },
   //137: {
   //  name: "Polygon POS",

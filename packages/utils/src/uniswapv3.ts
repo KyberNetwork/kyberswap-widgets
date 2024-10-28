@@ -368,10 +368,13 @@ export function priceToClosestTick(
   const decimals = fraction?.length ?? 0;
   const withoutDecimals = BigInt((whole ?? "") + (fraction ?? ""));
 
-  const denominator = BigInt(10 ** decimals) * 10n ** BigInt(token0Decimal);
-  const numerator = withoutDecimals * 10n ** BigInt(token1Decimal);
-  console.log(denominator, numerator);
+  const denominator =
+    BigInt(10 ** decimals) *
+    10n ** BigInt(revert ? token1Decimal : token0Decimal);
+  const numerator =
+    withoutDecimals * 10n ** BigInt(revert ? token0Decimal : token1Decimal);
 
+  //const sqrtRatioX96 = encodeSqrtRatioX96(numerator, denominator);
   const sqrtRatioX96 = !revert
     ? encodeSqrtRatioX96(numerator, denominator)
     : encodeSqrtRatioX96(denominator, numerator);
@@ -392,4 +395,15 @@ export function priceToClosestTick(
     tick++;
   }
   return tick;
+}
+
+export function nearestUsableTick(tick: number, tickSpacing: number) {
+  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing))
+    throw new Error("INTEGERS");
+  if (tickSpacing <= 0) throw new Error("TICK_SPACING");
+  if (tick < MIN_TICK || tick > MAX_TICK) throw new Error("TICK_BOUND");
+  const rounded = Math.round(tick / tickSpacing) * tickSpacing;
+  if (rounded < MIN_TICK) return rounded + tickSpacing;
+  if (rounded > MAX_TICK) return rounded - tickSpacing;
+  return rounded;
 }

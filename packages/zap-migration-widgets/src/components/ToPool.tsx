@@ -4,6 +4,7 @@ import { LiquiditySkeleton } from "./FromPool";
 
 export function ToPool() {
   const { pools } = usePoolsStore();
+
   return (
     <div className="flex-1 border border-stroke rounded-md px-4 py-3">
       <div className="text-subText text-sm">Your New Position Liquidity</div>
