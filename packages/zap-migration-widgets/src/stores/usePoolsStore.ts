@@ -59,7 +59,7 @@ const poolResponse = z.object({
   }),
 });
 
-export const usePoolsStore = create<PoolsState>((set) => ({
+export const usePoolsStore = create<PoolsState>((set, get) => ({
   pools: "loading",
   error: "",
   getPools: async ({
@@ -74,8 +74,10 @@ export const usePoolsStore = create<PoolsState>((set) => ({
         `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse(res);
+
+      const firstLoad = get().pools === "loading";
       if (!success) {
-        set({ error: `Can't get pool info ${error.toString()}` });
+        firstLoad && set({ error: `Can't get pool info ${error.toString()}` });
         return;
       }
 
@@ -86,11 +88,11 @@ export const usePoolsStore = create<PoolsState>((set) => ({
         (item) => item.address.toLowerCase() === poolTo.toLowerCase()
       );
       if (!fromPool) {
-        set({ error: `Can't get pool info, addres: ${fromPool}` });
+        firstLoad && set({ error: `Can't get pool info, addres: ${fromPool}` });
         return;
       }
       if (!toPool) {
-        set({ error: `Can't get pool info, addres: ${toPool}` });
+        firstLoad && set({ error: `Can't get pool info, addres: ${toPool}` });
         return;
       }
 
@@ -160,9 +162,9 @@ export const usePoolsStore = create<PoolsState>((set) => ({
         ticks: toPool.positionInfo.ticks,
       };
 
-      set({ pools: [pool0, pool1] });
+      set({ pools: [pool0, pool1], error: "" });
     } catch (e) {
-      set({ error: "Can't get pool info" });
+      if (get().pools === "loading") set({ error: "Can't get pool info" });
     }
   },
 }));

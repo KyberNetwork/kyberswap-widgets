@@ -4,6 +4,8 @@ interface ZapState {
   liquidityOut: bigint;
   tickLower: number | null;
   tickUpper: number | null;
+  setTickLower: (tickLower: number) => void;
+  setTickUpper: (tickUpper: number) => void;
 }
 
 export const useZapStateStore = create<ZapState>((set) => ({

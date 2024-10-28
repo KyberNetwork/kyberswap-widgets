@@ -16,7 +16,7 @@ export function SourcePoolState() {
   const { pools } = usePoolsStore();
   const { position } = usePositionStore();
 
-  const [percent, setPercent] = useState(0);
+  const [percent, setPercent] = useState(100);
 
   let amount0 = 0n;
   let amount1 = 0n;
