@@ -1,4 +1,3 @@
-import "./Header.scss";
 import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
@@ -8,10 +7,17 @@ import { useZapState } from "../../hooks/useZapInState";
 import { MouseoverTooltip } from "../Tooltip";
 import { useWidgetContext } from "@/stores/widget";
 import { univ3PoolNormalize, univ3Position } from "@/schema";
+import { shortenAddress } from "../TokenInfo/utils";
+import useCopy from "@/hooks/useCopy";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
-  const { chainId, pool, poolType, positionId, position, theme } =
+  const { chainId, pool, poolType, positionId, position, theme, poolAddress } =
     useWidgetContext((s) => s);
+
+    const Copy = useCopy({
+      text: poolAddress,
+      copyClassName: "!text-[#027BC7] hover:brightness-125",
+    });
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -37,9 +43,9 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
   return (
     <>
-      <div className="ks-lw-title">
+      <div className="flex text-xl font-medium justify-between items-center">
         <div className="flex items-center gap-[6px]">
-          {positionId !== undefined ? "Increase Liquidity" : "Zap in"}{" "}
+          {positionId !== undefined ? "Increase" : "Add"} Liquidity{" "}
           {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
             <>
@@ -54,20 +60,25 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
                   }33`,
                 }}
               >
-                {isOutOfRange ? "● Out of range" : "Active"}
+                {isOutOfRange ? "● Out of range" : "● In range"}
               </div>
             </>
           )}
         </div>
-        <div className="close-btn" role="button" onClick={onDismiss}>
+        <div
+          className="cursor-pointer text-subText"
+          role="button"
+          onClick={onDismiss}
+        >
           <X />
         </div>
       </div>
-      <div className="ks-lw-header">
-        <div className="pool-info">
-          <div className="pool-tokens-logo">
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center flex-wrap gap-1 text-sm">
+          <div className="flex items-end">
             <img
               src={token0.logo}
+              className="rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
               alt="token0 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -76,6 +87,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             />
             <img
               src={token1.logo}
+              className="ml-[-6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
               alt="token1 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -83,7 +95,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               }}
             />
             <img
-              className="network-logo"
+              className="ml-[-4px] rounded-full w-[14px] h-[14px] border-[2px] border-layer1"
               src={NetworkInfo[chainId].logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -92,15 +104,18 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             />
           </div>
 
-          <span className="symbol">
+          <span className="text-xl">
             {token0.symbol}/{token1.symbol}
           </span>
 
-          <div className="dex-type">
-            <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
-              Fee {fee}%
+          <div className="flex ml-[2px] gap-[6px] text-subText items-center">
+            <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
+            Fee {fee}%
             </div>
-            <span className="divide">|</span>
+            <div className="rounded-full text-xs bg-layer2 text-[#027BC7] px-3 py-1 flex gap-1">
+              {shortenAddress(chainId, poolAddress, 4)}
+              {Copy}
+            </div>
             <img
               src={logo}
               width={16}
@@ -111,13 +126,13 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
                 currentTarget.src = defaultTokenLogo;
               }}
             />
-            <span>{name}</span>
+            <span className="relative top-[-1=px]">{name}</span>
           </div>
         </div>
 
         <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
           <div
-            className="setting"
+            className="w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95"
             role="button"
             onClick={(e) => {
               e.stopPropagation();

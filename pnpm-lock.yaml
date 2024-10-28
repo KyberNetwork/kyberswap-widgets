@@ -384,9 +384,6 @@ importers:
       lodash.partition:
         specifier: ^4.6.0
         version: 4.6.0
-      lucide-react:
-        specifier: ^0.453.0
-        version: 0.453.0(react@18.3.1)
       numeral:
         specifier: ^2.0.6
         version: 2.0.6
@@ -12529,14 +12526,6 @@ packages:
     resolution: {integrity: sha512-BpdYkt9EvGl8OfWHDQPISVpcl5xZthb+XPsbELj5AQXxIC8IriDZIQYjBJPEm5rS420sjZ0TLEzRcq5KdBhYrQ==}
     dependencies:
       es5-ext: 0.10.64
-    dev: false
-
-  /lucide-react@0.453.0(react@18.3.1):
-    resolution: {integrity: sha512-kL+RGZCcJi9BvJtzg2kshO192Ddy9hv3ij+cPrVPWSRzgCWCVazoQJxOjAwgK53NomL07HB7GPHW120FimjNhQ==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
-    dependencies:
-      react: 18.3.1
     dev: false
 
   /magic-string@0.26.7:

@@ -30,8 +30,6 @@ import { useEffect, useMemo, useState } from "react";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
-import { CircleCheckBig } from "lucide-react";
-import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import {
   Accordion,
@@ -53,6 +51,7 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
+import useCopy from "@/hooks/useCopy";
 
 export interface ZapState {
   pool: Pool;
@@ -72,9 +71,6 @@ export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
 }
-
-const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
 
 export default function Preview({
   zapState: {
@@ -112,13 +108,13 @@ export default function Preview({
   } = useZapState();
 
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
+  const Copy = useCopy({ text: poolAddress });
 
   const [txHash, setTxHash] = useState("");
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
@@ -369,13 +365,6 @@ export default function Preview({
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(poolAddress);
-      setCopied(true);
-    }
-  };
-
   const rpcUrl = NetworkInfo[chainId].defaultRpc;
 
   useEffect(() => {
@@ -407,7 +396,7 @@ export default function Preview({
               await Promise.all([
                 estimateGas(rpcUrl, txData),
                 fetchPrices([wethAddress])
-                  .then((prices) => {
+                  .then((prices: { [x: string]: { PriceBuy: number; }; }) => {
                     return prices[wethAddress]?.PriceBuy || 0;
                   })
                   .catch(() => 0),
@@ -426,16 +415,6 @@ export default function Preview({
         }
       });
   }, [account, chainId, deadline, source, zapInfo.route]);
-
-  useEffect(() => {
-    if (copied) {
-      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
-    }
-
-    return () => {
-      clearTimeout(hideCopied);
-    };
-  }, [copied]);
 
   const dexName =
     typeof DexInfos[poolType].name === "string"
@@ -638,15 +617,7 @@ export default function Preview({
 
         <div>
           <div className="flex items-center gap-2">
-            {pool.token0.symbol}/{pool.token1.symbol}{" "}
-            {!copied ? (
-              <IconCopy
-                className="w-3 h-3 text-subText cursor-pointer"
-                onClick={handleCopy}
-              />
-            ) : (
-              <CircleCheckBig className="w-3 h-3 text-accent" />
-            )}
+            {pool.token0.symbol}/{pool.token1.symbol} {Copy}
           </div>
           <div className="pool-info mt-[2px]">
             <div className="tag tag-default">Fee {pool.fee}%</div>

@@ -1,17 +1,25 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
-import { X, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useZapState } from "@/hooks/useZapInState";
 import { useTokenList } from "../../hooks/useTokenList";
 import { formatWei } from "@/utils";
-import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
+import {
+  DexInfos,
+  MAX_ZAP_IN_TOKENS,
+  NATIVE_TOKEN_ADDRESS,
+  NetworkInfo,
+} from "@/constants";
 import { Button } from "../ui/button";
 import { formatUnits } from "ethers/lib/utils";
+import { shortenAddress } from "../TokenInfo/utils";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
+import X from "@/assets/svg/x.svg";
+import Check from "@/assets/svg/check.svg";
+import IconCopy from "@/assets/svg/copy.svg";
 import { useWidgetContext } from "@/stores/widget";
 import { Token } from "@/schema";
 import { isAddress } from "@kyber/utils/crypto";
@@ -26,6 +34,11 @@ export enum TOKEN_TAB {
   IMPORTED,
 }
 
+enum MODAL_TAB {
+  TOKENS,
+  POSITIONS,
+}
+
 interface CustomizeToken extends Token {
   balance: string;
   balanceToSort: string;
@@ -36,6 +49,35 @@ interface CustomizeToken extends Token {
 
 const MESSAGE_TIMEOUT = 4_000;
 let messageTimeout: NodeJS.Timeout;
+
+const fakePair = {
+  chainId: 42161,
+  token0: {
+    symbol: "USDT",
+    name: "Tether USD",
+    logoURI:
+      "https://storage.googleapis.com/ks-setting-1d682dca/c5cbcd57-0597-4c7b-8433-6fa98c90c5f9.png",
+  },
+  token1: {
+    symbol: "WETH",
+    name: "Wrapped Ether",
+    logoURI:
+      "https://storage.googleapis.com/ks-setting-1d682dca/1eebc9df-2870-41bd-a78c-5cce81a74ffa.png",
+  },
+  fee: "1.0",
+  amount: "$3,765",
+  positionId: "24654",
+  poolAddress: "0x6b175474e89094c44da98b954eedeac495271d0f",
+};
+
+const fakePairs = new Array(10).fill(fakePair).map((pair, index) => ({
+  ...pair,
+  active: index % 2,
+  dex:
+    index % 2
+      ? ("DEX_UNISWAPV3" as keyof typeof DexInfos)
+      : ("DEX_PANCAKESWAPV3" as keyof typeof DexInfos),
+}));
 
 export default function TokenSelector({
   selectedTokenAddress,
@@ -54,7 +96,7 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const pool = useWidgetContext((s) => s.pool);
+  const { pool, theme } = useWidgetContext((s) => s);
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } =
     useZapState();
   const {
@@ -65,15 +107,28 @@ export default function TokenSelector({
     removeAllTokens,
   } = useTokenList();
 
+  const defaultToken = {
+    decimals: undefined,
+    address: "",
+    logo: "",
+    symbol: "",
+  };
+  const { address: token0Address } =
+    pool === "loading" ? defaultToken : pool.token0;
+  const { address: token1Address } =
+    pool === "loading" ? defaultToken : pool.token1;
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
+  const [modalTabSelected, setModalTabSelected] = useState<MODAL_TAB>(
+    MODAL_TAB.TOKENS
+  );
   const [message, setMessage] = useState<string>("");
 
   const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
 
-  if (pool === "loading") return null;
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
     [modalTokensIn]
@@ -116,10 +171,9 @@ export default function TokenSelector({
                 ? 1
                 : 0,
             inPair:
-              token.address.toLowerCase() === pool.token0.address.toLowerCase()
+              token.address.toLowerCase() === token0Address.toLowerCase()
                 ? 2
-                : token.address.toLowerCase() ===
-                  pool.token1.address.toLowerCase()
+                : token.address.toLowerCase() === token1Address.toLowerCase()
                 ? 1
                 : 0,
           };
@@ -141,8 +195,8 @@ export default function TokenSelector({
       // balanceTokens,
       mode,
       selectedTokenAddress,
-      pool?.token0?.address,
-      pool?.token1?.address,
+      token0Address,
+      token1Address,
     ]
   );
 
@@ -386,6 +440,8 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensIn, amountsIn]);
 
+  if (pool === "loading") return null;
+
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
@@ -402,13 +458,49 @@ export default function TokenSelector({
             <X className="h-6 w-6" />
           </div>
         </div>
-        {mode === TOKEN_SELECT_MODE.SELECT && (
+
+        <div
+          className="border rounded-full p-[2px] flex mx-6 text-sm"
+          style={{ borderColor: `${theme.icons}33` }}
+        >
+          <div
+            className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
+              modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""
+            }`}
+            onClick={() => setModalTabSelected(MODAL_TAB.TOKENS)}
+          >
+            Token(s)
+          </div>
+          <div
+            className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
+              modalTabSelected === MODAL_TAB.POSITIONS ? "bg-[#ffffff33]" : ""
+            }`}
+            onClick={() => setModalTabSelected(MODAL_TAB.POSITIONS)}
+          >
+            Your Position(s)
+          </div>
+        </div>
+
+        {mode === TOKEN_SELECT_MODE.SELECT &&
+          modalTabSelected === MODAL_TAB.TOKENS && (
+            <p className="text-sm text-subText px-6">
+              You can search and select{" "}
+              <span className="text-text">any token(s)</span> on KyberSwap
+            </p>
+          )}
+
+        {modalTabSelected === MODAL_TAB.POSITIONS && (
           <p className="text-sm text-subText px-6">
-            You can search and select{" "}
-            <span className="text-subText">any token</span> on KyberSwap
+            Use your existing liquidity positions from supported protocols as a
+            source.
           </p>
         )}
-        <div className="px-6">
+
+        <div
+          className={`px-6 ${
+            modalTabSelected === MODAL_TAB.POSITIONS ? "!mb-2" : ""
+          }`}
+        >
           <div className="relative border-0">
             <Input
               type="text"
@@ -421,155 +513,260 @@ export default function TokenSelector({
           </div>
         </div>
 
-        {mode === TOKEN_SELECT_MODE.ADD && (
-          <p className="text-sm text-subText px-6">
-            The maximum number of tokens selected is {MAX_ZAP_IN_TOKENS}.
-          </p>
-        )}
+        {mode === TOKEN_SELECT_MODE.ADD &&
+          modalTabSelected === MODAL_TAB.TOKENS && (
+            <p className="text-sm text-subText px-6">
+              The maximum number of tokens selected is {MAX_ZAP_IN_TOKENS}.
+            </p>
+          )}
 
-        <div className="px-6 pb-3 flex gap-4 border-b border-[#505050]">
-          <div
-            className={`text-sm cursor-pointer ${
-              tabSelected === TOKEN_TAB.ALL ? "text-accent" : ""
-            }`}
-            onClick={() => setTabSelected(TOKEN_TAB.ALL)}
-          >
-            All
-          </div>
-          <div
-            className={`text-sm cursor-pointer ${
-              tabSelected === TOKEN_TAB.IMPORTED ? "text-accent" : ""
-            }`}
-            onClick={() => setTabSelected(TOKEN_TAB.IMPORTED)}
-          >
-            Imported
-          </div>
-        </div>
-
-        {tabSelected === TOKEN_TAB.IMPORTED && importedTokens.length ? (
-          <div className="flex items-center justify-between px-6 !mt-0 py-[10px]">
-            <span className="text-xs text-icon">
-              {importedTokens.length} Custom Tokens
-            </span>
-            <Button
-              className="rounded-full !text-icon flex items-center gap-2 text-xs px-[10px] py-[5px] h-fit font-normal !bg-[#a9a9a933]"
-              onClick={handleRemoveAllImportedToken}
-            >
-              <TrashIcon className="w-[13px] h-[13px]" />
-              Clear All
-            </Button>
-          </div>
-        ) : null}
-
-        <ScrollArea className="h-[280px] custom-scrollbar !mt-0">
-          {tabSelected === TOKEN_TAB.ALL &&
-            unImportedTokens.map((token: Token) => (
+        {modalTabSelected === MODAL_TAB.TOKENS && (
+          <>
+            <div className="px-6 pb-3 flex gap-4 border-b border-[#505050]">
               <div
-                key={token.address}
-                className="flex items-center justify-between py-2 px-6"
-                style={{ color: "red" }}
+                className={`text-sm cursor-pointer ${
+                  tabSelected === TOKEN_TAB.ALL ? "text-accent" : ""
+                }`}
+                onClick={() => setTabSelected(TOKEN_TAB.ALL)}
               >
-                <div className="flex items-center gap-2">
-                  <img
-                    className="h-6 w-6"
-                    src={token.logo}
-                    alt=""
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
-                  />
-                  <p className="ml-2 text-subText">{token.symbol}</p>
-                  <p className="text-xs text-[#6C7284]">{token.name}</p>
-                </div>
+                All
+              </div>
+              <div
+                className={`text-sm cursor-pointer ${
+                  tabSelected === TOKEN_TAB.IMPORTED ? "text-accent" : ""
+                }`}
+                onClick={() => setTabSelected(TOKEN_TAB.IMPORTED)}
+              >
+                Imported
+              </div>
+            </div>
+
+            {tabSelected === TOKEN_TAB.IMPORTED && importedTokens.length ? (
+              <div className="flex items-center justify-between px-6 !mt-0 py-[10px]">
+                <span className="text-xs text-icon">
+                  {importedTokens.length} Custom Tokens
+                </span>
                 <Button
-                  className="rounded-full !bg-accent font-normal !text-[#222222] px-3 py-[6px] h-fit hover:brightness-75"
-                  onClick={() => handleImportToken(token)}
+                  className="rounded-full !text-icon flex items-center gap-2 text-xs px-[10px] py-[5px] h-fit font-normal !bg-[#a9a9a933]"
+                  onClick={handleRemoveAllImportedToken}
                 >
-                  Import
+                  <TrashIcon className="w-[13px] h-[13px]" />
+                  Clear All
                 </Button>
               </div>
-            ))}
+            ) : null}
+          </>
+        )}
 
-          {filteredTokens?.length > 0 && !unImportedTokens.length ? (
-            filteredTokens.map((token: CustomizeToken) => (
-              <div
-                key={token.address}
-                className={`flex items-center justify-between py-2 px-6 cursor-pointer hover:bg-[#0f0f0f] ${
-                  mode === TOKEN_SELECT_MODE.SELECT &&
-                  token.address?.toLowerCase() ===
-                    selectedTokenAddress?.toLowerCase()
-                    ? "bg-[#1d7a5f26]"
-                    : ""
-                } ${
-                  token.disabled
-                    ? "!bg-stroke !cursor-not-allowed brightness-50"
-                    : ""
-                }`}
-                onClick={() => !token.disabled && handleClickToken(token)}
-              >
-                <div className="flex items-center space-x-3">
-                  {mode === TOKEN_SELECT_MODE.ADD && (
-                    <div
-                      className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer mr-1 ${
-                        modalTokensInAddress.includes(
-                          token.address?.toLowerCase()
-                        )
-                          ? "bg-emerald-400"
-                          : "bg-gray-700"
-                      }`}
-                    >
-                      {modalTokensInAddress.includes(token.address) && (
-                        <Check className="h-3 w-3 text-black" />
-                      )}
+        <ScrollArea
+          className={`custom-scrollbar !mt-0 ${
+            modalTabSelected === MODAL_TAB.TOKENS ? "h-[280px]" : "h-[356px]"
+          }`}
+        >
+          {modalTabSelected === MODAL_TAB.TOKENS && (
+            <>
+              {tabSelected === TOKEN_TAB.ALL &&
+                unImportedTokens.map((token: Token) => (
+                  <div
+                    key={token.symbol}
+                    className="flex items-center justify-between py-2 px-6"
+                    style={{ color: "red" }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        className="h-6 w-6"
+                        src={token.logo}
+                        alt=""
+                        onError={({ currentTarget }) => {
+                          currentTarget.onerror = null;
+                          currentTarget.src = defaultTokenLogo;
+                        }}
+                      />
+                      <p className="ml-2 text-subText">{token.symbol}</p>
+                      <p className="text-xs text-[#6C7284]">{token.name}</p>
                     </div>
-                  )}
-                  <img
-                    className="h-6 w-6"
-                    src={token.logo}
-                    alt=""
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
-                  />
-                  <div>
-                    <p className="leading-6">{token.symbol}</p>
-                    <p
-                      className={`${
-                        tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""
-                      } text-subText`}
+                    <Button
+                      className="rounded-full !bg-accent font-normal !text-[#222222] px-3 py-[6px] h-fit hover:brightness-75"
+                      onClick={() => handleImportToken(token)}
                     >
-                      {tabSelected === TOKEN_TAB.ALL
-                        ? token.name
-                        : token.balance}
-                    </p>
+                      Import
+                    </Button>
+                  </div>
+                ))}
+
+              {filteredTokens?.length > 0 && !unImportedTokens.length ? (
+                filteredTokens.map((token: CustomizeToken) => (
+                  <div
+                    key={token.symbol}
+                    className={`flex items-center justify-between py-2 px-6 cursor-pointer hover:bg-[#0f0f0f] ${
+                      mode === TOKEN_SELECT_MODE.SELECT &&
+                      token.address?.toLowerCase() ===
+                        selectedTokenAddress?.toLowerCase()
+                        ? "bg-[#1d7a5f26]"
+                        : ""
+                    } ${
+                      token.disabled
+                        ? "!bg-stroke !cursor-not-allowed brightness-50"
+                        : ""
+                    }`}
+                    onClick={() => !token.disabled && handleClickToken(token)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {mode === TOKEN_SELECT_MODE.ADD && (
+                        <div
+                          className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer mr-1 ${
+                            modalTokensInAddress.includes(
+                              token.address?.toLowerCase()
+                            )
+                              ? "bg-emerald-400"
+                              : "bg-gray-700"
+                          }`}
+                        >
+                          {modalTokensInAddress.includes(token.address) && (
+                            <Check className="h-3 w-3 text-black" />
+                          )}
+                        </div>
+                      )}
+                      <img
+                        className="h-6 w-6"
+                        src={token.logo}
+                        alt=""
+                        onError={({ currentTarget }) => {
+                          currentTarget.onerror = null;
+                          currentTarget.src = defaultTokenLogo;
+                        }}
+                      />
+                      <div>
+                        <p className="leading-6">{token.symbol}</p>
+                        <p
+                          className={`${
+                            tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""
+                          } text-subText`}
+                        >
+                          {tabSelected === TOKEN_TAB.ALL
+                            ? token.name
+                            : token.balance}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 justify-end">
+                      {tabSelected === TOKEN_TAB.ALL ? (
+                        <span>{token.balance}</span>
+                      ) : (
+                        <TrashIcon
+                          className="w-[18px] text-subText hover:text-text !cursor-pointer"
+                          onClick={(e) => handleRemoveImportedToken(e, token)}
+                        />
+                      )}
+                      <Info
+                        className="w-[18px] h-[18px] text-subText hover:text-text !cursor-pointer"
+                        onClick={(e) => handleShowTokenInfo(e, token)}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : !unImportedTokens.length ||
+                (tabSelected === TOKEN_TAB.IMPORTED &&
+                  !importedTokens.length) ? (
+                <div className="text-center text-[#6C7284] font-medium mt-4">
+                  No results found.
+                </div>
+              ) : (
+                <></>
+              )}
+            </>
+          )}
+
+          {modalTabSelected === MODAL_TAB.POSITIONS &&
+            (fakePairs.length ? (
+              fakePairs.map((pair, index) => (
+                <div
+                  key={index}
+                  className={`flex flex-col py-3 mx-[26px] gap-2 border-[#ffffff14] ${
+                    index !== fakePairs.length - 1 ? "border-b" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex gap-2 items-center">
+                      <div className="flex items-end">
+                        <img
+                          className="rounded-full w-[26px] h-[26px] border-[2px] border-layer2"
+                          src={pair.token0.logoURI}
+                          alt="token0 logo"
+                          onError={({ currentTarget }) => {
+                            currentTarget.onerror = null;
+                            currentTarget.src = defaultTokenLogo;
+                          }}
+                        />
+                        <img
+                          className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-layer2"
+                          src={pair.token1.logoURI}
+                          alt="token1 logo"
+                          onError={({ currentTarget }) => {
+                            currentTarget.onerror = null;
+                            currentTarget.src = defaultTokenLogo;
+                          }}
+                        />
+                        <img
+                          className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-layer2 relative top-1"
+                          src={
+                            NetworkInfo[
+                              pair.chainId as keyof typeof NetworkInfo
+                            ].logo
+                          }
+                          onError={({ currentTarget }) => {
+                            currentTarget.onerror = null;
+                            currentTarget.src = defaultTokenLogo;
+                          }}
+                        />
+                      </div>
+                      <span>
+                        {pair.token0.symbol}/{pair.token1.symbol}
+                      </span>
+                      <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
+                        {pair.fee}%
+                      </div>
+                    </div>
+                    <div>{pair.amount}</div>
+                  </div>
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex gap-2 items-center">
+                      <img
+                        src={DexInfos[pair.dex as keyof typeof DexInfos].icon}
+                        width={20}
+                        height={20}
+                        alt=""
+                        onError={({ currentTarget }) => {
+                          currentTarget.onerror = null;
+                          currentTarget.src = defaultTokenLogo;
+                        }}
+                      />
+                      <span className="text-subText">#{pair.positionId}</span>
+                      <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
+                        {shortenAddress(pair.chainId, pair.poolAddress, 4)}
+                        <IconCopy className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer" />
+                      </div>
+                    </div>
+                    <div
+                      className={`rounded-full text-xs px-2 py-1 font-normal text-${
+                        !pair.active ? "warning" : "accent"
+                      }`}
+                      style={{
+                        background: `${
+                          !pair.active ? theme.warning : theme.accent
+                        }33`,
+                      }}
+                    >
+                      {!pair.active ? "● Out of range" : "● In range"}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 justify-end">
-                  {tabSelected === TOKEN_TAB.ALL ? (
-                    <span>{token.balance}</span>
-                  ) : (
-                    <TrashIcon
-                      className="w-[18px] text-subText hover:text-text !cursor-pointer"
-                      onClick={(e) => handleRemoveImportedToken(e, token)}
-                    />
-                  )}
-                  <Info
-                    className="w-[18px] h-[18px] text-subText hover:text-text !cursor-pointer"
-                    onClick={(e) => handleShowTokenInfo(e, token)}
-                  />
-                </div>
+              ))
+            ) : (
+              <div className="text-center text-[#6C7284] font-medium mt-4">
+                No results found.
               </div>
-            ))
-          ) : !unImportedTokens.length ||
-            (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
-            <div className="text-center text-[#6C7284] font-medium mt-4">
-              No results found.
-            </div>
-          ) : (
-            <></>
-          )}
+            ))}
         </ScrollArea>
 
         {message && (
@@ -580,24 +777,25 @@ export default function TokenSelector({
           </div>
         )}
 
-        {mode === TOKEN_SELECT_MODE.ADD && (
-          <div className="flex space-x-4 rounded-lg px-4">
-            <Button
-              variant="outline"
-              className="flex-1 !bg-transparent text-subText border-subText rounded-full hover:text-accent hover:border-accent"
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="flex-1 !bg-accent text-black rounded-full hover:text-black hover:brightness-110"
-              disabled={!modalTokensIn.length}
-              onClick={handleSaveSelected}
-            >
-              Save
-            </Button>
-          </div>
-        )}
+        {mode === TOKEN_SELECT_MODE.ADD &&
+          modalTabSelected === MODAL_TAB.TOKENS && (
+            <div className="flex space-x-4 rounded-lg px-4">
+              <Button
+                // variant="outline"
+                className="flex-1 !bg-transparent text-subText border-subText rounded-full hover:text-accent hover:border-accent"
+                onClick={onClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 !bg-accent text-black rounded-full hover:text-black hover:brightness-110"
+                disabled={!modalTokensIn.length}
+                onClick={handleSaveSelected}
+              >
+                Save
+              </Button>
+            </div>
+          )}
       </div>
     </div>
   );

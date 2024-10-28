@@ -198,7 +198,7 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, zapInfo, chainId]);
+  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(

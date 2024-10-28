@@ -39,6 +39,7 @@ import {
 } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import PoolInfo from "./PoolInfo";
 
 export default function Content() {
   const {
@@ -342,15 +343,7 @@ export default function Content() {
     <>
       {loadPoolError && (
         <Modal isOpen onClick={() => onClose()}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2rem",
-              color: theme.error,
-            }}
-          >
+          <div className="flex flex-col items-center gap-8 text-error">
             <ErrorIcon className="error-icon" />
             <div style={{ textAlign: "center" }}>{loadPoolError}</div>
             <button
@@ -399,6 +392,7 @@ export default function Content() {
       <Header onDismiss={onClose} />
       <div className="ks-lw-content">
         <div className="left">
+          <PoolInfo />
           <PriceInfo />
           {/* <LiquidityChart /> */}
           <PriceRange />
@@ -412,10 +406,12 @@ export default function Content() {
           ) : (
             <PositionLiquidity />
           )}
+        </div>
 
+        <div className="right">
           <div className="liquidity-to-add">
             <div className="label">
-              Liquidity to {positionId ? "increase" : "Zap in"}
+              {positionId ? "Increase" : "Add"} Liquidity
             </div>
             {tokensIn.map((_, tokenIndex: number) => (
               <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
@@ -423,11 +419,12 @@ export default function Content() {
           </div>
 
           <div
-            className="mt-4 text-accent cursor-pointer w-fit"
+            className="my-3 text-accent cursor-pointer w-fit text-sm"
             onClick={onOpenTokenSelectModal}
           >
             + Add more token
             <InfoHelper
+              placement="bottom"
               text={`Can zap in with up to ${MAX_ZAP_IN_TOKENS} tokens`}
               color={theme.accent}
               style={{
@@ -438,11 +435,9 @@ export default function Content() {
               }}
             />
           </div>
-        </div>
 
-        <div className="right">
-          <ZapRoute />
           <EstLiqValue />
+          <ZapRoute />
 
           {isOutOfRangeAfterZap && (
             <div
