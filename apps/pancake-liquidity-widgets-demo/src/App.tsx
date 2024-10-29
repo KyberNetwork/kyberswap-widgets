@@ -21,6 +21,8 @@ import "@kyberswap/pancake-liquidity-widgets/dist/style.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { useCallback, useEffect, useState } from "react";
 
+import "./App.css";
+
 type WidgetParams = {
   chainId: number;
   positionId?: string;
@@ -55,39 +57,22 @@ function Provider({ children }: React.PropsWithChildren) {
 export default function App() {
   return (
     <Provider>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-          maxWidth: "960px",
-          margin: "auto",
-        }}
-      >
-        <ConnectButton />
+      <div>
+        <div className="pancake-demo-header">
+          <ConnectButton />
+        </div>
         <LiquidityWidgetWrapper />
       </div>
     </Provider>
   );
 }
 
-// function CurrentWallet() {
-//   const account = useAccount();
-//
-//   if (!account.address) {
-//     return <span>not connected</span>;
-//   }
-//
-//   return <span>Wallet: {account.address}</span>;
-// }
-
 function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
   const [params, setParams] = useState<WidgetParams>({
-    chainId: 56,
-    // positionId: "1288027",
-    poolAddress: "0x92b7807bf19b7dddf89b706143896d05228f3121",
-    theme: "light",
+    chainId: 42161,
+    poolAddress: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
+    theme: "dark",
   });
 
   const { data: walletClient } = useWalletClient();
@@ -102,14 +87,8 @@ function LiquidityWidgetWrapper() {
   const { openConnectModal } = useConnectModal();
 
   return (
-    <div style={{ margin: "auto", width: "100%", maxWidth: "960px" }}>
-      <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          marginTop: "1rem",
-        }}
-      >
+    <div className="pancake-demo-app">
+      <div className="pancake-demo-params-wrapper">
         <Params params={params} setParams={handleUpdateParams} />
       </div>
       <LiquidityWidget
@@ -117,7 +96,7 @@ function LiquidityWidgetWrapper() {
         onConnectWallet={() => {
           openConnectModal?.();
         }}
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         walletClient={walletClient as any}
         account={account}
         networkChainId={chainId}
@@ -145,7 +124,6 @@ function Params({
   params: WidgetParams;
   setParams: (p: WidgetParams) => void;
 }) {
-  // const [showParams, setShowParams] = useState(false);
   const [localParams, setLocalParams] = useState(params);
 
   useEffect(() => {
@@ -154,121 +132,110 @@ function Params({
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          marginBottom: "1rem",
-        }}
-      >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "100px 400px",
-            gap: "8px",
+      <div className="pancake-demo-params-container">
+        <span>chainId</span>
+        <input
+          className="pancake-demo-input"
+          value={String(localParams.chainId)}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              chainId: Number(e.target.value),
+            }));
           }}
-        >
-          <span>chainId</span>
-          <input
-            value={String(localParams.chainId)}
-            onChange={(e) => {
-              setLocalParams((params) => ({
-                ...params,
-                chainId: Number(e.target.value),
-              }));
-            }}
-          />
+        />
 
-          <span>positionId</span>
-          <input
-            value={localParams.positionId}
-            onChange={(e) => {
-              setLocalParams((params) => ({
-                ...params,
-                positionId: e.target.value,
-              }));
-            }}
-          />
-
-          <span>initTickLower</span>
-          <input
-            value={localParams.initTickLower}
-            onChange={(e) => {
-              setLocalParams((params) => ({
-                ...params,
-                initTickLower: e.target.value,
-              }));
-            }}
-          />
-
-          <span>initTickUpper</span>
-          <input
-            value={localParams.initTickUpper}
-            onChange={(e) => {
-              setLocalParams((params) => ({
-                ...params,
-                initTickUpper: e.target.value,
-              }));
-            }}
-          />
-
-          <span>poolAddress</span>
-          <input
-            value={localParams.poolAddress}
-            onChange={(e) => {
-              setLocalParams((params) => ({
-                ...params,
-                poolAddress: e.target.value,
-              }));
-            }}
-          />
-        </div>
-
-        <div style={{ display: "flex", gap: "60px" }}>
-          <span>Theme</span>
-          <div>
-            <input
-              type="radio"
-              id="dark"
-              name="Dark"
-              value="dark"
-              checked={localParams.theme === "dark"}
-              onChange={(e) =>
-                setLocalParams({
-                  ...localParams,
-                  theme: e.currentTarget.value as "light" | "dark",
-                })
-              }
-            />
-            <label htmlFor="dark">Dark</label>
-
-            <input
-              type="radio"
-              id="light"
-              name="Light"
-              value="light"
-              checked={localParams.theme === "light"}
-              onChange={(e) =>
-                setLocalParams({
-                  ...localParams,
-                  theme: e.currentTarget.value as "light" | "dark",
-                })
-              }
-            />
-            <label htmlFor="light">light</label>
-          </div>
-        </div>
-
-        <button
-          style={{
-            width: "120px",
+        <span>positionId</span>
+        <input
+          className="pancake-demo-input"
+          value={localParams.positionId}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              positionId: e.target.value,
+            }));
           }}
-          onClick={() => setParams(localParams)}
-        >
-          Save and Reload
-        </button>
+        />
+
+        <span>initTickLower</span>
+        <input
+          className="pancake-demo-input"
+          value={localParams.initTickLower}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              initTickLower: e.target.value,
+            }));
+          }}
+        />
+
+        <span>initTickUpper</span>
+        <input
+          className="pancake-demo-input"
+          value={localParams.initTickUpper}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              initTickUpper: e.target.value,
+            }));
+          }}
+        />
+
+        <span>poolAddress</span>
+        <input
+          className="pancake-demo-input"
+          value={localParams.poolAddress}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              poolAddress: e.target.value,
+            }));
+          }}
+        />
       </div>
+
+      <div style={{ display: "flex", gap: "60px" }}>
+        <span>Theme</span>
+        <div>
+          <input
+            type="radio"
+            id="dark"
+            name="Dark"
+            value="dark"
+            checked={localParams.theme === "dark"}
+            onChange={(e) =>
+              setLocalParams({
+                ...localParams,
+                theme: e.currentTarget.value as "light" | "dark",
+              })
+            }
+          />
+          <label htmlFor="dark">Dark</label>
+
+          <input
+            type="radio"
+            id="light"
+            name="Light"
+            value="light"
+            checked={localParams.theme === "light"}
+            onChange={(e) =>
+              setLocalParams({
+                ...localParams,
+                theme: e.currentTarget.value as "light" | "dark",
+              })
+            }
+            style={{ marginLeft: "20px" }}
+          />
+          <label htmlFor="light">Light</label>
+        </div>
+      </div>
+
+      <button
+        className="pancake-demo-btn"
+        onClick={() => setParams(localParams)}
+      >
+        Save and Reload
+      </button>
     </>
   );
 }
