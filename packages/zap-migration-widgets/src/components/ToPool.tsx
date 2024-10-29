@@ -8,10 +8,11 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
+import { Skeleton } from "@kyber/ui/skeleton";
 
 export function ToPool() {
   const { pools } = usePoolsStore();
-  const { tickUpper, tickLower, route } = useZapStateStore();
+  const { fetchingRoute, tickUpper, tickLower, route } = useZapStateStore();
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -42,17 +43,24 @@ export function ToPool() {
               <span className="text-base">{pools[1].token0.symbol}</span>
             </div>
 
-            <div className="text-base flex flex-col items-end">
-              {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
-              <div className="text-subText text-xs">
-                ~
-                {formatDisplayNumber(
-                  (pools[1].token0.price || 0) *
-                    Number(toRawString(amount0, pools[1].token0.decimals)),
-                  { style: "currency" }
-                )}
+            {fetchingRoute ? (
+              <div className="flex flex-col items-end h-[40px]">
+                <Skeleton className="w-20 h-4" />
+                <Skeleton className="w-10 h-3 mt-1" />
               </div>
-            </div>
+            ) : (
+              <div className="text-base flex flex-col items-end">
+                {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
+                <div className="text-subText text-xs">
+                  ~
+                  {formatDisplayNumber(
+                    (pools[1].token0.price || 0) *
+                      Number(toRawString(amount0, pools[1].token0.decimals)),
+                    { style: "currency" }
+                  )}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -71,17 +79,24 @@ export function ToPool() {
               <span className="text-base">{pools[1].token1.symbol}</span>
             </div>
 
-            <div className="text-base flex flex-col items-end">
-              {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
-              <div className="text-subText text-xs">
-                ~
-                {formatDisplayNumber(
-                  (pools[1].token1.price || 0) *
-                    Number(toRawString(amount1, pools[1].token1.decimals)),
-                  { style: "currency" }
-                )}
+            {fetchingRoute ? (
+              <div className="flex flex-col items-end h-[40px]">
+                <Skeleton className="w-20 h-4" />
+                <Skeleton className="w-10 h-3 mt-1" />
               </div>
-            </div>
+            ) : (
+              <div className="text-base flex flex-col items-end">
+                {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
+                <div className="text-subText text-xs">
+                  ~
+                  {formatDisplayNumber(
+                    (pools[1].token1.price || 0) *
+                      Number(toRawString(amount1, pools[1].token1.decimals)),
+                    { style: "currency" }
+                  )}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

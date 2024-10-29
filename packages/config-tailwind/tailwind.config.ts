@@ -15,6 +15,7 @@ const config: Omit<Config, "content"> = {
         border: "var(--ks-lw-stroke)",
         input: "var(--ks-lw-layer2)",
         background: "var(--ks-lw-layer1)",
+        interactive: "var(--ks-lw-interactive)",
         subText: "var(--ks-lw-subText)",
         text: "var(--ks-lw-text)",
         textRevert: "var(--ks-lw-textRevert)",

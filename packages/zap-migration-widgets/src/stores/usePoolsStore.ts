@@ -88,11 +88,12 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         (item) => item.address.toLowerCase() === poolTo.toLowerCase()
       );
       if (!fromPool) {
-        firstLoad && set({ error: `Can't get pool info, addres: ${fromPool}` });
+        firstLoad &&
+          set({ error: `Can't get pool info, address: ${poolFrom}` });
         return;
       }
       if (!toPool) {
-        firstLoad && set({ error: `Can't get pool info, addres: ${toPool}` });
+        firstLoad && set({ error: `Can't get pool info, address: ${poolTo}` });
         return;
       }
 

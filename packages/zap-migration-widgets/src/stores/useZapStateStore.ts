@@ -6,6 +6,8 @@ import { ChainId } from "..";
 import { z } from "zod";
 
 interface ZapState {
+  slippage: number;
+  setSlippage: (value: number) => void;
   liquidityOut: bigint;
   tickLower: number | null;
   tickUpper: number | null;
@@ -15,11 +17,17 @@ interface ZapState {
   fetchZapRoute: (chainId: ChainId) => Promise<void>;
   fetchingRoute: boolean;
   route: GetRouteResponse | null;
+  showPreview: boolean;
+  togglePreview: () => void;
 }
 
 const ZAP_URL = "https://zap-api.kyberswap.com";
 
 export const useZapStateStore = create<ZapState>((set, get) => ({
+  slippage: 50,
+  setSlippage: (value: number) => set({ slippage: value }),
+  showPreview: false,
+  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
   liquidityOut: 0n,
   tickLower: null,
   tickUpper: null,

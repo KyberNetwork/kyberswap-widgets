@@ -12,6 +12,7 @@ import {
 } from "@kyber/utils/number";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { Preview } from "./Preview";
 
 export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
   const { pools } = usePoolsStore();
@@ -23,11 +24,23 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
     liquidityOut,
     route,
     fetchingRoute,
+    slippage,
+    togglePreview,
+    showPreview,
   } = useZapStateStore();
 
   useEffect(() => {
+    if (showPreview) return;
     fetchZapRoute(chainId);
-  }, [pools, position, fetchZapRoute, tickUpper, tickLower, liquidityOut]);
+  }, [
+    pools,
+    position,
+    fetchZapRoute,
+    tickUpper,
+    tickLower,
+    liquidityOut,
+    showPreview,
+  ]);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -43,6 +56,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
 
   return (
     <>
+      <Preview chainId={chainId} />
       <div className="border border-stroke rounded-md px-4 py-3 text-sm mt-4">
         <div className="flex justify-between items-center border-b border-stroke pb-2">
           <div>Est. Liquidity Value</div>
@@ -74,6 +88,11 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                     <Skeleton className="w-20 h-4" />
                     <Skeleton className="w-10 h-3 mt-1" />
                   </>
+                ) : fetchingRoute ? (
+                  <div className="flex flex-col items-end h-[32px]">
+                    <Skeleton className="w-20 h-4" />
+                    <Skeleton className="w-10 h-3 mt-1" />
+                  </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1 text-xs">
@@ -115,6 +134,11 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                     <Skeleton className="w-20 h-4" />
                     <Skeleton className="w-10 h-3 mt-1" />
                   </>
+                ) : fetchingRoute ? (
+                  <div className="flex flex-col items-end h-[32px]">
+                    <Skeleton className="w-20 h-4" />
+                    <Skeleton className="w-10 h-3 mt-1" />
+                  </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1 text-xs">
@@ -153,14 +177,20 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               <span className="text-subText border-b border-dotted border-subText">
                 Swap Max Slippage
               </span>
-              <span>TODO%</span>
+              <span>{(slippage / 10_000) * 100}%</span>
             </div>
 
             <div className="flex justify-between items-start mt-2">
               <span className="text-subText border-b border-dotted border-subText">
                 Zap Impact
               </span>
-              <span>TODO%</span>
+              <span>
+                {formatDisplayNumber(route?.zapDetails.priceImpact, {
+                  style: "percent",
+                  fallback: "--",
+                  fractionDigits: 2,
+                })}
+              </span>
             </div>
           </div>
         </div>
@@ -175,6 +205,9 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
             "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
           )}
           disabled={fetchingRoute || route === null}
+          onClick={() => {
+            togglePreview();
+          }}
         >
           {fetchingRoute ? "Loading..." : "Preview"}
         </button>
