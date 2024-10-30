@@ -85,3 +85,32 @@ export async function estimateGas(
   }
   return result.result; // Gas estimate as a hex string
 }
+
+export async function isTransactionSuccessful(
+  rpcUrl: string,
+  txHash: string
+): Promise<boolean> {
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "eth_getTransactionReceipt",
+      params: [txHash],
+      id: 1,
+    }),
+  });
+
+  const result = await response.json();
+
+  // Check if the transaction receipt was found
+  if (!result.result) {
+    console.log("Transaction not mined yet or invalid transaction hash.");
+    return false;
+  }
+
+  // `status` is "0x1" for success, "0x0" for failure
+  return result.result.status === "0x1";
+}

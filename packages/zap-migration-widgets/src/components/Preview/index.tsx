@@ -13,16 +13,40 @@ import {
 } from "@kyber/utils/number";
 import { usePoolsStore } from "../../stores/usePoolsStore";
 import CopyIcon from "../../assets/icons/copy.svg";
+import AlertIcon from "../../assets/icons/circle-alert.svg";
+import LoadingIcon from "../../assets/icons/loader-circle.svg";
+import CheckIcon from "../../assets/icons/circle-check.svg";
 import { Image } from "../Image";
 import { ZAP_URL, DexInfos, NetworkInfo } from "../../constants";
 import { ChainId } from "../../schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
-import { estimateGas, getCurrentGasPrice } from "@kyber/utils/crypto";
+import {
+  estimateGas,
+  getCurrentGasPrice,
+  isTransactionSuccessful,
+} from "@kyber/utils/crypto";
 import { MigrationSummary } from "./MigrationSummary";
 
-export function Preview({ chainId }: { chainId: ChainId }) {
+export function Preview({
+  chainId,
+  onSubmitTx,
+  account,
+  client,
+  onClose,
+}: {
+  client: string;
+  chainId: ChainId;
+  onSubmitTx: (txData: {
+    from: string;
+    to: string;
+    value: string;
+    data: string;
+  }) => Promise<string>;
+  account: string | undefined;
+  onClose: () => void;
+}) {
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
   const { pools } = usePoolsStore();
@@ -41,13 +65,14 @@ export function Preview({ chainId }: { chainId: ChainId }) {
       {
         method: "POST",
         body: JSON.stringify({
-          // TODO:
-          sender: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
+          sender: account,
           route: route.route,
           burnNft: false,
-          // TODO: x-client-id
-          source: "VietNV",
+          source: client,
         }),
+        headers: {
+          "x-client-id": client,
+        },
       }
     )
       .then((res) => res.json())
@@ -70,10 +95,9 @@ export function Preview({ chainId }: { chainId: ChainId }) {
         estimateGas(rpcUrl, {
           from: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
           to: buildData.routerAddress,
-          value: "0x0",
+          value: "0x0", // alway use WETH when remove this this is alway 0
           data: buildData.callData,
-        }).catch((err) => {
-          setError(`Estimate Gas Failed: ${err.message}`);
+        }).catch(() => {
           return "0";
         }),
         getCurrentGasPrice(rpcUrl).catch(() => 0),
@@ -84,7 +108,6 @@ export function Preview({ chainId }: { chainId: ChainId }) {
           .then((res) => res?.data?.prices[0])
           .then((res) => res?.marketPrice || res?.price || 0),
       ]);
-      console.log(gasEstimation, gasPrice, nativeTokenPrice);
       const gasUsd =
         (parseInt(gasEstimation, 16) / 10 ** 18) * gasPrice * nativeTokenPrice;
 
@@ -92,9 +115,24 @@ export function Preview({ chainId }: { chainId: ChainId }) {
     })();
   }, [buildData]);
 
-  console.log(error);
+  const [showProcessing, setShowProcessing] = useState(false);
+  const [submiting, setSubmiting] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
 
-  if (route === null || pools === "loading") return null;
+  useEffect(() => {
+    if (!txHash) return;
+    const i = setInterval(
+      async () => {
+        const isSuccess = await isTransactionSuccessful(rpcUrl, txHash);
+        setTxStatus(isSuccess ? "success" : "failed");
+      },
+      chainId === ChainId.Ethereum ? 10_000 : 5_000
+    );
+    return () => clearInterval(i);
+  }, [txHash, chainId]);
+
+  if (route === null || pools === "loading" || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
   if (route !== null && tickLower !== null && tickUpper !== null) {
@@ -105,6 +143,83 @@ export function Preview({ chainId }: { chainId: ChainId }) {
       BigInt(route.poolDetails.uniswapV3.newSqrtP),
       BigInt(route.positionDetails.addedLiquidity)
     ));
+  }
+
+  if (showProcessing) {
+    let content = <></>;
+    if (txHash) {
+      content = (
+        <div className="flex flex-col items-center">
+          <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
+            {txStatus === "success" ? (
+              <CheckIcon className="w-6 h-6 text-success" />
+            ) : txStatus === "failed" ? (
+              <AlertIcon className="w-6 h-6 text-error" />
+            ) : (
+              <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
+            )}
+            {txStatus === "success"
+              ? "Migrate Success!"
+              : txStatus === "failed"
+              ? "Transaction Failed!"
+              : "Processing Transaction"}
+          </div>
+
+          <div className="text-subText">
+            {txStatus === "success"
+              ? "You have successfully added liquidity!"
+              : txStatus === "failed"
+              ? "An error occurred during the liquidity migration."
+              : "Transaction submitted. Waiting for the transaction to be mined"}
+          </div>
+          <a
+            className="text-primary text-xs mt-4"
+            href={`${NetworkInfo[chainId].scanLink}/tx/${txHash}`}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            View transaction ↗
+          </a>
+        </div>
+      );
+    } else if (submiting) {
+      content = (
+        <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
+          <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
+          Submitting transaction
+        </div>
+      );
+    } else if (error) {
+      content = (
+        <>
+          <div className="flex items-center justify-center gap-2 text-xl font-medium mt-8">
+            <AlertIcon className="w-6 h-6 text-error" />
+            Failed to migrate
+          </div>
+          <div className="text-subText mt-6 break-all	text-center max-h-[200px] overflow-y-scroll">
+            {error}
+          </div>
+        </>
+      );
+    }
+    return (
+      <Dialog
+        open={showProcessing}
+        onOpenChange={() => {
+          if (txStatus === "success") {
+            onClose();
+          }
+          togglePreview();
+          setShowProcessing(false);
+          setError("");
+          setSubmiting(false);
+        }}
+      >
+        <DialogContent>
+          <DialogDescription>{content}</DialogDescription>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (
@@ -298,8 +413,37 @@ export function Preview({ chainId }: { chainId: ChainId }) {
                 "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
                 "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
               )}
-              onClick={() => {
-                console.log(buildData);
+              onClick={async () => {
+                if (!buildData) {
+                  setShowProcessing(true);
+                  return;
+                }
+
+                const txData = {
+                  from: account,
+                  to: buildData.routerAddress,
+                  value: "0x0", // alway use WETH when remove this this is alway 0
+                  data: buildData.callData,
+                };
+
+                setShowProcessing(true);
+                setSubmiting(true);
+                const gas = await estimateGas(rpcUrl, txData).catch((err) => {
+                  console.log(err.message);
+                  setSubmiting(false);
+                  setError(`Estimate Gas Failed: ${err.message}`);
+                  return "0";
+                });
+
+                if (gas === "0") return;
+
+                try {
+                  const txHash = await onSubmitTx(txData);
+                  setTxHash(txHash);
+                } catch (err) {
+                  setSubmiting(false);
+                  setError(`Submit Tx Failed: ${JSON.stringify(err)}`);
+                }
               }}
             >
               Migrate

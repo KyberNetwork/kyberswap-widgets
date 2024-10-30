@@ -12,9 +12,21 @@ import {
 } from "@kyber/utils/number";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { Preview } from "./Preview";
 
-export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
+export function EstimateLiqValue({
+  chainId,
+  onSwitchChain,
+  onConnectWallet,
+  connectedAccount,
+}: {
+  chainId: ChainId;
+  connectedAccount: {
+    address: string | undefined; // check if account is connected
+    chainId: number; // check if wrong network
+  };
+  onConnectWallet: () => void;
+  onSwitchChain: () => void;
+}) {
   const { pools } = usePoolsStore();
   const { position } = usePositionStore();
   const {
@@ -54,9 +66,25 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
     ));
   }
 
+  let btnText = "";
+  if (fetchingRoute) btnText = "Fetching Route...";
+  else if (liquidityOut === 0n) btnText = "Select Liquidity to Remove";
+  else if (tickLower === null || tickUpper === null)
+    btnText = "Select Price Range";
+  else if (route === null) btnText = "No Route Found";
+  else if (!connectedAccount.address) btnText = "Connect Wallet";
+  else if (connectedAccount.chainId !== chainId) btnText = "Switch Network";
+  else btnText = "Preview";
+
+  const disableBtn =
+    fetchingRoute ||
+    route === null ||
+    liquidityOut === 0n ||
+    tickLower === null ||
+    tickUpper === null;
+
   return (
     <>
-      <Preview chainId={chainId} />
       <div className="border border-stroke rounded-md px-4 py-3 text-sm mt-4">
         <div className="flex justify-between items-center border-b border-stroke pb-2">
           <div>Est. Liquidity Value</div>
@@ -204,12 +232,14 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
             "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
             "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
           )}
-          disabled={fetchingRoute || route === null}
+          disabled={disableBtn}
           onClick={() => {
-            togglePreview();
+            if (!connectedAccount.address) onConnectWallet();
+            else if (connectedAccount.chainId !== chainId) onSwitchChain();
+            else togglePreview();
           }}
         >
-          {fetchingRoute ? "Loading..." : "Preview"}
+          {btnText}
         </button>
       </div>
     </>

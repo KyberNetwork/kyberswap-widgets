@@ -1,4 +1,5 @@
 import "./index.css";
+import { Preview } from "./components/Preview";
 import "@kyber/ui/styles.css";
 
 import { cn } from "@kyber/utils/tailwind-helpers";
@@ -42,14 +43,27 @@ export interface ZapMigrationProps {
     address: string | undefined; // check if account is connected
     chainId: number; // check if wrong network
   };
+  onConnectWallet: () => void;
+  onSwitchChain: () => void;
+  onSubmitTx: (txData: {
+    from: string;
+    to: string;
+    value: string;
+    data: string;
+  }) => Promise<string>;
 }
 
 export const ZapMigration = ({
+  client,
   className,
   chainId,
   from,
   to,
   onClose,
+  connectedAccount,
+  onConnectWallet,
+  onSwitchChain,
+  onSubmitTx,
 }: //aggregatorOptions,
 //feeConfig,
 ZapMigrationProps) => {
@@ -117,7 +131,20 @@ ZapMigrationProps) => {
           <SourcePoolState />
           <TargetPoolState />
         </div>
-        <EstimateLiqValue chainId={chainId} />
+        <EstimateLiqValue
+          chainId={chainId}
+          connectedAccount={connectedAccount}
+          onConnectWallet={onConnectWallet}
+          onSwitchChain={onSwitchChain}
+        />
+
+        <Preview
+          chainId={chainId}
+          onSubmitTx={onSubmitTx}
+          account={connectedAccount.address}
+          client={client}
+          onClose={onClose}
+        />
       </div>
     </>
   );

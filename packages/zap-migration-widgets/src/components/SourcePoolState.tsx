@@ -127,9 +127,11 @@ export function SourcePoolState() {
         </div>
       </div>
 
+      {/*
       <div className="border border-stroke rounded-md px-4 py-3 mt-4">
         <span className="text-subText text-sm">Claim fee</span>
       </div>
+      */}
     </div>
   );
 }
