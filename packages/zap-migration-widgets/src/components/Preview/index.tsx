@@ -5,24 +5,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@kyber/ui/dialog";
-import { useZapStateStore } from "../stores/useZapStateStore";
+import { useZapStateStore } from "../../stores/useZapStateStore";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { usePoolsStore } from "../stores/usePoolsStore";
-import CopyIcon from "../assets/icons/copy.svg";
-import { Image } from "./Image";
-import { ZAP_URL, DexInfos, NetworkInfo } from "../constants";
-import { ChainId } from "../schema";
+import { usePoolsStore } from "../../stores/usePoolsStore";
+import CopyIcon from "../../assets/icons/copy.svg";
+import { Image } from "../Image";
+import { ZAP_URL, DexInfos, NetworkInfo } from "../../constants";
+import { ChainId } from "../../schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import { estimateGas, getCurrentGasPrice } from "@kyber/utils/crypto";
+import { MigrationSummary } from "./MigrationSummary";
 
 export function Preview({ chainId }: { chainId: ChainId }) {
-  const { showPreview, togglePreview, tickLower, tickUpper, route } =
+  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
   const { pools } = usePoolsStore();
 
@@ -83,7 +84,9 @@ export function Preview({ chainId }: { chainId: ChainId }) {
           .then((res) => res?.data?.prices[0])
           .then((res) => res?.marketPrice || res?.price || 0),
       ]);
-      const gasUsd = parseInt(gasEstimation, 16) * gasPrice * nativeTokenPrice;
+      console.log(gasEstimation, gasPrice, nativeTokenPrice);
+      const gasUsd =
+        (parseInt(gasEstimation, 16) / 10 ** 18) * gasPrice * nativeTokenPrice;
 
       setGasUsd(gasUsd);
     })();
@@ -251,7 +254,11 @@ export function Preview({ chainId }: { chainId: ChainId }) {
             <div className="text-subText text-xs border-b border-dotted border-subText">
               Max Slippage
             </div>
-            <div>TODO</div>
+            <div className="text-sm">
+              {formatDisplayNumber((slippage * 100) / 10_000, {
+                style: "percent",
+              })}
+            </div>
           </div>
 
           <div className="flex items-center justify-between mt-4">
@@ -298,6 +305,8 @@ export function Preview({ chainId }: { chainId: ChainId }) {
               Migrate
             </button>
           </div>
+
+          <MigrationSummary route={route} />
         </DialogDescription>
       </DialogContent>
     </Dialog>
