@@ -54,6 +54,7 @@ export const usePositionStore = create<{
 
     if (result && result !== "0x") {
       const data = decodePosition(result);
+
       set({
         position: {
           id: positionId,

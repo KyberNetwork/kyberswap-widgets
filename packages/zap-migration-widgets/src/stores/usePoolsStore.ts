@@ -16,7 +16,7 @@ interface PoolsState {
   getPools: (params: GetPoolParams) => void;
 }
 
-const BFF_API = "https://pre-kyberswap-bff.kyberengineering.io/api";
+const BFF_API = "https://bff.kyberswap.com/api";
 
 // Create a mapping object for string to Dex enum
 const dexMapping: Record<Dex, string> = {
@@ -44,8 +44,8 @@ const poolResponse = z.object({
             return parseInt(dexEnumKey, 10) as Dex;
           }),
         tokens: z.tuple([
-          token.omit({ logo: true }),
-          token.omit({ logo: true }),
+          token.pick({ address: true }),
+          token.pick({ address: true }),
         ]),
         positionInfo: z.object({
           liquidity: z.string(),
@@ -111,7 +111,13 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         .map((item) => item.address)
         .join(",");
 
-      const tokens: { address: string; logoURI?: string }[] = await fetch(
+      const tokens: {
+        address: string;
+        logoURI?: string;
+        name: string;
+        symbol: string;
+        decimals: number;
+      }[] = await fetch(
         `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${addresses}`
       )
         .then((res) => res.json())
@@ -126,22 +132,38 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           .then((res) => res?.data?.prices || [])
           .catch(() => []);
 
-      const enrichLogoAndPrice = (token: Token) => {
+      const enrichLogoAndPrice = (
+        token: Pick<Token, "address">
+      ): Token | undefined => {
         const price = prices.find(
           (item) => item.address.toLowerCase() === token.address.toLowerCase()
         );
+        const tk = tokens.find(
+          (item) => item.address.toLowerCase() === token.address.toLowerCase()
+        );
+
+        if (!tk) {
+          return;
+        }
+
         return {
           ...token,
-          logo: tokens.find(
-            (item) => item.address.toLowerCase() === token.address.toLowerCase()
-          )?.logoURI,
-          price: price?.marketPrice || price?.price || token.price || 0,
+          ...tk,
+          logo: tk?.logoURI,
+          price: price?.marketPrice || price?.price || 0,
         };
       };
 
+      const tokenFrom0 = enrichLogoAndPrice(fromPoolToken0);
+      const tokenFrom1 = enrichLogoAndPrice(fromPoolToken1);
+      if (!tokenFrom0 || !tokenFrom1) {
+        set({ error: "Can't get token info" });
+        return;
+      }
+
       const pool0: Pool = {
-        token0: enrichLogoAndPrice(fromPoolToken0),
-        token1: enrichLogoAndPrice(fromPoolToken1),
+        token0: tokenFrom0,
+        token1: tokenFrom1,
         address: poolFrom,
         dex: dexFrom,
         fee: fromPool.swapFee,
@@ -152,9 +174,16 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         ticks: fromPool.positionInfo.ticks,
       };
 
+      const tokenTo0 = enrichLogoAndPrice(toPoolToken0);
+      const tokenTo1 = enrichLogoAndPrice(toPoolToken1);
+      if (!tokenTo0 || !tokenTo1) {
+        set({ error: "Can't get token info" });
+        return;
+      }
+
       const pool1: Pool = {
-        token0: enrichLogoAndPrice(toPoolToken0),
-        token1: enrichLogoAndPrice(toPoolToken1),
+        token0: tokenTo0,
+        token1: tokenTo1,
         address: poolTo,
         dex: dexTo,
         fee: toPool.swapFee,

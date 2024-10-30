@@ -238,3 +238,5 @@ export const DexInfos: Record<Dex, DexInfo> = {
     nftManagerContract: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
 };
+
+export const ZAP_URL = "https://zap-api.kyberswap.com";

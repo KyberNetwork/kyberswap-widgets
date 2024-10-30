@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { usePoolsStore } from "./usePoolsStore";
 import { usePositionStore } from "./useFromPositionStore";
-import { NetworkInfo } from "../constants";
-import { ChainId } from "..";
+import { NetworkInfo, ZAP_URL } from "../constants";
+import { ChainId } from "../schema";
+
 import { z } from "zod";
 
 interface ZapState {
@@ -20,8 +21,6 @@ interface ZapState {
   showPreview: boolean;
   togglePreview: () => void;
 }
-
-const ZAP_URL = "https://zap-api.kyberswap.com";
 
 export const useZapStateStore = create<ZapState>((set, get) => ({
   slippage: 50,

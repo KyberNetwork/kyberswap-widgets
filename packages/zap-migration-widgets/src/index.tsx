@@ -37,6 +37,11 @@ export interface ZapMigrationProps {
     feeAddress: string;
   };
   onClose: () => void;
+  client: string;
+  connectedAccount: {
+    address: string | undefined; // check if account is connected
+    chainId: number; // check if wrong network
+  };
 }
 
 export const ZapMigration = ({

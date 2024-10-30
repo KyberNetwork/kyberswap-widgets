@@ -23,7 +23,9 @@ function mulShift(val: bigint, mulBy: string): bigint {
 // Function to convert tick to sqrt(price) Q96
 export function getSqrtRatioAtTick(tick: number): bigint {
   if (tick < MIN_TICK || tick > MAX_TICK || !Number.isInteger(tick)) {
-    throw new Error("TICK must be within bounds MIN_TICK and MAX_TICK");
+    throw new Error(
+      `TICK ${tick}: must be within bounds MIN_TICK and MAX_TICK`
+    );
   }
   const absTick: number = tick < 0 ? tick * -1 : tick;
 
