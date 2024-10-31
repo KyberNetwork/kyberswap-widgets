@@ -1,6 +1,6 @@
 {
   "name": "@kyberswap/liquidity-widgets",
-  "version": "0.0.8-multi-token-1",
+  "version": "0.0.9",
   "license": "MIT",
   "type": "module",
   "exports": {
