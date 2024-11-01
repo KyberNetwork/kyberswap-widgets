@@ -3,7 +3,6 @@ import { formatUnits } from "viem";
 import SwitchIcon from "../../assets/switch.svg";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatCurrency, formatWei } from "../../utils";
-import InfoHelper from "../InfoHelper";
 
 export default function LiquidityToAdd() {
   const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn, zapInfo } =
@@ -11,45 +10,51 @@ export default function LiquidityToAdd() {
 
   const initUsd = zapInfo?.zapDetails.initialAmountUsd;
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ".");
+    const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
+    if (
+      value === "" ||
+      inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    )
+      setAmountIn(value);
+  };
+
   return (
-    <div className="liquidity-to-add">
-      <div className="label">
+    <div>
+      <div className="text-xs font-medium text-secondary uppercase">
         Deposit Amount
-        <InfoHelper text="Zap In with any tokens is coming soon" />
       </div>
 
-      <div className="balance-row">
-        <button onClick={toggleTokenIn}>
+      <div className="flex justify-between items-center mt-2">
+        <button
+          className="bg-transparent border-none rounded-full outline-inherit cursor-pointer p-0 items-center text-[var(--ks-lw-text)] brightness-130 flex gap-1 text-base font-semibold hover:brightness-140 active:scale-96"
+          onClick={toggleTokenIn}
+        >
           {tokenIn && (
             <img
               src={tokenIn?.logoURI}
               alt="TokenLogo"
-              width="24px"
-              style={{ borderRadius: "50%" }}
+              className="w-6 rounded-[50%] brightness-80"
             />
           )}
           <span>{tokenIn?.symbol}</span>
           <SwitchIcon />
         </button>
 
-        <div className="balance-text">
+        <div className="text-textSecondary text-xs">
           <span>Balance</span>: {formatWei(balanceIn, tokenIn?.decimals)}
         </div>
       </div>
 
-      <div className="input-token">
+      <div
+        className="mt-2 border border-inputBorder bg-inputBackground rounded-md py-2 px-4 flex flex-col items-end"
+        style={{ boxShadow: "box-shadow: 0px 2px 0px -1px #0000000f inset" }}
+      >
         <input
+          className="bg-transparent text-textPrimary text-base font-medium w-full p-0 text-right border-none outline-none"
           value={amountIn}
-          onChange={(e) => {
-            const value = e.target.value.replace(/,/g, ".");
-            const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
-            if (
-              value === "" ||
-              inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-            ) {
-              setAmountIn(value);
-            }
-          }}
+          onChange={handleInputChange}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"
@@ -61,11 +66,13 @@ export default function LiquidityToAdd() {
           spellCheck="false"
         />
 
-        <div className="est-usd">~{formatCurrency(+(initUsd || 0))}</div>
+        <div className="mt-1 text-sm text-textSecondary">
+          ~{formatCurrency(+(initUsd || 0))}
+        </div>
 
-        <div className="balance-preset">
+        <div className="flex justify-end gap-1 text-subText text-sm font-medium mt-1">
           <button
-            className="outline-btn small"
+            className="ks-outline-btn small"
             onClick={() => {
               if (balanceIn && tokenIn)
                 setAmountIn(
@@ -76,7 +83,7 @@ export default function LiquidityToAdd() {
             25%
           </button>
           <button
-            className="outline-btn small"
+            className="ks-outline-btn small"
             onClick={() => {
               if (balanceIn && tokenIn)
                 setAmountIn(
@@ -87,7 +94,7 @@ export default function LiquidityToAdd() {
             50%
           </button>
           <button
-            className="outline-btn small"
+            className="ks-outline-btn small"
             onClick={() => {
               if (balanceIn && tokenIn)
                 setAmountIn(
@@ -102,7 +109,7 @@ export default function LiquidityToAdd() {
           </button>
 
           <button
-            className="outline-btn small"
+            className="ks-outline-btn small"
             onClick={() => {
               if (balanceIn && tokenIn) {
                 setAmountIn(formatUnits(BigInt(balanceIn), tokenIn.decimals));

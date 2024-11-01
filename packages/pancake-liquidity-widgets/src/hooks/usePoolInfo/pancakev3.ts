@@ -39,7 +39,10 @@ export default function usePoolInfo(
 
   useEffect(() => {
     const getPoolInfo = async () => {
-      if (!publicClient || !!pool) return;
+      if (!publicClient || !!pool) {
+        setLoading(false);
+        return;
+      }
       const multiCallRes = await publicClient.multicall({
         contracts: [
           {

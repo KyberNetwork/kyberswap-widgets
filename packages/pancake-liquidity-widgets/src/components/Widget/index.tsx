@@ -12,6 +12,8 @@ import Setting from "../Setting";
 import "./Widget.scss";
 import { NetworkInfo } from "../../constants";
 
+import "../../globals.css";
+
 const getChainById = (chainId: number) => {
   return Object.values(chains).find((chain) => chain.id === chainId);
 };
@@ -94,6 +96,7 @@ export default function Widget({
       if (!modalRoot) {
         modalRoot = document.createElement("div");
         modalRoot.id = "ks-lw-modal-root";
+        modalRoot.className = "ks-lw-style";
         document.body.appendChild(modalRoot);
       }
     };
@@ -131,7 +134,7 @@ export default function Widget({
           initAmount={initAmount}
           source={source}
         >
-          <div className="ks-lw">
+          <div className="ks-lw ks-lw-style">
             <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
             <Setting />
           </div>

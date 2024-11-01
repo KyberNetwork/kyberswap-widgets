@@ -29,11 +29,10 @@ export default function Tooltip({
           <div
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
+            className="py-[10px] px-4 font-normal"
             style={{
               width: width || "max-content",
-              padding: "10px 16px",
               lineHeight: 1.5,
-              fontWeight: "400",
               fontSize: `${size || 14}px`,
             }}
           >
@@ -84,7 +83,7 @@ export function MouseoverTooltip({
       <div
         onMouseOver={open}
         onMouseLeave={close}
-        style={{ display: "flex", alignItems: "center" }}
+        className="flex items-center"
       >
         {children}
       </div>

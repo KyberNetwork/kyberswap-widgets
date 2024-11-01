@@ -1,4 +1,3 @@
-import "./Content.scss";
 import X from "../../assets/x.svg";
 import ErrorIcon from "../../assets/error.svg";
 import PriceInfo from "./PriceInfo";
@@ -168,8 +167,8 @@ export default function Content({
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
   ) as ProtocolFeeAction | undefined;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
 
   const piVeryHigh =
     (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
@@ -226,25 +225,12 @@ export default function Content({
     <>
       {loadPoolError && (
         <Modal isOpen onClick={() => onDismiss()}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2rem",
-              color: theme.error,
-            }}
-          >
-            <ErrorIcon className="error-icon" />
-            <div style={{ textAlign: "center" }}>{loadPoolError}</div>
+          <div className="flex flex-col items-center gap-8 text-error">
+            <ErrorIcon />
+            <div className="text-center">{loadPoolError}</div>
             <button
-              className="primary-btn"
+              className="ks-primary-btn w-[95%] bg-error border border-error"
               onClick={onDismiss}
-              style={{
-                width: "95%",
-                background: theme.error,
-                border: `1px solid ${theme.error}`,
-              }}
             >
               Close
             </button>
@@ -253,12 +239,12 @@ export default function Content({
       )}
       {snapshotState && (
         <Modal isOpen onClick={() => setSnapshotState(null)}>
-          <div className="ks-lw-modal-headline">
+          <div className="flex justify-between text-xl font-medium">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
+              className="cursor-pointer"
               role="button"
               onClick={() => setSnapshotState(null)}
-              style={{ cursor: "pointer" }}
             >
               <X />
             </div>
@@ -274,44 +260,44 @@ export default function Content({
         </Modal>
       )}
       <Header onDismiss={onDismiss} />
-      <div className="ks-lw-content">
-        <div className="left">
+      <div className="flex gap-5 py-0 px-6 max-sm:flex-col">
+        <div className="flex-1 w-1/2 max-sm:w-full">
           <LiquidityToAdd />
 
-          <div className="label" style={{ marginTop: "1.5rem" }}>
+          <div className="text-xs font-medium text-secondary uppercase mt-6">
             Set price ranges
           </div>
 
           <div className="ks-lw-card">
             <PriceInfo />
 
-            <div className="price-input-group">
+            <div className="grid grid-cols-2 gap-2">
               <PriceInput type={Type.PriceLower} />
               <PriceInput type={Type.PriceUpper} />
             </div>
 
             {positionId === undefined && (
-              <div className="price-input-preset">
+              <div className="mt-[10px] w-full flex justify-between gap-2 text-xs">
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => selectPriceRange(0.1)}
                 >
                   10%
                 </button>
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => selectPriceRange(0.2)}
                 >
                   20%
                 </button>
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => selectPriceRange(0.75)}
                 >
                   75%
                 </button>
                 <button
-                  className="outline-btn"
+                  className="ks-outline-btn medium"
                   onClick={() => {
                     if (!pool) return;
                     setTick(
@@ -331,24 +317,24 @@ export default function Content({
           </div>
         </div>
 
-        <div className="right">
+        <div className="flex-1 w-1/2 max-sm:w-full">
           <ZapRoute />
           <EstLiqValue />
         </div>
       </div>
 
-      <div className="ks-lw-action">
-        <button className="outline-btn" onClick={onDismiss}>
+      <div className="flex gap-6 p-6">
+        <button className="ks-outline-btn flex-1" onClick={onDismiss}>
           Cancel
         </button>
 
         {!account ? (
-          <button className="primary-btn" onClick={onConnectWallet}>
+          <button className="ks-primary-btn flex-1" onClick={onConnectWallet}>
             Connect Wallet
           </button>
         ) : (
           <button
-            className="primary-btn"
+            className="ks-primary-btn flex-1"
             disabled={disabled}
             onClick={hanldeClick}
             style={

@@ -12,7 +12,7 @@ import InfoHelper from "../InfoHelper";
 
 export default function ZapRoute() {
   const { zapInfo, tokenIn } = useZapState();
-  const { pool, theme } = useWidgetInfo();
+  const { pool } = useWidgetInfo();
   const { chainId } = useWeb3Provider();
 
   const address =
@@ -94,51 +94,51 @@ export default function ZapRoute() {
 
   return (
     <>
-      <div className="label">
+      <div className="text-xs font-medium text-secondary uppercase">
         Zap Route
         <InfoHelper text="The actual Zap Route could be adjusted with on-chain states" />
       </div>
-      <div className="ks-lw-card zap-route">
+      <div className="ks-lw-card flex flex-col gap-4">
         {aggregatorSwapInfo && (
-          <div className="row">
-            <div className="step">1</div>
-            <div className="text">
+          <div className="flex gap-3 items-center">
+            <div className="rounded-[50%] w-6 h-6 flex justify-center items-center text-sm font-medium bg-inputBackground text-textSecondary">
+              1
+            </div>
+            <div className="flex-1 text-xs text-textSecondary leading-[18px]">
               Swap {swappedAmount} {tokenIn?.symbol} for {swappedAmountOut}{" "}
               {tokenOut?.symbol} via{" "}
-              <span style={{ color: theme.textPrimary, fontWeight: 500 }}>
-                KyberSwap
-              </span>
+              <span className="text-textPrimary font-medium">KyberSwap</span>
             </div>
           </div>
         )}
 
         {poolSwapInfo && (
-          <div className="row">
-            <div className="step">{aggregatorSwapInfo ? 2 : 1}</div>
-            <div className="text">
+          <div className="flex gap-3 items-center">
+            <div className="rounded-[50%] w-6 h-6 flex justify-center items-center text-sm font-medium bg-inputBackground text-textSecondary">
+              {aggregatorSwapInfo ? 2 : 1}
+            </div>
+            <div className="flex-1 text-xs text-textSecondary leading-[18px]">
               Swap {swappedAmountInViaPool} {poolSwapTokenIn?.symbol} for{" "}
               {swappedAmountOutViaPool} {poolSwapTokenOut?.symbol} via{" "}
-              <span style={{ color: theme.textPrimary, fontWeight: 500 }}>
+              <span className="text-textPrimary font-medium">
                 {getDexName()} Pool
               </span>
             </div>
           </div>
         )}
 
-        <div className="row">
-          <div className="step">
+        <div className="flex gap-3 items-center">
+          <div className="rounded-[50%] w-6 h-6 flex justify-center items-center text-sm font-medium bg-inputBackground text-textSecondary">
             {aggregatorSwapInfo && poolSwapInfo
               ? 3
               : aggregatorSwapInfo || poolSwapInfo
               ? 2
               : 1}
           </div>
-          <div className="text">
+          <div className="flex-1 text-xs text-textSecondary leading-[18px]">
             Build LP using {addedAmount0} {pool?.token0.symbol} and{" "}
             {addedAmount1} {pool?.token1.symbol} on{" "}
-            <span style={{ color: theme.textPrimary, fontWeight: 500 }}>
-              {getDexName()}
-            </span>
+            <span className="text-textPrimary font-medium">{getDexName()}</span>
           </div>
         </div>
       </div>

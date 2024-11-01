@@ -2,7 +2,6 @@ import { isAddress as _isAddress, getAddress } from "viem";
 import { formatUnits } from "viem";
 import pancakeLogo from "../assets/pancake.png";
 import { ProtocolFeeAction } from "../hooks/useZapInState";
-import { Theme } from "../theme";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -207,7 +206,6 @@ export enum PI_LEVEL {
 
 export const getPriceImpact = (
   pi: number | null | undefined,
-  theme: Theme,
   zapFeeInfo?: ProtocolFeeAction
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
@@ -225,8 +223,8 @@ export const getPriceImpact = (
     return {
       msg: (
         <div>
-          Price impact is <span style={{ color: theme.error }}>very high</span>.
-          You will lose funds!
+          Price impact is <span className="text-error">very high</span>. You
+          will lose funds!
         </div>
       ),
       level: PI_LEVEL.VERY_HIGH,
@@ -238,7 +236,7 @@ export const getPriceImpact = (
     return {
       msg: (
         <>
-          Price impact is <span style={{ color: theme.warning }}>high</span>
+          Price impact is <span className="text-warning">high</span>
         </>
       ),
       level: PI_LEVEL.HIGH,

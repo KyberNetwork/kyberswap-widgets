@@ -23,7 +23,7 @@ import { useWeb3Provider } from "../../hooks/useProvider";
 
 export default function EstLiqValue() {
   const { zapInfo, source, marketPrice, revertPrice } = useZapState();
-  const { pool, theme, position, positionOwner, positionId } = useWidgetInfo();
+  const { pool, position, positionOwner, positionId } = useWidgetInfo();
   const { account } = useWeb3Provider();
 
   const token0 = pool?.token0 as PancakeToken | undefined;
@@ -111,8 +111,8 @@ export default function EstLiqValue() {
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, theme, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, theme, feeInfo);
+  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
 
   const positionAmount0Usd =
     (+(position?.amount0.toExact() || 0) *
@@ -140,7 +140,7 @@ export default function EstLiqValue() {
         })
       : null;
 
-  const isDevated =
+  const isDevatied =
     !!marketPrice &&
     newPool &&
     Math.abs(
@@ -166,48 +166,49 @@ export default function EstLiqValue() {
 
   return (
     <>
-      <div className="label" style={{ marginTop: "24px" }}>
+      <div className="text-xs font-medium text-secondary uppercase mt-6">
         Summary
       </div>
-      <div className="ks-lw-card est-liq-val">
-        <div className="detail-row">
+      <div className="ks-lw-card mt-2 flex flex-col gap-2">
+        <div className="flex justify-between items-start text-sm">
           Est. Liquidity Value
           {!!addedAmountUsd && (
-            <span style={{ fontSize: "16px", fontWeight: "600" }}>
+            <span className="text-base font-semibold">
               {formatCurrency(addedAmountUsd)}
             </span>
           )}
         </div>
 
-        <div className="detail-row">
-          <div className="label">Est. Pooled {token0?.symbol}</div>
+        <div className="flex justify-between items-start text-sm">
+          <div className="text-textSecondary w-fit text-sm font-normal normal-case">
+            Est. Pooled {token0?.symbol}
+          </div>
           {zapInfo ? (
             <div>
-              <div className="token-amount">
+              <div className="flex justify-end items-start gap-1">
                 {token0?.logoURI && (
                   <img
                     src={token0.logoURI}
-                    width="14px"
-                    style={{ marginTop: "2px", borderRadius: "50%" }}
+                    className="w-[14px] mt-[2px] rounded-[50%]"
                   />
                 )}
                 {position ? (
-                  <div style={{ textAlign: "end" }}>
+                  <div className="text-end">
                     {formatNumber(+position.amount0.toExact())} {token0?.symbol}
                   </div>
                 ) : (
-                  <div style={{ textAlign: "end" }}>
+                  <div className="text-end">
                     {formatNumber(+addedAmount0)} {token0?.symbol}
                   </div>
                 )}
               </div>
               {position && (
-                <div style={{ textAlign: "end" }}>
+                <div className="text-end">
                   + {formatNumber(+addedAmount0)} {token0?.symbol}
                 </div>
               )}
 
-              <div className="label" style={{ marginLeft: "auto" }}>
+              <div className="text-textSecondary w-fit text-sm font-normal normal-case ml-auto">
                 ~
                 {formatCurrency(
                   +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0) +
@@ -220,36 +221,37 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
-          <div className="label">Est. Pooled {token1?.symbol}</div>
+        <div className="flex justify-between items-start text-sm">
+          <div className="text-textSecondary w-fit text-sm font-normal normal-case">
+            Est. Pooled {token1?.symbol}
+          </div>
           {zapInfo ? (
             <div>
-              <div className="token-amount">
+              <div className="flex justify-end items-start gap-1">
                 {token1?.logoURI && (
                   <img
                     src={token1.logoURI}
-                    width="14px"
-                    style={{ marginTop: "2px", borderRadius: "50%" }}
+                    className="w-[14px] mt-[2px] rounded-[50%]"
                   />
                 )}
 
                 {position ? (
-                  <div style={{ textAlign: "end" }}>
+                  <div className="text-end">
                     {formatNumber(+position.amount1.toExact())} {token1?.symbol}
                   </div>
                 ) : (
-                  <div style={{ textAlign: "end" }}>
+                  <div className="text-end">
                     {formatNumber(+addedAmount1)} {token1?.symbol}
                   </div>
                 )}
               </div>
               {position && (
-                <div style={{ textAlign: "end" }}>
+                <div className="text-end">
                   + {formatNumber(+addedAmount1)} {token1?.symbol}
                 </div>
               )}
 
-              <div className="label" style={{ marginLeft: "auto" }}>
+              <div className="text-textSecondary w-fit text-sm font-normal normal-case ml-auto">
                 ~
                 {formatCurrency(
                   +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0) +
@@ -262,12 +264,14 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start text-sm">
           <MouseoverTooltip
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="label underline">Est. Remaining Value</div>
+            <div className="text-textSecondary w-fit text-sm font-normal normal-case border-b border-dotted border-textSecondary">
+              Est. Remaining Value
+            </div>
           </MouseoverTooltip>
 
           <div>
@@ -287,24 +291,25 @@ export default function EstLiqValue() {
           </div>
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start text-sm">
           <MouseoverTooltip
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="label underline">Swap Price Impact</div>
+            <div className="text-textSecondary w-fit text-sm font-normal normal-case border-b border-dotted border-textSecondary">
+              Swap Price Impact
+            </div>
           </MouseoverTooltip>
           {aggregatorSwapInfo || poolSwapInfo ? (
             <div
-              style={{
-                color:
-                  swapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                  swapPiRes.level === PI_LEVEL.INVALID
-                    ? theme.error
-                    : swapPiRes.level === PI_LEVEL.HIGH
-                    ? theme.warning
-                    : theme.textPrimary,
-              }}
+              className={
+                swapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                swapPiRes.level === PI_LEVEL.INVALID
+                  ? "text-error"
+                  : swapPiRes.level === PI_LEVEL.HIGH
+                  ? "text-warning"
+                  : "text-textPrimary"
+              }
             >
               {swapPiRes.display}
             </div>
@@ -313,24 +318,25 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start text-sm">
           <MouseoverTooltip
             text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
             width="220px"
           >
-            <div className="label underline">Zap Impact</div>
+            <div className="text-textSecondary w-fit text-sm font-normal normal-case border-b border-dotted border-textSecondary">
+              Zap Impact
+            </div>
           </MouseoverTooltip>
           {zapInfo ? (
             <div
-              style={{
-                color:
-                  piRes.level === PI_LEVEL.VERY_HIGH ||
-                  piRes.level === PI_LEVEL.INVALID
-                    ? theme.error
-                    : piRes.level === PI_LEVEL.HIGH
-                    ? theme.warning
-                    : theme.textPrimary,
-              }}
+              className={
+                piRes.level === PI_LEVEL.VERY_HIGH ||
+                piRes.level === PI_LEVEL.INVALID
+                  ? "text-error"
+                  : piRes.level === PI_LEVEL.HIGH
+                  ? "text-warning"
+                  : "text-textPrimary"
+              }
             >
               {piRes.display}
             </div>
@@ -339,7 +345,7 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="detail-row">
+        <div className="flex justify-between items-start text-sm">
           <MouseoverTooltip
             placement="bottom"
             text={
@@ -347,7 +353,7 @@ export default function EstLiqValue() {
                 Fees charged for automatically zapping into a liquidity pool.
                 You still have to pay the standard gas fees.{" "}
                 <a
-                  style={{ color: theme.primary }}
+                  className="text-warning"
                   href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
                   target="_blank"
                   rel="noopener norefferer"
@@ -358,7 +364,9 @@ export default function EstLiqValue() {
             }
             width="220px"
           >
-            <div className="label underline">Zap Fee</div>
+            <div className="text-textSecondary w-fit text-sm font-normal normal-case border-b border-dotted border-textSecondary">
+              Zap Fee
+            </div>
           </MouseoverTooltip>
 
           <MouseoverTooltip
@@ -372,7 +380,7 @@ export default function EstLiqValue() {
                 : ""
             }
           >
-            <div className="underline">
+            <div className="border-b border-dotted border-textSecondary">
               {feeInfo || partnerFee
                 ? parseFloat((protocolFee + partnerFee).toFixed(3)) + "%"
                 : "--"}
@@ -381,55 +389,32 @@ export default function EstLiqValue() {
         </div>
 
         {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
-            Swap {swapPiRes.msg}
-          </div>
+          <div className="ks-lw-card-warning mt-3">Swap {swapPiRes.msg}</div>
         )}
 
         {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
-            {piRes.msg}
-          </div>
+          <div className="ks-lw-card-warning mt-3">{piRes.msg}</div>
         )}
 
         {isOutOfRangeAfterZap && (
-          <div
-            className="ks-lw-card-warning"
-            style={{
-              marginTop: "12px",
-            }}
-          >
-            The position will be{" "}
-            <span style={{ color: theme.warning }}>inactive</span> after zapping
-            and{" "}
-            <span style={{ color: theme.warning }}>won’t earn any fees</span>{" "}
-            until the pool price moves back to select price range
+          <div className="ks-lw-card-warning mt-3">
+            The position will be <span className="text-warning">inactive</span>{" "}
+            after zapping and{" "}
+            <span className="text-warning">won’t earn any fees</span> until the
+            pool price moves back to select price range
           </div>
         )}
-        {isDevated && (
-          <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+        {isDevatied && (
+          <div className="ks-lw-card-warning mt-3">
             <div className="text">
               The pool's estimated price after zapping:{" "}
-              <span
-                style={{
-                  fontWeight: "500",
-                  color: theme.warning,
-                  fontStyle: "normal",
-                  marginLeft: "2px",
-                }}
-              >
+              <span className="font-medium text-warning ml-[2px] not-italic">
                 {price}{" "}
               </span>{" "}
               {revertPrice ? token0?.symbol : token1?.symbol} per{" "}
               {revertPrice ? token1?.symbol : token0?.symbol} deviates from the
               market price:{" "}
-              <span
-                style={{
-                  fontWeight: "500",
-                  color: theme.warning,
-                  fontStyle: "normal",
-                }}
-              >
+              <span className="font-medium text-warning not-italic">
                 {marketRate}{" "}
               </span>
               {revertPrice ? token0?.symbol : token1?.symbol} per{" "}
@@ -442,10 +427,10 @@ export default function EstLiqValue() {
         {positionOwner &&
           account &&
           positionOwner.toLowerCase() !== account.toLowerCase() && (
-            <div className="ks-lw-card-warning" style={{ marginTop: "12px" }}>
+            <div className="ks-lw-card-warning mt-3">
               You are not the current owner of the position{" "}
-              <span style={{ color: theme.warning }}>#{positionId}</span>,
-              please double check before proceeding
+              <span className="text-warning">#{positionId}</span>, please double
+              check before proceeding
             </div>
           )}
       </div>

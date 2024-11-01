@@ -1,14 +1,13 @@
 import { useRef, useState } from "react";
-import X from "../../assets/x.svg";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { useZapState } from "../../hooks/useZapInState";
-import Toggle from "../Toggle";
-import "./Setting.scss";
-import SlippageInput from "./SlippageInput";
 import { MouseoverTooltip } from "../Tooltip";
+// import { useDeviceScreen } from "@kyber/hooks/use-device-screen";
 import Modal from "../Modal";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import Input from "../Input";
+import Toggle from "../Toggle";
+import SlippageInput from "./SlippageInput";
+import X from "../../assets/x.svg";
 
 export default function Setting() {
   const {
@@ -21,44 +20,43 @@ export default function Setting() {
     degenMode,
     setDegenMode,
   } = useZapState();
-  const { theme } = useWidgetInfo();
   const ref = useRef(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirm, setConfirm] = useState("");
+
   useOnClickOutside(ref, () => {
     if (showSetting) toggleSetting();
   });
 
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const [confirm, setConfirm] = useState("");
   if (!showSetting) return null;
 
   return (
     <>
       <Modal isOpen={showConfirm}>
-        <div className="ks-lw-degen-confirm">
-          <div className="title">
+        <div>
+          <div className="flex justify-between text-xl items-center font-semibold">
             <div>Are you sure?</div>
 
             <X
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
               role="button"
               onClick={() => setShowConfirm(false)}
             />
           </div>
 
-          <div className="content">
+          <div className="text-sm text-subText mt-5">
             Turn this on to make trades with very high price impact or to set
             very high slippage tolerance. This can result in bad rates and loss
             of funds. Be cautious.
           </div>
 
-          <div className="content">
-            Please type the word{" "}
-            <span style={{ color: theme.warning }}>Confirm</span> below to
-            enable Degen Mode
+          <div className="text-sm text-subText mt-5">
+            Please type the word <span className="text-warning">Confirm</span>{" "}
+            below to enable Degen Mode
           </div>
 
           <Input
+            className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full"
             placeholder="Confirm"
             value={confirm}
             onChange={(e) => {
@@ -66,9 +64,9 @@ export default function Setting() {
             }}
           />
 
-          <div className="action">
+          <div className="flex gap-1 mt-6">
             <button
-              className="outline-btn"
+              className="ks-outline-btn flex-1"
               onClick={() => {
                 setShowConfirm(false);
                 setConfirm("");
@@ -77,7 +75,7 @@ export default function Setting() {
               No, Go back
             </button>
             <button
-              className="primary-btn"
+              className="ks-primary-btn flex-1"
               onClick={() => {
                 if (confirm.toLowerCase() === "confirm") {
                   setDegenMode(true);
@@ -91,28 +89,35 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div className="ks-lw-setting" ref={ref}>
-        <div className="title">Advanced Setting</div>
+      <div
+        className="absolute w-[360px] right-6 top-[136px] bg-cardBackground p-4 rounded-3xl border border-cardBorder border-b-2"
+        style={{ boxShadow: "0px 4px 8px 0px #00000029" }}
+        ref={ref}
+      >
+        <div className="text-xl font-semibold mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
           width="220px"
         >
-          <div className="setting-title underline">Max Slippage</div>
+          <div className="text-sm border-b border-dotted border-textSecondary">
+            Max Slippage
+          </div>
         </MouseoverTooltip>
         <SlippageInput />
 
-        <div className="row-btw">
+        <div className="flex justify-between items-center mt-[14px]">
           <MouseoverTooltip
             text="Transaction will revert if it is pending for longer than the indicated time."
             width="220px"
           >
-            <div className="setting-title underline">
+            <div className="text-sm border-b border-dotted border-textSecondary">
               Transaction Time Limit
             </div>
           </MouseoverTooltip>
 
-          <div className="ttl-input">
+          <div className="flex py-[6px] px-2 gap-1 rounded-full bg-transparent text-[var(--ks-lw-text)] text-xs font-medium text-right">
             <input
+              className="border-none outline-none w-12 p-0 bg-transparent text-right text-[var(--ks-lw-text)]"
               maxLength={5}
               placeholder="20"
               value={ttl ? ttl.toString() : ""}
@@ -129,12 +134,12 @@ export default function Setting() {
           </div>
         </div>
 
-        <div className="row-btw">
+        <div className="flex justify-between items-center mt-[14px]">
           <MouseoverTooltip
             text="Zap will include DEX aggregator to find the best price."
             width="220px"
           >
-            <div className="setting-title underline">
+            <div className="text-sm border-b border-dotted border-textSecondary">
               Use Aggregator for Zaps
             </div>
           </MouseoverTooltip>
@@ -146,12 +151,14 @@ export default function Setting() {
           />
         </div>
 
-        <div className="row-btw">
+        <div className="flex justify-between items-center mt-[14px]">
           <MouseoverTooltip
             text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
             width="220px"
           >
-            <div className="setting-title underline">Degen Mode</div>
+            <div className="text-sm border-b border-dotted border-textSecondary">
+              Degen Mode
+            </div>
           </MouseoverTooltip>
           <Toggle
             isActive={degenMode}
