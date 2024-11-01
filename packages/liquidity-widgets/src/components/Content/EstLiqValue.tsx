@@ -34,7 +34,7 @@ import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 
 export default function EstLiqValue() {
-  const { zapInfo, source, slippage } = useZapState();
+  const { zapInfo, source, slippage, tokensIn } = useZapState();
   const { pool, theme, position } = useWidgetInfo();
   const { allTokens } = useTokenList();
 
@@ -112,14 +112,14 @@ export default function EstLiqValue() {
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokensIn.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
-          (token: Token) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
-        );
+        const tokenOut =
+          pool?.token0.address === item.tokenOut.address.toLowerCase()
+            ? pool.token0
+            : pool?.token1;
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
@@ -141,14 +141,16 @@ export default function EstLiqValue() {
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokensIn.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
-          (token: Token) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
-        );
+
+        const tokenOut =
+          pool?.token0.address === item.tokenOut.address.toLowerCase()
+            ? pool.token0
+            : pool?.token1;
+
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
