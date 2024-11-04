@@ -1,7 +1,7 @@
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import SwitchIcon from "../../assets/switch.svg";
-import { useZapState } from "../../hooks/useZapInState";
-import { formatNumber } from "../../utils";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { useZapState } from "@/hooks/useZapInState";
+import { formatNumber } from "@/utils";
+import SwitchIcon from "@/assets/switch.svg";
 
 export default function PriceInfo() {
   const { loading, pool } = useWidgetInfo();

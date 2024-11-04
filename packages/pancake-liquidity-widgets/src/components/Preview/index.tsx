@@ -1,24 +1,20 @@
-import Info from "../../assets/info.svg";
-import DropdownIcon from "../../assets/dropdown.svg";
-import Spinner from "../../assets/loader.svg";
-import SwitchIcon from "../../assets/switch.svg";
-import SuccessIcon from "../../assets/success.svg";
-import ErrorIcon from "../../assets/error.svg";
-
+import { useEffect, useMemo, useState } from "react";
+import { Address, formatUnits } from "viem";
+import { MouseoverTooltip } from "@/components/Tooltip";
+import { ZAP_URL, useZapState } from "@/hooks/useZapInState";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import {
+  ZapAction,
   AddLiquidityAction,
   AggregatorSwapAction,
-  PartnerFeeAction,
   PoolSwapAction,
+  PartnerFeeAction,
   ProtocolFeeAction,
   RefundAction,
-  ZAP_URL,
   ZapRouteDetail,
-  chainIdToChain,
-  useZapState,
-} from "../../hooks/useZapInState";
-import { BASE_BPS, NetworkInfo } from "../../constants";
-import { useWeb3Provider } from "../../hooks/useProvider";
+} from "@/types/zapInTypes";
+import { BASE_BPS, NetworkInfo, chainIdToChain } from "@/constants";
 import {
   PI_LEVEL,
   calculateGasMargin,
@@ -30,20 +26,30 @@ import {
   getDexName,
   getPriceImpact,
   getWarningThreshold,
-} from "../../utils";
-import { useEffect, useState } from "react";
+} from "@/utils";
 import { Token, Price } from "@pancakeswap/sdk";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import InfoHelper from "../InfoHelper";
-import { MouseoverTooltip } from "../Tooltip";
-import { Address, formatUnits } from "viem";
-import { PancakeToken, PancakeV3Pool } from "../../entities/Pool";
+import { PancakeToken, PancakeV3Pool } from "@/entities/Pool";
+import { PancakeTokenAdvanced } from "@/types/zapInTypes";
+import Info from "@/assets/info.svg";
+import DropdownIcon from "@/assets/dropdown.svg";
+import Spinner from "@/assets/loader.svg";
+import SwitchIcon from "@/assets/switch.svg";
+import SuccessIcon from "@/assets/success.svg";
+import ErrorIcon from "@/assets/error.svg";
+import InfoHelper from "@/components/InfoHelper";
+import { useTokens } from "@/hooks/useTokens";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@kyber/ui/accordion";
 
 export interface ZapState {
   pool: PancakeV3Pool;
   zapInfo: ZapRouteDetail;
-  tokenIn: PancakeToken;
-  amountIn: string;
+  tokensIn: PancakeTokenAdvanced[];
+  amountsIn: string;
   priceLower: Price<Token, Token>;
   priceUpper: Price<Token, Token>;
   deadline: number;
@@ -63,8 +69,8 @@ export default function Preview({
   zapState: {
     pool,
     zapInfo,
-    tokenIn,
-    amountIn,
+    tokensIn,
+    amountsIn,
     priceLower,
     priceUpper,
     deadline,
@@ -78,6 +84,7 @@ export default function Preview({
   const { chainId, account, publicClient, walletClient } = useWeb3Provider();
   const { positionId, position } = useWidgetInfo();
   const { source, revertPrice: revert, toggleRevertPrice } = useZapState();
+  const { allTokens } = useTokens();
 
   const [txHash, setTxHash] = useState<Address | undefined>(undefined);
   const [attempTx, setAttempTx] = useState(false);
@@ -105,7 +112,7 @@ export default function Preview({
   }, [publicClient, txHash]);
 
   const addedLiqInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_ADD_LIQUIDITY"
+    (item) => item.type === ZapAction.ADD_LIQUIDITY
   ) as AddLiquidityAction;
   const addedAmount0 = formatUnits(
     BigInt(addedLiqInfo?.addLiquidity.token0.amount),
@@ -127,7 +134,7 @@ export default function Preview({
       +addedAmount1 || 0;
 
   const refundInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_REFUND"
+    (item) => item.type === ZapAction.REFUND
   ) as RefundAction | null;
   const refundToken0 =
     refundInfo?.refund.tokens.filter(
@@ -175,56 +182,20 @@ export default function Preview({
   );
 
   const feeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+    (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
   const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PARTNER_FEE"
+    (item) => item.type === ZapAction.PARTNET_FEE
   ) as PartnerFeeAction | undefined;
 
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
   const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
+    (item) => item.type === ZapAction.AGGREGATOR_SWAP
   ) as AggregatorSwapAction | undefined;
-  const swapAmountIn = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenIn.amountUsd,
-    0
-  );
-  const swapAmountOut = aggregatorSwapInfo?.aggregatorSwap.swaps.reduce(
-    (acc, item) => acc + +item.tokenOut.amountUsd,
-    0
-  );
-
-  const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_POOL_SWAP"
-  ) as PoolSwapAction | null;
-  const amountInPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenIn.amountUsd,
-      0
-    ) || 0;
-  const amountOutPoolSwap =
-    poolSwapInfo?.poolSwap.swaps.reduce(
-      (acc, item) => acc + +item.tokenOut.amount,
-      0
-    ) || 0;
-  const totalSwapIn = (swapAmountIn || 0) + amountInPoolSwap;
-  const totalSwapOut = (swapAmountOut || 0) + amountOutPoolSwap;
-  const swapPriceImpact = ((totalSwapIn - totalSwapOut) / totalSwapIn) * 100;
-
   const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
-  const swapPiRes = getPriceImpact(swapPriceImpact, feeInfo);
-
-  const piVeryHigh =
-    (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) ||
-    (!!aggregatorSwapInfo &&
-      [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(swapPiRes.level));
-
-  const piHigh =
-    (zapInfo && piRes.level === PI_LEVEL.HIGH) ||
-    (!!aggregatorSwapInfo && swapPiRes.level === PI_LEVEL.HIGH);
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
@@ -330,6 +301,95 @@ export default function Preview({
   const warningThreshold =
     ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
+  const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
+
+  const swapPi = useMemo(() => {
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | null;
+
+    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: PancakeToken) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: PancakeToken) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = allTokens.find(
+          (token: PancakeToken) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = allTokens.find(
+          (token: PancakeToken) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+
+        const pi =
+          ((parseFloat(item.tokenIn.amountUsd) -
+            parseFloat(item.tokenOut.amountUsd)) /
+            parseFloat(item.tokenIn.amountUsd)) *
+          100;
+        const piRes = getPriceImpact(pi, feeInfo);
+
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn,
+          amountOut,
+          piRes,
+        };
+      }) || [];
+
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [feeInfo, allTokens, zapInfo]);
+
+  const swapPiRes = useMemo(() => {
+    const invalidRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.INVALID
+    );
+    if (invalidRes) return invalidRes;
+
+    const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    if (highRes) return highRes;
+
+    const veryHighRes = swapPi.find(
+      (item) => item.piRes.level === PI_LEVEL.VERY_HIGH
+    );
+    if (veryHighRes) return veryHighRes;
+
+    return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
+  }, [swapPi]);
+
   if (attempTx || txHash) {
     let txStatusText = "";
     if (txHash) {
@@ -355,7 +415,6 @@ export default function Preview({
           {!txHash && (
             <div className="text-sm text-textSecondary text-center">
               Confirm this transaction in your wallet - Zapping{" "}
-              {formatNumber(+amountIn)} {tokenIn.symbol} into{" "}
               {positionId
                 ? `Position #${positionId}`
                 : `${getDexName()} ${pool.token0.symbol}/${
@@ -439,8 +498,13 @@ export default function Preview({
   const name = getDexName();
   const fee = pool.fee;
 
+  const piVeryHigh =
+    zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
+
+  const piHigh = zapInfo && piRes.level === PI_LEVEL.HIGH;
+
   return (
-    <div>
+    <div className="mt-2">
       <div className="flex items-center gap-3">
         <div className="relative w-12 h-12">
           <img
@@ -488,21 +552,25 @@ export default function Preview({
         </div>
       </div>
 
-      <div className="ks-lw-card mt-4">
-        <div className="card-title">Zap-in Amount</div>
-        <div className="flex items-center gap-1 text-sm text-textSecondary mt-2">
-          <img src={tokenIn.logoURI} alt="" className="w-5 rounded-[50%]" />
+      <div className="ks-lw-card mt-4 border border-inputBorder bg-inputBackground">
+        <div>Zap-in Amount</div>
 
-          <div className="text-textPrimary text-base">
-            {formatNumber(+amountIn)} {tokenIn.symbol}{" "}
-            <span className="text-textSecondary font-normal text-sm">
-              ~{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
-            </span>
+        {tokensIn.map((token: PancakeTokenAdvanced, index: number) => (
+          <div className="flex items-center gap-3 text-sm text-textSecondary mt-2">
+            <img src={token.logoURI} className="w-[18px] h-[18px]" />
+            <div className="text-textPrimary text-base">
+              {formatNumber(+listAmountsIn[index])} {token.symbol}
+              <span className="text-textSecondary font-normal text-sm ml-2">
+                {formatCurrency(
+                  (token.price || 0) * parseFloat(listAmountsIn[index])
+                )}
+              </span>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
 
-      <div className="ks-lw-card mt-4 text-sm">
+      <div className="ks-lw-card mt-3 text-sm">
         <div className="flex items-center gap-1 text-sm text-textSecondary">
           <div>Current pool price</div>
           <span className="text-textPrimary">{price}</span>
@@ -515,7 +583,7 @@ export default function Preview({
         </div>
 
         <div className="flex justify-between items-center gap-4 w-full mt-2">
-          <div className="flex-1 w-1/2 bg-inputBackground p-3 rounded-md flex flex-col gap-1 items-center">
+          <div className="flex-1 w-1/2 bg-inputBackground border border-inputBorder p-3 rounded-md flex flex-col gap-1 items-center">
             <div className="font-semibold text-xs text-secondary">
               MIN PRICE
             </div>
@@ -528,7 +596,7 @@ export default function Preview({
             </div>
             <div className="text-textSecondary">{quote}</div>
           </div>
-          <div className="flex-1 w-1/2 bg-inputBackground p-3 rounded-md flex flex-col gap-1 items-center">
+          <div className="flex-1 w-1/2 bg-inputBackground border border-inputBorder p-3 rounded-md flex flex-col gap-1 items-center">
             <div className="font-semibold text-xs text-secondary">
               MAX PRICE
             </div>
@@ -546,7 +614,7 @@ export default function Preview({
         </div>
       </div>
 
-      <div className="ks-lw-card flex-col gap-3 mt-1">
+      <div className="ks-lw-card flex flex-col gap-3 mt-3">
         <div className="flex justify-between gap-4 w-full items-start">
           <div className="text-sm font-medium text-textSecondary">
             Est. Pooled {pool.token0.symbol}
@@ -562,12 +630,12 @@ export default function Preview({
               <div>
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount0.toExact())}{" "}
+                    {formatNumber(+position.amount0.toExact(), 4)}{" "}
                     {pool?.token0.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
-                    {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                    {formatNumber(+addedAmount0, 4)} {pool?.token0.symbol}
                   </div>
                 )}
               </div>
@@ -575,7 +643,7 @@ export default function Preview({
 
             {position && (
               <div className="text-end">
-                + {formatNumber(+addedAmount0)} {pool?.token0.symbol}
+                + {formatNumber(+addedAmount0, 4)} {pool?.token0.symbol}
               </div>
             )}
             <div className="ml-auto w-fit text-textSecondary">
@@ -601,18 +669,18 @@ export default function Preview({
               )}
               {position ? (
                 <div className="text-end">
-                  {formatNumber(+position.amount1.toExact())}{" "}
+                  {formatNumber(+position.amount1.toExact(), 4)}{" "}
                   {pool?.token1.symbol}
                 </div>
               ) : (
                 <div className="text-end">
-                  {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                  {formatNumber(+addedAmount1, 4)} {pool?.token1.symbol}
                 </div>
               )}
             </div>
             {position && (
               <div className="text-end">
-                + {formatNumber(+addedAmount1)} {pool?.token1.symbol}
+                + {formatNumber(+addedAmount1, 4)} {pool?.token1.symbol}
               </div>
             )}
             <div className="ml-auto w-fit text-textSecondary">
@@ -670,29 +738,63 @@ export default function Preview({
         </div>
 
         <div className="flex justify-between items-center gap-4 w-full">
-          <MouseoverTooltip
-            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
-            width="220px"
-          >
-            <div className="text-sm font-medium text-textSecondary border-b border-dotted border-textSecondary">
-              Swap price impact
-            </div>
-          </MouseoverTooltip>
-          {aggregatorSwapInfo || poolSwapInfo ? (
-            <div
-              className={
-                swapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                swapPiRes.level === PI_LEVEL.INVALID
-                  ? "text-error"
-                  : swapPiRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-textPrimary"
-              }
-            >
-              {swapPiRes.display}
-            </div>
+          {swapPi.length ? (
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="transition-all [&[data-state=open]>svg]:rotate-180">
+                  <MouseoverTooltip
+                    text="View all the detailed estimated price impact of each swap"
+                    width="220px"
+                  >
+                    <div
+                      className={`text-textSecondary w-fit text-sm font-normal normal-case border-b border-dotted border-textSecondary ${
+                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
+                          ? ""
+                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
+                          ? "!text-warning !border-warning"
+                          : "!text-error !border-error"
+                      }`}
+                    >
+                      Swap Impact
+                    </div>
+                  </MouseoverTooltip>
+                </AccordionTrigger>
+                <AccordionContent className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                  {swapPi.map((item, index: number) => (
+                    <div
+                      className={`text-xs flex justify-between align-middle text-textSecondary mt-1 ${
+                        index === 0 ? "mt-2" : ""
+                      } ${
+                        item.piRes.level === PI_LEVEL.NORMAL
+                          ? "text-subText brightness-125"
+                          : item.piRes.level === PI_LEVEL.HIGH
+                          ? "text-warning"
+                          : "text-error"
+                      }`}
+                      key={index}
+                    >
+                      <div className="ml-3">
+                        {item.amountIn} {item.tokenInSymbol} {"→ "}
+                        {item.amountOut} {item.tokenOutSymbol}
+                      </div>
+                      <div>{item.piRes.display}</div>
+                    </div>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           ) : (
-            "--"
+            <>
+              <MouseoverTooltip
+                text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
+                width="220px"
+              >
+                <div className="text-textSecondary w-fit text-sm font-normal normal-case border-b border-dotted border-textSecondary">
+                  Swap Impact
+                </div>
+              </MouseoverTooltip>
+              <span>--</span>
+            </>
           )}
         </div>
 
@@ -784,8 +886,10 @@ export default function Preview({
         </div>
       )}
 
-      {aggregatorSwapInfo && swapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div className="ks-lw-card-warning mt-3">Swap {swapPiRes.msg}</div>
+      {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+        <div className="ks-lw-card-warning mt-3">
+          Swap {swapPiRes.piRes.msg}
+        </div>
       )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (

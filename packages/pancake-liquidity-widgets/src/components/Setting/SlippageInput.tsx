@@ -1,7 +1,7 @@
-import AlertIcon from "../../assets/alert.svg";
 import { useState } from "react";
-import { useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "@/hooks/useZapInState";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import AlertIcon from "@/assets/alert.svg";
 
 export const parseSlippageInput = (str: string): number =>
   Math.round(Number.parseFloat(str) * 100);

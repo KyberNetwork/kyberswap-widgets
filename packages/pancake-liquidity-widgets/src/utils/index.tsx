@@ -1,7 +1,6 @@
-import { isAddress as _isAddress, getAddress } from "viem";
-import { formatUnits } from "viem";
-import pancakeLogo from "../assets/pancake.png";
-import { ProtocolFeeAction } from "../hooks/useZapInState";
+import { isAddress as _isAddress, getAddress, formatUnits } from "viem";
+import { ProtocolFeeAction } from "@/types/zapInTypes";
+import pancakeLogo from "@/assets/pancake.png";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -49,8 +48,13 @@ export const formatCurrency = (value: number) =>
     //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
   }).format(value);
-export const formatNumber = (value: number) =>
-  new Intl.NumberFormat("en-US", { maximumSignificantDigits: 6 }).format(value);
+export const formatNumber = (
+  value: number,
+  maximumSignificantDigits?: number
+) =>
+  new Intl.NumberFormat("en-US", {
+    maximumSignificantDigits: maximumSignificantDigits || 6,
+  }).format(value);
 
 // TODO: handle decimals = 0
 export const formatWei = (value?: string, decimals?: number) => {

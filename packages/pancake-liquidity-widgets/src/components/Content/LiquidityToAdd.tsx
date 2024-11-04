@@ -1,49 +1,79 @@
+import { useMemo } from "react";
+import { useZapState } from "@/hooks/useZapInState";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { NetworkInfo } from "@/constants";
+import { formatCurrency, formatWei } from "@/utils";
 import { formatUnits } from "viem";
+import X from "@/assets/x.svg";
 
-import SwitchIcon from "../../assets/switch.svg";
-import { useZapState } from "../../hooks/useZapInState";
-import { formatCurrency, formatWei } from "../../utils";
+export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
+  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
+  const { chainId } = useWeb3Provider();
 
-export default function LiquidityToAdd() {
-  const { amountIn, setAmountIn, tokenIn, toggleTokenIn, balanceIn, zapInfo } =
-    useZapState();
-
-  const initUsd = zapInfo?.zapDetails.initialAmountUsd;
+  const amountIn = useMemo(
+    () => amountsIn.split(",")[tokenIndex],
+    [amountsIn, tokenIndex]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/,/g, ".");
+    if (value === ".") return;
     const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
     if (
       value === "" ||
       inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     )
-      setAmountIn(value);
+      onChangeTokenAmount(value);
+  };
+
+  const onChangeTokenAmount = (newAmount: string | number) => {
+    const listAmountsIn = amountsIn.split(",");
+    listAmountsIn[tokenIndex] = newAmount.toString();
+    setAmountsIn(listAmountsIn.join(","));
+  };
+
+  const handleRemoveToken = () => {
+    const cloneTokensIn = [...tokensIn];
+    cloneTokensIn.splice(tokenIndex, 1);
+    setTokensIn(cloneTokensIn);
+
+    const listAmountsIn = amountsIn.split(",");
+    listAmountsIn.splice(tokenIndex, 1);
+    setAmountsIn(listAmountsIn.join(","));
   };
 
   return (
     <div>
-      <div className="text-xs font-medium text-secondary uppercase">
-        Deposit Amount
-      </div>
-
       <div className="flex justify-between items-center mt-2">
-        <button
-          className="bg-transparent border-none rounded-full outline-inherit cursor-pointer p-0 items-center text-[var(--ks-lw-text)] brightness-130 flex gap-1 text-base font-semibold hover:brightness-140 active:scale-96"
-          onClick={toggleTokenIn}
-        >
-          {tokenIn && (
+        <div className="ml-1 flex items-center gap-2">
+          <div className="relative">
             <img
-              src={tokenIn?.logoURI}
-              alt="TokenLogo"
-              className="w-6 rounded-[50%] brightness-80"
+              className="w-6 h-6 rounded-[50%]"
+              src={tokensIn[tokenIndex].logoURI}
+              alt=""
+            />
+            <div className="absolute w-3 h-3 bg-[#1e1e1e] rounded-[5px] flex items-center justify-center bottom-0 right-0">
+              <img
+                className="rounded-[50%] w-2 h-2"
+                src={NetworkInfo[chainId].logo}
+              />
+            </div>
+          </div>
+          <p className="font-semibold">{tokensIn[tokenIndex].symbol}</p>
+          {tokensIn.length > 1 && (
+            <X
+              className="w-4 h-4 text-textSecondary hover:text-white cursor-pointer"
+              onClick={handleRemoveToken}
             />
           )}
-          <span>{tokenIn?.symbol}</span>
-          <SwitchIcon />
-        </button>
+        </div>
 
         <div className="text-textSecondary text-xs">
-          <span>Balance</span>: {formatWei(balanceIn, tokenIn?.decimals)}
+          <span>Balance</span>:{" "}
+          {formatWei(
+            tokensIn[tokenIndex].balance?.toString() || "0",
+            tokensIn[tokenIndex].decimals
+          )}
         </div>
       </div>
 
@@ -67,16 +97,25 @@ export default function LiquidityToAdd() {
         />
 
         <div className="mt-1 text-sm text-textSecondary">
-          ~{formatCurrency(+(initUsd || 0))}
+          ~
+          {formatCurrency(
+            +(
+              (tokensIn[tokenIndex].price || 0) * parseFloat(amountIn || "0") ||
+              0
+            )
+          )}
         </div>
 
         <div className="flex justify-end gap-1 text-subText text-sm font-medium mt-1">
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (balanceIn && tokenIn)
-                setAmountIn(
-                  formatUnits(BigInt(balanceIn) / BigInt(4), tokenIn.decimals)
+              if (tokensIn[tokenIndex].balance)
+                onChangeTokenAmount(
+                  formatUnits(
+                    BigInt(tokensIn[tokenIndex].balance) / BigInt(4),
+                    tokensIn[tokenIndex].decimals
+                  )
                 );
             }}
           >
@@ -85,9 +124,12 @@ export default function LiquidityToAdd() {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (balanceIn && tokenIn)
-                setAmountIn(
-                  formatUnits(BigInt(balanceIn) / BigInt(2), tokenIn.decimals)
+              if (tokensIn[tokenIndex].balance)
+                onChangeTokenAmount(
+                  formatUnits(
+                    BigInt(tokensIn[tokenIndex].balance) / BigInt(2),
+                    tokensIn[tokenIndex].decimals
+                  )
                 );
             }}
           >
@@ -96,11 +138,12 @@ export default function LiquidityToAdd() {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (balanceIn && tokenIn)
-                setAmountIn(
+              if (tokensIn[tokenIndex].balance)
+                onChangeTokenAmount(
                   formatUnits(
-                    (BigInt(balanceIn) * BigInt(3)) / BigInt(4),
-                    tokenIn.decimals
+                    (BigInt(tokensIn[tokenIndex].balance) * BigInt(3)) /
+                      BigInt(4),
+                    tokensIn[tokenIndex].decimals
                   )
                 );
             }}
@@ -111,9 +154,13 @@ export default function LiquidityToAdd() {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (balanceIn && tokenIn) {
-                setAmountIn(formatUnits(BigInt(balanceIn), tokenIn.decimals));
-              }
+              if (tokensIn[tokenIndex].balance)
+                onChangeTokenAmount(
+                  formatUnits(
+                    BigInt(tokensIn[tokenIndex].balance),
+                    tokensIn[tokenIndex].decimals
+                  )
+                );
             }}
           >
             Max

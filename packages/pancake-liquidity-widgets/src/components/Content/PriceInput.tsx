@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Type, useZapState } from "../../hooks/useZapInState";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { useZapState } from "@/hooks/useZapInState";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
-import { tryParseTick } from "../../utils/pancakev3";
+import { tryParseTick } from "@/utils/pancakev3";
+import { Type } from "@/types/zapInTypes";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 export default function PriceInput({ type }: { type: Type }) {

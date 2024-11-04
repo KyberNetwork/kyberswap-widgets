@@ -30,6 +30,8 @@ type WidgetParams = {
   theme: "light" | "dark";
   initTickUpper?: string;
   initTickLower?: string;
+  initDepositTokens: string;
+  initAmounts: string;
 };
 
 const { wallets } = getDefaultWallets();
@@ -71,8 +73,11 @@ function LiquidityWidgetWrapper() {
   const [key, setKey] = useState(Date.now());
   const [params, setParams] = useState<WidgetParams>({
     chainId: 42161,
-    poolAddress: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
+    poolAddress: "0x389938cf14be379217570d8e4619e51fbdafaa21",
     theme: "dark",
+    initDepositTokens:
+      "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9,0x912CE59144191C1204E64559FE8253a0e49E6548",
+    initAmounts: "0,0",
   });
 
   const { data: walletClient } = useWalletClient();
@@ -111,6 +116,8 @@ function LiquidityWidgetWrapper() {
         onDismiss={() => {
           window.location.reload();
         }}
+        initDepositTokens={params.initDepositTokens}
+        initAmounts={params.initAmounts}
         source="zap-widget-demo"
       />
     </div>
@@ -165,6 +172,30 @@ function Params({
             setLocalParams((params) => ({
               ...params,
               initTickLower: e.target.value,
+            }));
+          }}
+        />
+
+        <span>initDepositTokens</span>
+        <input
+          className="pancake-demo-input"
+          value={localParams.initDepositTokens}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              initDepositTokens: e.target.value,
+            }));
+          }}
+        />
+
+        <span>initAmounts</span>
+        <input
+          className="pancake-demo-input"
+          value={localParams.initAmounts}
+          onChange={(e) => {
+            setLocalParams((params) => ({
+              ...params,
+              initAmounts: e.target.value,
             }));
           }}
         />

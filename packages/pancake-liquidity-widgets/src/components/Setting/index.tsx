@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
-import { useOnClickOutside } from "../../hooks/useOnClickOutside";
-import { useZapState } from "../../hooks/useZapInState";
-import { MouseoverTooltip } from "../Tooltip";
+import { MouseoverTooltip } from "@/components/Tooltip";
+import Modal from "@/components/Modal";
+import Input from "@/components/Input";
+import Toggle from "@/components/Toggle";
+import SlippageInput from "@/components/Setting/SlippageInput";
+import { useOnClickOutside } from "@/hooks/useOnClickOutside";
+import { useZapState } from "@/hooks/useZapInState";
 // import { useDeviceScreen } from "@kyber/hooks/use-device-screen";
-import Modal from "../Modal";
-import Input from "../Input";
-import Toggle from "../Toggle";
-import SlippageInput from "./SlippageInput";
-import X from "../../assets/x.svg";
+import X from "@/assets/x.svg";
 
 export default function Setting() {
   const {

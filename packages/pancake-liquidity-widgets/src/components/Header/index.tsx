@@ -1,13 +1,12 @@
-import { useWeb3Provider } from "../../hooks/useProvider";
-import SettingIcon from "../../assets/setting.svg";
-import X from "../../assets/x.svg";
-
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { NetworkInfo, BASE_BPS } from "../../constants";
-import { useZapState } from "../../hooks/useZapInState";
-import { getDexLogo, getDexName } from "../../utils";
-import { MouseoverTooltip } from "../Tooltip";
-import { PancakeToken } from "../../entities/Pool";
+import { MouseoverTooltip } from "@/components/Tooltip";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { useZapState } from "@/hooks/useZapInState";
+import { NetworkInfo, BASE_BPS } from "@/constants";
+import { getDexLogo, getDexName } from "@/utils";
+import { PancakeToken } from "@/entities/Pool";
+import SettingIcon from "@/assets/setting.svg";
+import X from "@/assets/x.svg";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (

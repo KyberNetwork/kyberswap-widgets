@@ -1,17 +1,15 @@
 import { useEffect, useMemo } from "react";
 import { WalletClient, Address, http, createPublicClient } from "viem";
 import * as chains from "viem/chains";
-
-import { Web3Provider } from "../../hooks/useProvider";
-import { Theme, defaultTheme, lightTheme } from "../../theme";
-import { WidgetProvider } from "../../hooks/useWidgetInfo";
-import WidgetContent from "../Content";
-import { ZapContextProvider } from "../../hooks/useZapInState";
-import Setting from "../Setting";
-
+import { Theme, defaultTheme, lightTheme } from "@/theme";
+import Setting from "@/components/Setting";
+import WidgetContent from "@/components/Content";
+import { Web3Provider } from "@/hooks/useProvider";
+import { TokenProvider } from "@/hooks/useTokens";
+import { WidgetProvider } from "@/hooks/useWidgetInfo";
+import { ZapContextProvider } from "@/hooks/useZapInState";
+import { NetworkInfo } from "@/constants";
 import "./Widget.scss";
-import { NetworkInfo } from "../../constants";
-
 import "../../globals.css";
 
 const getChainById = (chainId: number) => {
@@ -27,8 +25,6 @@ export interface WidgetProps {
   networkChainId: number;
   initTickLower?: number;
   initTickUpper?: number;
-  initDepositToken?: string;
-  initAmount?: number | string;
 
   poolAddress: string;
   positionId?: string;
@@ -40,6 +36,9 @@ export interface WidgetProps {
   includedSources?: string;
   excludedSources?: string;
   onConnectWallet: () => void;
+  initDepositTokens: string;
+  initAmounts: string;
+  tokenSelectModal?: JSX.Element;
 }
 
 export default function Widget({
@@ -52,8 +51,6 @@ export default function Widget({
 
   initTickLower,
   initTickUpper,
-  initDepositToken,
-  initAmount,
   poolAddress,
   positionId,
   onDismiss,
@@ -64,6 +61,9 @@ export default function Widget({
   excludedSources,
   source,
   onConnectWallet,
+  initDepositTokens,
+  initAmounts,
+  tokenSelectModal,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -113,33 +113,36 @@ export default function Widget({
       account={account}
       networkChainId={networkChainId}
     >
-      <WidgetProvider
-        poolAddress={poolAddress}
-        positionId={
-          positionId === "" || !parseInt(positionId || "")
-            ? undefined
-            : positionId
-        }
-        theme={theme || defaultTheme}
-        feeAddress={feeAddress}
-        feePcm={feePcm}
-        onConnectWallet={onConnectWallet}
-      >
-        <ZapContextProvider
-          includedSources={includedSources}
-          excludedSources={excludedSources}
-          initTickUpper={initTickUpper}
-          initTickLower={initTickLower}
-          initDepositToken={initDepositToken}
-          initAmount={initAmount}
-          source={source}
+      <TokenProvider>
+        <WidgetProvider
+          poolAddress={poolAddress}
+          positionId={
+            positionId === "" || !parseInt(positionId || "")
+              ? undefined
+              : positionId
+          }
+          theme={theme || defaultTheme}
+          feeAddress={feeAddress}
+          feePcm={feePcm}
+          onConnectWallet={onConnectWallet}
+          tokenSelectModal={tokenSelectModal}
         >
-          <div className="ks-lw ks-lw-style">
-            <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
-            <Setting />
-          </div>
-        </ZapContextProvider>
-      </WidgetProvider>
+          <ZapContextProvider
+            includedSources={includedSources}
+            excludedSources={excludedSources}
+            initTickUpper={initTickUpper}
+            initTickLower={initTickLower}
+            source={source}
+            initDepositTokens={initDepositTokens}
+            initAmounts={initAmounts}
+          >
+            <div className="ks-lw ks-lw-style">
+              <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
+              <Setting />
+            </div>
+          </ZapContextProvider>
+        </WidgetProvider>
+      </TokenProvider>
     </Web3Provider>
   );
 }
