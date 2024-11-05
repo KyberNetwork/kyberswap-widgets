@@ -21,7 +21,7 @@ export default function useMarketPrice({
     () =>
       tokensIn
         .map((token) =>
-          token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+          token.address?.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
             ? token.address
             : NetworkInfo[chainId].wrappedToken.address
         )

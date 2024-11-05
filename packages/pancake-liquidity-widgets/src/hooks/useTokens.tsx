@@ -61,7 +61,7 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
   const getToken = useCallback(
     async (address: string) => {
       const whitelistedToken = allTokens.find(
-        (token) => token.address.toLowerCase() === address.toLowerCase()
+        (token) => token.address?.toLowerCase() === address.toLowerCase()
       );
       if (whitelistedToken) return whitelistedToken;
 

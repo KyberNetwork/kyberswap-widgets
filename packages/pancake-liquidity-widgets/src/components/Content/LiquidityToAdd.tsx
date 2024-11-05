@@ -113,7 +113,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               if (tokensIn[tokenIndex].balance)
                 onChangeTokenAmount(
                   formatUnits(
-                    BigInt(tokensIn[tokenIndex].balance) / BigInt(4),
+                    BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(4),
                     tokensIn[tokenIndex].decimals
                   )
                 );
@@ -127,7 +127,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               if (tokensIn[tokenIndex].balance)
                 onChangeTokenAmount(
                   formatUnits(
-                    BigInt(tokensIn[tokenIndex].balance) / BigInt(2),
+                    BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(2),
                     tokensIn[tokenIndex].decimals
                   )
                 );
@@ -141,7 +141,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               if (tokensIn[tokenIndex].balance)
                 onChangeTokenAmount(
                   formatUnits(
-                    (BigInt(tokensIn[tokenIndex].balance) * BigInt(3)) /
+                    (BigInt(tokensIn[tokenIndex].balance || 0) * BigInt(3)) /
                       BigInt(4),
                     tokensIn[tokenIndex].decimals
                   )
@@ -157,7 +157,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               if (tokensIn[tokenIndex].balance)
                 onChangeTokenAmount(
                   formatUnits(
-                    BigInt(tokensIn[tokenIndex].balance),
+                    BigInt(tokensIn[tokenIndex].balance || 0),
                     tokensIn[tokenIndex].decimals
                   )
                 );

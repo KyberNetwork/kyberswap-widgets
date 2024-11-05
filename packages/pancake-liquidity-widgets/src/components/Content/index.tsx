@@ -22,6 +22,7 @@ import {
   PoolSwapAction,
   ProtocolFeeAction,
   Type,
+  PancakeTokenAdvanced,
 } from "@/types/zapInTypes";
 import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
@@ -53,6 +54,8 @@ export default function Content({
     positionId,
     degenMode,
     revertPrice,
+    setTokensIn,
+    setAmountsIn,
   } = useZapState();
   const {
     pool,
@@ -259,7 +262,31 @@ export default function Content({
 
   const tokenSelectModalClone = tokenSelectModal
     ? cloneElement(tokenSelectModal, {
-        onClose: onCloseTokenSelectModal,
+        onDismiss: onCloseTokenSelectModal,
+        // selectedCurrency: tokensIn,
+        onCurrencySelect: (token: PancakeTokenAdvanced) => {
+          const selectedToken = token.wrapped
+            ? { ...token, ...token.wrapped }
+            : token;
+          const index = tokensIn.findIndex(
+            (item) =>
+              item.address.toLowerCase() ===
+              selectedToken.address?.toLowerCase()
+          );
+          if (index > -1) {
+            const cloneTokensIn = [...tokensIn];
+            cloneTokensIn.splice(index, 1);
+            setTokensIn(cloneTokensIn);
+
+            const listAmountsIn = amountsIn.split(",");
+            listAmountsIn.splice(index, 1);
+            setAmountsIn(listAmountsIn.join(","));
+          } else {
+            setTokensIn([...tokensIn, selectedToken as PancakeTokenAdvanced]);
+            setAmountsIn(`${amountsIn},`);
+          }
+          onCloseTokenSelectModal();
+        },
       })
     : null;
 

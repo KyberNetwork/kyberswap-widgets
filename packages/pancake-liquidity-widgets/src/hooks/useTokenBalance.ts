@@ -17,7 +17,7 @@ export default function useTokenBalance({
     () =>
       tokensIn
         .map((token) =>
-          token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+          token.address?.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
             ? token.address
             : NetworkInfo[chainId].wrappedToken.address
         )
@@ -52,7 +52,7 @@ export default function useTokenBalance({
             if (item.status === "success")
               tokensInClone[index].balance = item.result;
             else if (
-              tokensIn[index].address.toLowerCase() ===
+              tokensIn[index].address?.toLowerCase() ===
               NATIVE_TOKEN_ADDRESS.toLowerCase()
             ) {
               const balance = await getNativeTokenBalance();

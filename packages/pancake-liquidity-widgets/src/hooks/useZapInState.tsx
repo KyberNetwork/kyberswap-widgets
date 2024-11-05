@@ -114,7 +114,7 @@ export const ZapContextProvider = ({
   const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
     useWidgetInfo();
   const { chainId, networkChainId } = useWeb3Provider();
-  const { allTokens, getToken } = useTokens();
+  const { getToken } = useTokens();
 
   // Setting
   const [showSetting, setShowSeting] = useState(false);
@@ -263,10 +263,10 @@ export const ZapContextProvider = ({
 
   // set tokens in
   useEffect(() => {
-    if (!pool) return;
+    if (!pool || tokensIn.length) return;
 
     (async () => {
-      if (initDepositTokens && allTokens.length) {
+      if (initDepositTokens) {
         const listInitTokens = await Promise.all(
           initDepositTokens.split(",").map(async (address: string) => {
             const token = await getToken(address);
@@ -282,7 +282,7 @@ export const ZapContextProvider = ({
         setTokensIn(listInitTokens);
       }
     })();
-  }, [allTokens, getToken, initAmounts, initDepositTokens, pool]);
+  }, [getToken, initAmounts, initDepositTokens, pool, tokensIn]);
 
   // get pair market price
   useEffect(() => {
