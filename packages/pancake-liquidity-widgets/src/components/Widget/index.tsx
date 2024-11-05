@@ -26,17 +26,19 @@ export interface WidgetProps {
   initTickUpper?: number;
   poolAddress: string;
   positionId?: string;
-  onDismiss: () => void;
-  onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
   feePcm?: number;
   source: string;
   includedSources?: string;
   excludedSources?: string;
-  onConnectWallet: () => void;
   initDepositTokens: string;
   initAmounts: string;
-  tokenSelectModal?: JSX.Element;
+  onDismiss: () => void;
+  onTxSubmit?: (txHash: string) => void;
+  onConnectWallet: () => void;
+  onRemoveToken: (tokenAddress: string) => void;
+  onAmountChange: (tokenAddress: string, amount: string) => void;
+  onOpenTokenSelectModal: () => void;
 }
 
 export default function Widget({
@@ -49,17 +51,19 @@ export default function Widget({
   initTickUpper,
   poolAddress,
   positionId,
-  onDismiss,
-  onTxSubmit,
   feeAddress,
   feePcm,
   includedSources,
   excludedSources,
   source,
-  onConnectWallet,
   initDepositTokens,
   initAmounts,
-  tokenSelectModal,
+  onDismiss,
+  onTxSubmit,
+  onConnectWallet,
+  onRemoveToken,
+  onAmountChange,
+  onOpenTokenSelectModal,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -121,7 +125,9 @@ export default function Widget({
           feeAddress={feeAddress}
           feePcm={feePcm}
           onConnectWallet={onConnectWallet}
-          tokenSelectModal={tokenSelectModal}
+          onRemoveToken={onRemoveToken}
+          onAmountChange={onAmountChange}
+          onOpenTokenSelectModal={onOpenTokenSelectModal}
         >
           <ZapContextProvider
             includedSources={includedSources}

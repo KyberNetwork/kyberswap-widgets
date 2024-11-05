@@ -583,7 +583,10 @@ export default function Preview({
         <div>Zap-in Amount</div>
 
         {tokensIn.map((token: PancakeTokenAdvanced, index: number) => (
-          <div className="flex items-center gap-3 text-sm text-textSecondary mt-2">
+          <div
+            className="flex items-center gap-3 text-sm text-textSecondary mt-2"
+            key={index}
+          >
             <img
               src={token.logoURI}
               className="w-[18px] h-[18px]"

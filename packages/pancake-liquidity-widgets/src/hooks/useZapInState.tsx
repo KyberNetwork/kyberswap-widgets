@@ -38,7 +38,6 @@ const ZapContext = createContext<{
   tickLower: number | null;
   tickUpper: number | null;
   tokensIn: PancakeTokenAdvanced[];
-  setTokensIn: (val: PancakeTokenAdvanced[]) => void;
   amountsIn: string;
   setAmountsIn: (value: string) => void;
   toggleRevertPrice: () => void;
@@ -65,7 +64,6 @@ const ZapContext = createContext<{
   tickLower: null,
   tickUpper: null,
   tokensIn: [],
-  setTokensIn: () => {},
   amountsIn: "",
   setAmountsIn: () => {},
   toggleRevertPrice: () => {},
@@ -258,12 +256,21 @@ export const ZapContextProvider = ({
 
   // set tokens in
   useEffect(() => {
-    if (!pool || tokensIn.length) return;
+    if (!pool) return;
+
+    const tokensInAddress = tokensIn.map((token) => token.address).join(",");
+    if (tokensInAddress.toLowerCase() === initDepositTokens.toLowerCase())
+      return;
+
+    const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
+    const listInitAmounts = initAmounts?.split(",") || [];
+    if (initDepositTokenAddresses.length !== listInitAmounts.length)
+      throw new Error("number of init tokens and amounts must be the same");
 
     (async () => {
       if (initDepositTokens) {
         const listInitTokens = await Promise.all(
-          initDepositTokens.split(",").map(async (address: string) => {
+          initDepositTokenAddresses.map(async (address: string) => {
             const token = await getToken(address);
             return token;
           })
@@ -271,13 +278,21 @@ export const ZapContextProvider = ({
           (tokens) => tokens.filter((item) => !!item) as PancakeTokenAdvanced[]
         );
 
-        const listInitAmounts = initAmounts?.split(",") || [];
-        if (listInitTokens.length !== listInitAmounts.length)
-          throw new Error("number of init tokens and amounts must be the same");
+        console.log("set tokens in");
         setTokensIn(listInitTokens);
       }
     })();
   }, [getToken, initAmounts, initDepositTokens, pool, tokensIn]);
+
+  // set amounts in
+  useEffect(() => {
+    const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
+    const listInitAmounts = initAmounts?.split(",") || [];
+    if (initDepositTokenAddresses.length !== listInitAmounts.length)
+      throw new Error("number of init tokens and amounts must be the same");
+
+    if (initAmounts) setAmountsIn(initAmounts);
+  }, [initAmounts, initDepositTokens]);
 
   // get pair market price
   useEffect(() => {
@@ -422,7 +437,6 @@ export const ZapContextProvider = ({
         tickLower,
         tickUpper,
         tokensIn,
-        setTokensIn,
         amountsIn,
         setAmountsIn,
         toggleRevertPrice,

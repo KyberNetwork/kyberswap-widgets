@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWeb3Provider } from "@/hooks/useProvider";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { NetworkInfo } from "@/constants";
 import { formatCurrency, formatWei } from "@/utils";
 import { formatUnits } from "viem";
@@ -8,7 +9,8 @@ import X from "@/assets/x.svg";
 import defaultTokenLogo from "@/assets/question.svg?url";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
+  const { tokensIn, amountsIn } = useZapState();
+  const { onRemoveToken, onAmountChange } = useWidgetInfo();
   const { chainId } = useWeb3Provider();
 
   const amountIn = useMemo(
@@ -28,19 +30,12 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   };
 
   const onChangeTokenAmount = (newAmount: string | number) => {
-    const listAmountsIn = amountsIn.split(",");
-    listAmountsIn[tokenIndex] = newAmount.toString();
-    setAmountsIn(listAmountsIn.join(","));
+    onAmountChange(tokensIn[tokenIndex].address, newAmount.toString());
   };
 
   const handleRemoveToken = () => {
-    const cloneTokensIn = [...tokensIn];
-    cloneTokensIn.splice(tokenIndex, 1);
-    setTokensIn(cloneTokensIn);
-
-    const listAmountsIn = amountsIn.split(",");
-    listAmountsIn.splice(tokenIndex, 1);
-    setAmountsIn(listAmountsIn.join(","));
+    if (tokensIn.length === 1) return;
+    onRemoveToken(tokensIn[tokenIndex].address);
   };
 
   return (

@@ -91,6 +91,44 @@ function LiquidityWidgetWrapper() {
 
   const { openConnectModal } = useConnectModal();
 
+  const handleRemoveToken = useCallback(
+    (tokenAddress: string) => {
+      const tokens = params.initDepositTokens.split(",");
+      const indexOfToken = tokens.findIndex(
+        (t) => t.toLowerCase() === tokenAddress.toLowerCase()
+      );
+      if (indexOfToken === -1) return;
+
+      tokens.splice(indexOfToken, 1);
+      const amounts = params.initAmounts.split(",");
+      amounts.splice(indexOfToken, 1);
+      setParams((params) => ({
+        ...params,
+        initDepositTokens: tokens.join(","),
+        initAmounts: amounts.join(","),
+      }));
+    },
+    [params.initAmounts, params.initDepositTokens]
+  );
+
+  const handleAmountChange = useCallback(
+    (tokenAddress: string, amount: string) => {
+      const tokens = params.initDepositTokens.split(",");
+      const indexOfToken = tokens.findIndex(
+        (t) => t.toLowerCase() === tokenAddress.toLowerCase()
+      );
+      if (indexOfToken === -1) return;
+
+      const amounts = params.initAmounts.split(",");
+      amounts[indexOfToken] = amount;
+      setParams((params) => ({
+        ...params,
+        initAmounts: amounts.join(","),
+      }));
+    },
+    [params.initAmounts, params.initDepositTokens]
+  );
+
   return (
     <div className="pancake-demo-app">
       <div className="pancake-demo-params-wrapper">
@@ -98,9 +136,7 @@ function LiquidityWidgetWrapper() {
       </div>
       <LiquidityWidget
         key={key}
-        onConnectWallet={() => {
-          openConnectModal?.();
-        }}
+        onConnectWallet={() => openConnectModal?.()}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         walletClient={walletClient as any}
         account={account}
@@ -113,12 +149,13 @@ function LiquidityWidgetWrapper() {
         theme={params.theme}
         feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
         feePcm={0}
-        onDismiss={() => {
-          window.location.reload();
-        }}
+        onDismiss={() => window.location.reload()}
         initDepositTokens={params.initDepositTokens}
         initAmounts={params.initAmounts}
         source="zap-widget-demo"
+        onRemoveToken={handleRemoveToken}
+        onAmountChange={handleAmountChange}
+        onOpenTokenSelectModal={() => console.log("Token select modal opened")}
       />
     </div>
   );

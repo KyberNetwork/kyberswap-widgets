@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, cloneElement, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { parseUnits } from "viem";
 import { useZapState } from "@/hooks/useZapInState";
 import useApprovals, { APPROVAL_STATE } from "@/hooks/useApprovals";
@@ -22,7 +22,6 @@ import {
   PoolSwapAction,
   ProtocolFeeAction,
   Type,
-  PancakeTokenAdvanced,
 } from "@/types/zapInTypes";
 import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
@@ -54,19 +53,16 @@ export default function Content({
     positionId,
     degenMode,
     revertPrice,
-    setTokensIn,
-    setAmountsIn,
   } = useZapState();
   const {
     pool,
     theme,
     error: loadPoolError,
     onConnectWallet,
-    tokenSelectModal,
+    onOpenTokenSelectModal,
   } = useWidgetInfo();
   const { account } = useWeb3Provider();
 
-  const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
 
@@ -215,10 +211,6 @@ export default function Content({
     }
   };
 
-  const onOpenTokenSelectModal = () =>
-    tokensIn.length < 5 && setOpenTokenSelectModal(true);
-  const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
-
   useEffect(() => {
     if (snapshotState === null) {
       onTogglePreview?.(false);
@@ -268,36 +260,6 @@ export default function Content({
     [correctPrice, currentPoolPrice]
   );
 
-  const tokenSelectModalClone = tokenSelectModal
-    ? cloneElement(tokenSelectModal, {
-        onDismiss: onCloseTokenSelectModal,
-        // selectedCurrency: tokensIn,
-        onCurrencySelect: (token: PancakeTokenAdvanced) => {
-          const selectedToken = token.wrapped
-            ? { ...token, ...token.wrapped }
-            : token;
-          const index = tokensIn.findIndex(
-            (item) =>
-              item.address.toLowerCase() ===
-              selectedToken.address?.toLowerCase()
-          );
-          if (index > -1) {
-            const cloneTokensIn = [...tokensIn];
-            cloneTokensIn.splice(index, 1);
-            setTokensIn(cloneTokensIn);
-
-            const listAmountsIn = amountsIn.split(",");
-            listAmountsIn.splice(index, 1);
-            setAmountsIn(listAmountsIn.join(","));
-          } else {
-            setTokensIn([...tokensIn, selectedToken as PancakeTokenAdvanced]);
-            setAmountsIn(`${amountsIn},`);
-          }
-          onCloseTokenSelectModal();
-        },
-      })
-    : null;
-
   useEffect(() => {
     if (!tickLower && !tickUpper && pool) selectPriceRange(0.2);
   }, [pool, selectPriceRange, tickLower, tickUpper]);
@@ -340,7 +302,6 @@ export default function Content({
           />
         </Modal>
       )}
-      {openTokenSelectModal && tokenSelectModalClone}
       <Header onDismiss={onDismiss} />
       <div className="flex gap-5 py-0 px-6 max-sm:flex-col">
         <div className="flex-1 w-1/2 max-sm:w-full">
@@ -355,7 +316,9 @@ export default function Content({
             className={`mt-4 text-primary cursor-pointer w-fit text-sm ${
               tokensIn.length >= MAX_ZAP_IN_TOKENS ? "opacity-50" : ""
             }`}
-            onClick={onOpenTokenSelectModal}
+            onClick={() =>
+              tokensIn.length < MAX_ZAP_IN_TOKENS && onOpenTokenSelectModal()
+            }
           >
             + Add more token
             <InfoHelper
