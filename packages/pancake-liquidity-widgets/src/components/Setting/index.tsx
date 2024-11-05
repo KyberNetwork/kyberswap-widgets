@@ -10,16 +10,8 @@ import { useZapState } from "@/hooks/useZapInState";
 import X from "@/assets/x.svg";
 
 export default function Setting() {
-  const {
-    showSetting,
-    ttl,
-    setTtl,
-    toggleSetting,
-    enableAggregator,
-    setEnableAggregator,
-    degenMode,
-    setDegenMode,
-  } = useZapState();
+  const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode } =
+    useZapState();
   const ref = useRef(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirm, setConfirm] = useState("");
@@ -132,23 +124,6 @@ export default function Setting() {
             />
             <span>mins</span>
           </div>
-        </div>
-
-        <div className="flex justify-between items-center mt-[14px]">
-          <MouseoverTooltip
-            text="Zap will include DEX aggregator to find the best price."
-            width="220px"
-          >
-            <div className="text-sm border-b border-dotted border-textSecondary">
-              Use Aggregator for Zaps
-            </div>
-          </MouseoverTooltip>
-          <Toggle
-            isActive={enableAggregator}
-            toggle={() => {
-              setEnableAggregator(!enableAggregator);
-            }}
-          />
         </div>
 
         <div className="flex justify-between items-center mt-[14px]">

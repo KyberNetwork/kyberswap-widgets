@@ -28,16 +28,27 @@ import {
   AccordionTrigger,
 } from "@kyber/ui/accordion";
 import { useMemo } from "react";
-import { useTokens } from "@/hooks/useTokens";
+import { NetworkInfo } from "@/constants";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 export default function EstLiqValue() {
-  const { zapInfo, source, marketPrice, revertPrice } = useZapState();
+  const { zapInfo, source, marketPrice, revertPrice, tokensIn } = useZapState();
   const { pool, position, positionOwner, positionId } = useWidgetInfo();
-  const { account } = useWeb3Provider();
-  const { allTokens } = useTokens();
+  const { account, chainId } = useWeb3Provider();
 
   const token0 = pool?.token0 as PancakeToken | undefined;
   const token1 = pool?.token1 as PancakeToken | undefined;
+
+  const tokens = useMemo(
+    () =>
+      [
+        ...tokensIn,
+        pool?.token0,
+        pool?.token1,
+        NetworkInfo[chainId].wrappedToken,
+      ] as PancakeToken[],
+    [chainId, pool?.token0, pool?.token1, tokensIn]
+  );
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.ADD_LIQUIDITY
@@ -84,10 +95,10 @@ export default function EstLiqValue() {
   const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.AGGREGATOR_SWAP
   ) as AggregatorSwapAction | undefined;
+
   const feeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
-
   const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.PARTNET_FEE
   ) as PartnerFeeAction | undefined;
@@ -106,11 +117,11 @@ export default function EstLiqValue() {
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -135,11 +146,11 @@ export default function EstLiqValue() {
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -163,7 +174,7 @@ export default function EstLiqValue() {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, allTokens, zapInfo]);
+  }, [feeInfo, tokens, zapInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -260,6 +271,10 @@ export default function EstLiqValue() {
                   <img
                     src={token0.logoURI}
                     className="w-[21px] mt-[2px] rounded-[50%] relative -top-[2px]"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
                 {position ? (
@@ -302,6 +317,10 @@ export default function EstLiqValue() {
                   <img
                     src={token1.logoURI}
                     className="w-[21px] mt-[2px] rounded-[50%] relative -top-[2px]"
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
                   />
                 )}
 

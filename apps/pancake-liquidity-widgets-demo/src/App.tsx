@@ -77,7 +77,7 @@ function LiquidityWidgetWrapper() {
     theme: "dark",
     initDepositTokens:
       "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9,0x912CE59144191C1204E64559FE8253a0e49E6548",
-    initAmounts: "0,0",
+    initAmounts: ",",
   });
 
   const { data: walletClient } = useWalletClient();

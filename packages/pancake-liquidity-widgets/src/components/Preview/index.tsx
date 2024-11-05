@@ -37,13 +37,13 @@ import SwitchIcon from "@/assets/switch.svg";
 import SuccessIcon from "@/assets/success.svg";
 import ErrorIcon from "@/assets/error.svg";
 import InfoHelper from "@/components/InfoHelper";
-import { useTokens } from "@/hooks/useTokens";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@kyber/ui/accordion";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 export interface ZapState {
   pool: PancakeV3Pool;
@@ -84,7 +84,6 @@ export default function Preview({
   const { chainId, account, publicClient, walletClient } = useWeb3Provider();
   const { positionId, position } = useWidgetInfo();
   const { source, revertPrice: revert, toggleRevertPrice } = useZapState();
-  const { allTokens } = useTokens();
 
   const [txHash, setTxHash] = useState<Address | undefined>(undefined);
   const [attempTx, setAttempTx] = useState(false);
@@ -94,6 +93,17 @@ export default function Preview({
 
   const token0 = pool.token0 as PancakeToken;
   const token1 = pool.token1 as PancakeToken;
+
+  const tokens = useMemo(
+    () =>
+      [
+        ...tokensIn,
+        pool?.token0,
+        pool?.token1,
+        NetworkInfo[chainId].wrappedToken,
+      ] as PancakeToken[],
+    [chainId, pool?.token0, pool?.token1, tokensIn]
+  );
 
   useEffect(() => {
     if (txHash) {
@@ -314,11 +324,11 @@ export default function Preview({
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -343,11 +353,11 @@ export default function Preview({
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: PancakeToken) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -371,7 +381,7 @@ export default function Preview({
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, allTokens, zapInfo]);
+  }, [feeInfo, tokens, zapInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -511,11 +521,19 @@ export default function Preview({
             className="absolute w-7 h-7 top-0 left-0 rounded-[50%]"
             src={token0.logoURI}
             alt=""
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
           <img
             className="absolute w-9 h-9 bottom-0 right-0 rounded-[50%]"
             src={token1.logoURI}
             alt=""
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
           <div className="absolute w-4 h-4 bg-[#1e1e1e] rounded-[5px] flex justify-center items-center bottom-0 right-0">
             <img src={NetworkInfo[chainId].logo} className="w-3 h-3" />
@@ -543,7 +561,16 @@ export default function Preview({
                 </div>
               ))}
             <div className="rounded-full py-0 px-2 h-6 bg-tertiary text-textSecondary text-sm flex items-center gap-1 box-border">
-              <img src={logo} width={16} height={16} alt="" />
+              <img
+                src={logo}
+                width={16}
+                height={16}
+                alt=""
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
+              />
               <span>{name}</span>
               <span>|</span>
               Fee {fee / BASE_BPS}%
@@ -557,7 +584,14 @@ export default function Preview({
 
         {tokensIn.map((token: PancakeTokenAdvanced, index: number) => (
           <div className="flex items-center gap-3 text-sm text-textSecondary mt-2">
-            <img src={token.logoURI} className="w-[18px] h-[18px]" />
+            <img
+              src={token.logoURI}
+              className="w-[18px] h-[18px]"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
+            />
             <div className="text-textPrimary text-base">
               {formatNumber(+listAmountsIn[index])} {token.symbol}
               <span className="text-textSecondary font-normal text-sm ml-2">
@@ -625,6 +659,10 @@ export default function Preview({
                 <img
                   className="w-4 h-4 rounded-full mt-1"
                   src={token0.logoURI}
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null;
+                    currentTarget.src = defaultTokenLogo;
+                  }}
                 />
               )}
               <div>
@@ -665,6 +703,10 @@ export default function Preview({
                 <img
                   src={token1.logoURI}
                   className="w-4 h-4 rounded-full mt-1"
+                  onError={({ currentTarget }) => {
+                    currentTarget.onerror = null;
+                    currentTarget.src = defaultTokenLogo;
+                  }}
                 />
               )}
               {position ? (

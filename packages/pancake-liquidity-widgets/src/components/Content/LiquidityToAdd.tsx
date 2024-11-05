@@ -5,6 +5,7 @@ import { NetworkInfo } from "@/constants";
 import { formatCurrency, formatWei } from "@/utils";
 import { formatUnits } from "viem";
 import X from "@/assets/x.svg";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
@@ -51,11 +52,19 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               className="w-6 h-6 rounded-[50%]"
               src={tokensIn[tokenIndex].logoURI}
               alt=""
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
             />
             <div className="absolute w-3 h-3 bg-[#1e1e1e] rounded-[5px] flex items-center justify-center bottom-0 right-0">
               <img
                 className="rounded-[50%] w-2 h-2"
                 src={NetworkInfo[chainId].logo}
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
               />
             </div>
           </div>

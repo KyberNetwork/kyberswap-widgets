@@ -7,6 +7,7 @@ import { getDexLogo, getDexName } from "@/utils";
 import { PancakeToken } from "@/entities/Pool";
 import SettingIcon from "@/assets/setting.svg";
 import X from "@/assets/x.svg";
+import defaultTokenLogo from "@/assets/question.svg?url";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   return (
@@ -69,11 +70,19 @@ const PoolInfo = () => {
             className="absolute w-7 h-7 top-0 left-0 rounded-[50%]"
             src={token0.logoURI}
             alt=""
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
           <img
             className="absolute w-9 h-9 bottom-0 right-0 rounded-[50%]"
             src={token1.logoURI}
             alt=""
+            onError={({ currentTarget }) => {
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
+            }}
           />
           <div className="absolute w-4 h-4 bg-[#1e1e1e] rounded-[5px] flex items-center justify-center bottom-0 right-0">
             <img
@@ -81,6 +90,10 @@ const PoolInfo = () => {
               src={NetworkInfo[chainId].logo}
               width="12px"
               height="12px"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = defaultTokenLogo;
+              }}
             />
           </div>
         </div>
@@ -106,7 +119,16 @@ const PoolInfo = () => {
                 </div>
               ))}
             <div className="rounded-full py-0 px-2 h-6 bg-tertiary text-textSecondary text-sm flex items-center gap-1 box-border">
-              <img src={logo} width={16} height={16} alt="" />
+              <img
+                src={logo}
+                width={16}
+                height={16}
+                alt=""
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
+              />
               <span>{name}</span>
               <span>|</span>
               Fee {fee / BASE_BPS}%

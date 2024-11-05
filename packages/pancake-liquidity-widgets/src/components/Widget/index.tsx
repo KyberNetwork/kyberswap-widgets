@@ -18,14 +18,12 @@ const getChainById = (chainId: number) => {
 
 export interface WidgetProps {
   theme?: Theme | "dark" | "light";
-
   walletClient: WalletClient | undefined;
   account: Address | undefined;
   chainId: number;
   networkChainId: number;
   initTickLower?: number;
   initTickUpper?: number;
-
   poolAddress: string;
   positionId?: string;
   onDismiss: () => void;
@@ -43,12 +41,10 @@ export interface WidgetProps {
 
 export default function Widget({
   theme: themeProps,
-
   walletClient,
   account,
   chainId,
   networkChainId,
-
   initTickLower,
   initTickUpper,
   poolAddress,

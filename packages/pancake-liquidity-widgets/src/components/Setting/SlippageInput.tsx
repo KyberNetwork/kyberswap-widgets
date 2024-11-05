@@ -100,12 +100,12 @@ const SlippageInput = () => {
     <>
       <div className="flex gap-2 w-full">
         <div
-          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground flex flex-1"
+          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground flex flex-1 h-10"
           style={{ boxShadow: "0 2px 0 -1px #0000000f inset" }}
         >
           {[5, 10, 50, 100].map((item) => (
             <div
-              className="relative rounded-[15px] text-subText text-base py-[10px] px-[6px] font-semibold flex flex-1 border border-transparent items-center gap-2 justify-center cursor-pointer box-border data-[active='true']:text-textReverse data-[active='true']:bg-textSecondary"
+              className="rounded-[15px] text-subText text-sm px-[6px] font-semibold flex flex-1 border border-transparent items-center gap-2 justify-center cursor-pointer box-border data-[active='true']:text-textReverse data-[active='true']:bg-textSecondary"
               data-active={item === slippage}
               role="button"
               onClick={() => setSlippage(item)}
@@ -117,12 +117,12 @@ const SlippageInput = () => {
         </div>
 
         <div
-          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground flex flex-1 w-[100px] data-[error='true']:border-[var(--ks-lw-error)] data-[warning='true']:border-warning"
+          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground h-10 flex flex-1 w-[100px] data-[error='true']:border-[var(--ks-lw-error)] data-[warning='true']:border-warning"
           style={{ boxShadow: "0 2px 0 -1px #0000000f inset" }}
           data-error={!!message && !isValid}
           data-warning={!!message && isValid}
         >
-          <div className="relative rounded-[15px] text-subText text-base py-[10px] px-[6px] font-semibold flex flex-1 border border-transparent items-center gap-2 justify-center cursor-pointer box-border w-[72px]">
+          <div className="relative rounded-[15px] text-subText text-sm px-[6px] font-semibold flex flex-1 border border-transparent items-center gap-2 justify-center cursor-pointer box-border w-[72px]">
             {message && (
               <AlertIcon
                 className={cn(

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, cloneElement } from "react";
+import { useEffect, useMemo, useState, cloneElement, useCallback } from "react";
 import { parseUnits } from "viem";
 import { useZapState } from "@/hooks/useZapInState";
 import useApprovals, { APPROVAL_STATE } from "@/hooks/useApprovals";
@@ -225,26 +225,31 @@ export default function Content({
     }
   }, [snapshotState, onTogglePreview]);
 
-  const correctPrice = (value: string, type: Type) => {
-    if (!pool) return;
-    if (revertPrice) {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-    } else {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-    }
-  };
+  const correctPrice = useCallback(
+    (value: string, type: Type) => {
+      if (!pool) return;
+      if (revertPrice) {
+        const defaultTick =
+          (type === Type.PriceLower ? tickLower : tickUpper) ||
+          pool?.tickCurrent;
+        const tick =
+          tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
+          defaultTick;
+        if (Number.isInteger(tick))
+          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+      } else {
+        const defaultTick =
+          (type === Type.PriceLower ? tickLower : tickUpper) ||
+          pool?.tickCurrent;
+        const tick =
+          tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
+          defaultTick;
+        if (Number.isInteger(tick))
+          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
+      }
+    },
+    [pool, revertPrice, tickLower, tickUpper, setTick]
+  );
 
   const currentPoolPrice = pool
     ? revertPrice
@@ -252,13 +257,16 @@ export default function Content({
       : pool.priceOf(pool.token0)
     : undefined;
 
-  const selectPriceRange = (percent: number) => {
-    if (!currentPoolPrice) return;
-    const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
-    const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
-    correctPrice(left.toString(), Type.PriceLower);
-    correctPrice(right.toString(), Type.PriceUpper);
-  };
+  const selectPriceRange = useCallback(
+    (percent: number) => {
+      if (!currentPoolPrice) return;
+      const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
+      const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
+      correctPrice(left.toString(), Type.PriceLower);
+      correctPrice(right.toString(), Type.PriceUpper);
+    },
+    [correctPrice, currentPoolPrice]
+  );
 
   const tokenSelectModalClone = tokenSelectModal
     ? cloneElement(tokenSelectModal, {
@@ -289,6 +297,10 @@ export default function Content({
         },
       })
     : null;
+
+  useEffect(() => {
+    if (!tickLower && !tickUpper && pool) selectPriceRange(0.2);
+  }, [pool, selectPriceRange, tickLower, tickUpper]);
 
   return (
     <>
@@ -335,8 +347,8 @@ export default function Content({
           <div className="text-xs font-medium text-secondary uppercase mb-4">
             Deposit Amount
           </div>
-          {tokensIn.map((token, tokenIndex: number) => (
-            <LiquidityToAdd tokenIndex={tokenIndex} key={token.address} />
+          {tokensIn.map((_, tokenIndex: number) => (
+            <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
           ))}
 
           <div
