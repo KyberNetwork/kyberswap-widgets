@@ -25,6 +25,8 @@ export const ZAP_URL = "https://zap-api.kyberswap.com";
 const ERROR_MESSAGE = {
   WRONG_NETWORK: "Wrong network",
   SELECT_TOKEN_IN: "Select token in",
+  INVALID_TOKENS_AND_AMOUNTS:
+    "Number of init tokens and amounts must be the same",
   ENTER_MIN_PRICE: "Enter min price",
   ENTER_MAX_PRICE: "Enter max price",
   INVALID_PRICE_RANGE: "Invalid price range",
@@ -182,6 +184,10 @@ export const ZapContextProvider = ({
   }, [pool, tickUpper]);
 
   const error = useMemo(() => {
+    const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
+    const listInitAmounts = initAmounts?.split(",") || [];
+    if (initDepositTokenAddresses.length !== listInitAmounts.length)
+      return ERROR_MESSAGE.INVALID_TOKENS_AND_AMOUNTS;
     if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
     if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
     if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
@@ -219,6 +225,8 @@ export const ZapContextProvider = ({
     if (zapApiError) return zapApiError;
     return "";
   }, [
+    initDepositTokens,
+    initAmounts,
     chainId,
     networkChainId,
     tokensIn,
@@ -263,9 +271,6 @@ export const ZapContextProvider = ({
       return;
 
     const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
-    const listInitAmounts = initAmounts?.split(",") || [];
-    if (initDepositTokenAddresses.length !== listInitAmounts.length)
-      throw new Error("number of init tokens and amounts must be the same");
 
     (async () => {
       if (initDepositTokens) {
@@ -286,11 +291,6 @@ export const ZapContextProvider = ({
 
   // set amounts in
   useEffect(() => {
-    const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
-    const listInitAmounts = initAmounts?.split(",") || [];
-    if (initDepositTokenAddresses.length !== listInitAmounts.length)
-      throw new Error("number of init tokens and amounts must be the same");
-
     if (initAmounts) setAmountsIn(initAmounts);
   }, [initAmounts, initDepositTokens]);
 
