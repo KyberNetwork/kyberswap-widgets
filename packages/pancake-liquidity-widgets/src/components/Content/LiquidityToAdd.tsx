@@ -114,7 +114,10 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (tokensIn[tokenIndex].balance)
+              if (
+                tokensIn[tokenIndex].balance ||
+                tokensIn[tokenIndex].balance === BigInt(0)
+              )
                 onChangeTokenAmount(
                   formatUnits(
                     BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(4),
@@ -128,7 +131,10 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (tokensIn[tokenIndex].balance)
+              if (
+                tokensIn[tokenIndex].balance ||
+                tokensIn[tokenIndex].balance === BigInt(0)
+              )
                 onChangeTokenAmount(
                   formatUnits(
                     BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(2),
@@ -142,7 +148,10 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (tokensIn[tokenIndex].balance)
+              if (
+                tokensIn[tokenIndex].balance ||
+                tokensIn[tokenIndex].balance === BigInt(0)
+              )
                 onChangeTokenAmount(
                   formatUnits(
                     (BigInt(tokensIn[tokenIndex].balance || 0) * BigInt(3)) /
@@ -158,7 +167,10 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (tokensIn[tokenIndex].balance)
+              if (
+                tokensIn[tokenIndex].balance ||
+                tokensIn[tokenIndex].balance === BigInt(0)
+              )
                 onChangeTokenAmount(
                   formatUnits(
                     BigInt(tokensIn[tokenIndex].balance || 0),
