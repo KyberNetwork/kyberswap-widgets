@@ -312,8 +312,8 @@ export const ZapContextProvider = ({
 
   // set amounts in
   useEffect(() => {
-    if (initAmounts) setAmountsIn(initAmounts);
-  }, [initAmounts, initDepositTokens]);
+    setAmountsIn(initAmounts);
+  }, [initAmounts]);
 
   // get pair market price
   useEffect(() => {
