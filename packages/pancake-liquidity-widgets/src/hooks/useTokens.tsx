@@ -48,7 +48,7 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
         );
         const { data } = await res.json();
 
-        return data.tokens;
+        return data.tokens?.[0] || null;
       } catch (error) {
         /* empty */
       } finally {
