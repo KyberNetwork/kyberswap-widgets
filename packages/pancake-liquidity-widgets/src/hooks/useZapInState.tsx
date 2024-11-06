@@ -430,6 +430,27 @@ export const ZapContextProvider = ({
     zapApiError,
   ]);
 
+  useEffect(() => {
+    console.log(123);
+  }, [
+    // chainId,
+    // debounceTickLower,
+    // debounceTickUpper,
+    // feeAddress,
+    // feePcm,
+    // poolAddress,
+    // pool,
+    // slippage,
+    // positionId,
+    // includedSources,
+    // excludedSources,
+    // source,
+    tokensIn,
+    // debounceAmountsIn,
+    // error,
+    // zapApiError,
+  ]);
+
   return (
     <ZapContext.Provider
       value={{

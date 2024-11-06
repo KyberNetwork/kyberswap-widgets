@@ -16,6 +16,7 @@ import {
 } from "@/types/zapInTypes";
 import { BASE_BPS, NetworkInfo, chainIdToChain } from "@/constants";
 import {
+  ImpactType,
   PI_LEVEL,
   calculateGasMargin,
   formatCurrency,
@@ -205,7 +206,11 @@ export default function Preview({
   const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
     (item) => item.type === ZapAction.AGGREGATOR_SWAP
   ) as AggregatorSwapAction | undefined;
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    ImpactType.ZAP,
+    feeInfo
+  );
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
@@ -340,7 +345,7 @@ export default function Preview({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, ImpactType.SWAP, feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -369,7 +374,7 @@ export default function Preview({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, ImpactType.SWAP, feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -932,9 +937,7 @@ export default function Preview({
       )}
 
       {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-        <div className="ks-lw-card-warning mt-3">
-          Swap {swapPiRes.piRes.msg}
-        </div>
+        <div className="ks-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
       )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (

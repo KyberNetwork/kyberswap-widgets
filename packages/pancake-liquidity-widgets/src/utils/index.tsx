@@ -208,13 +208,19 @@ export enum PI_LEVEL {
   INVALID = "INVALID",
 }
 
+export enum ImpactType {
+  ZAP = "Zap",
+  SWAP = "Swap price",
+}
+
 export const getPriceImpact = (
   pi: number | null | undefined,
+  type: ImpactType,
   zapFeeInfo?: ProtocolFeeAction
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
-      msg: "Unable to calculate Price Impact",
+      msg: `Unable to calculate ${type} impact`,
       level: PI_LEVEL.INVALID,
       display: "--",
     };
@@ -227,7 +233,7 @@ export const getPriceImpact = (
     return {
       msg: (
         <div>
-          Price impact is <span className="text-error">very high</span>. You
+          {type} impact is <span className="text-error">very high</span>. You
           will lose funds!
         </div>
       ),
@@ -240,7 +246,7 @@ export const getPriceImpact = (
     return {
       msg: (
         <>
-          Price impact is <span className="text-warning">high</span>
+          {type} impact is <span className="text-warning">high</span>
         </>
       ),
       level: PI_LEVEL.HIGH,

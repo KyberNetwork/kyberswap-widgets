@@ -13,7 +13,7 @@ import Preview, { ZapState } from "@/components/Preview";
 import Modal from "@/components/Modal";
 import InfoHelper from "@/components/InfoHelper";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { PI_LEVEL, getPriceImpact } from "@/utils";
+import { ImpactType, PI_LEVEL, getPriceImpact } from "@/utils";
 import { tryParseTick } from "@/utils/pancakev3";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
 import {
@@ -106,7 +106,11 @@ export default function Content({
       (item) => item.type === ZapAction.PROTOCOL_FEE
     ) as ProtocolFeeAction | undefined;
 
-    const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+    const piRes = getPriceImpact(
+      zapInfo?.zapDetails.priceImpact,
+      ImpactType.ZAP,
+      feeInfo
+    );
 
     const aggregatorSwapPi =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
@@ -115,7 +119,7 @@ export default function Content({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, feeInfo);
+        return getPriceImpact(pi, ImpactType.SWAP, feeInfo);
       }) || [];
     const poolSwapPi =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
@@ -124,7 +128,7 @@ export default function Content({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, feeInfo);
+        return getPriceImpact(pi, ImpactType.SWAP, feeInfo);
       }) || [];
 
     const swapPiHigh = !!aggregatorSwapPi

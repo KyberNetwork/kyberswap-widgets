@@ -10,6 +10,7 @@ import {
   RefundAction,
 } from "@/types/zapInTypes";
 import {
+  ImpactType,
   PI_LEVEL,
   formatCurrency,
   formatNumber,
@@ -133,7 +134,7 @@ export default function EstLiqValue() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, ImpactType.SWAP, feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -162,7 +163,7 @@ export default function EstLiqValue() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, ImpactType.SWAP, feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -193,7 +194,11 @@ export default function EstLiqValue() {
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    ImpactType.ZAP,
+    feeInfo
+  );
 
   const positionAmount0Usd =
     (+(position?.amount0.toExact() || 0) *
