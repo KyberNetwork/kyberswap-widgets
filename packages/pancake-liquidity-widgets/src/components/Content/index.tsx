@@ -428,6 +428,7 @@ export default function Content({
                         : pi.piHigh
                         ? theme.warning
                         : undefined,
+                    color: pi.piVeryHigh && degenMode ? "fff" : undefined,
                   }
                 : {}
             }

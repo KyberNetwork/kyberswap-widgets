@@ -174,6 +174,11 @@ export const ZapContextProvider = ({
     [position, pool, revertPrice]
   );
 
+  const tokensInAddress = useMemo(
+    () => tokensIn.map((token) => token.address?.toLowerCase()).join(","),
+    [tokensIn]
+  );
+
   const priceLower = useMemo(() => {
     if (!pool || tickLower == null) return null;
     return tickToPrice(pool.token0, pool.token1, tickLower) as Price<
@@ -273,7 +278,6 @@ export const ZapContextProvider = ({
   useEffect(() => {
     if (!pool) return;
 
-    const tokensInAddress = tokensIn.map((token) => token.address).join(",");
     if (tokensInAddress.toLowerCase() === initDepositTokens.toLowerCase()) {
       if (!initDepositTokens)
         onAddTokens(`${pool.token0.address},${pool.token1.address}`);
@@ -297,7 +301,14 @@ export const ZapContextProvider = ({
         setTokensIn(listInitTokens);
       }
     })();
-  }, [getToken, initAmounts, initDepositTokens, onAddTokens, pool, tokensIn]);
+  }, [
+    getToken,
+    initAmounts,
+    initDepositTokens,
+    onAddTokens,
+    pool,
+    tokensInAddress,
+  ]);
 
   // set amounts in
   useEffect(() => {
@@ -338,15 +349,10 @@ export const ZapContextProvider = ({
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE)
     ) {
-      let formattedTokensIn = "";
       let formattedAmountsInWeis = "";
       const listAmountsIn = amountsIn.split(",");
 
       try {
-        formattedTokensIn = tokensIn
-          .map((token: Token) => token.address)
-          .join(",");
-
         formattedAmountsInWeis = tokensIn
           .map((token: Token, index: number) =>
             parseUnits(listAmountsIn[index] || "0", token.decimals).toString()
@@ -357,7 +363,7 @@ export const ZapContextProvider = ({
       }
 
       if (
-        !formattedTokensIn ||
+        !tokensInAddress ||
         !formattedAmountsInWeis ||
         !formattedAmountsInWeis.length ||
         !formattedAmountsInWeis[0] ||
@@ -376,7 +382,7 @@ export const ZapContextProvider = ({
         "pool.fee": pool.fee,
         "position.tickUpper": debounceTickUpper,
         "position.tickLower": debounceTickLower,
-        tokensIn: formattedTokensIn,
+        tokensIn: tokensInAddress,
         amountsIn: formattedAmountsInWeis,
         slippage,
         ...(positionId ? { "position.id": positionId } : {}),
@@ -434,31 +440,10 @@ export const ZapContextProvider = ({
     includedSources,
     excludedSources,
     source,
-    tokensIn,
+    tokensInAddress,
     debounceAmountsIn,
     error,
     zapApiError,
-  ]);
-
-  useEffect(() => {
-    console.log(123);
-  }, [
-    // chainId,
-    // debounceTickLower,
-    // debounceTickUpper,
-    // feeAddress,
-    // feePcm,
-    // poolAddress,
-    // pool,
-    // slippage,
-    // positionId,
-    // includedSources,
-    // excludedSources,
-    // source,
-    tokensIn,
-    // debounceAmountsIn,
-    // error,
-    // zapApiError,
   ]);
 
   return (

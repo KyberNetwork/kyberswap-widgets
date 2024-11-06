@@ -816,10 +816,10 @@ export default function Preview({
                         index === 0 ? "mt-2" : ""
                       } ${
                         item.piRes.level === PI_LEVEL.NORMAL
-                          ? "text-subText brightness-125"
+                          ? "brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "text-warning"
-                          : "text-error"
+                          ? "!text-warning"
+                          : "!text-error"
                       }`}
                       key={index}
                     >

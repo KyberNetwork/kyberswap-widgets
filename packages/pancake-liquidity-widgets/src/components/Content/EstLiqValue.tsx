@@ -414,10 +414,10 @@ export default function EstLiqValue() {
                         index === 0 ? "mt-2" : ""
                       } ${
                         item.piRes.level === PI_LEVEL.NORMAL
-                          ? "text-subText brightness-125"
+                          ? "brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "text-warning"
-                          : "text-error"
+                          ? "!text-warning"
+                          : "!text-error"
                       }`}
                       key={index}
                     >
@@ -523,9 +523,7 @@ export default function EstLiqValue() {
         </div>
 
         {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning mt-3">
-            Swap {swapPiRes.piRes.msg}
-          </div>
+          <div className="ks-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
         )}
 
         {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
