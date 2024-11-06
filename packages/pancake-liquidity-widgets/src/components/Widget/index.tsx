@@ -36,6 +36,7 @@ export interface WidgetProps {
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
   onRemoveToken: (tokenAddress: string) => void;
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;
@@ -61,6 +62,7 @@ export default function Widget({
   onDismiss,
   onTxSubmit,
   onConnectWallet,
+  onAddTokens,
   onRemoveToken,
   onAmountChange,
   onOpenTokenSelectModal,
@@ -125,6 +127,7 @@ export default function Widget({
           feeAddress={feeAddress}
           feePcm={feePcm}
           onConnectWallet={onConnectWallet}
+          onAddTokens={onAddTokens}
           onRemoveToken={onRemoveToken}
           onAmountChange={onAmountChange}
           onOpenTokenSelectModal={onOpenTokenSelectModal}

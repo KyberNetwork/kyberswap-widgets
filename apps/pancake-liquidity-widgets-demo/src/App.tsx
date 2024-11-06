@@ -91,6 +91,23 @@ function LiquidityWidgetWrapper() {
 
   const { openConnectModal } = useConnectModal();
 
+  const handleAddTokens = useCallback((tokenAddresses: string) => {
+    const amountsToAdd = tokenAddresses
+      .split("")
+      .filter((item) => item === ",")
+      .join("");
+    setParams((params) => ({
+      ...params,
+      initDepositTokens: params.initDepositTokens
+        ? `${params.initDepositTokens},${tokenAddresses}`
+        : tokenAddresses,
+      initAmounts: params.initAmounts
+        ? `${params.initAmounts},${amountsToAdd}`
+        : amountsToAdd,
+    }));
+  }, []);
+
+  // required
   const handleRemoveToken = useCallback(
     (tokenAddress: string) => {
       const tokens = params.initDepositTokens.split(",");
@@ -111,6 +128,7 @@ function LiquidityWidgetWrapper() {
     [params.initAmounts, params.initDepositTokens]
   );
 
+  // required
   const handleAmountChange = useCallback(
     (tokenAddress: string, amount: string) => {
       const tokens = params.initDepositTokens.split(",");
@@ -153,6 +171,7 @@ function LiquidityWidgetWrapper() {
         initDepositTokens={params.initDepositTokens}
         initAmounts={params.initAmounts}
         source="zap-widget-demo"
+        onAddTokens={handleAddTokens}
         onRemoveToken={handleRemoveToken}
         onAmountChange={handleAmountChange}
         onOpenTokenSelectModal={() => console.log("Token select modal opened")}

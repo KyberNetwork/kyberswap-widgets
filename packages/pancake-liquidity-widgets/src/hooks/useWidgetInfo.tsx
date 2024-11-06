@@ -17,6 +17,7 @@ type ContextState = {
   feePcm?: number;
   error?: string;
   onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
   onRemoveToken: (tokenAddress: string) => void;
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;
@@ -30,6 +31,7 @@ const WidgetContext = createContext<ContextState>({
   positionOwner: null,
   theme: defaultTheme,
   onConnectWallet: () => {},
+  onAddTokens: () => {},
   onRemoveToken: () => {},
   onAmountChange: () => {},
   onOpenTokenSelectModal: () => {},
@@ -46,6 +48,7 @@ type Props = {
   feePcm?: number;
   error?: string;
   onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
   onRemoveToken: (tokenAddress: string) => void;
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;

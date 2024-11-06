@@ -107,8 +107,15 @@ export const ZapContextProvider = ({
   initDepositTokens: string;
   initAmounts: string;
 }) => {
-  const { pool, poolAddress, position, positionId, feePcm, feeAddress } =
-    useWidgetInfo();
+  const {
+    pool,
+    poolAddress,
+    position,
+    positionId,
+    feePcm,
+    feeAddress,
+    onAddTokens,
+  } = useWidgetInfo();
   const { chainId, networkChainId } = useWeb3Provider();
   const { getToken } = useTokens();
 
@@ -267,8 +274,11 @@ export const ZapContextProvider = ({
     if (!pool) return;
 
     const tokensInAddress = tokensIn.map((token) => token.address).join(",");
-    if (tokensInAddress.toLowerCase() === initDepositTokens.toLowerCase())
+    if (tokensInAddress.toLowerCase() === initDepositTokens.toLowerCase()) {
+      if (!initDepositTokens)
+        onAddTokens(`${pool.token0.address},${pool.token1.address}`);
       return;
+    }
 
     const initDepositTokenAddresses = initDepositTokens?.split(",") || [];
 
@@ -287,7 +297,7 @@ export const ZapContextProvider = ({
         setTokensIn(listInitTokens);
       }
     })();
-  }, [getToken, initAmounts, initDepositTokens, pool, tokensIn]);
+  }, [getToken, initAmounts, initDepositTokens, onAddTokens, pool, tokensIn]);
 
   // set amounts in
   useEffect(() => {
