@@ -434,7 +434,7 @@ export default function Content({
             }
           >
             {btnText}
-            {pi.piVeryHigh && (
+            {pi.piVeryHigh && !error && (
               <InfoHelper
                 width="300px"
                 color={theme.textReverse}
