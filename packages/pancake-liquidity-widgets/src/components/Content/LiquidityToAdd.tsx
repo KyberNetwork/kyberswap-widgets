@@ -114,16 +114,12 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (
-                tokensIn[tokenIndex].balance ||
-                tokensIn[tokenIndex].balance === BigInt(0)
-              )
-                onChangeTokenAmount(
-                  formatUnits(
-                    BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(4),
-                    tokensIn[tokenIndex].decimals
-                  )
-                );
+              onChangeTokenAmount(
+                formatUnits(
+                  BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(4),
+                  tokensIn[tokenIndex].decimals
+                )
+              );
             }}
           >
             25%
@@ -131,16 +127,12 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (
-                tokensIn[tokenIndex].balance ||
-                tokensIn[tokenIndex].balance === BigInt(0)
-              )
-                onChangeTokenAmount(
-                  formatUnits(
-                    BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(2),
-                    tokensIn[tokenIndex].decimals
-                  )
-                );
+              onChangeTokenAmount(
+                formatUnits(
+                  BigInt(tokensIn[tokenIndex].balance || 0) / BigInt(2),
+                  tokensIn[tokenIndex].decimals
+                )
+              );
             }}
           >
             50%
@@ -148,17 +140,13 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (
-                tokensIn[tokenIndex].balance ||
-                tokensIn[tokenIndex].balance === BigInt(0)
-              )
-                onChangeTokenAmount(
-                  formatUnits(
-                    (BigInt(tokensIn[tokenIndex].balance || 0) * BigInt(3)) /
-                      BigInt(4),
-                    tokensIn[tokenIndex].decimals
-                  )
-                );
+              onChangeTokenAmount(
+                formatUnits(
+                  (BigInt(tokensIn[tokenIndex].balance || 0) * BigInt(3)) /
+                    BigInt(4),
+                  tokensIn[tokenIndex].decimals
+                )
+              );
             }}
           >
             75%
@@ -167,16 +155,12 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <button
             className="ks-outline-btn small"
             onClick={() => {
-              if (
-                tokensIn[tokenIndex].balance ||
-                tokensIn[tokenIndex].balance === BigInt(0)
-              )
-                onChangeTokenAmount(
-                  formatUnits(
-                    BigInt(tokensIn[tokenIndex].balance || 0),
-                    tokensIn[tokenIndex].decimals
-                  )
-                );
+              onChangeTokenAmount(
+                formatUnits(
+                  BigInt(tokensIn[tokenIndex].balance || 0),
+                  tokensIn[tokenIndex].decimals
+                )
+              );
             }}
           >
             Max
