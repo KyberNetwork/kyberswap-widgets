@@ -106,7 +106,8 @@ export default function TokenSelector({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
-  const [modalTabSelected, setModalTabSelected] = useState<MODAL_TAB>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [modalTabSelected, _setModalTabSelected] = useState<MODAL_TAB>(
     MODAL_TAB.TOKENS
   );
   const [message, setMessage] = useState<string>("");
@@ -444,7 +445,7 @@ export default function TokenSelector({
           </div>
         </div>
 
-        <div
+        {/* <div
           className="border rounded-full p-[2px] flex mx-6 text-sm"
           style={{ borderColor: `${theme.icons}33` }}
         >
@@ -464,7 +465,7 @@ export default function TokenSelector({
           >
             Your Position(s)
           </div>
-        </div>
+        </div> */}
 
         {mode === TOKEN_SELECT_MODE.SELECT &&
           modalTabSelected === MODAL_TAB.TOKENS && (
