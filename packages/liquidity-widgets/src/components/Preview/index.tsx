@@ -36,7 +36,6 @@ import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { useTokenList } from "@/hooks/useTokenList";
 import {
   Accordion,
   AccordionContent,
@@ -99,7 +98,6 @@ export default function Preview({
     amountsIn,
     tokensInUsdPrice,
   } = useZapState();
-  const { allTokens } = useTokenList();
   const Copy = useCopy({ text: poolAddress });
 
   const [txHash, setTxHash] = useState("");
@@ -258,13 +256,21 @@ export default function Preview({
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
+    if (!pool) return [];
+    const tokens = [
+      ...tokensIn,
+      pool.token0,
+      pool.token1,
+      NetworkInfo[chainId].wrappedToken,
+    ];
+
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -289,11 +295,11 @@ export default function Preview({
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = allTokens.find(
+        const tokenIn = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
-        const tokenOut = allTokens.find(
+        const tokenOut = tokens.find(
           (token: Token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
@@ -317,7 +323,7 @@ export default function Preview({
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, allTokens, zapInfo]);
+  }, [zapInfo, pool, tokensIn, chainId, feeInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
