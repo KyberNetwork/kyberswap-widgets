@@ -1,9 +1,8 @@
 import { defineConfig } from "tsup";
 import { svgrPlugin } from "@kyber/svgr-esbuild-plugin";
-import { sassPlugin } from "esbuild-sass-plugin";
 
 export default defineConfig({
-  entry: { "liquidity-widget": "src/components/index.ts" },
+  entry: { "zap-migration-widget": "src/index.tsx" },
   format: ["esm", "cjs"],
   outDir: "dist",
   target: "esnext",
@@ -12,13 +11,13 @@ export default defineConfig({
   minify: false, // Set to true if you want to minify the output
   sourcemap: true,
   onSuccess: "tsc --noEmit",
-  external: ["react", "react-dom"], // Externals
-  noExternal: ["@kyber/ui", "@kyber/utils", "@uniswap/v3-sdk"],
+  external: ["react", "react-dom", "viem"], // Externals
+  noExternal: ["@kyber/ui", "@kyber/hooks"],
   loader: {
     ".png": "dataurl",
   },
 
-  esbuildPlugins: [svgrPlugin(), sassPlugin()],
+  esbuildPlugins: [svgrPlugin()],
   esbuildOptions(options) {
     options.globalName = "Widgets";
     options.define = {
