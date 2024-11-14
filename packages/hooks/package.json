@@ -5,7 +5,7 @@
   "exports": {
     "./use-debounce": "./src/use-debounce.ts",
     "./use-interval": "./src/use-interval.ts",
-    "./use-device-screen": "./src/use-device-screen.ts"
+    "./use-window-size": "./src/use-window-size.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",

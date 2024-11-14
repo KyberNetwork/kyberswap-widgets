@@ -6,7 +6,6 @@ import Toggle from "@/components/Toggle";
 import SlippageInput from "@/components/Setting/SlippageInput";
 import { useOnClickOutside } from "@/hooks/useOnClickOutside";
 import { useZapState } from "@/hooks/useZapInState";
-// import { useDeviceScreen } from "@kyber/hooks/use-device-screen";
 import X from "@/assets/x.svg";
 
 export default function Setting() {
