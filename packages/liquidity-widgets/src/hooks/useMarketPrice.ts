@@ -5,10 +5,13 @@ export default function useMarketPrice(tokensAddress: string) {
   const { chainId } = useWeb3Provider();
 
   const { prices } = useTokenPrices({
-    addresses: tokensAddress.split(","),
+    addresses: tokensAddress
+      .split(",")
+      .filter(Boolean)
+      .map((item) => item.toLowerCase()),
     chainId,
   });
   return Object.keys(prices).map((key) => {
-    return prices[key] || 0;
+    return prices[key.toLowerCase()] || 0;
   });
 }

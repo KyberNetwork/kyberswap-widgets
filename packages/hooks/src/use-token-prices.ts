@@ -56,9 +56,7 @@ export function useTokenPrices({
           addresses.reduce((acc, address) => {
             return {
               ...acc,
-              [address]: {
-                price: prices[address]?.PriceBuy || 0,
-              },
+              [address]: prices[address]?.PriceBuy || 0,
             };
           }, {})
         );
