@@ -57,7 +57,7 @@ export default function useMarketPrice({
     };
 
     getPrices();
-    const i = setInterval(() => getPrices, 5 * 60_000);
+    const i = setInterval(() => getPrices, 30 * 1_000);
 
     return () => clearInterval(i);
 
