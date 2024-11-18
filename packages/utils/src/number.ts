@@ -93,7 +93,11 @@ const subscriptMap: { [key: string]: string } = {
 };
 
 export const formatDisplayNumber = (
+<<<<<<< Updated upstream
   value: string | bigint | number | undefined | null,
+=======
+  value: string | bigint | number,
+>>>>>>> Stashed changes
   options?: {
     style?: "decimal" | "currency" | "percent";
     significantDigits?: number;
@@ -104,6 +108,7 @@ export const formatDisplayNumber = (
   const { style = "decimal", fallback = "--" } = options || {};
 
   const significantDigits =
+<<<<<<< Updated upstream
     style === "decimal"
       ? options?.significantDigits || 8
       : options?.significantDigits;
@@ -111,12 +116,21 @@ export const formatDisplayNumber = (
     style === "currency"
       ? options?.fractionDigits || 2
       : options?.fractionDigits;
+=======
+    style === "decimal" ? options?.significantDigits || 8 : undefined;
+  const fractionDigits =
+    style === "currency" ? options?.fractionDigits || 2 : undefined;
+>>>>>>> Stashed changes
 
   const currency = style === "currency" ? "$" : "";
   const percent = style === "percent" ? "%" : "";
   const fallbackResult = `${currency}${fallback}${percent}`;
 
+<<<<<<< Updated upstream
   const v = Number(value?.toString());
+=======
+  const v = Number(value.toString());
+>>>>>>> Stashed changes
   if (value === undefined || value === null || Number.isNaN(value))
     return fallbackResult;
 

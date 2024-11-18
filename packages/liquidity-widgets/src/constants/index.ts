@@ -1,4 +1,7 @@
+import { PoolType } from "@/schema";
 import { Token } from "../entities/Pool";
+
+export { PoolType };
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -292,14 +295,6 @@ export const chainIdToChain: { [chainId: number]: string } = {
   1101: "polygon-zkevm",
 };
 
-export enum PoolType {
-  DEX_UNISWAPV3 = "DEX_UNISWAPV3",
-  DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
-  DEX_METAVAULTV3 = "DEX_METAVAULTV3",
-  DEX_LINEHUBV3 = "DEX_LINEHUBV3",
-  DEX_SWAPMODEV3 = "DEX_SWAPMODEV3",
-}
-
 export const NFT_MANAGER_CONTRACT: {
   [key in PoolType]: { [chainId: number]: string };
 } = {
@@ -366,6 +361,7 @@ export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {
 };
 
 export const PATHS = {
+  BFF_API: "https://bff.kyberswap.com/api",
   KYBERSWAP_DOCS: "https://docs.kyberswap.com",
   INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",

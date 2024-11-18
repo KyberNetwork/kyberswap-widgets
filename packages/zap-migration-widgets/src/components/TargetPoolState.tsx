@@ -1,5 +1,6 @@
 import { Skeleton } from "@kyber/ui/skeleton";
 import { usePoolsStore } from "../stores/usePoolsStore";
+<<<<<<< Updated upstream
 import {
   MAX_TICK,
   MIN_TICK,
@@ -117,6 +118,19 @@ export function TargetPoolState() {
 
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
+=======
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import SwapIcon from "../assets/icons/swap.svg";
+import { useState } from "react";
+import { formatDisplayNumber } from "@kyber/utils/number";
+
+export function TargetPoolState() {
+  const { pools } = usePoolsStore();
+  const pool = pools === "loading" ? "loading" : pools[1];
+  const [revertDisplay, setRevertDisplay] = useState(false);
+
+  console.log(pool);
+>>>>>>> Stashed changes
 
   return (
     <div className="flex-1">
@@ -137,7 +151,14 @@ export function TargetPoolState() {
                 { significantDigits: 6 }
               )}
             </div>
+<<<<<<< Updated upstream
             <div>{priceLabel}</div>
+=======
+            <div>
+              {revertDisplay ? pool.token0.symbol : pool.token1.symbol} per{" "}
+              {revertDisplay ? pool.token1.symbol : pool.token0.symbol} per{" "}
+            </div>
+>>>>>>> Stashed changes
 
             <SwapIcon
               role="button"
@@ -146,6 +167,7 @@ export function TargetPoolState() {
           </>
         )}
       </div>
+<<<<<<< Updated upstream
 
       <div className="flex items-center gap-2 justify-between text-subText text-sm mt-4">
         {[100, 80, 50, 20].map((percent) => (
@@ -330,6 +352,8 @@ export function TargetPoolState() {
           </div>
         </div>
       </div>
+=======
+>>>>>>> Stashed changes
     </div>
   );
 }

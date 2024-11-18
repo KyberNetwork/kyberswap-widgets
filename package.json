@@ -15,11 +15,16 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "dev": "turbo dev",
+<<<<<<< Updated upstream
     "type-check": "turbo type-check"
   },
   "pnpm": {
     "patchedDependencies": {
       "@uniswap/v3-sdk@3.18.1": "patches/@uniswap__v3-sdk@3.18.1.patch"
     }
+=======
+    "type-check": "turbo type-check",
+    "dev:zap-migrate": "pnpm --filter @kyber/zap-migration-widgets dev && pnpm --filter zap-migration-demo dev"
+>>>>>>> Stashed changes
   }
 }

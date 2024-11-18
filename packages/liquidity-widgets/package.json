@@ -45,17 +45,19 @@
     "lucide-react": "^0.453.0",
     "numeral": "^2.0.6",
     "polished": "^4.3.1",
-    "react-popper": "^2.3.0"
+    "react-popper": "^2.3.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.0"
   },
   "patchedDependencies": {
     "@uniswap/v3-sdk": "patches/@uniswap__v3-sdk@3.18.1.patch"
   },
   "devDependencies": {
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
-    "@kyber/utils": "workspace:^",
     "@kyber/ui": "workspace:^",
     "@kyber/hooks": "workspace:^",
-    "@kyber/svgr-esbuild-plugin": "workspace:^",
+    "@kyber/utils": "workspace:^",
     "@types/d3": "^7.4.3",
     "@types/lodash": "^4.14.196",
     "@types/numeral": "^2.0.5",

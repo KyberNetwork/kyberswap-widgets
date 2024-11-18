@@ -1,7 +1,11 @@
 import { Skeleton } from "@kyber/ui/skeleton";
 import { Slider } from "@kyber/ui/slider";
 import { cn } from "@kyber/utils/tailwind-helpers";
+<<<<<<< Updated upstream
 import { useEffect, useState } from "react";
+=======
+import { useState } from "react";
+>>>>>>> Stashed changes
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
 import { usePositionStore } from "../stores/useFromPositionStore";
@@ -11,12 +15,16 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
+<<<<<<< Updated upstream
 import { useZapStateStore } from "../stores/useZapStateStore";
+=======
+>>>>>>> Stashed changes
 
 export function SourcePoolState() {
   const { pools } = usePoolsStore();
   const { position } = usePositionStore();
 
+<<<<<<< Updated upstream
   const { liquidityOut, setLiquidityOut } = useZapStateStore();
 
   const [percent, setPercent] = useState(100);
@@ -25,6 +33,9 @@ export function SourcePoolState() {
     if (position === "loading") return;
     setLiquidityOut((position.liquidity * BigInt(percent)) / BigInt(100));
   }, [percent, position]);
+=======
+  const [percent, setPercent] = useState(0);
+>>>>>>> Stashed changes
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -34,7 +45,11 @@ export function SourcePoolState() {
       position.tickLower,
       position.tickUpper,
       BigInt(pools[0].sqrtPriceX96),
+<<<<<<< Updated upstream
       liquidityOut
+=======
+      (position.liquidity * BigInt(percent)) / BigInt(100)
+>>>>>>> Stashed changes
     ));
   }
 
@@ -127,7 +142,10 @@ export function SourcePoolState() {
         </div>
       </div>
 
+<<<<<<< Updated upstream
       {/*
+=======
+>>>>>>> Stashed changes
       <div className="border border-stroke rounded-md px-4 py-3 mt-4">
         <span className="text-subText text-sm">Claim fee</span>
       </div>

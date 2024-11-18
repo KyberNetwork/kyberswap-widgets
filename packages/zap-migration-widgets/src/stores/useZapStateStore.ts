@@ -1,4 +1,5 @@
 import { create } from "zustand";
+<<<<<<< Updated upstream
 import { usePoolsStore } from "./usePoolsStore";
 import { usePositionStore } from "./useFromPositionStore";
 import { NetworkInfo, ZAP_URL } from "../constants";
@@ -184,3 +185,20 @@ const apiResponse = z.object({
 });
 
 export type GetRouteResponse = z.infer<typeof apiResponse>;
+=======
+
+interface ZapState {
+  liquidityOut: bigint;
+  tickLower: number | null;
+  tickUpper: number | null;
+}
+
+export const useZapStateStore = create<ZapState>((set) => ({
+  liquidityOut: 0n,
+  tickLower: null,
+  tickUpper: null,
+  setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
+  setTickLower: (tickLower: number) => set({ tickLower }),
+  setTickUpper: (tickUpper: number) => set({ tickUpper }),
+}));
+>>>>>>> Stashed changes
