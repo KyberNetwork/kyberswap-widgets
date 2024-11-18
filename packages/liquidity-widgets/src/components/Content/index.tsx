@@ -4,7 +4,7 @@ import ErrorIcon from "@/assets/svg/error.svg";
 import PriceInfo from "./PriceInfo";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
-import { useZapState } from "../../hooks/useZapInState";
+import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
@@ -60,8 +60,15 @@ export default function Content({
     amountsIn,
   } = useZapState();
 
-  const { pool, theme, error: loadPoolError, position } = useWidgetInfo();
-  const { account } = useWeb3Provider();
+  const {
+    pool,
+    theme,
+    error: loadPoolError,
+    position,
+    onConnectWallet,
+    onChangeNetwork,
+  } = useWidgetInfo();
+  const { account, chainId, networkChainId } = useWeb3Provider();
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -147,6 +154,14 @@ export default function Content({
   }, [zapInfo]);
 
   const btnText = useMemo(() => {
+    if (!account) {
+      if (onConnectWallet) return "Connect Wallet";
+      return ERROR_MESSAGE.CONNECT_WALLET;
+    }
+    if (chainId !== networkChainId) {
+      if (onChangeNetwork) return "Change Network";
+      return ERROR_MESSAGE.WRONG_NETWORK;
+    }
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
@@ -155,26 +170,47 @@ export default function Content({
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
-  }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
+  }, [
+    account,
+    addressToApprove,
+    chainId,
+    error,
+    loading,
+    networkChainId,
+    notApprove,
+    onChangeNetwork,
+    onConnectWallet,
+    pi.piVeryHigh,
+    zapLoading,
+  ]);
 
   const disabled = useMemo(
     () =>
+      (!account && !onConnectWallet) ||
+      (chainId !== networkChainId && !onChangeNetwork) ||
       clickedApprove ||
       loading ||
       zapLoading ||
-      !!error ||
+      (!!error &&
+        (error !== ERROR_MESSAGE.CONNECT_WALLET || !onConnectWallet) &&
+        (error !== ERROR_MESSAGE.WRONG_NETWORK || !onChangeNetwork)) ||
       Object.values(approvalStates).some(
         (item) => item === APPROVAL_STATE.PENDING
       ) ||
       (pi.piVeryHigh && !degenMode),
     [
-      approvalStates,
+      account,
+      onConnectWallet,
+      chainId,
+      networkChainId,
+      onChangeNetwork,
       clickedApprove,
-      degenMode,
-      error,
       loading,
-      pi.piVeryHigh,
       zapLoading,
+      error,
+      approvalStates,
+      pi.piVeryHigh,
+      degenMode,
     ]
   );
 
@@ -231,6 +267,14 @@ export default function Content({
   );
 
   const hanldeClick = () => {
+    if (!account && onConnectWallet) {
+      onConnectWallet();
+      return;
+    }
+    if (chainId !== networkChainId && onChangeNetwork) {
+      onChangeNetwork();
+      return;
+    }
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
@@ -441,30 +485,20 @@ export default function Content({
           Cancel
         </button>
         <button
-          className="primary-btn"
-          disabled={disabled}
-          onClick={hanldeClick}
-          style={
+          className={`primary-btn ${
             !disabled &&
             Object.values(approvalStates).some(
               (item) => item !== APPROVAL_STATE.NOT_APPROVED
             )
-              ? {
-                  background:
-                    pi.piVeryHigh && degenMode
-                      ? theme.error
-                      : pi.piHigh
-                      ? theme.warning
-                      : undefined,
-                  border:
-                    pi.piVeryHigh && degenMode
-                      ? `1px solid ${theme.error}`
-                      : pi.piHigh
-                      ? theme.warning
-                      : undefined,
-                }
-              : {}
-          }
+              ? pi.piVeryHigh && degenMode
+                ? "bg-error border-solid border-error"
+                : pi.piHigh
+                ? "bg-warning border-solid border-warning"
+                : ""
+              : ""
+          }`}
+          disabled={disabled}
+          onClick={hanldeClick}
         >
           {btnText}
           {pi.piVeryHigh && (

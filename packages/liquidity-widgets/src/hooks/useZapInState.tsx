@@ -26,7 +26,7 @@ import {
 } from "@/constants";
 import { formatWei } from "@/utils";
 
-const ERROR_MESSAGE = {
+export const ERROR_MESSAGE = {
   CONNECT_WALLET: "Please connect wallet",
   WRONG_NETWORK: "Wrong network",
   SELECT_TOKEN_IN: "Select token in",

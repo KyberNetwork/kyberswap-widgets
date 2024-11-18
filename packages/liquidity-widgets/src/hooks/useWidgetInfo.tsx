@@ -17,6 +17,8 @@ type ContextState = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
+  onConnectWallet?: () => void;
+  onChangeNetwork?: () => void;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -26,6 +28,8 @@ const WidgetContext = createContext<ContextState>({
   poolAddress: "",
   position: null,
   theme: defaultTheme,
+  onConnectWallet: () => {},
+  onChangeNetwork: () => {},
 });
 
 type Props = {
@@ -38,6 +42,8 @@ type Props = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
+  onConnectWallet?: () => void;
+  onChangeNetwork?: () => void;
 };
 
 const PancakeV3Provider = ({

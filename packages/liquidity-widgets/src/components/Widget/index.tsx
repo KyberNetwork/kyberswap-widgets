@@ -35,8 +35,6 @@ export interface WidgetProps {
   positionId?: string;
   poolType: PoolType;
   chainId: ChainId;
-  onDismiss: () => void;
-  onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
   feePcm?: number;
   source: string;
@@ -44,6 +42,10 @@ export interface WidgetProps {
   excludedSources?: string;
   initDepositTokens?: string;
   initAmounts?: string;
+  onDismiss: () => void;
+  onTxSubmit?: (txHash: string) => void;
+  onConnectWallet?: () => void;
+  onChangeNetwork?: () => void;
 }
 
 export default function Widget({
@@ -53,8 +55,6 @@ export default function Widget({
   positionId,
   chainId,
   poolType,
-  onDismiss,
-  onTxSubmit,
   feeAddress,
   feePcm,
   includedSources,
@@ -62,6 +62,10 @@ export default function Widget({
   source,
   initDepositTokens,
   initAmounts,
+  onDismiss,
+  onTxSubmit,
+  onConnectWallet,
+  onChangeNetwork,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -86,6 +90,8 @@ export default function Widget({
           theme={theme || defaultTheme}
           feeAddress={feeAddress}
           feePcm={feePcm}
+          onConnectWallet={onConnectWallet}
+          onChangeNetwork={onChangeNetwork}
         >
           <ZapContextProvider
             includedSources={includedSources}

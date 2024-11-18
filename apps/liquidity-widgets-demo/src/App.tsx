@@ -140,6 +140,7 @@ function App() {
           }}
           source="zap-widget-demo"
           {...params}
+          onConnectWallet={connect}
           // initDepositTokens="0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
           // initAmounts="1"
         />
