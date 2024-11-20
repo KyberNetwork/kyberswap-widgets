@@ -11,6 +11,7 @@ export interface PopoverProps {
   children: React.ReactNode;
   placement?: Placement;
   noArrow?: boolean;
+  className?: string;
 }
 
 export default function Popover({
@@ -19,6 +20,7 @@ export default function Popover({
   children,
   placement = "auto",
   noArrow = false,
+  className = "",
 }: PopoverProps) {
   const [referenceElement, setReferenceElement] =
     useState<HTMLDivElement | null>(null);
@@ -45,7 +47,11 @@ export default function Popover({
 
   return (
     <>
-      <div style={{ display: "inline-block" }} ref={setReferenceElement}>
+      <div
+        className={className}
+        style={{ display: "inline-block" }}
+        ref={setReferenceElement}
+      >
         {children}
       </div>
       <Portal>

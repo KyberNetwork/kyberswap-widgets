@@ -67,7 +67,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
         </div>
       </div>
       <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center flex-wrap gap-1 text-sm">
+        <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
           <div className="flex items-end">
             <img
               className="rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
@@ -123,7 +123,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           </div>
         </div>
 
-        <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
+        <MouseoverTooltip className="top-16 right-6 max-sm:absolute" text={degenMode ? "Degen Mode is turned on!" : ""}>
           <div
             className="w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95"
             role="button"
