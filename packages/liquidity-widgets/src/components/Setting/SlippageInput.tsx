@@ -67,6 +67,39 @@ const SlippageInput = () => {
   const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v);
 
+  const onCustomSlippageFocus = () => setIsFocus(true);
+  const onCustomSlippageBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocus(false);
+    if (!e.currentTarget.value) setSlippage(10);
+    else if (isValid) setSlippage(parseSlippageInput(e.currentTarget.value));
+  };
+
+  const onCustomSlippageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    if (value === "") {
+      setV(value);
+      setSlippage(10);
+      return;
+    }
+
+    const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
+    if (!value.match(numberRegex)) {
+      e.preventDefault();
+      return;
+    }
+
+    const res = validateSlippageInput(value);
+
+    if (res.isValid) {
+      const parsedValue = parseSlippageInput(value);
+      setSlippage(parsedValue);
+    } else {
+      setSlippage(10);
+    }
+    setV(value);
+  };
+
   return (
     <>
       <div className="slp-input-wrapper">
@@ -83,63 +116,26 @@ const SlippageInput = () => {
         ))}
 
         <div
-          className="slp-item slp-item-input"
+          className="slp-item slp-item-input w-[72px]"
           data-active={![5, 10, 50, 100].includes(slippage)}
           data-error={!!message && !isValid}
           data-warning={!!message && isValid}
           data-focus={isFocus}
-          style={{
-            width: "72px",
-          }}
         >
           {message && (
             <AlertIcon
-              style={{
-                position: "absolute",
-                top: 7,
-                left: 4,
-                width: 16,
-                height: 16,
-                color: isValid ? "var(--ks-lw-warning)" : "var(--ks-lw-error)",
-              }}
+              className={`absolute top-[5px] left-1 w-4 h-4 ${
+                isValid ? "text-warning" : "text-error"
+              }`}
             />
           )}
           <input
             data-active={![5, 10, 50, 100].includes(slippage)}
             placeholder="Custom"
-            onFocus={() => setIsFocus(true)}
-            onBlur={(e) => {
-              setIsFocus(false);
-              if (!e.currentTarget.value) setSlippage(10);
-              else if (isValid)
-                setSlippage(parseSlippageInput(e.currentTarget.value));
-            }}
+            onFocus={onCustomSlippageFocus}
+            onBlur={onCustomSlippageBlur}
             value={v}
-            onChange={(e) => {
-              const value = e.target.value;
-
-              if (value === "") {
-                setV(value);
-                setSlippage(10);
-                return;
-              }
-
-              const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
-              if (!value.match(numberRegex)) {
-                e.preventDefault();
-                return;
-              }
-
-              const res = validateSlippageInput(value);
-
-              if (res.isValid) {
-                const parsedValue = parseSlippageInput(value);
-                setSlippage(parsedValue);
-              } else {
-                setSlippage(10);
-              }
-              setV(value);
-            }}
+            onChange={onCustomSlippageChange}
             pattern="/^(\d+)\.?(\d{1,2})?$/"
           />
           <span>%</span>
@@ -147,12 +143,9 @@ const SlippageInput = () => {
       </div>
       {message && (
         <div
-          style={{
-            fontSize: "12px",
-            color: isValid ? "var(--ks-lw-warning)" : "var(--ks-lw-error)",
-            textAlign: "left",
-            marginTop: "4px",
-          }}
+          className={`text-xs text-left mt-1 ${
+            isValid ? "text-warning" : "text-error"
+          }`}
         >
           {message}
         </div>
