@@ -737,7 +737,7 @@ export default function Preview({
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div className="text-end w-min">
                   {formatDisplayNumber(
                     position ? +position.amount0 : +addedAmount0,
                     { significantDigits: 5 }

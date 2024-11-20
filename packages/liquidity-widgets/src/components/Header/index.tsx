@@ -79,7 +79,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               }}
             />
             <img
-              className="ml-[-6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
+              className="-ml-[6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
               src={token1.logoURI}
               alt="token1 logo"
               onError={({ currentTarget }) => {
@@ -88,7 +88,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               }}
             />
             <img
-              className="ml-[-4px] rounded-full w-[14px] h-[14px] border-[2px] border-layer1"
+              className="-ml-1 bg-layer1 rounded-full w-[14px] h-[14px] border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2"
               src={NetworkInfo[chainId].logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -123,7 +123,10 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           </div>
         </div>
 
-        <MouseoverTooltip className="top-16 right-6 max-sm:absolute" text={degenMode ? "Degen Mode is turned on!" : ""}>
+        <MouseoverTooltip
+          className="top-16 right-6 max-sm:absolute"
+          text={degenMode ? "Degen Mode is turned on!" : ""}
+        >
           <div
             className="w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95"
             role="button"
