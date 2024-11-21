@@ -18,7 +18,6 @@ type ContextState = {
   feePcm?: number;
   error?: string;
   onConnectWallet?: () => void;
-  onChangeNetwork?: () => void;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -29,7 +28,6 @@ const WidgetContext = createContext<ContextState>({
   position: null,
   theme: defaultTheme,
   onConnectWallet: () => {},
-  onChangeNetwork: () => {},
 });
 
 type Props = {
@@ -43,7 +41,6 @@ type Props = {
   feePcm?: number;
   error?: string;
   onConnectWallet?: () => void;
-  onChangeNetwork?: () => void;
 };
 
 const PancakeV3Provider = ({

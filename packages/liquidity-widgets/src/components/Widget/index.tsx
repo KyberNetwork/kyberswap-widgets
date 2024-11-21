@@ -45,7 +45,6 @@ export interface WidgetProps {
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   onConnectWallet?: () => void;
-  onChangeNetwork?: () => void;
 }
 
 export default function Widget({
@@ -65,7 +64,6 @@ export default function Widget({
   onDismiss,
   onTxSubmit,
   onConnectWallet,
-  onChangeNetwork,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -91,7 +89,6 @@ export default function Widget({
           feeAddress={feeAddress}
           feePcm={feePcm}
           onConnectWallet={onConnectWallet}
-          onChangeNetwork={onChangeNetwork}
         >
           <ZapContextProvider
             includedSources={includedSources}

@@ -66,9 +66,8 @@ export default function Content({
     error: loadPoolError,
     position,
     onConnectWallet,
-    onChangeNetwork,
   } = useWidgetInfo();
-  const { account, chainId, networkChainId } = useWeb3Provider();
+  const { account } = useWeb3Provider();
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -158,10 +157,6 @@ export default function Content({
       if (onConnectWallet) return "Connect Wallet";
       return ERROR_MESSAGE.CONNECT_WALLET;
     }
-    if (chainId !== networkChainId) {
-      if (onChangeNetwork) return "Change Network";
-      return ERROR_MESSAGE.WRONG_NETWORK;
-    }
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
@@ -173,12 +168,9 @@ export default function Content({
   }, [
     account,
     addressToApprove,
-    chainId,
     error,
     loading,
-    networkChainId,
     notApprove,
-    onChangeNetwork,
     onConnectWallet,
     pi.piVeryHigh,
     zapLoading,
@@ -187,13 +179,11 @@ export default function Content({
   const disabled = useMemo(
     () =>
       (!account && !onConnectWallet) ||
-      (chainId !== networkChainId && !onChangeNetwork) ||
       clickedApprove ||
       loading ||
       zapLoading ||
       (!!error &&
-        (error !== ERROR_MESSAGE.CONNECT_WALLET || !onConnectWallet) &&
-        (error !== ERROR_MESSAGE.WRONG_NETWORK || !onChangeNetwork)) ||
+        (error !== ERROR_MESSAGE.CONNECT_WALLET || !onConnectWallet)) ||
       Object.values(approvalStates).some(
         (item) => item === APPROVAL_STATE.PENDING
       ) ||
@@ -201,9 +191,6 @@ export default function Content({
     [
       account,
       onConnectWallet,
-      chainId,
-      networkChainId,
-      onChangeNetwork,
       clickedApprove,
       loading,
       zapLoading,
@@ -269,10 +256,6 @@ export default function Content({
   const hanldeClick = () => {
     if (!account && onConnectWallet) {
       onConnectWallet();
-      return;
-    }
-    if (chainId !== networkChainId && onChangeNetwork) {
-      onChangeNetwork();
       return;
     }
     if (notApprove) {
