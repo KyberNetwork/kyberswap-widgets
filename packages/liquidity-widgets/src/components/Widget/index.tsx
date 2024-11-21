@@ -3,7 +3,7 @@ import "./Widget.scss";
 import { Web3Provider } from "../../hooks/useProvider";
 
 import { Theme, defaultTheme } from "../../theme";
-import { WidgetProvider } from "../../hooks/useWidgetInfo";
+import { WidgetProvider as OldWidgetProvider } from "../../hooks/useWidgetInfo";
 import { providers } from "ethers";
 import { NetworkInfo, PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
@@ -12,6 +12,7 @@ import { TokenListProvider } from "../../hooks/useTokenList";
 import Setting from "../Setting";
 
 import "../../globals.css";
+import { WidgetProvider } from "@/stores/widget";
 
 export { PoolType, ChainId };
 
@@ -46,23 +47,25 @@ export interface WidgetProps {
   initAmounts?: string;
 }
 
-export default function Widget({
-  theme,
-  provider,
-  poolAddress,
-  positionId,
-  chainId,
-  poolType,
-  onDismiss,
-  onTxSubmit,
-  feeAddress,
-  feePcm,
-  includedSources,
-  excludedSources,
-  source,
-  initDepositTokens,
-  initAmounts,
-}: WidgetProps) {
+export default function Widget(props: WidgetProps) {
+  const {
+    theme,
+    provider,
+    poolAddress,
+    positionId,
+    chainId,
+    poolType,
+    onDismiss,
+    onTxSubmit,
+    feeAddress,
+    feePcm,
+    includedSources,
+    excludedSources,
+    source,
+    initDepositTokens,
+    initAmounts,
+  } = props;
+
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
     [chainId]
@@ -77,30 +80,48 @@ export default function Widget({
   }, [theme]);
 
   return (
-    <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <TokenListProvider>
-        <WidgetProvider
-          poolAddress={poolAddress}
-          poolType={poolType}
-          positionId={positionId}
-          theme={theme || defaultTheme}
-          feeAddress={feeAddress}
-          feePcm={feePcm}
-        >
-          <ZapContextProvider
-            includedSources={includedSources}
-            excludedSources={excludedSources}
-            source={source}
-            initDepositTokens={initDepositTokens}
-            initAmounts={initAmounts}
+    <WidgetProvider
+      {...props}
+      onClose={onDismiss}
+      onConnectWallet={() => {
+        //
+      }}
+      connectedAccount={{
+        address: "",
+        chainId: 1,
+      }}
+      onSwitchChain={() => {
+        //
+      }}
+      onSubmitTx={async () => {
+        return "";
+      }}
+    >
+      <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
+        <TokenListProvider>
+          <OldWidgetProvider
+            poolAddress={poolAddress}
+            poolType={poolType}
+            positionId={positionId}
+            theme={theme || defaultTheme}
+            feeAddress={feeAddress}
+            feePcm={feePcm}
           >
-            <div className="ks-lw ks-lw-style">
-              <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
-              <Setting />
-            </div>
-          </ZapContextProvider>
-        </WidgetProvider>
-      </TokenListProvider>
-    </Web3Provider>
+            <ZapContextProvider
+              includedSources={includedSources}
+              excludedSources={excludedSources}
+              source={source}
+              initDepositTokens={initDepositTokens}
+              initAmounts={initAmounts}
+            >
+              <div className="ks-lw ks-lw-style">
+                <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
+                <Setting />
+              </div>
+            </ZapContextProvider>
+          </OldWidgetProvider>
+        </TokenListProvider>
+      </Web3Provider>
+    </WidgetProvider>
   );
 }

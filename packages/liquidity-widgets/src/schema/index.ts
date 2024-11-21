@@ -111,10 +111,12 @@ const dexMapping: Record<PoolType, string> = {
   [PoolType.DEX_UNISWAPV3]: "uniswapv3",
   [PoolType.DEX_PANCAKESWAPV3]: "pancake-v3",
 
+  // TODO: check if baseswap-v3 is different on other network
+  [PoolType.DEX_SWAPMODEV3]: "baseswap-v3",
+
   // TODO: fix the following mappings
   [PoolType.DEX_LINEHUBV3]: "pancake-v3",
   [PoolType.DEX_METAVAULTV3]: "pancake-v3",
-  [PoolType.DEX_SWAPMODEV3]: "pancake-v3",
   // Add new DEX mappings here when needed
 } as const;
 

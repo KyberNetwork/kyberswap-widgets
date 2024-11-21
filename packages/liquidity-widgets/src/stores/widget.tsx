@@ -22,7 +22,7 @@ export interface WidgetProps {
   poolType: PoolType;
   chainId: ChainId;
   connectedAccount: {
-    address: string | undefined; // check if account is connected
+    address?: string | undefined; // check if account is connected
     chainId: number; // check if wrong network
   };
 
@@ -56,6 +56,8 @@ interface WidgetState extends WidgetProps {
   pool: "loading" | Pool;
   position: "loading" | Position | null;
   errorMsg: string;
+
+  getPool: () => void;
 }
 
 type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
@@ -80,6 +82,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
       if (!success) {
         firstLoad &&
           set({ errorMsg: `Can't get pool info ${error.toString()}` });
+        console.error("Can't get pool info", error);
         return;
       }
       const pool = data.data.pools.find(
@@ -88,6 +91,26 @@ const createWidgetStore = (initProps: WidgetProps) => {
       if (!pool) {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         return;
+      }
+      const token0 = pool.tokens[0];
+      const token1 = pool.tokens[0];
+
+      // dont need to refetch token info
+      if (firstLoad) {
+        const tokens: {
+          address: string;
+          logoURI?: string;
+          name: string;
+          symbol: string;
+          decimals: number;
+        }[] = await fetch(
+          `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${token0},${token1}`
+        )
+          .then((res) => res.json())
+          //.then((res) => res?.data?.tokens || [])
+          .catch(() => []);
+
+        console.log(111, tokens);
       }
     },
   }));
@@ -102,7 +125,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
 
   useEffect(() => {
     // get Pool and position then update store here
-    // TODO:
+    store.getState().getPool();
   }, []);
 
   return (
