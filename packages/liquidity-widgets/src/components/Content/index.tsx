@@ -474,7 +474,7 @@ export default function Content({
               (item) => item !== APPROVAL_STATE.NOT_APPROVED
             )
               ? pi.piVeryHigh && degenMode
-                ? "bg-error border-solid border-error"
+                ? "bg-error border-solid border-error text-text"
                 : pi.piHigh
                 ? "bg-warning border-solid border-warning"
                 : ""
