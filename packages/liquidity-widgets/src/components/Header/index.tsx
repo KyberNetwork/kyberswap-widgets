@@ -17,7 +17,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
     useWidgetInfo();
   const Copy = useCopy({
     text: poolAddress,
-    copyClassName: "!text-[#027BC7] hover:brightness-125",
+    copyClassName: "!text-[#2C9CE4] hover:brightness-125",
   });
 
   const { toggleSetting, degenMode } = useZapState();
