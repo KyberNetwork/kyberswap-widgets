@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useZapState } from "../../hooks/useZapInState";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
-import { nearestUsableTick } from "../../entities/Pool";
 import { Type } from "../../hooks/types/zapInTypes";
-import { correctPrice } from "@/utils";
 import { NO_DATA } from "@/constants";
+import { useWidgetContext } from "@/stores/widget";
+import {
+  MAX_TICK,
+  MIN_TICK,
+  nearestUsableTick,
+  priceToClosestTick,
+} from "@kyber/utils/uniswapv3";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -16,7 +20,7 @@ export default function PriceInput({ type }: { type: Type }) {
     priceUpper,
     positionId,
   } = useZapState();
-  const { pool, poolType } = useWidgetInfo();
+  const { pool } = useWidgetContext((s) => s);
   const [localValue, setLocalValue] = useState("");
 
   const price = useMemo(() => {
@@ -27,30 +31,22 @@ export default function PriceInput({ type }: { type: Type }) {
   }, [type, priceLower, revertPrice, priceUpper]);
 
   const isFullRange =
-    !!pool && tickLower === pool.minTick && tickUpper === pool.maxTick;
+    !!pool && tickLower === MIN_TICK && tickUpper === MAX_TICK;
 
   const increase = (tick: number | null) => {
-    if (!pool) return;
+    if (pool === "loading") return;
     const newTick =
       tick === null
-        ? nearestUsableTick(
-            poolType,
-            pool.tickCurrent + pool.tickSpacing,
-            pool.tickSpacing
-          )
+        ? nearestUsableTick(pool.tick + pool.tickSpacing, pool.tickSpacing)
         : tick + pool.tickSpacing;
     setTick(type, newTick);
   };
 
   const decrease = (tick: number | null) => {
-    if (!pool) return;
+    if (pool === "loading") return;
     const newTick =
       tick === null
-        ? nearestUsableTick(
-            poolType,
-            pool.tickCurrent - pool.tickSpacing,
-            pool.tickSpacing
-          )
+        ? nearestUsableTick(pool.tick - pool.tickSpacing, pool.tickSpacing)
         : tick - pool.tickSpacing;
     setTick(type, newTick);
   };
@@ -76,28 +72,28 @@ export default function PriceInput({ type }: { type: Type }) {
   };
 
   const wrappedCorrectPrice = (value: string) => {
-    if (!pool) return;
-    correctPrice(
+    if (pool === "loading") return;
+    const tick = priceToClosestTick(
       value,
-      type,
-      pool,
-      tickLower,
-      tickUpper,
-      poolType,
-      revertPrice,
-      setTick
+      pool.token0.decimals,
+      pool.token1.decimals,
+      revertPrice
     );
+    if (tick) setTick(type, nearestUsableTick(tick, pool.tickSpacing));
   };
 
   useEffect(() => {
+    if (pool === "loading") return;
+    const minTick = nearestUsableTick(MIN_TICK, pool.tickSpacing);
+    const maxTick = nearestUsableTick(MAX_TICK, pool.tickSpacing);
     if (
       type === Type.PriceLower &&
-      (!revertPrice ? pool?.minTick === tickLower : pool?.maxTick === tickUpper)
+      (!revertPrice ? minTick === tickLower : maxTick === tickUpper)
     ) {
       setLocalValue("0");
     } else if (
       type === Type.PriceUpper &&
-      (!revertPrice ? pool?.maxTick === tickUpper : pool?.minTick === tickLower)
+      (!revertPrice ? maxTick === tickUpper : minTick === tickLower)
     ) {
       setLocalValue("∞");
     } else if (price) setLocalValue(price?.toSignificant(6));
@@ -132,7 +128,7 @@ export default function PriceInput({ type }: { type: Type }) {
           spellCheck="false"
         />
         <span>
-          {pool
+          {pool !== "loading"
             ? revertPrice
               ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
               : `${pool?.token1.symbol}/${pool?.token0.symbol}`

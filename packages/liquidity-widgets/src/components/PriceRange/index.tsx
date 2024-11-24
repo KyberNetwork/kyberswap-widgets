@@ -3,13 +3,19 @@ import {
   FULL_PRICE_RANGE,
   PRICE_RANGE,
 } from "@/constants";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { correctPrice } from "@/utils";
 import { Type } from "@/hooks/types/zapInTypes";
 import { Price } from "@/entities/Pool";
 import { useZapState } from "@/hooks/useZapInState";
+import { useWidgetContext } from "@/stores/widget";
+import {
+  MAX_TICK,
+  MIN_TICK,
+  nearestUsableTick,
+  priceToClosestTick,
+  tickToPrice,
+} from "@kyber/utils/uniswapv3";
 
 interface SelectedRange {
   range: typeof FULL_PRICE_RANGE | number;
@@ -22,20 +28,29 @@ const PriceRange = () => {
     null
   );
 
-  const { priceLower, priceUpper, setTick, tickLower, tickUpper, revertPrice } =
-    useZapState();
+  const {
+    priceLower,
+    priceUpper,
+    setTick,
+    setTickLower,
+    setTickUpper,
+    tickLower,
+    tickUpper,
+    revertPrice,
+  } = useZapState();
 
-  const { pool, poolType, positionId, loading } = useWidgetInfo();
+  const { pool, positionId } = useWidgetContext((s) => s);
+  const loading = pool === "loading";
 
-  const { fee = 0 } = pool || {};
+  const fee = pool === "loading" ? 0 : pool.fee;
 
   const priceRanges = useMemo(
     () =>
       !fee
         ? []
-        : fee / 10_000 <= 0.01
+        : fee <= 0.01
         ? PRICE_RANGE.LOW_POOL_FEE
-        : fee / 10_000 > 0.1
+        : fee > 0.1
         ? PRICE_RANGE.HIGH_POOL_FEE
         : PRICE_RANGE.MEDIUM_POOL_FEE,
     [fee]
@@ -43,8 +58,8 @@ const PriceRange = () => {
 
   const minPrice = useMemo(() => {
     if (
-      (!revertPrice && pool?.minTick === tickLower) ||
-      (revertPrice && pool?.maxTick === tickUpper)
+      (!revertPrice && MIN_TICK === tickLower) ||
+      (revertPrice && MAX_TICK === tickUpper)
     )
       return "0";
 
@@ -53,8 +68,8 @@ const PriceRange = () => {
 
   const maxPrice = useMemo(() => {
     if (
-      (!revertPrice && pool?.maxTick === tickUpper) ||
-      (revertPrice && pool?.minTick === tickLower)
+      (!revertPrice && MAX_TICK === tickUpper) ||
+      (revertPrice && MIN_TICK === tickLower)
     )
       return "∞";
 
@@ -62,45 +77,48 @@ const PriceRange = () => {
   }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
 
   const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
-    if (!pool) return;
+    if (pool === "loading") return;
 
     if (range === FULL_PRICE_RANGE) {
-      setTick(Type.PriceLower, revertPrice ? pool.maxTick : pool.minTick);
-      setTick(Type.PriceUpper, revertPrice ? pool.minTick : pool.maxTick);
+      setTick(
+        Type.PriceLower,
+        nearestUsableTick(revertPrice ? MAX_TICK : MIN_TICK, pool.tickSpacing)
+      );
+      setTick(
+        Type.PriceUpper,
+        nearestUsableTick(revertPrice ? MIN_TICK : MAX_TICK, pool.tickSpacing)
+      );
       setSelectedRange({ range, priceLower: null, priceUpper: null });
       return;
     }
 
-    const currentPoolPrice = pool
-      ? revertPrice
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      : undefined;
+    const currentPoolPrice = tickToPrice(
+      pool.tick,
+      pool.token0.decimals,
+      pool.token1.decimals,
+      false
+    );
 
     if (!currentPoolPrice) return;
 
-    const left = +currentPoolPrice.toSignificant(18) * (1 - range);
-    const right = +currentPoolPrice.toSignificant(18) * (1 + range);
-    correctPrice(
+    const left = +currentPoolPrice * (1 - range);
+    const right = +currentPoolPrice * (1 + range);
+
+    const lower = priceToClosestTick(
       left.toString(),
-      Type.PriceLower,
-      pool,
-      tickLower,
-      tickUpper,
-      poolType,
-      revertPrice,
-      setTick
+      pool.token0.decimals,
+      pool.token1.decimals,
+      false
     );
-    correctPrice(
+    const upper = priceToClosestTick(
       right.toString(),
-      Type.PriceUpper,
-      pool,
-      tickLower,
-      tickUpper,
-      poolType,
-      revertPrice,
-      setTick
+      pool.token0.decimals,
+      pool.token1.decimals,
+      false
     );
+
+    if (lower) setTickLower(lower);
+    if (upper) setTickUpper(upper);
     setSelectedRange({ range, priceLower: null, priceUpper: null });
   };
 

@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useTokenList } from "@/hooks/useTokenList";
 import { ZapRouteDetail, Type } from "@/hooks/types/zapInTypes";
@@ -17,7 +16,7 @@ import useTokenBalances from "@/hooks/useTokenBalances";
 
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
-import { Price, tickToPrice, Token } from "@/entities/Pool";
+import { Price, tickToPrice } from "@/entities/Pool";
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -25,6 +24,8 @@ import {
   chainIdToChain,
 } from "@/constants";
 import { formatWei } from "@/utils";
+import { Token } from "@/schema";
+import { useWidgetContext } from "@/stores/widget";
 
 const ERROR_MESSAGE = {
   CONNECT_WALLET: "Please connect wallet",
@@ -48,6 +49,8 @@ const ZapContext = createContext<{
   setAmountsIn: (value: string) => void;
   toggleRevertPrice: () => void;
   setTick: (type: Type, value: number) => void;
+  setTickLower: (value: number) => void;
+  setTickUpper: (value: number) => void;
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
@@ -81,6 +84,8 @@ const ZapContext = createContext<{
   setAmountsIn: () => {},
   toggleRevertPrice: () => {},
   setTick: () => {},
+  setTickLower: () => {},
+  setTickUpper: () => {},
   error: "",
   zapInfo: null,
   loading: false,
@@ -118,15 +123,9 @@ export const ZapContextProvider = ({
   initDepositTokens?: string;
   initAmounts?: string;
 }) => {
-  const {
-    pool,
-    poolType,
-    poolAddress,
-    position,
-    positionId,
-    feePcm,
-    feeAddress,
-  } = useWidgetInfo();
+  const { pool, poolType, poolAddress, position, positionId, feeConfig } =
+    useWidgetContext((s) => s);
+  const { feePcm, feeAddress } = feeConfig || {};
   const { chainId, account, networkChainId } = useWeb3Provider();
   const { allTokens } = useTokenList();
   const { balances } = useTokenBalances(allTokens.map((item) => item.address));
@@ -136,10 +135,10 @@ export const ZapContextProvider = ({
   const [ttl, setTtl] = useState(20);
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(
-    position?.tickLower ?? null
+    position !== "loading" ? position.tickLower : null
   );
   const [tickUpper, setTickUpper] = useState<number | null>(
-    position?.tickUpper ?? null
+    position !== "loading" ? position.tickUpper : null
   );
   const [tokensIn, setTokensIn] = useState<Token[]>([]);
   const [amountsIn, setAmountsIn] = useState<string>("");
@@ -161,20 +160,19 @@ export const ZapContextProvider = ({
       )
       ?.join(",")
   );
-  const token0Price = useMarketPrice(pool?.token0.address || "")?.[0];
-  const token1Price = useMarketPrice(pool?.token1.address || "")?.[0];
 
   const marketPrice = useMemo(() => {
-    return token0Price && token1Price ? token0Price / token1Price : undefined;
-  }, [token0Price, token1Price]);
+    return pool !== "loading" && pool.token0.price && pool.token1.price
+      ? pool.token0.price / pool.token1.price
+      : undefined;
+  }, [pool]);
 
   const nativeToken = useMemo(
     () => ({
-      chainId,
       address: NATIVE_TOKEN_ADDRESS,
       decimals: NetworkInfo[chainId].wrappedToken.decimals,
-      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1),
-      logoURI: NetworkInfo[chainId].nativeLogo,
+      symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1) || "",
+      logo: NetworkInfo[chainId].nativeLogo,
     }),
     [chainId]
   );
@@ -250,7 +248,7 @@ export const ZapContextProvider = ({
     (type: Type, value: number) => {
       if (
         position ||
-        (pool && (value > pool.maxTick || value < pool.minTick))
+        (pool !== "loading" && (value > pool.maxTick || value < pool.minTick))
       ) {
         return;
       }
@@ -275,12 +273,18 @@ export const ZapContextProvider = ({
   };
 
   useEffect(() => {
-    if (position?.tickUpper !== undefined && position.tickLower !== undefined) {
+    if (
+      position !== "loading" &&
+      position?.tickUpper !== undefined &&
+      position.tickLower !== undefined
+    ) {
       setTickLower(position.tickLower);
       setTickUpper(position.tickUpper);
     }
-  }, [position?.tickUpper, position?.tickLower]);
+  }, [position]);
 
+  const token0Price = pool !== "loading" ? pool.token0.price || 0 : 0;
+  const token1Price = pool !== "loading" ? pool.token1.price || 0 : 0;
   // set init tokens in
   useEffect(() => {
     if (!pool || tokensIn.length) return;
@@ -291,8 +295,7 @@ export const ZapContextProvider = ({
         .split(",")
         .map((address: string) =>
           allTokens.find(
-            (token: Token) =>
-              token.address.toLowerCase() === address.toLowerCase()
+            (token) => token.address.toLowerCase() === address.toLowerCase()
           )
         )
         .filter((item) => !!item);
@@ -300,7 +303,7 @@ export const ZapContextProvider = ({
       const parseListAmountsIn: string[] = [];
 
       if (listInitTokens.length) {
-        listInitTokens.forEach((_: Token | undefined, index: number) => {
+        listInitTokens.forEach((_, index: number) => {
           parseListAmountsIn.push(listInitAmounts[index] || "");
         });
         setTokensIn(listInitTokens as Token[]);
@@ -311,21 +314,22 @@ export const ZapContextProvider = ({
     }
 
     // without wallet connect
-    if (!account) {
+    if (!account && pool !== "loading") {
       const isToken0Native =
-        pool?.token0.address.toLowerCase() ===
+        pool.token0.address.toLowerCase() ===
         NetworkInfo[chainId].wrappedToken.address.toLowerCase();
 
       const token0 = isToken0Native ? nativeToken : pool.token0;
 
-      setTokensIn([token0]);
+      setTokensIn([token0] as Token[]);
     }
 
     // with balance compare
     if (
       !initDepositTokens &&
-      token0Price &&
-      token1Price &&
+      pool !== "loading" &&
+      pool.token0.price &&
+      pool.token1.price &&
       Object.keys(balances).length
     ) {
       const isToken0Native =
@@ -360,7 +364,7 @@ export const ZapContextProvider = ({
         token1Price * parseFloat(token1Balance)
           ? token0
           : token1,
-      ]);
+      ] as Token[]);
     }
   }, [
     pool,
@@ -381,7 +385,7 @@ export const ZapContextProvider = ({
     if (
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
-      pool &&
+      pool !== "loading" &&
       (!error ||
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
@@ -422,7 +426,7 @@ export const ZapContextProvider = ({
         "pool.id": poolAddress,
         "pool.token0": pool.token0.address,
         "pool.token1": pool.token1.address,
-        "pool.fee": pool.fee,
+        "pool.fee": pool.fee * 10_000,
         "position.tickUpper": debounceTickUpper,
         "position.tickLower": debounceTickLower,
         tokensIn: formattedTokensIn,
@@ -505,6 +509,8 @@ export const ZapContextProvider = ({
         setAmountsIn,
         toggleRevertPrice,
         setTick,
+        setTickLower,
+        setTickUpper,
         error,
         zapInfo,
         loading,

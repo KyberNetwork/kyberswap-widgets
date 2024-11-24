@@ -30,12 +30,10 @@ import {
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { BigNumber } from "ethers";
-import { PoolAdapter, Token, Price } from "@/entities/Pool";
-import { useWidgetInfo } from "@/hooks/useWidgetInfo";
+import { Price } from "@/entities/Pool";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
-import { formatDisplayNumber } from "@/utils/number";
 import { CircleCheckBig } from "lucide-react";
 import IconCopy from "@/assets/svg/copy.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
@@ -45,9 +43,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { formatDisplayNumber } from "@kyber/utils/number";
+import { useWidgetContext } from "@/stores/widget";
+import { Pool, Token } from "@/schema";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export interface ZapState {
-  pool: PoolAdapter;
+  pool: Pool;
   zapInfo: ZapRouteDetail;
   tokensIn: Token[];
   amountsIn: string;
@@ -94,7 +96,7 @@ export default function Preview({
 }: PreviewProps) {
   const { chainId, account, provider } = useWeb3Provider();
   const { poolType, positionId, theme, position, poolAddress } =
-    useWidgetInfo();
+    useWidgetContext((s) => s);
   const {
     source,
     revertPrice: revert,
@@ -116,8 +118,7 @@ export default function Preview({
 
   const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
 
-  const isOutOfRange =
-    tickLower > pool.tickCurrent || pool.tickCurrent >= tickUpper;
+  const isOutOfRange = tickLower > pool.tick || pool.tick >= tickUpper;
 
   useEffect(() => {
     if (txHash) {
@@ -163,28 +164,20 @@ export default function Preview({
     [addedLiqInfo?.addLiquidity.token1.amount, pool.token1.decimals]
   );
 
+  const amount0 = position === "loading" ? 0 : +position.amount0.toString();
+  const amount1 = position === "loading" ? 0 : +position.amount1.toString();
   const positionAmount0Usd = useMemo(
     () =>
-      (+(position?.amount0 || 0) *
-        +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
+      (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
         +addedAmount0 || 0,
-    [
-      addedAmount0,
-      addedLiqInfo?.addLiquidity.token0.amountUsd,
-      position?.amount0,
-    ]
+    [addedAmount0, addedLiqInfo?.addLiquidity.token0.amountUsd, amount0]
   );
 
   const positionAmount1Usd = useMemo(
     () =>
-      (+(position?.amount1 || 0) *
-        +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
+      (amount1 * +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
         +addedAmount1 || 0,
-    [
-      addedAmount1,
-      addedLiqInfo?.addLiquidity.token1.amountUsd,
-      position?.amount1,
-    ]
+    [addedAmount1, addedLiqInfo?.addLiquidity.token1.amountUsd, amount1]
   );
 
   const refundInfo = zapInfo.zapDetails.actions.find(
@@ -225,10 +218,15 @@ export default function Preview({
     0;
 
   const price = pool
-    ? (revert
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      ).toSignificant(6)
+    ? formatDisplayNumber(
+        tickToPrice(
+          pool.tick,
+          pool.token0.decimals,
+          pool.token1.decimals,
+          revert
+        ),
+        { significantDigits: 6 }
+      )
     : "--";
 
   const leftPrice = !revert ? priceLower : priceUpper?.invert();
@@ -274,11 +272,11 @@ export default function Preview({
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
@@ -303,11 +301,11 @@ export default function Preview({
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
@@ -579,7 +577,7 @@ export default function Preview({
       <div className="title">
         <div className="logo">
           <img
-            src={(pool.token0 as Token).logoURI}
+            src={pool.token0.logo}
             alt=""
             width="36px"
             height="36px"
@@ -590,7 +588,7 @@ export default function Preview({
             }}
           />
           <img
-            src={(pool.token1 as Token).logoURI}
+            src={pool.token1.logo}
             alt=""
             width="36px"
             height="36px"
@@ -663,10 +661,10 @@ export default function Preview({
           </p>
         </div>
         <div className="mt-2">
-          {tokensIn.map((token: Token, index: number) => (
+          {tokensIn.map((token, index: number) => (
             <div className="flex items-center gap-2 mt-1" key={token.address}>
               <img
-                src={token.logoURI}
+                src={token.logo}
                 className="w-[18px] h-[18px]"
                 onError={({ currentTarget }) => {
                   currentTarget.onerror = null;
@@ -754,9 +752,9 @@ export default function Preview({
           <div className="text-[14px] flex gap-4">
             <div>
               <div className="flex gap-[4px]">
-                {pool?.token0?.logoURI && (
+                {pool?.token0?.logo && (
                   <img
-                    src={pool.token0.logoURI}
+                    src={pool.token0.logo}
                     className={`w-4 h-4 rounded-full relative ${
                       positionId ? "" : "mt-1 top-[-4px]"
                     }`}
@@ -768,7 +766,7 @@ export default function Preview({
                 )}
                 <div className="text-end">
                   {formatDisplayNumber(
-                    position ? +position.amount0 : +addedAmount0,
+                    positionId !== undefined ? amount0 : +addedAmount0,
                     { significantDigits: 5 }
                   )}{" "}
                   {pool?.token0.symbol}
@@ -792,9 +790,9 @@ export default function Preview({
             </div>
             <div>
               <div className="flex gap-1">
-                {pool?.token1?.logoURI && (
+                {pool?.token1?.logo && (
                   <img
-                    src={pool.token1.logoURI}
+                    src={pool.token1.logo}
                     className={`w-4 h-4 rounded-full relative ${
                       positionId ? "" : "mt-1 top-[-4px]"
                     }`}
@@ -806,7 +804,7 @@ export default function Preview({
                 )}
                 <div className="text-end">
                   {formatDisplayNumber(
-                    position ? +position.amount1 : +addedAmount1,
+                    positionId !== undefined ? amount1 : +addedAmount1,
                     { significantDigits: 5 }
                   )}{" "}
                   {pool?.token1.symbol}

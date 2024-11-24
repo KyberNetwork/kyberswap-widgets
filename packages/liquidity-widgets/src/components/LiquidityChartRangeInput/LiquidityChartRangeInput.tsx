@@ -1,4 +1,3 @@
-import { FeeAmount } from "@pancakeswap/v3-sdk";
 import { format } from "d3";
 import { saturate } from "polished";
 import { useCallback, useMemo } from "react";
@@ -13,9 +12,10 @@ import {
   ZOOM_LEVELS,
   ZoomLevels,
 } from "./types";
-import { Price, Token } from "../../entities/Pool";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
+import { Price } from "../../entities/Pool";
 import { useZapState } from "../../hooks/useZapInState";
+import { useWidgetContext } from "@/stores/widget";
+import { Token } from "@/schema";
 
 export function LiquidityChartRangeInput({
   currencyA,
@@ -46,7 +46,7 @@ export function LiquidityChartRangeInput({
   error?: Error;
   currencyA?: Token | null;
   currencyB?: Token | null;
-  feeAmount?: FeeAmount;
+  feeAmount?: number;
   ticks?: TickDataRaw[];
   ticksAtLimit?: { [bound in Bound]?: boolean };
   price?: number;
@@ -59,7 +59,7 @@ export function LiquidityChartRangeInput({
   zoomLevel?: ZoomLevels;
   formattedData: ChartEntry[] | undefined;
 }) {
-  const { theme } = useWidgetInfo();
+  const theme = useWidgetContext((s) => s.theme);
 
   // Get token color
   const tokenAColor = "#7645D9";
@@ -190,7 +190,7 @@ export function LiquidityChartRangeInput({
           }}
         >
           <Chart
-            key={`${feeAmount ?? FeeAmount.MEDIUM}`}
+            key={`${feeAmount ?? 2500}`}
             data={{ series: formattedData, current: price }}
             dimensions={{ width: 400, height: 200 }}
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
@@ -209,7 +209,7 @@ export function LiquidityChartRangeInput({
             brushLabels={brushLabelValue}
             brushDomain={brushDomain}
             onBrushDomainChange={onBrushDomainChangeEnded}
-            zoomLevels={zoomLevel ?? ZOOM_LEVELS[feeAmount ?? FeeAmount.MEDIUM]}
+            zoomLevels={zoomLevel ?? ZOOM_LEVELS[feeAmount ?? 2500]}
             ticksAtLimit={ticksAtLimit}
           />
         </div>

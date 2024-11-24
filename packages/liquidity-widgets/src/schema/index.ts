@@ -74,6 +74,8 @@ const univ3PoolCommonField = z.object({
   sqrtPriceX96: z.string(),
   tickSpacing: z.number(),
   ticks: z.array(tick),
+  minTick: z.number(),
+  maxTick: z.number(),
 });
 
 export const pool = z.discriminatedUnion("poolType", [
@@ -101,6 +103,8 @@ const univ3Position = z.object({
   liquidity: z.bigint(),
   tickLower: z.number(),
   tickUpper: z.number(),
+  amount0: z.bigint(),
+  amount1: z.bigint(),
 });
 
 export const position = z.discriminatedUnion("poolType", [

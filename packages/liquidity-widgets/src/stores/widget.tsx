@@ -1,5 +1,11 @@
 import { Theme, defaultTheme } from "@/theme";
-import { decodePosition } from "@kyber/utils/uniswapv3";
+import {
+  MAX_TICK,
+  MIN_TICK,
+  decodePosition,
+  getPositionAmounts,
+  nearestUsableTick,
+} from "@kyber/utils/uniswapv3";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import { createContext, useRef, useContext, useEffect } from "react";
 import {
@@ -155,6 +161,8 @@ const createWidgetStore = (initProps: WidgetProps) => {
         tickSpacing: pool.positionInfo.tickSpacing,
         ticks: pool.positionInfo.ticks,
         poolType,
+        minTick: nearestUsableTick(MIN_TICK, pool.positionInfo.tickSpacing),
+        maxTick: nearestUsableTick(MAX_TICK, pool.positionInfo.tickSpacing),
       };
 
       set({ pool: p });
@@ -204,6 +212,14 @@ const createWidgetStore = (initProps: WidgetProps) => {
         if (result && result !== "0x") {
           const data = decodePosition(result);
 
+          const { amount0, amount1 } = getPositionAmounts(
+            p.tick,
+            data.tickLower,
+            data.tickUpper,
+            BigInt(p.sqrtPriceX96),
+            data.liquidity
+          );
+
           set({
             position: {
               id: +positionId,
@@ -211,6 +227,8 @@ const createWidgetStore = (initProps: WidgetProps) => {
               liquidity: data.liquidity,
               tickLower: data.tickLower,
               tickUpper: data.tickUpper,
+              amount0,
+              amount1,
             },
           });
           return;

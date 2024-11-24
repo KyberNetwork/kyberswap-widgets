@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ChartEntry, TickDataRaw, TickProcessed } from "./types";
 import { computeSurroundingTicks } from "./utils";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useWeb3Provider } from "../../hooks/useProvider";
 import { useZapState } from "../../hooks/useZapInState";
 import { PATHS } from "@/constants";
+import { useWidgetContext } from "@/stores/widget";
 
 const PRICE_FIXED_DIGITS = 8;
 
@@ -71,12 +71,15 @@ export function usePoolActiveLiquidity(): {
   isLoading: boolean;
 } {
   const { chainId } = useWeb3Provider();
-  const { pool, poolAddress } = useWidgetInfo();
+  const { pool, poolAddress } = useWidgetContext((s) => s);
   const { revertPrice } = useZapState();
+
+  const tickCurrent = pool === "loading" ? undefined : pool.tick;
+  const fee = pool === "loading" ? undefined : pool.fee * 10_000;
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = useMemo(
-    () => getActiveTick(pool?.tickCurrent, pool?.fee),
-    [pool?.tickCurrent, pool?.fee]
+    () => getActiveTick(tickCurrent, fee),
+    [tickCurrent, fee]
   );
 
   const [ticks, setTicks] = useState<TickDataRaw[]>([]);
@@ -146,28 +149,28 @@ export function usePoolActiveLiquidity(): {
 
   const token0: Token | null = useMemo(
     () =>
-      pool?.token0
+      pool !== "loading"
         ? new Token(
-            pool.token0.chainId,
+            chainId,
             pool.token0.address as `0x${string}`,
             pool.token0.decimals,
             pool.token0.symbol || ""
           )
         : null,
 
-    [pool?.token0]
+    [pool, chainId]
   );
   const token1: Token | null = useMemo(
     () =>
-      pool?.token1
+      pool !== "loading"
         ? new Token(
-            pool.token1.chainId,
+            chainId,
             pool.token1.address as `0x${string}`,
             pool.token1.decimals,
             pool.token1.symbol || ""
           )
         : null,
-    [pool?.token1]
+    [chainId, pool]
   );
 
   return useMemo(() => {
@@ -201,7 +204,7 @@ export function usePoolActiveLiquidity(): {
     }
 
     const activeTickProcessed: TickProcessed = {
-      liquidityActive: BigInt(pool?.liquidity ?? 0),
+      liquidityActive: BigInt(pool === "loading" ? 0 : pool.liquidity),
       tick: activeTick,
       liquidityNet:
         Number(ticks[pivot].tick) === activeTick

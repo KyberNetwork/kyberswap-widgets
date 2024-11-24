@@ -7,9 +7,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { Token } from "@/entities/Pool";
 import { useWeb3Provider } from "./useProvider";
 import { PATHS } from "@/constants";
+import { Token } from "@/schema";
 
 type TokenListContextState = {
   tokens: Token[];
@@ -75,9 +75,7 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
   const removeToken = useCallback(
     (token: Token) => {
       const newTokens = importedTokens.filter(
-        (t) =>
-          t.address.toLowerCase() !== token.address.toLowerCase() &&
-          t.chainId === token.chainId
+        (t) => t.address.toLowerCase() !== token.address.toLowerCase()
       );
 
       setImportedTokens(newTokens);
@@ -99,7 +97,14 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
       `${PATHS.KYBERSWAP_SETTING_API}?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
     )
       .then((res) => res.json())
-      .then((res) => setTokens(res.data.tokens))
+      .then((res) =>
+        setTokens(
+          res.data.tokens.map((item: Token & { logoURI: string }) => ({
+            ...item,
+            logo: item.logoURI,
+          }))
+        )
+      )
       .finally(() => {
         setLoading(false);
       });

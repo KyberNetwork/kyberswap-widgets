@@ -1,4 +1,3 @@
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import {
   AddLiquidityAction,
@@ -8,13 +7,14 @@ import {
 } from "../../hooks/types/zapInTypes";
 import { formatWei, getDexName } from "../../utils";
 import { useMemo } from "react";
-import { Token } from "@/entities/Pool";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { NetworkInfo } from "@/constants";
+import { useWidgetContext } from "@/stores/widget";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
-  const { pool, poolType } = useWidgetInfo();
+  const { pool, poolType } = useWidgetContext((s) => s);
+
   const { chainId } = useWeb3Provider();
 
   const swapInfo = useMemo(() => {
@@ -26,7 +26,7 @@ export default function ZapRoute() {
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
-    if (!pool) return [];
+    if (pool === "loading") return [];
     const tokens = [
       ...tokensIn,
       pool.token0,
@@ -37,11 +37,11 @@ export default function ZapRoute() {
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         return {
@@ -56,11 +56,11 @@ export default function ZapRoute() {
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token: Token) =>
+          (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         return {
@@ -75,7 +75,10 @@ export default function ZapRoute() {
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
   }, [poolType, zapInfo?.zapDetails.actions]);
 
+  const token0Decimals = pool !== "loading" && pool?.token0.decimals;
+  const token1Decimals = pool !== "loading" && pool?.token1.decimals;
   const addedLiquidityInfo = useMemo(() => {
+    if (pool === "loading") return { addedAmount0: "0", addedAmount1: "0" };
     const data = zapInfo?.zapDetails.actions.find(
       (item) => item.type === ZapAction.ADD_LIQUIDITY
     ) as AddLiquidityAction | null;
@@ -90,11 +93,7 @@ export default function ZapRoute() {
     );
 
     return { addedAmount0, addedAmount1 };
-  }, [
-    pool?.token0.decimals,
-    pool?.token1.decimals,
-    zapInfo?.zapDetails.actions,
-  ]);
+  }, [zapInfo?.zapDetails.actions, token0Decimals, token1Decimals]);
 
   return (
     <div className="zap-route mb-4">
@@ -118,8 +117,10 @@ export default function ZapRoute() {
       <div className="row">
         <div className="step">{swapInfo.length + 1}</div>
         <div className="text">
-          Build LP using {addedLiquidityInfo.addedAmount0} {pool?.token0.symbol}{" "}
-          and {addedLiquidityInfo.addedAmount1} {pool?.token1.symbol} on{" "}
+          Build LP using {addedLiquidityInfo.addedAmount0}{" "}
+          {pool === "loading" ? "" : pool.token0.symbol} and{" "}
+          {addedLiquidityInfo.addedAmount1}{" "}
+          {pool === "loading" ? "" : pool.token1.symbol} on{" "}
           <span className="font-medium text-text">
             {getDexName(poolType, chainId)}
           </span>

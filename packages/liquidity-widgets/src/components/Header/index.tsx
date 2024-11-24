@@ -92,7 +92,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
           <div className="dex-type">
             <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
-              Fee {fee / 10_000}%
+              Fee {fee}%
             </div>
             <span className="divide">|</span>
             <img
