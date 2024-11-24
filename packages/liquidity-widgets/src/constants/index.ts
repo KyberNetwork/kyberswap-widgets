@@ -1,7 +1,12 @@
-import { PoolType } from "@/schema";
+import { ChainId, DexInfo, PoolType } from "@/schema";
 import { Token } from "../entities/Pool";
+import uniLogo from "@/assets/dexes/uniswap.png";
+import pancakeLogo from "@/assets/dexes/pancake.png";
+import metavaultLogo from "@/assets/dexes/metavault.svg?url";
+import linehubLogo from "@/assets/dexes/metavault.svg?url";
+import swapmodeLogo from "@/assets/dexes/swapmode.png";
 
-export { PoolType };
+export { PoolType, ChainId };
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -11,22 +16,6 @@ export const MAX_ZAP_IN_TOKENS = 5;
 export const NO_DATA = "--";
 
 const NOT_SUPPORT = null;
-
-export enum ChainId {
-  Ethereum = 1,
-  BSC = 56,
-  PolygonPos = 137,
-  Arbitrum = 42161,
-  Avalanche = 43114,
-  Base = 8453,
-  Blast = 81457,
-  Fantom = 250,
-  Linea = 59144,
-  Mantle = 5000,
-  Optimism = 10,
-  Scroll = 534352,
-  PolygonZkEVM = 1101,
-}
 
 export const NetworkInfo: {
   [chainId: number]: {
@@ -61,7 +50,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
-  [ChainId.BSC]: {
+  [ChainId.Bsc]: {
     name: "BSC",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/d15d102e-6c7c-42f7-9dc4-79f3b1f9cc9b.png",
@@ -72,7 +61,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "binance-smart-chain",
     coingeckoNativeTokenId: "binancecoin",
     wrappedToken: {
-      chainId: ChainId.BSC,
+      chainId: ChainId.Bsc,
       name: "WBNB",
       address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
       symbol: "WBNB",
@@ -279,6 +268,75 @@ export const NetworkInfo: {
   },
 };
 
+export const DexInfos: Record<PoolType, DexInfo> = {
+  [PoolType.DEX_UNISWAPV3]: {
+    icon: uniLogo,
+    name: "Uniswap V3",
+    nftManagerContract: {
+      [ChainId.Ethereum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      [ChainId.Bsc]: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
+      [ChainId.PolygonPos]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      [ChainId.Arbitrum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      [ChainId.Avalanche]: "0x655C406EBFa14EE2006250925e54ec43AD184f8B",
+      [ChainId.Base]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      [ChainId.Blast]: "0xB218e4f7cF0533d4696fDfC419A0023D33345F28",
+      [ChainId.Fantom]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      [ChainId.Linea]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      [ChainId.Mantle]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      [ChainId.Optimism]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      [ChainId.Scroll]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      [ChainId.PolygonZkEVM]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+    },
+  },
+  [PoolType.DEX_PANCAKESWAPV3]: {
+    icon: pancakeLogo,
+    name: "Pancake V3",
+    nftManagerContract: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+  },
+  [PoolType.DEX_METAVAULTV3]: {
+    icon: metavaultLogo,
+    name: "Metavault V3",
+    nftManagerContract: {
+      [ChainId.Linea]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
+      [ChainId.Scroll]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
+    },
+  },
+  [PoolType.DEX_LINEHUBV3]: {
+    icon: linehubLogo,
+    name: "LineHub V3",
+    nftManagerContract: {
+      [ChainId.Linea]: "0xD27166FA3E2c1a2C1813d0fe6226b8EB21783184",
+    },
+  },
+  [PoolType.DEX_SWAPMODEV3]: {
+    icon: swapmodeLogo,
+    name: new Proxy(
+      {
+        [ChainId.Base]: "Baseswap",
+        [ChainId.Arbitrum]: "Arbidex",
+        [ChainId.Optimism]: "Superswap",
+      } as Record<number, string>,
+      {
+        get: function (target, name) {
+          if (
+            [ChainId.Base, ChainId.Arbitrum, ChainId.Optimism].includes(
+              Number(name)
+            )
+          ) {
+            return target[Number(name)];
+          }
+          return "Swapmode";
+        },
+      }
+    ),
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x81F2c375AEDbdF02f11c1Ae125e2f51Efa777cEa",
+      [ChainId.Base]: "0xDe151D5c92BfAA288Db4B67c21CD55d5826bCc93",
+      [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
+    },
+  },
+};
+
 export const chainIdToChain: { [chainId: number]: string } = {
   1: "ethereum",
   137: "polygon",
@@ -300,7 +358,7 @@ export const NFT_MANAGER_CONTRACT: {
 } = {
   [PoolType.DEX_UNISWAPV3]: {
     [ChainId.Ethereum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
-    [ChainId.BSC]: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
+    [ChainId.Bsc]: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
     [ChainId.PolygonPos]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
     [ChainId.Arbitrum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
     [ChainId.Avalanche]: "0x655C406EBFa14EE2006250925e54ec43AD184f8B",
@@ -315,7 +373,7 @@ export const NFT_MANAGER_CONTRACT: {
   },
   [PoolType.DEX_PANCAKESWAPV3]: {
     [ChainId.Ethereum]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.BSC]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    [ChainId.Bsc]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     [ChainId.PolygonPos]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     [ChainId.Arbitrum]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     [ChainId.Avalanche]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
@@ -340,24 +398,6 @@ export const NFT_MANAGER_CONTRACT: {
     [ChainId.Base]: "0xDe151D5c92BfAA288Db4B67c21CD55d5826bCc93",
     [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
   },
-};
-
-export const MULTICALL2_ADDRESS: { [chainId: number]: string } = {
-  1: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
-  137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
-  56: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
-  43114: "0xF2FD8219609E28C61A998cc534681f95D2740f61",
-  250: "0x878dFE971d44e9122048308301F540910Bbd934c",
-  25: "0x63Abb9973506189dC3741f61d25d4ed508151E6d",
-  42161: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
-  199: "0xBF69a56D35B8d6f5A8e0e96B245a72F735751e54",
-  10: "0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974",
-  59144: "0xcA11bde05977b3631167028862bE2a173976CA11",
-  1101: "0xcA11bde05977b3631167028862bE2a173976CA11",
-  324: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
-  8453: "0xcA11bde05977b3631167028862bE2a173976CA11",
-  81457: "0xcA11bde05977b3631167028862bE2a173976CA11",
-  5000: "0xcA11bde05977b3631167028862bE2a173976CA11",
 };
 
 export const PATHS = {

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export enum ChainId {
   Ethereum = 1,
-  BSC = 56,
+  Bsc = 56,
   PolygonPos = 137,
   Arbitrum = 42161,
   Avalanche = 43114,
@@ -50,8 +50,8 @@ export const chain = z.object({
 
 export const dexInfo = z.object({
   icon: z.string(),
-  name: z.string(),
-  nftManagerContract: z.string().or(z.record(chainId, z.string())),
+  name: z.string().or(z.record(z.number(), z.string())),
+  nftManagerContract: z.string().or(z.record(z.number(), z.string())),
 });
 export type DexInfo = z.infer<typeof dexInfo>;
 
@@ -80,9 +80,17 @@ export const pool = z.discriminatedUnion("poolType", [
   univ3PoolCommonField.extend({
     poolType: z.literal(PoolType.DEX_UNISWAPV3),
   }),
-
   univ3PoolCommonField.extend({
     poolType: z.literal(PoolType.DEX_PANCAKESWAPV3),
+  }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_METAVAULTV3),
+  }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_LINEHUBV3),
+  }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_SWAPMODEV3),
   }),
 ]);
 
@@ -101,6 +109,15 @@ export const position = z.discriminatedUnion("poolType", [
   }),
   univ3Position.extend({
     poolType: z.literal(PoolType.DEX_PANCAKESWAPV3),
+  }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_METAVAULTV3),
+  }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_LINEHUBV3),
+  }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_SWAPMODEV3),
   }),
 ]);
 

@@ -10,7 +10,7 @@ const ERC20_INTERFACE = new Interface(erc20ABI);
 
 const useTokenBalances = (tokenAddresses: string[]) => {
   const { provider, chainId, account } = useWeb3Provider();
-  const multicallContract = useMulticalContract(true);
+  const multicallContract = useMulticalContract();
   const [balances, setBalances] = useState<{ [address: string]: BigNumber }>(
     {}
   );

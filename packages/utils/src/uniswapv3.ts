@@ -329,7 +329,6 @@ export function tickToPrice(
     ? divideBigIntToString(denominator, numerator, 18)
     : divideBigIntToString(numerator, denominator, 18);
 }
-<<<<<<< Updated upstream
 
 function sqrt(y: bigint): bigint {
   if (y < 0n) {
@@ -410,5 +409,3 @@ export function nearestUsableTick(tick: number, tickSpacing: number) {
   if (rounded > MAX_TICK) return rounded - tickSpacing;
   return rounded;
 }
-=======
->>>>>>> Stashed changes

@@ -4,7 +4,6 @@ import { isAddress } from "../utils";
 import { useWeb3Provider } from "./useProvider";
 import MulticallABI from "../abis/multicall.json";
 import { NetworkInfo } from "../constants";
-import { MULTICALL2_ADDRESS } from "../constants";
 
 export function useContract(
   address: string,
@@ -42,14 +41,14 @@ export function useContract(
   return readOnly ? readContract : contract;
 }
 
-export const useMulticalContract = (multicall2: boolean = false) => {
+export const useMulticalContract = () => {
   const { chainId, readProvider } = useWeb3Provider();
 
   return useMemo(() => {
     return new Contract(
-      multicall2 ? MULTICALL2_ADDRESS[chainId] : NetworkInfo[chainId].multiCall,
+      NetworkInfo[chainId].multiCall,
       MulticallABI,
       readProvider
     );
-  }, [chainId, readProvider, multicall2]);
+  }, [chainId, readProvider]);
 };

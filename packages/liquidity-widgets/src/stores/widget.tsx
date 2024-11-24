@@ -1,4 +1,6 @@
-import { Theme } from "@/theme";
+import { Theme, defaultTheme } from "@/theme";
+import { decodePosition } from "@kyber/utils/uniswapv3";
+import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import { createContext, useRef, useContext, useEffect } from "react";
 import {
   ChainId,
@@ -11,7 +13,8 @@ import {
   //token,
 } from "@/schema";
 import { createStore, useStore } from "zustand";
-import { PATHS } from "@/constants";
+import { DexInfos, NetworkInfo, PATHS } from "@/constants";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export interface WidgetProps {
   theme?: Theme;
@@ -53,11 +56,16 @@ export interface WidgetProps {
 }
 
 interface WidgetState extends WidgetProps {
+  theme: Theme;
   pool: "loading" | Pool;
-  position: "loading" | Position | null;
+  position: "loading" | Position;
   errorMsg: string;
 
-  getPool: () => void;
+  getPool: (
+    fetchPrices: (
+      address: string[]
+    ) => Promise<{ [key: string]: { PriceBuy: number } }>
+  ) => void;
 }
 
 type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
@@ -65,13 +73,13 @@ type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
 const createWidgetStore = (initProps: WidgetProps) => {
   return createStore<WidgetState>()((set, get) => ({
     ...initProps,
-
+    theme: initProps.theme || defaultTheme,
     pool: "loading",
     position: "loading",
     errorMsg: "",
 
-    getPool: async () => {
-      const { poolAddress, chainId } = get();
+    getPool: async (fetchPrices) => {
+      const { poolAddress, chainId, poolType, positionId } = get();
 
       const res = await fetch(
         `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
@@ -92,25 +100,123 @@ const createWidgetStore = (initProps: WidgetProps) => {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         return;
       }
-      const token0 = pool.tokens[0];
-      const token1 = pool.tokens[0];
+      const token0Address = pool.tokens[0].address;
+      const token1Address = pool.tokens[1].address;
 
-      // dont need to refetch token info
-      if (firstLoad) {
-        const tokens: {
-          address: string;
-          logoURI?: string;
-          name: string;
-          symbol: string;
-          decimals: number;
-        }[] = await fetch(
-          `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${token0},${token1}`
-        )
-          .then((res) => res.json())
-          //.then((res) => res?.data?.tokens || [])
-          .catch(() => []);
+      const prices = await fetchPrices([
+        token0Address.toLowerCase(),
+        token1Address.toLowerCase(),
+      ]);
 
-        console.log(111, tokens);
+      const token0Price = prices[token0Address.toLowerCase()]?.PriceBuy || 0;
+      const token1Price = prices[token1Address.toLowerCase()]?.PriceBuy || 0;
+
+      const tokens: {
+        address: string;
+        logoURI?: string;
+        name: string;
+        symbol: string;
+        decimals: number;
+      }[] = await fetch(
+        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${token0Address},${token1Address}`
+      )
+        .then((res) => res.json())
+        .then((res) => res?.data?.tokens || [])
+        .catch(() => []);
+
+      const token0 = tokens.find(
+        (tk) => tk.address.toLowerCase() === token0Address.toLowerCase()
+      );
+      const token1 = tokens.find(
+        (tk) => tk.address.toLowerCase() === token1Address.toLowerCase()
+      );
+
+      if (!token0 || !token1) {
+        set({ errorMsg: `Can't get token info` });
+        return;
+      }
+
+      const p: Pool = {
+        address: pool.address,
+        token0: {
+          ...token0,
+          logo: token0.logoURI,
+          price: token0Price,
+        },
+        token1: {
+          ...token1,
+          logo: token1.logoURI,
+          price: token1Price,
+        },
+        fee: pool.swapFee,
+        liquidity: pool.positionInfo.liquidity,
+        sqrtPriceX96: pool.positionInfo.sqrtPriceX96,
+        tick: pool.positionInfo.tick,
+        tickSpacing: pool.positionInfo.tickSpacing,
+        ticks: pool.positionInfo.ticks,
+        poolType,
+      };
+
+      set({ pool: p });
+
+      if (positionId !== undefined) {
+        const contract = DexInfos[poolType].nftManagerContract;
+        const contractAddress =
+          typeof contract === "string" ? contract : contract[chainId];
+        if (!contractAddress) {
+          set({
+            errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,
+          });
+          return;
+        }
+        // Function signature and encoded token ID
+        const functionSignature = "positions(uint256)";
+        const selector = getFunctionSelector(functionSignature);
+        const encodedTokenId = encodeUint256(BigInt(positionId));
+
+        const data = `0x${selector}${encodedTokenId}`;
+
+        // JSON-RPC payload
+        const payload = {
+          jsonrpc: "2.0",
+          method: "eth_call",
+          params: [
+            {
+              to: contractAddress,
+              data: data,
+            },
+            "latest",
+          ],
+          id: 1,
+        };
+
+        // Send JSON-RPC request via fetch
+        const response = await fetch(NetworkInfo[chainId].defaultRpc, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const { result, error } = await response.json();
+
+        if (result && result !== "0x") {
+          const data = decodePosition(result);
+
+          set({
+            position: {
+              id: +positionId,
+              poolType,
+              liquidity: data.liquidity,
+              tickLower: data.tickLower,
+              tickUpper: data.tickUpper,
+            },
+          });
+          return;
+        }
+
+        set({ errorMsg: error.message || "Position not found" });
       }
     },
   }));
@@ -123,9 +229,18 @@ const WidgetContext = createContext<WidgetStore | null>(null);
 export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
   const store = useRef(createWidgetStore(props)).current;
 
+  const { fetchPrices } = useTokenPrices({
+    addresses: [],
+    chainId: store.getState().chainId,
+  });
+
   useEffect(() => {
     // get Pool and position then update store here
-    store.getState().getPool();
+    store.getState().getPool(fetchPrices);
+    const i = setInterval(() => {
+      store.getState().getPool(fetchPrices);
+    }, 15_000);
+    return () => clearInterval(i);
   }, []);
 
   return (
