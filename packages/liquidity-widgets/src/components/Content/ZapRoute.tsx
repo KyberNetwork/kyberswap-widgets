@@ -77,7 +77,7 @@ export default function ZapRoute() {
           tokenOutSymbol: tokenOut?.symbol || "--",
           amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
           amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: `${getDexName(poolType)} Pool`,
+          pool: `${getDexName(poolType, chainId)} Pool`,
         };
       }) || [];
 
@@ -151,7 +151,7 @@ export default function ZapRoute() {
                 {pool?.token0.symbol} and {addedLiquidityInfo.addedAmount1}{" "}
                 {pool?.token1.symbol} on{" "}
                 <span className="font-medium text-text">
-                  {getDexName(poolType)}
+                  {getDexName(poolType, chainId)}
                 </span>
               </div>
             </div>

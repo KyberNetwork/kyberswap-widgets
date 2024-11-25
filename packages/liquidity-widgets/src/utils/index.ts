@@ -1,8 +1,7 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
-import { NetworkInfo, PoolType } from "../constants";
+import { ChainId, NetworkInfo, PoolType } from "../constants";
 import { ProtocolFeeAction, Type } from "@/hooks/types/zapInTypes";
 import { nearestUsableTick, PoolAdapter, tryParseTick } from "@/entities/Pool";
-import { ChainId } from "@kyberswap/ks-sdk-core";
 import uniswapLogo from "@/assets/dexes/uniswap.png";
 import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
@@ -166,7 +165,7 @@ export function friendlyError(error: Error | string): string {
   return `An error occurred`;
 }
 
-export const getDexName = (poolType: PoolType): string => {
+export const getDexName = (poolType: PoolType, chainId: ChainId): string => {
   switch (poolType) {
     case PoolType.DEX_UNISWAPV3:
       return "Uniswap V3";
@@ -177,7 +176,10 @@ export const getDexName = (poolType: PoolType): string => {
     case PoolType.DEX_LINEHUBV3:
       return "LineHub V3";
     case PoolType.DEX_SWAPMODEV3:
-      return "SwapMode V3";
+      if (chainId === ChainId.Base) return "Baseswap";
+      if (chainId === ChainId.Arbitrum) return "Arbidex";
+      if (chainId === ChainId.Optimism) return "Superswap";
+      return "SwapMode";
 
     default:
       return assertUnreachable(poolType, "Unknown pool type");
@@ -299,7 +301,7 @@ export const correctPrice = (
 };
 
 export function getEtherscanLink(
-  chainId: ChainId,
+  chainId: number,
   data: string,
   type: "transaction" | "token" | "address" | "block"
 ): string {
@@ -310,7 +312,7 @@ export function getEtherscanLink(
       return `${prefix}/tx/${data}`;
     }
     case "token": {
-      if (chainId === ChainId.ZKSYNC) return `${prefix}/address/${data}`;
+      if (chainId === 324) return `${prefix}/address/${data}`;
       return `${prefix}/token/${data}`;
     }
     case "block": {
