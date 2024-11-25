@@ -191,7 +191,8 @@ export const ZapContextProvider = ({
 
   const error = useMemo(() => {
     if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
-    if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
+    if (chainId !== networkChainId)
+      return `Please switch to network ${chainIdToChain[chainId]} first`;
 
     if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
     if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
