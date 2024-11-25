@@ -1,4 +1,3 @@
-import "./Content.scss";
 import X from "@/assets/svg/x.svg";
 import ErrorIcon from "@/assets/svg/error.svg";
 import PriceInfo from "./PriceInfo";
@@ -305,16 +304,11 @@ export default function Content({
       {loadPoolError && (
         <Modal isOpen onClick={() => onDismiss()}>
           <div className="flex flex-col items-center gap-8 text-error">
-            <ErrorIcon className="error-icon" />
-            <div style={{ textAlign: "center" }}>{loadPoolError}</div>
+            <ErrorIcon className="text-error" />
+            <div className="text-center">{loadPoolError}</div>
             <button
-              className="primary-btn"
+              className="ks-primary-btn w-[95%] bg-error border-solid border-error"
               onClick={onDismiss}
-              style={{
-                width: "95%",
-                background: theme.error,
-                border: `1px solid ${theme.error}`,
-              }}
             >
               Close
             </button>
@@ -327,12 +321,12 @@ export default function Content({
           onClick={() => setSnapshotState(null)}
           modalContentClass="!max-h-[96vh]"
         >
-          <div className="ks-lw-modal-headline">
+          <div className="flex justify-between text-xl font-medium">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
               role="button"
               onClick={() => setSnapshotState(null)}
-              style={{ cursor: "pointer" }}
+              className="cursor-pointer"
             >
               <X />
             </div>
@@ -352,8 +346,8 @@ export default function Content({
         />
       )}
       <Header onDismiss={onDismiss} />
-      <div className="ks-lw-content">
-        <div className="left">
+      <div className="mt-5 flex gap-5 max-sm:flex-col">
+        <div className="flex-1 w-1/2 max-sm:w-full">
           <PoolInfo />
           <PriceInfo />
           {/* <LiquidityChart /> */}
@@ -368,9 +362,9 @@ export default function Content({
           )}
         </div>
 
-        <div className="right">
-          <div className="liquidity-to-add">
-            <div className="label">
+        <div className="flex-1 w-1/2 max-sm:w-full">
+          <div>
+            <div className="text-base">
               {positionId ? "Increase" : "Add"} Liquidity
             </div>
             {tokensIn.map((_, tokenIndex: number) => (
@@ -401,7 +395,7 @@ export default function Content({
 
           {isOutOfRangeAfterZap && (
             <div
-              className="price-warning !text-warning !mt-4"
+              className="py-3 px-4 text-sm rounded-md font-normal text-warning mt-4"
               style={{
                 backgroundColor: `${theme.warning}33`,
               }}
@@ -412,31 +406,18 @@ export default function Content({
           )}
           {isDeviated && (
             <div
-              className="price-warning"
+              className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
               style={{ backgroundColor: `${theme.warning}33` }}
             >
-              <div className="text">
+              <div className="italic text-text">
                 The pool's estimated price after zapping of{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                    marginLeft: "2px",
-                  }}
-                >
+                <span className="font-medium text-warning not-italic ml-[2px]">
                   1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
                   {price}{" "}
                   {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
                 </span>{" "}
                 deviates from the market price{" "}
-                <span
-                  style={{
-                    fontWeight: "500",
-                    color: theme.warning,
-                    fontStyle: "normal",
-                  }}
-                >
+                <span className="font-medium text-warning not-italic">
                   (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
                   {marketRate}{" "}
                   {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
@@ -451,7 +432,7 @@ export default function Content({
             account &&
             position.owner.toLowerCase() !== account.toLowerCase() && (
               <div
-                className="price-warning text-warning"
+                className="py-3 px-4 text-sm rounded-md mt-2 font-normal text-warning"
                 style={{
                   backgroundColor: `${theme.warning}33`,
                 }}
@@ -463,12 +444,12 @@ export default function Content({
         </div>
       </div>
 
-      <div className="ks-lw-action">
-        <button className="outline-btn" onClick={onDismiss}>
+      <div className="flex gap-6 mt-6">
+        <button className="ks-outline-btn flex-1" onClick={onDismiss}>
           Cancel
         </button>
         <button
-          className={`primary-btn ${
+          className={`ks-primary-btn flex-1 ${
             !disabled &&
             Object.values(approvalStates).some(
               (item) => item !== APPROVAL_STATE.NOT_APPROVED

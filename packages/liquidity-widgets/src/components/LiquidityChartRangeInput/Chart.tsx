@@ -139,7 +139,7 @@ export function Chart({
         width="100%"
         height="100%"
         viewBox={`0 0 ${width} ${height}`}
-        style={{ overflow: "visible" }}
+        className="overflow-visible"
       >
         <defs>
           <linearGradient id="green-gradient" x1="0" y1="0" x2="0" y2="1">

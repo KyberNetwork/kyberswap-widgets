@@ -102,25 +102,27 @@ const SlippageInput = () => {
 
   return (
     <>
-      <div className="slp-input-wrapper">
+      <div className="rounded-full mt-2 bg-layer1 p-1 flex gap-[2px]">
         {[5, 10, 50, 100].map((item) => (
           <div
-            className="slp-item"
+            className="relative border rounded-full text-subText text-sm p-1 font-medium w-12 flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent"
             data-active={item === slippage}
             role="button"
             onClick={() => setSlippage(item)}
             key={item}
+            style={{ flex: 2 }}
           >
             {(item * 100) / 10_000}%
           </div>
         ))}
 
         <div
-          className="slp-item slp-item-input w-[72px]"
+          className="relative border w-[72px] rounded-full text-subText text-sm p-1 font-medium flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent data-[error='true']:border-error data-[warning='true']:border-warning data-[focus='true']:border-accent"
           data-active={![5, 10, 50, 100].includes(slippage)}
           data-error={!!message && !isValid}
           data-warning={!!message && isValid}
           data-focus={isFocus}
+          style={{ flex: 3 }}
         >
           {message && (
             <AlertIcon
@@ -130,6 +132,7 @@ const SlippageInput = () => {
             />
           )}
           <input
+            className="bg-layer1 border-none outline-none text-right text-text w-full text-xs p-0 focus:bg-layer1"
             data-active={![5, 10, 50, 100].includes(slippage)}
             placeholder="Custom"
             onFocus={onCustomSlippageFocus}

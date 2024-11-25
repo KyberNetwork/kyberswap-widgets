@@ -89,6 +89,17 @@ export default function PriceInput({ type }: { type: Type }) {
     );
   };
 
+  const onPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ".");
+    const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
+    if (
+      value === "" ||
+      inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    ) {
+      setLocalValue(value);
+    }
+  };
+
   useEffect(() => {
     if (
       type === Type.PriceLower &&
@@ -104,21 +115,13 @@ export default function PriceInput({ type }: { type: Type }) {
   }, [isFullRange, pool, type, tickLower, tickUpper, price, revertPrice]);
 
   return (
-    <div className="price-input">
-      <div className="input-wrapper">
+    <div className="mt-[0.6rem] py-[10px] px-[14px] gap-[10px] flex border border-stroke rounded-md">
+      <div className="flex flex-col gap-2 flex-1 text-xs font-medium text-subText">
         <span>{type === Type.PriceLower ? "Min" : "Max"} price</span>
         <input
+          className="bg-transparent text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
           value={localValue}
-          onChange={(e) => {
-            const value = e.target.value.replace(/,/g, ".");
-            const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
-            if (
-              value === "" ||
-              inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-            ) {
-              setLocalValue(value);
-            }
-          }}
+          onChange={onPriceChange}
           onBlur={(e) => wrappedCorrectPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
@@ -141,14 +144,16 @@ export default function PriceInput({ type }: { type: Type }) {
       </div>
 
       {positionId === undefined && (
-        <div className="action">
+        <div className="flex flex-col gap-3 justify-center">
           <button
+            className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={increaseTick}
             disabled={isFullRange || positionId !== undefined}
           >
             +
           </button>
           <button
+            className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             role="button"
             onClick={decreaseTick}
             disabled={isFullRange || positionId !== undefined}

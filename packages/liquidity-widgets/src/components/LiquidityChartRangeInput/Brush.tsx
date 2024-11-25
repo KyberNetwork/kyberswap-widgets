@@ -241,9 +241,7 @@ export const Brush = ({
                     flipWestHandle ? "1" : "-1"
                   }, 1)`}
                   opacity={showLabels || hovering ? 1 : 0}
-                  style={{
-                    transition: "opacity 300ms",
-                  }}
+                  className="transition-opacity duration-300"
                 >
                   <rect
                     y="0"
@@ -301,9 +299,7 @@ export const Brush = ({
                     flipEastHandle ? "-1" : "1"
                   }, 1)`}
                   opacity={showLabels || hovering ? 1 : 0}
-                  style={{
-                    transition: "opacity 300ms",
-                  }}
+                  className="transition-opacity duration-300"
                 >
                   <rect
                     y="0"

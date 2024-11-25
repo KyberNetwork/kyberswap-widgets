@@ -3,7 +3,6 @@ import { Portal } from "@kyber/ui/portal";
 import React, { useCallback, useState } from "react";
 import { usePopper } from "react-popper";
 import useInterval from "../../hooks/useInterval";
-import "./Popover.scss";
 
 export interface PopoverProps {
   content: React.ReactNode;
@@ -47,32 +46,30 @@ export default function Popover({
 
   return (
     <>
-      <div
-        className={className}
-        style={{ display: "inline-block" }}
-        ref={setReferenceElement}
-      >
+      <div className={className + "inline-block"} ref={setReferenceElement}>
         {children}
       </div>
       <Portal>
-        <div
-          className="ks-lw-popover"
-          data-visibility={show}
-          ref={setPopperElement}
-          style={styles.popper}
-          {...attributes.popper}
-        >
-          {content}
-          {noArrow || (
-            <div
-              className={`arrow arrow-${
-                attributes.popper?.["data-popper-placement"] ?? ""
-              }`}
-              ref={setArrowElement}
-              style={styles.arrow}
-              {...attributes.arrow}
-            />
-          )}
+        <div className="ks-lw-style">
+          <div
+            className="ks-lw-popover"
+            data-visibility={show}
+            ref={setPopperElement}
+            style={styles.popper}
+            {...attributes.popper}
+          >
+            {content}
+            {noArrow || (
+              <div
+                className={`arrow arrow-${
+                  attributes.popper?.["data-popper-placement"] ?? ""
+                }`}
+                ref={setArrowElement}
+                style={styles.arrow}
+                {...attributes.arrow}
+              />
+            )}
+          </div>
         </div>
       </Portal>
     </>

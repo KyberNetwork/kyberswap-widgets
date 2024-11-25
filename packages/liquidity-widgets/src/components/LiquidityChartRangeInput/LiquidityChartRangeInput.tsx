@@ -159,17 +159,7 @@ export function LiquidityChartRangeInput({
     !currencyA || !currencyB || (formattedData === undefined && !isLoading);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        minHeight: "200px",
-        width: "100%",
-        marginTop: "8px",
-        gap: "1rem",
-        justifyContent: "center",
-      }}
-    >
+    <div className="flex items-center min-h-52 w-full mt-2 gap-4 justify-center">
       {isUninitialized ? (
         <InfoBox
           message={"Your position will appear here."}
@@ -182,13 +172,7 @@ export function LiquidityChartRangeInput({
       ) : !formattedData || formattedData.length === 0 || !price ? (
         <InfoBox message={"There is no liquidity data."} icon={<div></div>} />
       ) : (
-        <div
-          style={{
-            position: "relative",
-            justifyContent: "center",
-            alignContent: "center",
-          }}
-        >
+        <div className="relative justify-center items-center">
           <Chart
             key={`${feeAmount ?? FeeAmount.MEDIUM}`}
             data={{ series: formattedData, current: price }}

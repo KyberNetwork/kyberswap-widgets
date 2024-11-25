@@ -86,11 +86,11 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <div className="input-token bg-layer2 relative">
-        <div className="balance">
-          <div className="balance-flex">
+      <div className="mt-[10px] border border-stroke rounded-md p-3 brightness-85 bg-layer2 relative">
+        <div className="flex justify-between text-subText text-sm font-medium">
+          <div className="flex items-center gap-[6px]">
             <button
-              className="small"
+              className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
@@ -104,7 +104,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               Max
             </button>
             <button
-              className="small"
+              className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
@@ -119,14 +119,14 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             </button>
           </div>
 
-          <div className="balance-flex">
+          <div className="flex items-center gap-[6px]">
             <WalletIcon />
             {formatWei(balanceInWei, token.decimals) || ""}
           </div>
         </div>
 
-        <div className="input-row">
-          <div className="input">
+        <div className="w-full flex mt-4 items-center gap-2">
+          <div className="flex-1">
             <input
               value={amount}
               onChange={onChangeAmount}
@@ -139,17 +139,23 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               minLength={1}
               maxLength={79}
               spellCheck="false"
+              className="bg-transparent text-text text-xl font-medium w-full p-0 border-none outline-none"
             />
           </div>
           {!!usdAmount && (
-            <div className="est-usd">~{formatCurrency(usdAmount)}</div>
+            <div className="text-subText text-xs">
+              ~{formatCurrency(usdAmount)}
+            </div>
           )}
-          <button onClick={onOpenTokenSelectModal}>
+          <button
+            className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
+            onClick={onOpenTokenSelectModal}
+          >
             <img
               src={token.logoURI}
               alt="TokenLogo"
               width="20px"
-              style={{ borderRadius: "50%" }}
+              className="rounded-full brightness-75"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
                 currentTarget.src = defaultTokenLogo;
