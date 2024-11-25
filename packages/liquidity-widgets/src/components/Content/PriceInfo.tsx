@@ -3,6 +3,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatNumber } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
+import { formatDisplayNumber } from "@/utils/number";
 
 export default function PriceInfo() {
   const { loading, pool, theme } = useWidgetInfo();
@@ -48,7 +49,9 @@ export default function PriceInfo() {
       <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
         <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
-          <span className="font-medium text-text">{price}</span>
+          <span className="font-medium text-text">
+            {formatDisplayNumber(price, { significantDigits: 6 })}
+          </span>
           <span>
             {revertPrice
               ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
@@ -82,12 +85,13 @@ export default function PriceInfo() {
             The pool's current price of{" "}
             <span className="font-medium text-warning not-italic">
               1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {price} {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
+              {formatDisplayNumber(price, { significantDigits: 6 })}{" "}
+              {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
             </span>{" "}
             deviates from the market price{" "}
             <span className="font-medium text-warning not-italic">
               (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {marketRate}{" "}
+              {formatDisplayNumber(marketRate, { significantDigits: 6 })}{" "}
               {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to
