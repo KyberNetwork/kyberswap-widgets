@@ -30,7 +30,6 @@ import {
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { BigNumber } from "ethers";
-import { Price } from "@/entities/Pool";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
@@ -53,8 +52,8 @@ export interface ZapState {
   zapInfo: ZapRouteDetail;
   tokensIn: Token[];
   amountsIn: string;
-  priceLower: Price;
-  priceUpper: Price;
+  priceLower: string;
+  priceUpper: string;
   deadline: number;
   isFullRange: boolean;
   slippage: number;
@@ -229,8 +228,8 @@ export default function Preview({
       )
     : "--";
 
-  const leftPrice = !revert ? priceLower : priceUpper?.invert();
-  const rightPrice = !revert ? priceUpper : priceLower?.invert();
+  const leftPrice = !revert ? priceLower : priceUpper;
+  const rightPrice = !revert ? priceUpper : priceLower;
 
   const quote = (
     <span>
@@ -718,7 +717,7 @@ export default function Preview({
                 revert ? tickUpper === pool.maxTick : tickLower === pool.minTick
               )
                 ? "0"
-                : leftPrice?.toSignificant(6)}
+                : leftPrice}
             </div>
             <div className="card-title">{quote}</div>
           </div>
@@ -739,7 +738,7 @@ export default function Preview({
                   : tickLower === pool.minTick
               )
                 ? "∞"
-                : rightPrice?.toSignificant(6)}
+                : rightPrice}
             </div>
             <div className="card-title">{quote}</div>
           </div>

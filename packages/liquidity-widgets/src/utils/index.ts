@@ -1,7 +1,6 @@
 import { formatUnits, getAddress } from "ethers/lib/utils";
 import { ChainId, NetworkInfo, PoolType } from "../constants";
-import { ProtocolFeeAction, Type } from "@/hooks/types/zapInTypes";
-import { nearestUsableTick, PoolAdapter, tryParseTick } from "@/entities/Pool";
+import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
 import uniswapLogo from "@/assets/dexes/uniswap.png";
 import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
@@ -293,35 +292,6 @@ export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Stable]) return 0.1;
   if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
   return 1;
-};
-
-export const correctPrice = (
-  value: string,
-  type: Type,
-  pool: PoolAdapter,
-  tickLower: number | null,
-  tickUpper: number | null,
-  poolType: PoolType,
-  revertPrice: boolean,
-  setTick: (type: Type, value: number) => void
-) => {
-  if (!pool) return;
-  const defaultTick =
-    (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-
-  if (revertPrice) {
-    const tick =
-      tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
-      defaultTick;
-    if (Number.isInteger(tick))
-      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
-  } else {
-    const tick =
-      tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
-      defaultTick;
-    if (Number.isInteger(tick))
-      setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
-  }
 };
 
 export function getEtherscanLink(

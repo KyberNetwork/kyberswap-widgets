@@ -12,7 +12,6 @@ import {
   ZOOM_LEVELS,
   ZoomLevels,
 } from "./types";
-import { Price } from "../../entities/Pool";
 import { useZapState } from "../../hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
 import { Token } from "@/schema";
@@ -50,8 +49,8 @@ export function LiquidityChartRangeInput({
   ticks?: TickDataRaw[];
   ticksAtLimit?: { [bound in Bound]?: boolean };
   price?: number;
-  priceLower?: Price;
-  priceUpper?: Price;
+  priceLower?: string;
+  priceUpper?: string;
   onLeftRangeInput?: (typedValue: string) => void;
   onRightRangeInput?: (typedValue: string) => void;
   onBothRangeInput?: (leftTypedValue: string, rightTypedValue: string) => void;
@@ -69,14 +68,12 @@ export function LiquidityChartRangeInput({
   const isSorted = !revertPrice;
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    const leftPrice = isSorted ? priceLower : priceUpper?.invert();
-    const rightPrice = isSorted ? priceUpper : priceLower?.invert();
+    // TODO: handle chart
+    const leftPrice = isSorted ? priceLower : priceUpper;
+    const rightPrice = isSorted ? priceUpper : priceLower;
 
     return leftPrice && rightPrice
-      ? [
-          parseFloat(leftPrice?.toSignificant(18)),
-          parseFloat(rightPrice?.toSignificant(18)),
-        ]
+      ? [parseFloat(leftPrice), parseFloat(rightPrice)]
       : undefined;
   }, [isSorted, priceLower, priceUpper]);
 

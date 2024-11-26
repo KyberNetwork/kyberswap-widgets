@@ -9,14 +9,13 @@ import {
 } from "react";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useTokenList } from "@/hooks/useTokenList";
-import { ZapRouteDetail, Type } from "@/hooks/types/zapInTypes";
+import { ZapRouteDetail } from "@/hooks/types/zapInTypes";
 import useMarketPrice from "@/hooks/useMarketPrice";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
 
 import { formatUnits, parseUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
-import { Price, tickToPrice } from "@/entities/Pool";
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -26,6 +25,8 @@ import {
 import { formatWei } from "@/utils";
 import { Token } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
+import { formatDisplayNumber } from "@kyber/utils/number";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 const ERROR_MESSAGE = {
   CONNECT_WALLET: "Please connect wallet",
@@ -48,15 +49,14 @@ const ZapContext = createContext<{
   setTokensIn: (value: Token[]) => void;
   setAmountsIn: (value: string) => void;
   toggleRevertPrice: () => void;
-  setTick: (type: Type, value: number) => void;
   setTickLower: (value: number) => void;
   setTickUpper: (value: number) => void;
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
-  priceLower: Price | null;
-  priceUpper: Price | null;
   slippage: number;
+  priceLower: string | null;
+  priceUpper: string | null;
   setSlippage: (val: number) => void;
   ttl: number;
   setTtl: (val: number) => void;
@@ -78,19 +78,18 @@ const ZapContext = createContext<{
   revertPrice: false,
   tickLower: null,
   tickUpper: null,
+  priceLower: null,
+  priceUpper: null,
   tokensIn: [],
   setTokensIn: () => {},
   amountsIn: "",
   setAmountsIn: () => {},
   toggleRevertPrice: () => {},
-  setTick: () => {},
   setTickLower: () => {},
   setTickUpper: () => {},
   error: "",
   zapInfo: null,
   loading: false,
-  priceLower: null,
-  priceUpper: null,
   slippage: 10,
   setSlippage: () => {},
   ttl: 20, // 20min
@@ -178,14 +177,30 @@ export const ZapContextProvider = ({
   );
 
   const priceLower = useMemo(() => {
-    if (!pool || tickLower == null) return null;
-    return tickToPrice(poolType, pool.token0, pool.token1, tickLower) as Price;
-  }, [pool, tickLower, poolType]);
+    if (pool === "loading" || tickLower == null) return null;
+    return formatDisplayNumber(
+      +tickToPrice(
+        tickLower,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        false
+      ),
+      { significantDigits: 8 }
+    );
+  }, [pool, tickUpper]);
 
   const priceUpper = useMemo(() => {
-    if (!pool || tickUpper === null) return null;
-    return tickToPrice(poolType, pool.token0, pool.token1, tickUpper) as Price;
-  }, [pool, tickUpper, poolType]);
+    if (pool === "loading" || tickUpper === null) return null;
+    return formatDisplayNumber(
+      +tickToPrice(
+        tickUpper,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        false
+      ),
+      { significantDigits: 8 }
+    );
+  }, [pool, tickUpper]);
 
   const error = useMemo(() => {
     if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
@@ -243,26 +258,6 @@ export const ZapContextProvider = ({
     zapApiError,
     balances,
   ]);
-
-  const setTick = useCallback(
-    (type: Type, value: number) => {
-      if (
-        position ||
-        (pool !== "loading" && (value > pool.maxTick || value < pool.minTick))
-      ) {
-        return;
-      }
-
-      if (type === Type.PriceLower) {
-        if (revertPrice) setTickUpper(value);
-        else setTickLower(value);
-      } else {
-        if (revertPrice) setTickLower(value);
-        else setTickUpper(value);
-      }
-    },
-    [position, pool, revertPrice]
-  );
 
   const toggleRevertPrice = useCallback(() => {
     setRevertPrice((prev) => !prev);
@@ -508,7 +503,6 @@ export const ZapContextProvider = ({
         amountsIn,
         setAmountsIn,
         toggleRevertPrice,
-        setTick,
         setTickLower,
         setTickUpper,
         error,

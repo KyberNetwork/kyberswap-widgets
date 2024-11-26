@@ -5,22 +5,19 @@ import {
 } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { Type } from "@/hooks/types/zapInTypes";
-import { Price } from "@/entities/Pool";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
 import {
   MAX_TICK,
   MIN_TICK,
-  nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 
 interface SelectedRange {
   range: typeof FULL_PRICE_RANGE | number;
-  priceLower: Price | null;
-  priceUpper: Price | null;
+  priceLower: string | null;
+  priceUpper: string | null;
 }
 
 const PriceRange = () => {
@@ -31,7 +28,6 @@ const PriceRange = () => {
   const {
     priceLower,
     priceUpper,
-    setTick,
     setTickLower,
     setTickUpper,
     tickLower,
@@ -63,7 +59,7 @@ const PriceRange = () => {
     )
       return "0";
 
-    return (!revertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6);
+    return !revertPrice ? priceLower : priceUpper;
   }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper]);
 
   const maxPrice = useMemo(() => {
@@ -73,21 +69,15 @@ const PriceRange = () => {
     )
       return "∞";
 
-    return (!revertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6);
+    return !revertPrice ? priceUpper : priceLower;
   }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
 
   const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
     if (pool === "loading") return;
 
     if (range === FULL_PRICE_RANGE) {
-      setTick(
-        Type.PriceLower,
-        nearestUsableTick(revertPrice ? MAX_TICK : MIN_TICK, pool.tickSpacing)
-      );
-      setTick(
-        Type.PriceUpper,
-        nearestUsableTick(revertPrice ? MIN_TICK : MAX_TICK, pool.tickSpacing)
-      );
+      setTickLower(pool.minTick);
+      setTickUpper(pool.maxTick);
       setSelectedRange({ range, priceLower: null, priceUpper: null });
       return;
     }
@@ -132,8 +122,8 @@ const PriceRange = () => {
           priceUpper,
         });
       } else if (
-        selectedRange.priceLower?.toFixed() !== priceLower.toFixed() ||
-        selectedRange.priceUpper?.toFixed() !== priceUpper.toFixed()
+        selectedRange.priceLower !== priceLower ||
+        selectedRange.priceUpper !== priceUpper
       )
         setSelectedRange(null);
     }
