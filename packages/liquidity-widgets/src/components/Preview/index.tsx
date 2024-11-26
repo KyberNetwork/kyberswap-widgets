@@ -995,6 +995,12 @@ export default function Preview({
           </div>
         )}
 
+      <p className="text-[#737373] italic text-xs mt-4">
+        The information is intended solely for your reference at the time you
+        are viewing. It is your responsibility to verify all information before
+        making decisions
+      </p>
+
       <button
         className={`ks-primary-btn mt-4 w-full ${
           piVeryHigh
