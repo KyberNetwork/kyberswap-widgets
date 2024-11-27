@@ -23,6 +23,7 @@ import { PoolType } from "../constants";
 import { assertUnreachable } from "../utils";
 
 export interface Token {
+  wrapped?: any;
   chainId: number;
   address: string;
   decimals: number;

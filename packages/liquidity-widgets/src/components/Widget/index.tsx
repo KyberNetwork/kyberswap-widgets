@@ -80,16 +80,16 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <TokenListProvider>
-        <WidgetProvider
-          poolAddress={poolAddress}
-          poolType={poolType}
-          positionId={positionId}
-          theme={theme || defaultTheme}
-          feeAddress={feeAddress}
-          feePcm={feePcm}
-          onConnectWallet={onConnectWallet}
-        >
+      <WidgetProvider
+        poolAddress={poolAddress}
+        poolType={poolType}
+        positionId={positionId}
+        theme={theme || defaultTheme}
+        feeAddress={feeAddress}
+        feePcm={feePcm}
+        onConnectWallet={onConnectWallet}
+      >
+        <TokenListProvider>
           <ZapContextProvider
             includedSources={includedSources}
             excludedSources={excludedSources}
@@ -102,8 +102,8 @@ export default function Widget({
               <Setting />
             </div>
           </ZapContextProvider>
-        </WidgetProvider>
-      </TokenListProvider>
+        </TokenListProvider>
+      </WidgetProvider>
     </Web3Provider>
   );
 }

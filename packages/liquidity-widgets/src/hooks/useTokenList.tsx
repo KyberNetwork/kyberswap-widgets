@@ -10,6 +10,7 @@ import {
 import { Token } from "@/entities/Pool";
 import { useWeb3Provider } from "./useProvider";
 import { PATHS } from "@/constants";
+import { useWidgetInfo } from "./useWidgetInfo";
 
 type TokenListContextState = {
   tokens: Token[];
@@ -38,6 +39,8 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const { chainId } = useWeb3Provider();
 
+  const { pool } = useWidgetInfo();
+
   const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -54,10 +57,34 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
     return [];
   });
 
-  const allTokens = useMemo(
-    () => tokens.concat(importedTokens),
-    [tokens, importedTokens]
-  );
+  const allTokens = useMemo(() => {
+    const mergedTokens = [...tokens, ...importedTokens];
+    if (
+      pool?.token0 &&
+      !mergedTokens.find(
+        (t) => t.address.toLowerCase() === pool.token0.address.toLowerCase()
+      )
+    )
+      mergedTokens.push(
+        pool.token0.wrapped
+          ? { ...pool.token0, ...pool.token0.wrapped }
+          : pool.token0
+      );
+
+    if (
+      pool?.token1 &&
+      !mergedTokens.find(
+        (t) => t.address.toLowerCase() === pool.token1.address.toLowerCase()
+      )
+    )
+      mergedTokens.push(
+        pool.token1.wrapped
+          ? { ...pool.token1, ...pool.token1.wrapped }
+          : pool.token1
+      );
+
+    return mergedTokens;
+  }, [tokens, importedTokens, pool]);
 
   const addToken = useCallback(
     (token: Token) => {
