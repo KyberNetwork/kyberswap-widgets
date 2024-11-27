@@ -388,7 +388,11 @@ export const ZapContextProvider = ({
       (!error ||
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
-        error === ERROR_MESSAGE.CONNECT_WALLET)
+        error === ERROR_MESSAGE.CONNECT_WALLET ||
+        error ===
+          `Please switch to ${chainIdToChain[
+            chainId
+          ]?.toUpperCase()} network first`)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";

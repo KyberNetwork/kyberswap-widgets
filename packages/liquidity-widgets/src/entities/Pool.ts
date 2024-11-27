@@ -230,6 +230,8 @@ export function tryParseTick(
     case PoolType.DEX_METAVAULTV3:
     case PoolType.DEX_LINEHUBV3:
     case PoolType.DEX_SWAPMODEV3:
+    case PoolType.DEX_SUSHISWAPV3:
+    case PoolType.DEX_THRUSTERV3:
       return tryParseTickUniV3(
         baseToken &&
           new UniToken(
@@ -281,7 +283,9 @@ export function nearestUsableTick(
     poolType === PoolType.DEX_UNISWAPV3 ||
     poolType === PoolType.DEX_METAVAULTV3 ||
     poolType === PoolType.DEX_SWAPMODEV3 ||
-    poolType === PoolType.DEX_LINEHUBV3
+    poolType === PoolType.DEX_LINEHUBV3 ||
+    poolType === PoolType.DEX_SUSHISWAPV3 ||
+    poolType === PoolType.DEX_THRUSTERV3
   )
     return nearestUsableTickUni(tick, tickSpacing);
   if (poolType === PoolType.DEX_PANCAKESWAPV3)
@@ -301,6 +305,8 @@ export function tickToPrice(
     case PoolType.DEX_METAVAULTV3:
     case PoolType.DEX_LINEHUBV3:
     case PoolType.DEX_SWAPMODEV3:
+    case PoolType.DEX_SUSHISWAPV3:
+    case PoolType.DEX_THRUSTERV3:
       return tickToPriceUni(
         new UniToken(
           token0.chainId,

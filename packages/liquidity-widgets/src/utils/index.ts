@@ -7,6 +7,8 @@ import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
 import linehubLogo from "@/assets/dexes/linehub.svg?url";
 import swapmodeLogo from "@/assets/dexes/swapmode.png";
+import sushiswapLogo from "@/assets/dexes/sushiswap.svg?url";
+import thrusterLogo from "@/assets/dexes/thruster.png";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -180,6 +182,10 @@ export const getDexName = (poolType: PoolType, chainId: ChainId): string => {
       if (chainId === ChainId.Arbitrum) return "Arbidex";
       if (chainId === ChainId.Optimism) return "Superswap";
       return "SwapMode";
+    case PoolType.DEX_SUSHISWAPV3:
+      return "Sushiswap V3";
+    case PoolType.DEX_THRUSTERV3:
+      return "Thruster V3";
 
     default:
       return assertUnreachable(poolType, "Unknown pool type");
@@ -198,6 +204,10 @@ export const getDexLogo = (poolType: PoolType): string => {
       return linehubLogo;
     case PoolType.DEX_SWAPMODEV3:
       return swapmodeLogo;
+    case PoolType.DEX_SUSHISWAPV3:
+      return sushiswapLogo;
+    case PoolType.DEX_THRUSTERV3:
+      return thrusterLogo;
 
     default:
       return assertUnreachable(poolType, "Unknown pool type");

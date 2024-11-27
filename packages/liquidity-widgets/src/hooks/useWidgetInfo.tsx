@@ -121,7 +121,9 @@ export const WidgetProvider = (props: Props) => {
     props.poolType === PoolType.DEX_UNISWAPV3 ||
     props.poolType === PoolType.DEX_SWAPMODEV3 ||
     props.poolType === PoolType.DEX_METAVAULTV3 ||
-    props.poolType === PoolType.DEX_LINEHUBV3
+    props.poolType === PoolType.DEX_LINEHUBV3 ||
+    props.poolType === PoolType.DEX_SUSHISWAPV3 ||
+    props.poolType === PoolType.DEX_THRUSTERV3
   ) {
     return <UniV3Provider {...props} />;
   }
