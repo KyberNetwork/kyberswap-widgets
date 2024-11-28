@@ -44,6 +44,7 @@ export interface WidgetProps {
     to: string;
     value: string;
     data: string;
+    gasLimit: bigint;
   }) => Promise<string>;
 
   initDepositTokens?: string;
@@ -52,8 +53,8 @@ export interface WidgetProps {
   source: string; // for tracking volume
 
   aggregatorOptions?: {
-    includedSources?: string[] | string;
-    excludedSources?: string[] | string;
+    includedSources?: string[];
+    excludedSources?: string[];
   };
   feeConfig?: {
     feePcm: number;

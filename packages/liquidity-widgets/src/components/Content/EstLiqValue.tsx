@@ -29,13 +29,11 @@ import {
 import { useMemo } from "react";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { useWidgetContext } from "@/stores/widget";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage, tokensIn } = useZapState();
-  const { pool, theme, position, positionId } = useWidgetContext((s) => s);
-  const { chainId } = useWeb3Provider();
+  const { pool, chainId, theme, position, positionId } = useWidgetContext((s) => s);
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.ADD_LIQUIDITY

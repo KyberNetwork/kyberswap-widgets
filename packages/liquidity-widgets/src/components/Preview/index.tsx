@@ -18,7 +18,6 @@ import {
   PoolSwapAction,
 } from "@/hooks/types/zapInTypes";
 import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import {
   PI_LEVEL,
   formatCurrency,
@@ -29,7 +28,6 @@ import {
   getWarningThreshold,
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import { BigNumber } from "ethers";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { formatUnits } from "ethers/lib/utils";
@@ -46,6 +44,11 @@ import { formatDisplayNumber } from "@kyber/utils/number";
 import { useWidgetContext } from "@/stores/widget";
 import { Pool, Token } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
+import {
+  estimateGas,
+  getCurrentGasPrice,
+  isTransactionSuccessful,
+} from "@kyber/utils/crypto";
 
 export interface ZapState {
   pool: Pool;
@@ -64,19 +67,18 @@ export interface ZapState {
 export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
-  onTxSubmit?: (tx: string) => void;
 }
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
 
-function calculateGasMargin(value: BigNumber): BigNumber {
-  const defaultGasLimitMargin = BigNumber.from(20_000);
-  const gasMargin = value.mul(BigNumber.from(2000)).div(BigNumber.from(10000));
+function calculateGasMargin(value: bigint): bigint {
+  const defaultGasLimitMargin = 20_000n;
+  const gasMargin = (value * 2000n) / 10_000n;
 
-  return gasMargin.gte(defaultGasLimitMargin)
-    ? value.add(gasMargin)
-    : value.add(defaultGasLimitMargin);
+  return gasMargin < defaultGasLimitMargin
+    ? value + gasMargin
+    : value + defaultGasLimitMargin;
 }
 
 export default function Preview({
@@ -91,11 +93,20 @@ export default function Preview({
     tickUpper,
   },
   onDismiss,
-  onTxSubmit,
 }: PreviewProps) {
-  const { chainId, account, provider } = useWeb3Provider();
-  const { poolType, positionId, theme, position, poolAddress } =
-    useWidgetContext((s) => s);
+  const {
+    poolType,
+    positionId,
+    chainId,
+    connectedAccount,
+    theme,
+    position,
+    poolAddress,
+    onSubmitTx,
+  } = useWidgetContext((s) => s);
+
+  const { address: account } = connectedAccount;
+
   const {
     source,
     revertPrice: revert,
@@ -122,20 +133,22 @@ export default function Preview({
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        provider?.getTransactionReceipt(txHash).then((res) => {
-          if (!res) return;
+        isTransactionSuccessful(NetworkInfo[chainId].defaultRpc, txHash).then(
+          (res) => {
+            if (!res) return;
 
-          if (res.status) {
-            setTxStatus("success");
-          } else setTxStatus("failed");
-        });
+            if (res) {
+              setTxStatus("success");
+            } else setTxStatus("failed");
+          }
+        );
       }, 10_000);
 
       return () => {
         clearInterval(i);
       };
     }
-  }, [txHash, provider]);
+  }, [txHash]);
 
   const addedLiqInfo = useMemo(
     () =>
@@ -193,22 +206,12 @@ export default function Preview({
     ) || [];
 
   const refundAmount0 = formatWei(
-    refundToken0
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
+    refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
     pool.token0.decimals
   );
 
   const refundAmount1 = formatWei(
-    refundToken1
-      .reduce(
-        (acc, cur) => acc.add(BigNumber.from(cur.amount)),
-        BigNumber.from("0")
-      )
-      .toString(),
+    refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
     pool.token1.decimals
   );
 
@@ -353,6 +356,8 @@ export default function Preview({
     }
   };
 
+  const rpcUrl = NetworkInfo[chainId].defaultRpc;
+
   useEffect(() => {
     fetch(`${PATHS.ZAP_API}/${chainIdToChain[chainId]}/api/v1/in/route/build`, {
       method: "POST",
@@ -367,7 +372,7 @@ export default function Preview({
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
-        if (data.callData) {
+        if (data.callData && account) {
           const txData = {
             from: account,
             to: data.routerAddress,
@@ -378,21 +383,20 @@ export default function Preview({
           try {
             const wethAddress =
               NetworkInfo[chainId].wrappedToken.address.toLowerCase();
-            const [estimateGas, nativeTokenPrice, gasPrice] = await Promise.all(
-              [
-                provider.getSigner().estimateGas(txData),
+            const [gasEstimation, nativeTokenPrice, gasPrice] =
+              await Promise.all([
+                estimateGas(rpcUrl, txData),
                 fetchPrices([wethAddress])
                   .then((prices) => {
                     return prices[wethAddress]?.PriceBuy || 0;
                   })
                   .catch(() => 0),
-                provider.getGasPrice(),
-              ]
-            );
+                getCurrentGasPrice(rpcUrl),
+              ]);
 
             const gasUsd =
               +formatUnits(gasPrice) *
-              +estimateGas.toString() *
+              +gasEstimation.toString() *
               nativeTokenPrice;
 
             setGasUsd(gasUsd);
@@ -401,7 +405,7 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, provider, source, zapInfo.route]);
+  }, [account, chainId, deadline, source, zapInfo.route]);
 
   useEffect(() => {
     if (copied) {
@@ -431,7 +435,7 @@ export default function Preview({
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
-        if (data.callData) {
+        if (data.callData && account) {
           const txData = {
             from: account,
             to: data.routerAddress,
@@ -440,13 +444,12 @@ export default function Preview({
           };
 
           try {
-            const estimateGas = await provider.getSigner().estimateGas(txData);
-            const txReceipt = await provider.getSigner().sendTransaction({
+            const gasEstimation = await estimateGas(rpcUrl, txData);
+            const txHash = await onSubmitTx({
               ...txData,
-              gasLimit: calculateGasMargin(estimateGas),
+              gasLimit: calculateGasMargin(BigInt(gasEstimation)),
             });
-            setTxHash(txReceipt.hash);
-            onTxSubmit?.(txReceipt.hash);
+            setTxHash(txHash);
           } catch (e) {
             setAttempTx(false);
             setTxError(e as Error);
@@ -488,7 +491,7 @@ export default function Preview({
                 ? `Position #${positionId}`
                 : `${getDexName(poolType, chainId)} ${pool.token0.symbol}/${
                     pool.token1.symbol
-                  } ${pool.fee / 10_000}%`}
+                  } ${pool.fee}%`}
             </div>
           )}
           {txHash && txStatus === "" && (
@@ -623,7 +626,7 @@ export default function Preview({
             )}
           </div>
           <div className="pool-info mt-[2px]">
-            <div className="tag tag-default">Fee {pool.fee / 10_000}%</div>
+            <div className="tag tag-default">Fee {pool.fee}%</div>
             {positionId !== undefined && (
               <div className="tag tag-primary">
                 <Info width={12} /> ID {positionId}

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ChartEntry, TickDataRaw, TickProcessed } from "./types";
 import { computeSurroundingTicks } from "./utils";
-import { useWeb3Provider } from "../../hooks/useProvider";
 import { useZapState } from "../../hooks/useZapInState";
 import { PATHS } from "@/constants";
 import { useWidgetContext } from "@/stores/widget";
@@ -70,7 +69,7 @@ export function usePoolActiveLiquidity(): {
   data?: TickProcessed[];
   isLoading: boolean;
 } {
-  const { chainId } = useWeb3Provider();
+  const chainId = useWidgetContext(s => s.chainId);
   const { pool, poolAddress } = useWidgetContext((s) => s);
   const { revertPrice } = useZapState();
 

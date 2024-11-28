@@ -7,9 +7,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useWeb3Provider } from "./useProvider";
 import { PATHS } from "@/constants";
 import { Token } from "@/schema";
+import { useWidgetContext } from "@/stores/widget";
 
 type TokenListContextState = {
   tokens: Token[];
@@ -36,7 +36,7 @@ const TokenListContext = createContext<TokenListContextState>({
 export const TokenListProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const { chainId } = useWeb3Provider();
+  const chainId = useWidgetContext((s) => s.chainId);
 
   const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
     if (typeof window !== "undefined") {

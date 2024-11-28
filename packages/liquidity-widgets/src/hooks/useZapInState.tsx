@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { useTokenList } from "@/hooks/useTokenList";
 import { ZapRouteDetail } from "@/hooks/types/zapInTypes";
 import useMarketPrice from "@/hooks/useMarketPrice";
@@ -122,10 +121,19 @@ export const ZapContextProvider = ({
   initDepositTokens?: string;
   initAmounts?: string;
 }) => {
-  const { pool, poolType, poolAddress, position, positionId, feeConfig } =
-    useWidgetContext((s) => s);
+  const {
+    pool,
+    poolType,
+    poolAddress,
+    position,
+    positionId,
+    feeConfig,
+    chainId,
+    connectedAccount,
+  } = useWidgetContext((s) => s);
   const { feePcm, feeAddress } = feeConfig || {};
-  const { chainId, account, networkChainId } = useWeb3Provider();
+  const account = connectedAccount?.address;
+  const networkChainId = connectedAccount?.chainId;
   const { allTokens } = useTokenList();
   const { balances } = useTokenBalances(allTokens.map((item) => item.address));
 

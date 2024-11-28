@@ -135,9 +135,9 @@ const PriceRange = () => {
     if (!fee) return;
     if (!selectedRange)
       handleSelectPriceRange(
-        fee / 10_000 <= 0.01
+        fee <= 0.01
           ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee / 10_000 > 0.1
+          : fee > 0.1
           ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
           : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
       );

@@ -138,10 +138,6 @@ export function TargetPoolState() {
               )}
             </div>
             <div>{priceLabel}</div>
-            <div>
-              {revertDisplay ? pool.token0.symbol : pool.token1.symbol} per{" "}
-              {revertDisplay ? pool.token1.symbol : pool.token0.symbol} per{" "}
-            </div>
 
             <SwapIcon
               role="button"

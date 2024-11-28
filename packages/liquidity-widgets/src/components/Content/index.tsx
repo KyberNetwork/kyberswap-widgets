@@ -15,7 +15,7 @@ import {
 import ZapRoute from "./ZapRoute";
 import EstLiqValue from "./EstLiqValue";
 import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
@@ -38,15 +38,7 @@ import {
 } from "@kyber/utils/uniswapv3";
 import { formatDisplayNumber } from "@kyber/utils/number";
 
-export default function Content({
-  onDismiss,
-  onTogglePreview,
-  onTxSubmit,
-}: {
-  onDismiss: () => void;
-  onTogglePreview?: (val: boolean) => void;
-  onTxSubmit?: (tx: string) => void;
-}) {
+export default function Content() {
   const {
     zapInfo,
     error,
@@ -284,26 +276,21 @@ export default function Content({
         tickUpper,
         tickLower,
       });
-      onTogglePreview?.(true);
     }
   };
 
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
-  useEffect(() => {
-    if (snapshotState === null) {
-      onTogglePreview?.(false);
-    }
-  }, [snapshotState, onTogglePreview]);
-
   const token0 = pool === "loading" ? null : pool.token0;
   const token1 = pool === "loading" ? null : pool.token1;
+
+  const { onClose } = useWidgetContext((s) => s);
 
   return (
     <>
       {loadPoolError && (
-        <Modal isOpen onClick={() => onDismiss()}>
+        <Modal isOpen onClick={() => onClose()}>
           <div
             style={{
               display: "flex",
@@ -317,7 +304,7 @@ export default function Content({
             <div style={{ textAlign: "center" }}>{loadPoolError}</div>
             <button
               className="primary-btn"
-              onClick={onDismiss}
+              onClick={onClose}
               style={{
                 width: "95%",
                 background: theme.error,
@@ -347,7 +334,6 @@ export default function Content({
           </div>
 
           <Preview
-            onTxSubmit={onTxSubmit}
             zapState={snapshotState}
             onDismiss={() => setSnapshotState(null)}
           />
@@ -359,7 +345,7 @@ export default function Content({
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <Header onDismiss={onDismiss} />
+      <Header onDismiss={onClose} />
       <div className="ks-lw-content">
         <div className="left">
           <PriceInfo />
@@ -470,7 +456,7 @@ export default function Content({
       </div>
 
       <div className="ks-lw-action">
-        <button className="outline-btn" onClick={onDismiss}>
+        <button className="outline-btn" onClick={onClose}>
           Cancel
         </button>
         <button

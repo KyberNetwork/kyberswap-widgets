@@ -1,18 +1,15 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import "./Widget.scss";
-import { Web3Provider } from "../../hooks/useProvider";
 
-import { Theme, defaultTheme } from "../../theme";
-import { WidgetProvider as OldWidgetProvider } from "../../hooks/useWidgetInfo";
-import { providers } from "ethers";
-import { NetworkInfo, PoolType, ChainId } from "../../constants";
+import { Theme } from "../../theme";
+import { PoolType, ChainId } from "../../constants";
 import WidgetContent from "../Content";
 import { ZapContextProvider } from "../../hooks/useZapInState";
 import { TokenListProvider } from "../../hooks/useTokenList";
 import Setting from "../Setting";
 
 import "../../globals.css";
-import { WidgetProvider } from "@/stores/widget";
+import { WidgetProps, WidgetProvider } from "@/stores/widget";
 
 export { PoolType, ChainId };
 
@@ -29,47 +26,9 @@ const createModalRoot = () => {
 
 createModalRoot();
 
-export interface WidgetProps {
-  theme?: Theme;
-  provider: providers.Web3Provider | providers.JsonRpcProvider | undefined;
-  poolAddress: string;
-  positionId?: string;
-  poolType: PoolType;
-  chainId: ChainId;
-  onDismiss: () => void;
-  onTxSubmit?: (txHash: string) => void;
-  feeAddress?: string;
-  feePcm?: number;
-  source: string;
-  includedSources?: string;
-  excludedSources?: string;
-  initDepositTokens?: string;
-  initAmounts?: string;
-}
-
 export default function Widget(props: WidgetProps) {
-  const {
-    theme,
-    provider,
-    poolAddress,
-    positionId,
-    chainId,
-    poolType,
-    onDismiss,
-    onTxSubmit,
-    feeAddress,
-    feePcm,
-    includedSources,
-    excludedSources,
-    source,
-    initDepositTokens,
-    initAmounts,
-  } = props;
-
-  const defaultProvider = useMemo(
-    () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
-    [chainId]
-  );
+  const { theme, aggregatorOptions, source, initDepositTokens, initAmounts } =
+    props;
 
   useEffect(() => {
     if (!theme) return;
@@ -80,48 +39,21 @@ export default function Widget(props: WidgetProps) {
   }, [theme]);
 
   return (
-    <WidgetProvider
-      {...props}
-      onClose={onDismiss}
-      onConnectWallet={() => {
-        //
-      }}
-      connectedAccount={{
-        address: "",
-        chainId: 1,
-      }}
-      onSwitchChain={() => {
-        //
-      }}
-      onSubmitTx={async () => {
-        return "";
-      }}
-    >
-      <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-        <TokenListProvider>
-          <OldWidgetProvider
-            poolAddress={poolAddress}
-            poolType={poolType}
-            positionId={positionId}
-            theme={theme || defaultTheme}
-            feeAddress={feeAddress}
-            feePcm={feePcm}
-          >
-            <ZapContextProvider
-              includedSources={includedSources}
-              excludedSources={excludedSources}
-              source={source}
-              initDepositTokens={initDepositTokens}
-              initAmounts={initAmounts}
-            >
-              <div className="ks-lw ks-lw-style">
-                <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
-                <Setting />
-              </div>
-            </ZapContextProvider>
-          </OldWidgetProvider>
-        </TokenListProvider>
-      </Web3Provider>
+    <WidgetProvider {...props}>
+      <TokenListProvider>
+        <ZapContextProvider
+          includedSources={aggregatorOptions?.includedSources?.join(",")}
+          excludedSources={aggregatorOptions?.excludedSources?.join(",")}
+          source={source}
+          initDepositTokens={initDepositTokens}
+          initAmounts={initAmounts}
+        >
+          <div className="ks-lw ks-lw-style">
+            <WidgetContent />
+            <Setting />
+          </div>
+        </ZapContextProvider>
+      </TokenListProvider>
     </WidgetProvider>
   );
 }

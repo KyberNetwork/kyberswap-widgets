@@ -7,15 +7,12 @@ import {
 } from "../../hooks/types/zapInTypes";
 import { formatWei, getDexName } from "../../utils";
 import { useMemo } from "react";
-import { useWeb3Provider } from "@/hooks/useProvider";
 import { NetworkInfo } from "@/constants";
 import { useWidgetContext } from "@/stores/widget";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
-  const { pool, poolType } = useWidgetContext((s) => s);
-
-  const { chainId } = useWeb3Provider();
+  const { pool, poolType, chainId } = useWidgetContext((s) => s);
 
   const swapInfo = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
