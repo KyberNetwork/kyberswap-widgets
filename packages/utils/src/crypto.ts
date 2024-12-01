@@ -114,3 +114,44 @@ export async function isTransactionSuccessful(
   // `status` is "0x1" for success, "0x0" for failure
   return result.result.status === "0x1";
 }
+
+export async function checkApproval({
+  rpcUrl,
+  token,
+  owner,
+  spender,
+}: {
+  rpcUrl: string;
+  token: string;
+  owner: string;
+  spender: string;
+}): Promise<bigint> {
+  const allowanceFunctionSig = getFunctionSelector(
+    "allowance(address,address)"
+  );
+  const paddedOwner = owner.replace("0x", "").padStart(64, "0");
+  const paddedSpender = spender.replace("0x", "").padStart(64, "0");
+  const data = `0x${allowanceFunctionSig}${paddedOwner}${paddedSpender}`;
+
+  const response = await fetch(rpcUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "eth_call",
+      params: [
+        {
+          to: token,
+          data,
+        },
+        "latest",
+      ],
+      id: 1,
+    }),
+  });
+  const result = await response.json();
+  const allowance = BigInt(result.result);
+  return allowance;
+}

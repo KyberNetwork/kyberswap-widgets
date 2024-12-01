@@ -29,7 +29,7 @@ export const useApprovals = (
       return {
         ...acc,
         [token]:
-          token === NATIVE_TOKEN_ADDRESS
+          token.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
             ? APPROVAL_STATE.APPROVED
             : APPROVAL_STATE.UNKNOWN,
       };
