@@ -133,13 +133,29 @@ function App() {
         </div>
 
         <LiquidityWidget
-          key={key}
-          provider={ethersProvider}
-          onDismiss={() => {
+          key={key + (wallet?.accounts?.[0].address || "")}
+          //provider={ethersProvider}
+          onClose={() => {
             window.location.reload();
           }}
           source="zap-widget-demo"
-          {...params}
+          chainId={params.chainId}
+          poolAddress={params.poolAddress}
+          poolType={params.poolType}
+          connectedAccount={{
+            address: wallet?.accounts?.[0].address,
+            chainId: +(wallet?.chains[0].id || params.chainId),
+          }}
+          onSwitchChain={() => {
+            // TODO:
+          }}
+          onConnectWallet={() => {
+            //
+          }}
+          onSubmitTx={async (txData) => {
+            console.log(txData);
+            return "";
+          }}
           // initDepositTokens="0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
           // initAmounts="1"
         />

@@ -45,6 +45,7 @@ import { useWidgetContext } from "@/stores/widget";
 import { Pool, Token } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
+  calculateGasMargin,
   estimateGas,
   getCurrentGasPrice,
   isTransactionSuccessful,
@@ -71,15 +72,6 @@ export interface PreviewProps {
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: NodeJS.Timeout;
-
-function calculateGasMargin(value: bigint): bigint {
-  const defaultGasLimitMargin = 20_000n;
-  const gasMargin = (value * 2000n) / 10_000n;
-
-  return gasMargin < defaultGasLimitMargin
-    ? value + gasMargin
-    : value + defaultGasLimitMargin;
-}
 
 export default function Preview({
   zapState: {

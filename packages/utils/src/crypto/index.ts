@@ -1,5 +1,7 @@
 import { keccak256 } from "js-sha3";
 
+export * from "./address";
+
 // Function to encode a uint256 parameter to hex (minimal ABI encoding)
 export function encodeUint256(value: bigint): string {
   return value.toString(16).padStart(64, "0"); // Encode bigint as hex, pad to 32 bytes
@@ -133,25 +135,38 @@ export async function checkApproval({
   const paddedSpender = spender.replace("0x", "").padStart(64, "0");
   const data = `0x${allowanceFunctionSig}${paddedOwner}${paddedSpender}`;
 
-  const response = await fetch(rpcUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      method: "eth_call",
-      params: [
-        {
-          to: token,
-          data,
-        },
-        "latest",
-      ],
-      id: 1,
-    }),
-  });
-  const result = await response.json();
-  const allowance = BigInt(result.result);
-  return allowance;
+  try {
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        method: "eth_call",
+        params: [
+          {
+            to: token,
+            data,
+          },
+          "latest",
+        ],
+        id: 1,
+      }),
+    });
+    const result = await response.json();
+    const allowance = BigInt(result.result);
+    return allowance;
+  } catch (e) {
+    throw e;
+  }
+}
+
+export function calculateGasMargin(value: bigint): bigint {
+  const defaultGasLimitMargin = 20_000n;
+  const gasMargin = (value * 2000n) / 10_000n;
+
+  return gasMargin < defaultGasLimitMargin
+    ? value + gasMargin
+    : value + defaultGasLimitMargin;
 }

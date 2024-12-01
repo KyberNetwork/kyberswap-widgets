@@ -1,82 +1,144 @@
-import { useMulticalContract } from "./useContract";
-import { useCallback, useEffect, useState } from "react";
-import { BigNumber } from "ethers";
-import { NATIVE_TOKEN_ADDRESS } from "../constants";
-import { useWeb3Provider } from "./useProvider";
-import { Interface } from "ethers/lib/utils";
-import erc20ABI from "@/abis/erc20.json";
+import { useState, useEffect, useCallback } from "react";
+import { useWidgetContext } from "@/stores/widget";
+import { NetworkInfo } from "@/constants";
 
-const ERC20_INTERFACE = new Interface(erc20ABI);
+// Helper to manually encode ABI data
+function encodeMulticallInput(
+  requireSuccess: boolean,
+  calls: { target: string; callData: string }[]
+): string {
+  const requireSuccessEncoded = requireSuccess ? "01" : "00";
+  const callsEncoded = calls
+    .map(({ target, callData }) => {
+      const targetEncoded = target
+        .toLowerCase()
+        .replace("0x", "")
+        .padStart(64, "0");
+      const callDataLength = (callData.length / 2 - 1)
+        .toString(16)
+        .padStart(64, "0");
+      return `${targetEncoded}${callDataLength}${callData.replace("0x", "")}`;
+    })
+    .join("");
+  const callsLength = calls.length.toString(16).padStart(64, "0");
+
+  return `0x${requireSuccessEncoded}${callsLength}${callsEncoded}`;
+}
+
+// Decode the results from the Multicall response
+function decodeMulticallOutput(result: string | undefined): bigint[] {
+  if (!result) return [];
+
+  const offset = parseInt(result.slice(2, 66), 16); // Offset of the results
+  const data = result.slice(2 + offset * 2); // Extract the results array
+  const count = parseInt(data.slice(0, 64), 16); // Number of results
+
+  const balances: bigint[] = [];
+  let currentOffset = 64; // Start of the results
+  for (let i = 0; i < count; i++) {
+    const returnLength =
+      parseInt(data.slice(currentOffset, currentOffset + 64), 16) * 2;
+    currentOffset += 64;
+    const returnData = data.slice(currentOffset, currentOffset + returnLength);
+    currentOffset += returnLength;
+
+    // Decode the balance
+    try {
+      balances.push(BigInt("0x" + returnData.slice(0, 64)));
+    } catch {
+      balances.push(BigInt(0));
+    }
+  }
+
+  return balances;
+}
+
+const ERC20_BALANCE_OF_SELECTOR = "70a08231"; // Function selector for "balanceOf(address)";
 
 const useTokenBalances = (tokenAddresses: string[]) => {
-  const { provider, chainId, account } = useWeb3Provider();
-  const multicallContract = useMulticalContract();
-  const [balances, setBalances] = useState<{ [address: string]: BigNumber }>(
-    {}
-  );
+  const { chainId, connectedAccount } = useWidgetContext((s) => s);
+  const { address: account } = connectedAccount;
+  const { defaultRpc: rpcUrl, multiCall } = NetworkInfo[chainId];
+
+  const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
   const [loading, setLoading] = useState(false);
 
   const fetchBalances = useCallback(async () => {
-    if (!provider || !account) {
+    if (!rpcUrl || !account) {
       setBalances({});
       return;
     }
+
     setLoading(true);
 
-    const nativeBalance = await provider.getBalance(account);
+    try {
+      // Prepare calls for the Multicall contract
+      const calls = tokenAddresses.map((token) => {
+        const paddedAccount = account.replace("0x", "").padStart(64, "0");
+        const callData = `0x${ERC20_BALANCE_OF_SELECTOR}${paddedAccount}`;
+        return {
+          target: token,
+          callData,
+        };
+      });
 
-    const fragment = ERC20_INTERFACE.getFunction("balanceOf");
-    const callData = ERC20_INTERFACE.encodeFunctionData(fragment, [account]);
+      const encodedData = encodeMulticallInput(false, calls);
 
-    const chunks = tokenAddresses.map((address) => ({
-      target: address,
-      callData,
-    }));
+      // Encode multicall transaction
+      const data = {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_call",
+        params: [
+          {
+            to: multiCall,
+            data: encodedData,
+          },
+          "latest",
+        ],
+      };
 
-    const res = await multicallContract?.callStatic.tryBlockAndAggregate(
-      false,
-      chunks
-    );
-    const balances = res.returnData.map((item: any) => {
-      try {
-        return ERC20_INTERFACE.decodeFunctionResult(fragment, item.returnData);
-      } catch (error) {
-        return { balance: BigNumber.from(0) };
-      }
-    });
-    setLoading(false);
-
-    setBalances({
-      [NATIVE_TOKEN_ADDRESS]: nativeBalance,
-      ...balances.reduce(
-        (
-          acc: { [address: string]: BigNumber },
-          item: { balance: BigNumber },
-          index: number
-        ) => {
-          return {
-            ...acc,
-            [tokenAddresses[index]]: item.balance,
-          };
+      // Send request to the RPC endpoint
+      const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        {} as { [address: string]: BigNumber }
-      ),
-    });
-    setLoading(false);
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider, chainId, JSON.stringify(tokenAddresses), account]);
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      // Decode balances from the multicall output
+      const decodedBalances = decodeMulticallOutput(result.result);
+
+      // Map balances to token addresses
+      const balancesMap = tokenAddresses.reduce(
+        (acc, token, index) => ({
+          ...acc,
+          [token]: decodedBalances[index],
+        }),
+        {}
+      );
+
+      setBalances(balancesMap);
+    } catch (error) {
+      setBalances({});
+      console.error("Failed to fetch balances:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [rpcUrl, account, JSON.stringify(tokenAddresses)]);
 
   useEffect(() => {
     fetchBalances();
 
-    const i = setInterval(() => {
+    const interval = setInterval(() => {
       fetchBalances();
-    }, 10_000);
+    }, 10000);
 
-    return () => {
-      clearInterval(i);
-    };
-  }, [provider, fetchBalances]);
+    return () => clearInterval(interval);
+  }, [fetchBalances]);
 
   return {
     loading,

@@ -1,4 +1,3 @@
-import { formatUnits, getAddress } from "ethers/lib/utils";
 import { ChainId, NetworkInfo, PoolType } from "../constants";
 import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
 import uniswapLogo from "@/assets/dexes/uniswap.png";
@@ -6,15 +5,7 @@ import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
 import linehubLogo from "@/assets/dexes/linehub.svg?url";
 import swapmodeLogo from "@/assets/dexes/swapmode.png";
-
-// returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(value: string): string | false {
-  try {
-    return getAddress(value);
-  } catch {
-    return false;
-  }
-}
+import { formatUnits } from "@kyber/utils/number";
 
 export function copyToClipboard(textToCopy: string) {
   // navigator clipboard api needs a secure context (https)

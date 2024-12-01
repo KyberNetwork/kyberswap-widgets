@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useZapState } from "@/hooks/useZapInState";
 import { useTokenList } from "../../hooks/useTokenList";
-import { formatWei, isAddress } from "@/utils";
+import { formatWei } from "@/utils";
 import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
 import { formatUnits } from "ethers/lib/utils";
@@ -14,6 +14,7 @@ import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
 import { useWidgetContext } from "@/stores/widget";
 import { Token } from "@/schema";
+import { isAddress } from "@kyber/utils/crypto";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",

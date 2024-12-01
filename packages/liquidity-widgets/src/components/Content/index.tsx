@@ -76,7 +76,7 @@ export default function Content() {
     [tokensIn, amountsIn]
   );
 
-  const { loading, approvalStates, addressToApprove, approve } = useApprovals(
+  const { loading, approvalStates, approve, addressToApprove } = useApprovals(
     amountsInWei,
     tokensIn.map((token) => token?.address || ""),
     zapInfo?.routerAddress || ""

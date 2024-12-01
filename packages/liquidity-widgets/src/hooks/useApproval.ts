@@ -1,9 +1,14 @@
-import { BigNumber, Contract, providers } from "ethers";
 import { useEffect, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS } from "../constants";
-import erc20ABI from "../abis/erc20.json";
-import { useWeb3Provider } from "./useProvider";
-import { isAddress } from "../utils";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "../constants";
+import {
+  calculateGasMargin,
+  checkApproval,
+  estimateGas,
+  getFunctionSelector,
+  isAddress,
+  isTransactionSuccessful,
+} from "@kyber/utils/crypto";
+import { useWidgetContext } from "@/stores/widget";
 
 export enum APPROVAL_STATE {
   UNKNOWN = "unknown",
@@ -11,16 +16,15 @@ export enum APPROVAL_STATE {
   APPROVED = "approved",
   NOT_APPROVED = "not_approved",
 }
-const MaxUint256: BigNumber = BigNumber.from(
-  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-);
 
 export const useApprovals = (
   amounts: string[],
   addreses: string[],
   spender: string
 ) => {
-  const { account, provider } = useWeb3Provider();
+  const { chainId, connectedAccount, onSubmitTx } = useWidgetContext((s) => s);
+  const { address: account } = connectedAccount;
+
   const [loading, setLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
     [address: string]: APPROVAL_STATE;
@@ -38,34 +42,52 @@ export const useApprovals = (
   const [pendingTx, setPendingTx] = useState("");
   const [addressToApprove, setAddressToApprove] = useState("");
 
-  const approve = (address: string) => {
-    const checkedSumAddress = isAddress(address);
-    if (!checkedSumAddress) return;
+  const approve = async (address: string) => {
+    if (!isAddress(address) || !account) return;
     setAddressToApprove(address);
-    const contract = new Contract(
-      address,
-      erc20ABI,
-      provider.getSigner(account)
-    );
-    return contract
-      .approve(spender, MaxUint256)
-      .then((res: providers.TransactionResponse) => {
-        setApprovalStates({
-          ...approvalStates,
-          [address]: APPROVAL_STATE.PENDING,
-        });
-        setPendingTx(res.hash);
-      })
-      .catch(() => {
-        setAddressToApprove("");
+
+    const approveFunctionSig = getFunctionSelector("approve(address,uint256)"); // "0x095ea7b3"; // Keccak-256 hash of "" truncated to 4 bytes
+    const paddedSpender = spender.replace("0x", "").padStart(64, "0");
+    const paddedAmount =
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".padStart(
+        64,
+        "0"
+      ); // Amount in hex
+
+    const data = `${approveFunctionSig}${paddedSpender}${paddedAmount}`;
+
+    const txData = {
+      from: account,
+      to: address,
+      value: "0x0",
+      data,
+    };
+
+    try {
+      const gasEstimation = await estimateGas(rpcUrl, txData);
+
+      const txHash = await onSubmitTx({
+        ...txData,
+        gasLimit: calculateGasMargin(gasEstimation),
       });
+      setApprovalStates({
+        ...approvalStates,
+        [address]: APPROVAL_STATE.PENDING,
+      });
+      setPendingTx(txHash);
+    } catch (e) {
+      console.log("approve failed", e);
+      setAddressToApprove("");
+    }
   };
+
+  const rpcUrl = NetworkInfo[chainId].defaultRpc;
 
   useEffect(() => {
     if (pendingTx) {
       const i = setInterval(() => {
-        provider?.getTransactionReceipt(pendingTx).then((receipt) => {
-          if (receipt) {
+        isTransactionSuccessful(rpcUrl, pendingTx).then((res) => {
+          if (res) {
             setPendingTx("");
             setAddressToApprove("");
             setApprovalStates({
@@ -80,7 +102,7 @@ export const useApprovals = (
         clearInterval(i);
       };
     }
-  }, [pendingTx, provider, addressToApprove, approvalStates]);
+  }, [pendingTx, rpcUrl, addressToApprove, approvalStates]);
 
   useEffect(() => {
     if (account && spender && addreses.length === amounts.length) {
@@ -89,18 +111,22 @@ export const useApprovals = (
         addreses.map((address, index) => {
           if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase())
             return APPROVAL_STATE.APPROVED;
-          const contract = new Contract(address, erc20ABI, provider);
-          const amountToApproveString = amounts[index];
-          return contract
-            .allowance(account, spender)
-            .then((res: BigNumber) => {
-              const amountToApprove = BigNumber.from(amountToApproveString);
-              if (amountToApprove.lte(res)) {
+
+          const amountToApprove = BigInt(amounts[index]);
+          checkApproval({
+            rpcUrl,
+            token: address,
+            owner: account,
+            spender,
+          })
+            .then((allowance) => {
+              if (amountToApprove <= allowance) {
                 return APPROVAL_STATE.APPROVED;
               } else {
                 return APPROVAL_STATE.NOT_APPROVED;
               }
             })
+
             .catch((e: Error) => {
               console.log("get allowance failed", e);
               return APPROVAL_STATE.UNKNOWN;
@@ -128,7 +154,7 @@ export const useApprovals = (
     JSON.stringify(addreses),
     // eslint-disable-next-line
     JSON.stringify(amounts),
-    provider,
+    rpcUrl,
   ]);
 
   return {

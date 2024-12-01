@@ -14,7 +14,6 @@ import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
 
 import { formatUnits, parseUnits } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -68,7 +67,7 @@ const ZapContext = createContext<{
   marketPrice: number | undefined | null;
   source: string;
   balanceTokens: {
-    [key: string]: BigNumber;
+    [key: string]: bigint;
   };
   tokensInUsdPrice: number[];
   token0Price: number;
@@ -133,6 +132,7 @@ export const ZapContextProvider = ({
   } = useWidgetContext((s) => s);
   const { feePcm, feeAddress } = feeConfig || {};
   const account = connectedAccount?.address;
+
   const networkChainId = connectedAccount?.chainId;
   const { allTokens } = useTokenList();
   const { balances } = useTokenBalances(allTokens.map((item) => item.address));
