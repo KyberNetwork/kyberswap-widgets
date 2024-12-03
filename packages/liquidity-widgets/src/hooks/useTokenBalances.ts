@@ -1,59 +1,124 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWidgetContext } from "@/stores/widget";
-import { NetworkInfo } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
+import { getFunctionSelector } from "@kyber/utils/crypto";
+
+function encodeBytes(data: string) {
+  const length = data.length / 2; // Hex string length divided by 2 for bytes
+  const lengthEncoded = length.toString(16).padStart(64, "0");
+  const paddedData = data.padEnd(Math.ceil(data.length / 64) * 64, "0");
+  return lengthEncoded + paddedData;
+}
 
 // Helper to manually encode ABI data
 function encodeMulticallInput(
   requireSuccess: boolean,
   calls: { target: string; callData: string }[]
 ): string {
-  const requireSuccessEncoded = requireSuccess ? "01" : "00";
-  const callsEncoded = calls
-    .map(({ target, callData }) => {
-      const targetEncoded = target
-        .toLowerCase()
-        .replace("0x", "")
-        .padStart(64, "0");
-      const callDataLength = (callData.length / 2 - 1)
-        .toString(16)
-        .padStart(64, "0");
-      return `${targetEncoded}${callDataLength}${callData.replace("0x", "")}`;
-    })
-    .join("");
+  const functionSelector = getFunctionSelector(
+    "tryBlockAndAggregate(bool,(address,bytes)[])"
+  );
+
+  // Encode `requireSuccess` as a 32-byte boolean
+  const requireSuccessEncoded = requireSuccess
+    ? "01".padStart(64, "0")
+    : "00".padStart(64, "0");
+
+  // `callsOffset` is fixed at 64 bytes (0x40 in hex)
+  const offset = "40".padStart(64, "0");
+
   const callsLength = calls.length.toString(16).padStart(64, "0");
 
-  return `0x${requireSuccessEncoded}${callsLength}${callsEncoded}`;
+  const encodedCalls = calls.map((call) => {
+    const encodedTarget = call.target
+      .toLowerCase()
+      .replace("0x", "")
+      .padStart(64, "0");
+
+    const encodedCallData = encodeBytes(call.callData.replace(/^0x/, ""));
+
+    return encodedTarget + offset + encodedCallData;
+  });
+
+  const staticPart = `${functionSelector}${requireSuccessEncoded}${offset}${callsLength}`;
+
+  const dynamicDataLocaitons: number[] = [];
+  dynamicDataLocaitons.push(calls.length * 32);
+  encodedCalls.forEach((call, index) => {
+    if (index === encodedCalls.length - 1) return;
+    dynamicDataLocaitons.push(call.length / 2 + dynamicDataLocaitons[index]);
+  });
+
+  const encodedDynamicDataLocaitons = dynamicDataLocaitons.map((location) =>
+    location.toString(16).padStart(64, "0")
+  );
+
+  const dynamicData =
+    encodedDynamicDataLocaitons.join("") + encodedCalls.join("");
+
+  return `0x${staticPart}${dynamicData}`;
 }
 
 // Decode the results from the Multicall response
 function decodeMulticallOutput(result: string | undefined): bigint[] {
   if (!result) return [];
+  console.log(result);
 
-  const offset = parseInt(result.slice(2, 66), 16); // Offset of the results
-  const data = result.slice(2 + offset * 2); // Extract the results array
-  const count = parseInt(data.slice(0, 64), 16); // Number of results
+  const res = result.startsWith("0x") ? result.slice(2) : result;
 
-  const balances: bigint[] = [];
-  let currentOffset = 64; // Start of the results
-  for (let i = 0; i < count; i++) {
-    const returnLength =
-      parseInt(data.slice(currentOffset, currentOffset + 64), 16) * 2;
-    currentOffset += 64;
-    const returnData = data.slice(currentOffset, currentOffset + returnLength);
-    currentOffset += returnLength;
+  let offset = 0;
 
-    // Decode the balance
-    try {
-      balances.push(BigInt("0x" + returnData.slice(0, 64)));
-    } catch {
-      balances.push(BigInt(0));
-    }
+  // Decode blockNumber (first 32 bytes, uint256)
+  const blockNumber = BigInt("0x" + res.slice(offset, offset + 64));
+  offset += 64;
+
+  // Decode blockHash (next 32 bytes, bytes32)
+  const blockHash = "0x" + res.slice(offset, offset + 64);
+  offset += 64;
+
+  // Decode returnData array offset (not used directly)
+  const returnDataOffset = parseInt(res.slice(offset, offset + 64), 16);
+  offset += 64;
+
+  // Decode returnData array length (next 32 bytes, uint256)
+  const returnDataLength = parseInt(res.slice(offset, offset + 64), 16);
+  offset += 64;
+
+  const offsetsOfReturnData = [];
+  for (let i = 0; i < returnDataLength; i++) {
+    const returnDataOffset = parseInt(res.slice(offset, offset + 64), 16);
+    offsetsOfReturnData.push(returnDataOffset);
+    offset += 64;
   }
+  console.log(offsetsOfReturnData);
 
-  return balances;
+  const returnData: { success: boolean; returnData: string }[] = [];
+
+  for (let i = 0; i < returnDataLength; i++) {
+    // Decode success (bool, first 32 bytes of each tuple)
+    const success = res.slice(offset, offset + 64).endsWith("1");
+    offset += 64;
+
+    // Decode returnData offset (relative to the start of the tuple array)
+    const innerReturnDataOffset = res.slice(offset, offset + 64);
+    offset += 64;
+
+    // Decode returnData length from the specified offset
+    const returnDataLength = parseInt(res.slice(offset, offset + 64), 16);
+    offset += 64;
+
+    const returnDataHex =
+      "0x" + res.slice(offset, offset + returnDataLength * 2);
+
+    returnData.push({ success, returnData: returnDataHex });
+  }
+  return returnData.map((item) => {
+    if (item.success) return BigInt(item.returnData);
+    return BigInt(0);
+  });
 }
 
-const ERC20_BALANCE_OF_SELECTOR = "70a08231"; // Function selector for "balanceOf(address)";
+const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector("balanceOf(address)"); // "70a08231"; // Function selector for "";
 
 const useTokenBalances = (tokenAddresses: string[]) => {
   const { chainId, connectedAccount } = useWidgetContext((s) => s);
@@ -72,6 +137,24 @@ const useTokenBalances = (tokenAddresses: string[]) => {
     setLoading(true);
 
     try {
+      const nativeBalance = await fetch(rpcUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          method: "eth_getBalance",
+          params: [
+            account, // Address
+            "latest", // Block number or state
+          ],
+          id: 1,
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => BigInt(res.result || "0"));
+
       // Prepare calls for the Multicall contract
       const calls = tokenAddresses.map((token) => {
         const paddedAccount = account.replace("0x", "").padStart(64, "0");
@@ -82,7 +165,22 @@ const useTokenBalances = (tokenAddresses: string[]) => {
         };
       });
 
-      const encodedData = encodeMulticallInput(false, calls);
+      const test = [
+        {
+          target: "0x7002458B1DF59EccB57387bC79fFc7C29E22e6f7",
+          callData: `0x${ERC20_BALANCE_OF_SELECTOR}${"0xD57Eeca0ca4fDdb82EE27323d4EC9f392e135807"
+            .replace("0x", "")
+            .padStart(64, "0")}`,
+        },
+        {
+          target: "0x7002458B1DF59EccB57387bC79fFc7C29E22e6f7",
+          callData: `0x${ERC20_BALANCE_OF_SELECTOR}${"0x4c3CC459BCc68442cEf3707b41fE2d779C666666"
+            .replace("0x", "")
+            .padStart(64, "0")}`,
+        },
+      ];
+
+      const encodedData = encodeMulticallInput(true, test);
 
       // Encode multicall transaction
       const data = {
@@ -118,8 +216,9 @@ const useTokenBalances = (tokenAddresses: string[]) => {
           ...acc,
           [token]: decodedBalances[index],
         }),
-        {}
+        {} as Record<string, bigint>
       );
+      balancesMap[NATIVE_TOKEN_ADDRESS] = nativeBalance;
 
       setBalances(balancesMap);
     } catch (error) {

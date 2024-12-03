@@ -465,7 +465,7 @@ export default function TokenSelector({
           {tabSelected === TOKEN_TAB.ALL &&
             unImportedTokens.map((token: Token) => (
               <div
-                key={token.symbol}
+                key={token.address}
                 className="flex items-center justify-between py-2 px-6"
                 style={{ color: "red" }}
               >
@@ -494,7 +494,7 @@ export default function TokenSelector({
           {filteredTokens?.length > 0 && !unImportedTokens.length ? (
             filteredTokens.map((token: CustomizeToken) => (
               <div
-                key={token.symbol}
+                key={token.address}
                 className={`flex items-center justify-between py-2 px-6 cursor-pointer hover:bg-[#0f0f0f] ${
                   mode === TOKEN_SELECT_MODE.SELECT &&
                   token.address?.toLowerCase() ===
