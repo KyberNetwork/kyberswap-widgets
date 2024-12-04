@@ -61,7 +61,7 @@ export async function estimateGas(
     value = "0x0",
     data = "0x",
   }: { from: string; to: string; value: string; data: string }
-) {
+): Promise<bigint> {
   const response = await fetch(rpcUrl, {
     method: "POST",
     headers: {
@@ -85,7 +85,7 @@ export async function estimateGas(
   if (result.error) {
     throw new Error(result.error.message);
   }
-  return result.result; // Gas estimate as a hex string
+  return BigInt(result.result); // Gas estimate as a hex string
 }
 
 export async function isTransactionSuccessful(
@@ -162,11 +162,15 @@ export async function checkApproval({
   }
 }
 
-export function calculateGasMargin(value: bigint): bigint {
+export function calculateGasMargin(value: bigint): string {
   const defaultGasLimitMargin = 20_000n;
   const gasMargin = (value * 2000n) / 10_000n;
 
-  return gasMargin < defaultGasLimitMargin
-    ? value + gasMargin
-    : value + defaultGasLimitMargin;
+  return (
+    "0x" +
+    (gasMargin < defaultGasLimitMargin
+      ? value + gasMargin
+      : value + defaultGasLimitMargin
+    ).toString(16)
+  );
 }

@@ -62,56 +62,65 @@ function encodeMulticallInput(
 // Decode the results from the Multicall response
 function decodeMulticallOutput(result: string | undefined): bigint[] {
   if (!result) return [];
-  console.log(result);
-
   const res = result.startsWith("0x") ? result.slice(2) : result;
-
   let offset = 0;
 
   // Decode blockNumber (first 32 bytes, uint256)
-  const blockNumber = BigInt("0x" + res.slice(offset, offset + 64));
+  //const blockNumber = BigInt("0x" + res.slice(offset, offset + 64));
   offset += 64;
 
   // Decode blockHash (next 32 bytes, bytes32)
-  const blockHash = "0x" + res.slice(offset, offset + 64);
+  //const blockHash = "0x" + res.slice(offset, offset + 64);
   offset += 64;
 
   // Decode returnData array offset (not used directly)
-  const returnDataOffset = parseInt(res.slice(offset, offset + 64), 16);
+  //const returnDataOffset = parseInt(res.slice(offset, offset + 64), 16);
   offset += 64;
 
   // Decode returnData array length (next 32 bytes, uint256)
   const returnDataLength = parseInt(res.slice(offset, offset + 64), 16);
   offset += 64;
 
-  const offsetsOfReturnData = [];
+  const dynamicData = res.slice(offset);
+
+  const offsetsOfEachData = [];
   for (let i = 0; i < returnDataLength; i++) {
     const returnDataOffset = parseInt(res.slice(offset, offset + 64), 16);
-    offsetsOfReturnData.push(returnDataOffset);
+    offsetsOfEachData.push(returnDataOffset);
     offset += 64;
   }
-  console.log(offsetsOfReturnData);
 
   const returnData: { success: boolean; returnData: string }[] = [];
 
   for (let i = 0; i < returnDataLength; i++) {
+    const currentData = dynamicData.slice(offsetsOfEachData[i] * 2);
+
+    let currentOffset = 0;
     // Decode success (bool, first 32 bytes of each tuple)
-    const success = res.slice(offset, offset + 64).endsWith("1");
-    offset += 64;
+    const success = currentData.slice(currentOffset, 64).endsWith("1");
+    currentOffset += 64;
 
     // Decode returnData offset (relative to the start of the tuple array)
-    const innerReturnDataOffset = res.slice(offset, offset + 64);
-    offset += 64;
+    //const innerReturnDataOffset = currentData.slice(currentOffset , currentOffset + 64);
+    currentOffset += 64;
 
     // Decode returnData length from the specified offset
-    const returnDataLength = parseInt(res.slice(offset, offset + 64), 16);
-    offset += 64;
+    const currentDataLength = parseInt(
+      currentData.slice(currentOffset, currentOffset + 64),
+      16
+    );
+    currentOffset += 64;
 
     const returnDataHex =
-      "0x" + res.slice(offset, offset + returnDataLength * 2);
+      "0x" +
+      (currentData.slice(
+        currentOffset,
+        currentOffset + currentDataLength * 2
+      ) || "0");
 
     returnData.push({ success, returnData: returnDataHex });
   }
+
   return returnData.map((item) => {
     if (item.success) return BigInt(item.returnData);
     return BigInt(0);
@@ -165,22 +174,7 @@ const useTokenBalances = (tokenAddresses: string[]) => {
         };
       });
 
-      const test = [
-        {
-          target: "0x7002458B1DF59EccB57387bC79fFc7C29E22e6f7",
-          callData: `0x${ERC20_BALANCE_OF_SELECTOR}${"0xD57Eeca0ca4fDdb82EE27323d4EC9f392e135807"
-            .replace("0x", "")
-            .padStart(64, "0")}`,
-        },
-        {
-          target: "0x7002458B1DF59EccB57387bC79fFc7C29E22e6f7",
-          callData: `0x${ERC20_BALANCE_OF_SELECTOR}${"0x4c3CC459BCc68442cEf3707b41fE2d779C666666"
-            .replace("0x", "")
-            .padStart(64, "0")}`,
-        },
-      ];
-
-      const encodedData = encodeMulticallInput(true, test);
+      const encodedData = encodeMulticallInput(false, calls);
 
       // Encode multicall transaction
       const data = {

@@ -1,5 +1,3 @@
-import { Token } from "@pancakeswap/sdk";
-import { FeeAmount, TICK_SPACINGS, tickToPrice } from "@pancakeswap/v3-sdk";
 import { useEffect, useMemo, useState } from "react";
 
 import { ChartEntry, TickDataRaw, TickProcessed } from "./types";
@@ -7,8 +5,12 @@ import { computeSurroundingTicks } from "./utils";
 import { useZapState } from "../../hooks/useZapInState";
 import { PATHS } from "@/constants";
 import { useWidgetContext } from "@/stores/widget";
+import { Token } from "@/schema";
 
-const PRICE_FIXED_DIGITS = 8;
+// TODO: Implement this
+const TICK_SPACINGS: { [feeAmount: number]: number } = {};
+
+//const PRICE_FIXED_DIGITS = 8;
 
 export function useDensityChartData() {
   const { data: ticks = [], isLoading } = usePoolActiveLiquidity();
@@ -46,7 +48,7 @@ export function useDensityChartData() {
 
 const getActiveTick = (
   tickCurrent: number | undefined,
-  feeAmount: FeeAmount | undefined
+  feeAmount: number | undefined
 ) =>
   typeof tickCurrent !== "undefined" && feeAmount
     ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) *
@@ -69,7 +71,7 @@ export function usePoolActiveLiquidity(): {
   data?: TickProcessed[];
   isLoading: boolean;
 } {
-  const chainId = useWidgetContext(s => s.chainId);
+  const chainId = useWidgetContext((s) => s.chainId);
   const { pool, poolAddress } = useWidgetContext((s) => s);
   const { revertPrice } = useZapState();
 
@@ -147,28 +149,12 @@ export function usePoolActiveLiquidity(): {
   }, [poolAddress, chainId]);
 
   const token0: Token | null = useMemo(
-    () =>
-      pool !== "loading"
-        ? new Token(
-            chainId,
-            pool.token0.address as `0x${string}`,
-            pool.token0.decimals,
-            pool.token0.symbol || ""
-          )
-        : null,
+    () => (pool !== "loading" ? pool.token0 : null),
 
     [pool, chainId]
   );
   const token1: Token | null = useMemo(
-    () =>
-      pool !== "loading"
-        ? new Token(
-            chainId,
-            pool.token1.address as `0x${string}`,
-            pool.token1.decimals,
-            pool.token1.symbol || ""
-          )
-        : null,
+    () => (pool !== "loading" ? pool.token1 : null),
     [chainId, pool]
   );
 
@@ -209,14 +195,15 @@ export function usePoolActiveLiquidity(): {
         Number(ticks[pivot].tick) === activeTick
           ? BigInt(ticks[pivot].liquidityNet)
           : 0n,
-      price0:
-        token0 && token1
-          ? tickToPrice(
-              revertPrice ? token1 : token0,
-              revertPrice ? token0 : token1,
-              activeTick
-            ).toFixed(PRICE_FIXED_DIGITS)
-          : "0",
+      price0: "0",
+      // TODO: Fix this
+      //token0 && token1
+      //  ? tickToPrice(
+      //      revertPrice ? token1 : token0,
+      //      revertPrice ? token0 : token1,
+      //      activeTick
+      //    ).toFixed(PRICE_FIXED_DIGITS)
+      //  : "0",
     };
 
     const subsequentTicks = computeSurroundingTicks(

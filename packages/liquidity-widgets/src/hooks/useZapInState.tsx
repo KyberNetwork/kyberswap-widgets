@@ -26,9 +26,9 @@ import { useWidgetContext } from "@/stores/widget";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 
-const ERROR_MESSAGE = {
-  CONNECT_WALLET: "Please connect wallet",
-  WRONG_NETWORK: "Wrong network",
+export const ERROR_MESSAGE = {
+  CONNECT_WALLET: "Connect wallet",
+  WRONG_NETWORK: "Switch network",
   SELECT_TOKEN_IN: "Select token in",
   ENTER_MIN_PRICE: "Enter min price",
   ENTER_MAX_PRICE: "Enter max price",
@@ -392,7 +392,8 @@ export const ZapContextProvider = ({
       (!error ||
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
-        error === ERROR_MESSAGE.CONNECT_WALLET)
+        error === ERROR_MESSAGE.CONNECT_WALLET ||
+        error === ERROR_MESSAGE.WRONG_NETWORK)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";

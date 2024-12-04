@@ -1,5 +1,4 @@
-import { ChainId, DexInfo, PoolType } from "@/schema";
-import { Token } from "../entities/Pool";
+import { ChainId, DexInfo, PoolType, Token } from "@/schema";
 import uniLogo from "@/assets/dexes/uniswap.png";
 import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
@@ -24,9 +23,7 @@ export const NetworkInfo: {
     scanLink: string;
     multiCall: string;
     defaultRpc: string;
-    wrappedToken: Token & {
-      symbol: string;
-    };
+    wrappedToken: Token;
     nativeLogo: string;
     coingeckoNetworkId: string | null;
     coingeckoNativeTokenId: string | null;
@@ -43,7 +40,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "ethereum",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.Ethereum,
+      //chainId: ChainId.Ethereum,
       name: "WETH",
       address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
       symbol: "WETH",
@@ -61,7 +58,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "binance-smart-chain",
     coingeckoNativeTokenId: "binancecoin",
     wrappedToken: {
-      chainId: ChainId.Bsc,
+      //chainId: ChainId.Bsc,
       name: "WBNB",
       address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
       symbol: "WBNB",
@@ -79,7 +76,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "polygon-pos",
     coingeckoNativeTokenId: "matic-network",
     wrappedToken: {
-      chainId: ChainId.PolygonPos,
+      //chainId: ChainId.PolygonPos,
       name: "WPOL",
       address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
       symbol: "WPOL",
@@ -97,7 +94,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "arbitrum-one",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.Arbitrum,
+      //chainId: ChainId.Arbitrum,
       name: "WETH",
       address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
       symbol: "WETH",
@@ -115,7 +112,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "avalanche",
     coingeckoNativeTokenId: "avalanche-2",
     wrappedToken: {
-      chainId: ChainId.Avalanche,
+      //chainId: ChainId.Avalanche,
       name: "WAVAX",
       address: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
       symbol: "WAVAX",
@@ -133,7 +130,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "base",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.Base,
+      //chainId: ChainId.Base,
       name: "ETH",
       address: "0x4200000000000000000000000000000000000006",
       symbol: "WETH",
@@ -151,7 +148,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "blast",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.Blast,
+      //chainId: ChainId.Blast,
       name: "ETH",
       address: "0x4300000000000000000000000000000000000004",
       symbol: "WETH",
@@ -169,7 +166,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "fantom",
     coingeckoNativeTokenId: "fantom",
     wrappedToken: {
-      chainId: ChainId.Fantom,
+      //chainId: ChainId.Fantom,
       name: "WFTM",
       address: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
       symbol: "WFTM",
@@ -187,7 +184,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: NOT_SUPPORT,
     coingeckoNativeTokenId: NOT_SUPPORT,
     wrappedToken: {
-      chainId: ChainId.Linea,
+      //chainId: ChainId.Linea,
       name: "WETH",
       address: "0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f",
       symbol: "WETH",
@@ -205,7 +202,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "mantle",
     coingeckoNativeTokenId: "mnt",
     wrappedToken: {
-      chainId: ChainId.Mantle,
+      //chainId: ChainId.Mantle,
       name: "WMNT",
       address: "0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8",
       symbol: "WMNT",
@@ -223,7 +220,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "optimistic-ethereum",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.Optimism,
+      //chainId: ChainId.Optimism,
       name: "WETH",
       address: "0x4200000000000000000000000000000000000006",
       symbol: "WETH",
@@ -241,7 +238,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "scroll",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.Scroll,
+      //chainId: ChainId.Scroll,
       name: "WETH",
       address: "0x5300000000000000000000000000000000000004",
       symbol: "WETH",
@@ -259,7 +256,7 @@ export const NetworkInfo: {
     coingeckoNetworkId: "polygon-zkevm",
     coingeckoNativeTokenId: "ethereum",
     wrappedToken: {
-      chainId: ChainId.PolygonZkEVM,
+      //chainId: ChainId.PolygonZkEVM,
       name: "WETH",
       address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
       symbol: "WETH",

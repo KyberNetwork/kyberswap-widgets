@@ -4,7 +4,12 @@ import {
   ChainId,
 } from "@kyberswap/liquidity-widgets";
 import { useCallback, useEffect, useState } from "react";
-import { init, useWallets, useConnectWallet } from "@web3-onboard/react";
+import {
+  init,
+  useWallets,
+  useConnectWallet,
+  useSetChain,
+} from "@web3-onboard/react";
 import { ethers, providers } from "ethers";
 import injectedModule from "@web3-onboard/injected-wallets";
 import "@kyberswap/liquidity-widgets/dist/style.css";
@@ -58,6 +63,7 @@ init({
 function App() {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
+  const [{}, setChain] = useSetChain();
 
   // create an ethers provider
   let ethersProvider: providers.Web3Provider | undefined;
@@ -118,6 +124,41 @@ function App() {
     }
   }, [connect]);
 
+  const props = {
+    onClose: () => {
+      window.location.reload();
+    },
+    source: "zap-widget-demo",
+    chainId: params.chainId,
+    poolAddress: params.poolAddress,
+    poolType: params.poolType,
+    connectedAccount: {
+      address: wallet?.accounts?.[0].address,
+      chainId: +(wallet?.chains[0].id || params.chainId),
+    },
+    onSwitchChain: () => {
+      setChain({
+        chainId: params.chainId,
+      });
+    },
+    onConnectWallet: () => {
+      handleConnectWallet();
+    },
+    onSubmitTx: async (txData: {
+      from: string;
+      to: string;
+      data: string;
+      value: string;
+      gasLimit: string;
+    }) => {
+      const res = await ethersProvider?.getSigner().sendTransaction(txData);
+      if (!res) throw new Error("Transaction failed");
+      return res.hash;
+    },
+    //initDepositTokens: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    //initAmounts: "1",
+  };
+
   return (
     <div className="ks-demo-app">
       <div className="ks-demo-header">
@@ -132,33 +173,7 @@ function App() {
           <Params params={params} setParams={handleUpdateParams} />
         </div>
 
-        <LiquidityWidget
-          key={key + (wallet?.accounts?.[0].address || "")}
-          //provider={ethersProvider}
-          onClose={() => {
-            window.location.reload();
-          }}
-          source="zap-widget-demo"
-          chainId={params.chainId}
-          poolAddress={params.poolAddress}
-          poolType={params.poolType}
-          connectedAccount={{
-            address: wallet?.accounts?.[0].address,
-            chainId: +(wallet?.chains[0].id || params.chainId),
-          }}
-          onSwitchChain={() => {
-            // TODO:
-          }}
-          onConnectWallet={() => {
-            //
-          }}
-          onSubmitTx={async (txData) => {
-            console.log(txData);
-            return "";
-          }}
-          // initDepositTokens="0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"
-          // initAmounts="1"
-        />
+        <LiquidityWidget key={key + JSON.stringify(props)} {...props} />
       </div>
     </div>
   );

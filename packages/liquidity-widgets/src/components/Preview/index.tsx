@@ -432,14 +432,14 @@ export default function Preview({
             from: account,
             to: data.routerAddress,
             data: data.callData,
-            value: data.value,
+            value: `0x${BigInt(data.value).toString(16)}`,
           };
 
           try {
             const gasEstimation = await estimateGas(rpcUrl, txData);
             const txHash = await onSubmitTx({
               ...txData,
-              gasLimit: calculateGasMargin(BigInt(gasEstimation)),
+              gasLimit: calculateGasMargin(gasEstimation),
             });
             setTxHash(txHash);
           } catch (e) {

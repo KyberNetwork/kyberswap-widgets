@@ -49,12 +49,12 @@ export const useApprovals = (
     const approveFunctionSig = getFunctionSelector("approve(address,uint256)"); // "0x095ea7b3"; // Keccak-256 hash of "" truncated to 4 bytes
     const paddedSpender = spender.replace("0x", "").padStart(64, "0");
     const paddedAmount =
-      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".padStart(
+      "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".padStart(
         64,
         "0"
       ); // Amount in hex
 
-    const data = `${approveFunctionSig}${paddedSpender}${paddedAmount}`;
+    const data = `0x${approveFunctionSig}${paddedSpender}${paddedAmount}`;
 
     const txData = {
       from: account,
@@ -108,12 +108,12 @@ export const useApprovals = (
     if (account && spender && addreses.length === amounts.length) {
       setLoading(true);
       Promise.all(
-        addreses.map((address, index) => {
+        addreses.map(async (address, index) => {
           if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase())
             return APPROVAL_STATE.APPROVED;
 
           const amountToApprove = BigInt(amounts[index]);
-          checkApproval({
+          return await checkApproval({
             rpcUrl,
             token: address,
             owner: account,

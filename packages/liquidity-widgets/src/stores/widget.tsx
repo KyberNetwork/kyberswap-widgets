@@ -44,7 +44,7 @@ export interface WidgetProps {
     to: string;
     value: string;
     data: string;
-    gasLimit: bigint;
+    gasLimit: string;
   }) => Promise<string>;
 
   initDepositTokens?: string;

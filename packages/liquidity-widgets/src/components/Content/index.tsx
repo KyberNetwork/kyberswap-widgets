@@ -4,7 +4,7 @@ import ErrorIcon from "@/assets/svg/error.svg";
 import PriceInfo from "./PriceInfo";
 import PriceInput from "./PriceInput";
 import LiquidityToAdd from "./LiquidityToAdd";
-import { useZapState } from "../../hooks/useZapInState";
+import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
@@ -62,6 +62,8 @@ export default function Content() {
     theme,
     errorMsg: loadPoolError,
     position,
+    onConnectWallet,
+    onSwitchChain,
   } = useWidgetContext((s) => s);
 
   const amountsInWei: string[] = useMemo(
@@ -158,12 +160,15 @@ export default function Content() {
     return "Preview";
   }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
 
+  const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
+  const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
+
   const disabled = useMemo(
     () =>
       clickedApprove ||
       loading ||
       zapLoading ||
-      !!error ||
+      (!!error && !isWrongNetwork && !isNotConnected) ||
       Object.values(approvalStates).some(
         (item) => item === APPROVAL_STATE.PENDING
       ) ||
@@ -173,6 +178,8 @@ export default function Content() {
       clickedApprove,
       degenMode,
       error,
+      isWrongNetwork,
+      isNotConnected,
       loading,
       pi.piVeryHigh,
       zapLoading,
@@ -245,6 +252,14 @@ export default function Content() {
   );
 
   const hanldeClick = () => {
+    if (isNotConnected) {
+      onConnectWallet();
+      return;
+    }
+    if (isWrongNetwork) {
+      onSwitchChain();
+      return;
+    }
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
