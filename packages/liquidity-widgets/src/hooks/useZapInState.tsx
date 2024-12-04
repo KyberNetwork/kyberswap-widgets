@@ -26,7 +26,7 @@ import {
 } from "@/constants";
 import { formatWei } from "@/utils";
 
-const ERROR_MESSAGE = {
+export const ERROR_MESSAGE = {
   CONNECT_WALLET: "Please connect wallet",
   WRONG_NETWORK: "Wrong network",
   SELECT_TOKEN_IN: "Select token in",
@@ -191,7 +191,10 @@ export const ZapContextProvider = ({
 
   const error = useMemo(() => {
     if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
-    if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
+    if (chainId !== networkChainId)
+      return `Please switch to ${chainIdToChain[
+        chainId
+      ]?.toUpperCase()} network first`;
 
     if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
     if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
@@ -385,7 +388,11 @@ export const ZapContextProvider = ({
       (!error ||
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
-        error === ERROR_MESSAGE.CONNECT_WALLET)
+        error === ERROR_MESSAGE.CONNECT_WALLET ||
+        error ===
+          `Please switch to ${chainIdToChain[
+            chainId
+          ]?.toUpperCase()} network first`)
     ) {
       let formattedTokensIn = "";
       let formattedAmountsInWeis = "";

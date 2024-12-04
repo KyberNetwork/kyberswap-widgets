@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { CircleCheckBig, X } from "lucide-react";
+import X from "@/assets/svg/x.svg";
 import { Token } from "@/entities/Pool";
 import { Button } from "@/components/ui/button";
 import { shortenAddress } from "@/components/TokenInfo/utils";
@@ -9,14 +8,11 @@ import { useTokenList } from "@/hooks/useTokenList";
 import { TOKEN_SELECT_MODE } from ".";
 import IconBack from "@/assets/svg/arrow-left.svg";
 import IconAlertTriangle from "@/assets/svg/alert-triangle.svg";
-import IconCopy from "@/assets/svg/copy.svg";
 import IconExternalLink from "@/assets/svg/external-link.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useZapState } from "@/hooks/useZapInState";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
-
-const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+import useCopy from "@/hooks/useCopy";
 
 const TokenImportConfirm = ({
   token,
@@ -36,17 +32,10 @@ const TokenImportConfirm = ({
   onClose: () => void;
 }) => {
   const { chainId } = useWeb3Provider();
-  const [copied, setCopied] = useState(false);
 
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
   const { addToken } = useTokenList();
-
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(token.address);
-      setCopied(true);
-    }
-  };
+  const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
     const externalLink = getEtherscanLink(chainId, token.address, "address");
@@ -78,16 +67,6 @@ const TokenImportConfirm = ({
     }
     setTokenToImport(null);
   };
-
-  useEffect(() => {
-    if (copied) {
-      hideCopied = setTimeout(() => setCopied(false), COPY_TIMEOUT);
-    }
-
-    return () => {
-      clearTimeout(hideCopied);
-    };
-  }, [copied]);
 
   return (
     <div className="w-full text-white">
@@ -122,14 +101,7 @@ const TokenImportConfirm = ({
             <p className="text-subText text-sm">{token.name}</p>
             <p className="text-xs flex items-center gap-[5px]">
               <span>Address: {shortenAddress(chainId, token.address, 7)}</span>
-              {!copied ? (
-                <IconCopy
-                  className="w-[14px] h-[14px] text-subText hover:text-text cursor-pointer"
-                  onClick={handleCopy}
-                />
-              ) : (
-                <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
-              )}
+              {Copy}
               <IconExternalLink
                 className="w-4 text-subText hover:text-text cursor-pointer"
                 onClick={handleOpenExternalLink}

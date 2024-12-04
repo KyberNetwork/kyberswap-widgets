@@ -3,6 +3,7 @@ import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 import { useZapState } from "../../hooks/useZapInState";
 import { formatNumber } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
+import { formatDisplayNumber } from "@/utils/number";
 
 export default function PriceInfo() {
   const { loading, pool, theme } = useWidgetInfo();
@@ -36,21 +37,28 @@ export default function PriceInfo() {
     [marketPrice, revertPrice]
   );
 
-  if (loading) return <div className="price-info">Loading...</div>;
+  if (loading)
+    return (
+      <div className="rounded-md border border-stroke py-3 px-4">
+        Loading...
+      </div>
+    );
 
   return (
     <>
-      <div className="price-info">
-        <div className="row">
+      <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
+        <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
-          <span className="price">{price}</span>
+          <span className="font-medium text-text">
+            {formatDisplayNumber(price, { significantDigits: 6 })}
+          </span>
           <span>
             {revertPrice
               ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
               : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
           </span>
           <SwitchIcon
-            style={{ cursor: "pointer" }}
+            className="cursor-pointer"
             onClick={() => toggleRevertPrice()}
             role="button"
           />
@@ -59,10 +67,10 @@ export default function PriceInfo() {
 
       {marketPrice === null && (
         <div
-          className="price-warning"
+          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <span className="text">
+          <span className="italic text-text">
             Unable to get the market price. Please be cautious!
           </span>
         </div>
@@ -70,31 +78,20 @@ export default function PriceInfo() {
 
       {isDeviated && (
         <div
-          className="price-warning"
+          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <div className="text">
+          <div className="italic text-text">
             The pool's current price of{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
+            <span className="font-medium text-warning not-italic">
               1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {price} {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
+              {formatDisplayNumber(price, { significantDigits: 6 })}{" "}
+              {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
             </span>{" "}
             deviates from the market price{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
+            <span className="font-medium text-warning not-italic">
               (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
-              {marketRate}{" "}
+              {formatDisplayNumber(marketRate, { significantDigits: 6 })}{" "}
               {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to

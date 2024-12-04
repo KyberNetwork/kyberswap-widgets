@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export function InfoBox({
   message,
@@ -8,20 +7,11 @@ export function InfoBox({
   message?: ReactNode;
   icon: ReactNode;
 }) {
-  const { theme } = useWidgetInfo();
   return (
-    <div style={{ height: "100%", justifyContent: "center" }}>
+    <div className="h-full justify-center">
       {icon}
       {message && (
-        <div
-          style={{
-            fontWeight: "700",
-            fontSize: "20px",
-            textAlign: "center",
-            paddingTop: "4px",
-            color: theme.subText,
-          }}
-        >
+        <div className="font-bold text-xl text-center pt-1 text-subText">
           {message}
         </div>
       )}

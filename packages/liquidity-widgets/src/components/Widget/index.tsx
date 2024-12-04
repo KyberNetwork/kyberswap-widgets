@@ -35,8 +35,6 @@ export interface WidgetProps {
   positionId?: string;
   poolType: PoolType;
   chainId: ChainId;
-  onDismiss: () => void;
-  onTxSubmit?: (txHash: string) => void;
   feeAddress?: string;
   feePcm?: number;
   source: string;
@@ -44,6 +42,9 @@ export interface WidgetProps {
   excludedSources?: string;
   initDepositTokens?: string;
   initAmounts?: string;
+  onDismiss: () => void;
+  onTxSubmit?: (txHash: string) => void;
+  onConnectWallet?: () => void;
 }
 
 export default function Widget({
@@ -53,8 +54,6 @@ export default function Widget({
   positionId,
   chainId,
   poolType,
-  onDismiss,
-  onTxSubmit,
   feeAddress,
   feePcm,
   includedSources,
@@ -62,6 +61,9 @@ export default function Widget({
   source,
   initDepositTokens,
   initAmounts,
+  onDismiss,
+  onTxSubmit,
+  onConnectWallet,
 }: WidgetProps) {
   const defaultProvider = useMemo(
     () => new providers.JsonRpcProvider(NetworkInfo[chainId].defaultRpc),
@@ -78,15 +80,16 @@ export default function Widget({
 
   return (
     <Web3Provider provider={provider || defaultProvider} chainId={chainId}>
-      <TokenListProvider>
-        <WidgetProvider
-          poolAddress={poolAddress}
-          poolType={poolType}
-          positionId={positionId}
-          theme={theme || defaultTheme}
-          feeAddress={feeAddress}
-          feePcm={feePcm}
-        >
+      <WidgetProvider
+        poolAddress={poolAddress}
+        poolType={poolType}
+        positionId={positionId}
+        theme={theme || defaultTheme}
+        feeAddress={feeAddress}
+        feePcm={feePcm}
+        onConnectWallet={onConnectWallet}
+      >
+        <TokenListProvider>
           <ZapContextProvider
             includedSources={includedSources}
             excludedSources={excludedSources}
@@ -99,8 +102,8 @@ export default function Widget({
               <Setting />
             </div>
           </ZapContextProvider>
-        </WidgetProvider>
-      </TokenListProvider>
+        </TokenListProvider>
+      </WidgetProvider>
     </Web3Provider>
   );
 }

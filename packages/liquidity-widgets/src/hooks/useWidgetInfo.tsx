@@ -17,6 +17,7 @@ type ContextState = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
+  onConnectWallet?: () => void;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -26,6 +27,7 @@ const WidgetContext = createContext<ContextState>({
   poolAddress: "",
   position: null,
   theme: defaultTheme,
+  onConnectWallet: () => {},
 });
 
 type Props = {
@@ -38,6 +40,7 @@ type Props = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
+  onConnectWallet?: () => void;
 };
 
 const PancakeV3Provider = ({
@@ -118,7 +121,9 @@ export const WidgetProvider = (props: Props) => {
     props.poolType === PoolType.DEX_UNISWAPV3 ||
     props.poolType === PoolType.DEX_SWAPMODEV3 ||
     props.poolType === PoolType.DEX_METAVAULTV3 ||
-    props.poolType === PoolType.DEX_LINEHUBV3
+    props.poolType === PoolType.DEX_LINEHUBV3 ||
+    props.poolType === PoolType.DEX_SUSHISWAPV3 ||
+    props.poolType === PoolType.DEX_THRUSTERV3
   ) {
     return <UniV3Provider {...props} />;
   }
