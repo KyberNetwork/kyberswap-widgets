@@ -4,6 +4,7 @@ export enum ChainId {
   Ethereum = 1,
   Bsc = 56,
   //PolygonPos = 137,
+  Arbitrum = 42161,
 }
 
 export const chainId = z.nativeEnum(ChainId);

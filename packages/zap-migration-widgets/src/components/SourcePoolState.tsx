@@ -24,7 +24,7 @@ export function SourcePoolState() {
   useEffect(() => {
     if (position === "loading") return;
     setLiquidityOut((position.liquidity * BigInt(percent)) / BigInt(100));
-  }, [percent, position]);
+  }, [percent, position, setLiquidityOut]);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -52,7 +52,7 @@ export function SourcePoolState() {
                   "w-10 h-6 rounded-full flex items-center justify-center border text-xs font-medium",
                   item === percent
                     ? "bg-primary-20 text-primary border-primary"
-                    : "bg-transparent border-stroke  text-subText"
+                    : "bg-transparent border-stroke text-subText"
                 )}
                 onClick={() => setPercent(item)}
               >

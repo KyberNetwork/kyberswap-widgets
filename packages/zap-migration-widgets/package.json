@@ -1,14 +1,27 @@
 {
   "name": "@kyber/zap-migration-widgets",
-  "license": "MIT",
   "version": "0.0.1",
+  "license": "MIT",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/zap-migration-widget.js",
+      "require": "./dist/zap-migration-widget.cjs"
+    },
+    "./dist/style.css": "./dist/zap-migration-widget.css"
+  },
+  "main": "./dist/zap-migration-widget.cjs",
+  "module": "./dist/zap-migration-widget.js",
+  "types": "./dist/zap-migration-widget.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "tsup --watch",
-    "type-check": "tsc --noEmit",
     "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "prepublishOnly": "tsc && tsup"
+    "prepublishOnly": "tsc && tsup",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
@@ -35,18 +48,5 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
-  },
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/zap-migration-widget.cjs",
-  "module": "./dist/zap-migration-widget.js",
-  "types": "./dist/zap-migration-widget.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/zap-migration-widget.js",
-      "require": "./dist/zap-migration-widget.cjs"
-    },
-    "./dist/style.css": "./dist/zap-migration-widget.css"
   }
 }

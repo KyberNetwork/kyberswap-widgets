@@ -59,6 +59,24 @@ export const NetworkInfo: Record<ChainId, Chain> = {
   //  },
   //},
   //
+  [ChainId.Arbitrum]: {
+    chainId: ChainId.Arbitrum,
+    name: "Arbitrum",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
+    scanLink: "https://arbiscan.io",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://arbitrum.kyberengineering.io",
+    wrappedToken: {
+      name: "WETH",
+      address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+      symbol: "WETH",
+      decimals: 18,
+    },
+    pricePath: "arb",
+    zapPath: "arb",
+  },
   //42161: {
   //  name: "Arbitrum",
   //  logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
@@ -230,6 +248,7 @@ export const DexInfos: Record<Dex, DexInfo> = {
     nftManagerContract: {
       [ChainId.Ethereum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
       [ChainId.Bsc]: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
+      [ChainId.Arbitrum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
     },
   },
   [Dex.Pancakev3]: {

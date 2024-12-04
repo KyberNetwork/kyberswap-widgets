@@ -441,6 +441,9 @@ importers:
       '@kyber/utils':
         specifier: workspace:^
         version: link:../utils
+      '@kyber/zap-migration-widgets':
+        specifier: workspace:^
+        version: link:../zap-migration-widgets
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3

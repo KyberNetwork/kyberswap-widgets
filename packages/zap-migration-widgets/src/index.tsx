@@ -79,7 +79,7 @@ ZapMigrationProps) => {
     }, 15_000);
 
     return () => clearInterval(interval);
-  }, [chainId, from, from.dex]);
+  }, [chainId, fetchPosition, from, from.dex]);
 
   // fetch pool on load
   useEffect(() => {
@@ -98,7 +98,7 @@ ZapMigrationProps) => {
     }, 15_000);
 
     return () => clearInterval(interval);
-  }, [chainId, from.poolId, to.poolId, from.dex, to.dex]);
+  }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
 
   return (
     <>
