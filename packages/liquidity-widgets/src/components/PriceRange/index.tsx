@@ -8,8 +8,7 @@ import { Button } from "../ui/button";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
 import {
-  MAX_TICK,
-  MIN_TICK,
+  nearestUsableTick,
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
@@ -54,8 +53,9 @@ const PriceRange = () => {
 
   const minPrice = useMemo(() => {
     if (
-      (!revertPrice && MIN_TICK === tickLower) ||
-      (revertPrice && MAX_TICK === tickUpper)
+      pool !== "loading" &&
+      ((!revertPrice && pool.minTick === tickLower) ||
+        (revertPrice && pool.maxTick === tickUpper))
     )
       return "0";
 
@@ -64,8 +64,9 @@ const PriceRange = () => {
 
   const maxPrice = useMemo(() => {
     if (
-      (!revertPrice && MAX_TICK === tickUpper) ||
-      (revertPrice && MIN_TICK === tickLower)
+      pool !== "loading" &&
+      ((!revertPrice && pool.maxTick === tickUpper) ||
+        (revertPrice && pool.minTick === tickLower))
     )
       return "∞";
 
@@ -107,8 +108,8 @@ const PriceRange = () => {
       false
     );
 
-    if (lower) setTickLower(lower);
-    if (upper) setTickUpper(upper);
+    if (lower) setTickLower(nearestUsableTick(lower, pool.tickSpacing));
+    if (upper) setTickUpper(nearestUsableTick(upper, pool.tickSpacing));
     setSelectedRange({ range, priceLower: null, priceUpper: null });
   };
 

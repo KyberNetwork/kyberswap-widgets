@@ -14,6 +14,7 @@ export enum ChainId {
   Optimism = 10,
   Scroll = 534352,
   PolygonZkEVM = 1101,
+  ZkSync = 324,
 }
 export const chainId = z.nativeEnum(ChainId);
 
@@ -23,6 +24,10 @@ export enum PoolType {
   DEX_METAVAULTV3 = "DEX_METAVAULTV3",
   DEX_LINEHUBV3 = "DEX_LINEHUBV3",
   DEX_SWAPMODEV3 = "DEX_SWAPMODEV3",
+  DEX_KOLCL = "DEX_KOICL",
+  DEX_THRUSTERV3 = "DEX_THRUSTERV3",
+  DEX_SUSHISWAPV3 = "DEX_SUSHISWAPV3",
+  DEX_QUICKSWAPV3UNI = "DEX_QUICKSWAPV3UNI",
 }
 export const poolType = z.nativeEnum(PoolType);
 
@@ -94,6 +99,18 @@ export const pool = z.discriminatedUnion("poolType", [
   univ3PoolCommonField.extend({
     poolType: z.literal(PoolType.DEX_SWAPMODEV3),
   }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_KOLCL),
+  }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_THRUSTERV3),
+  }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_SUSHISWAPV3),
+  }),
+  univ3PoolCommonField.extend({
+    poolType: z.literal(PoolType.DEX_QUICKSWAPV3UNI),
+  }),
 ]);
 
 export type Pool = z.infer<typeof pool>;
@@ -123,23 +140,38 @@ export const position = z.discriminatedUnion("poolType", [
   univ3Position.extend({
     poolType: z.literal(PoolType.DEX_SWAPMODEV3),
   }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_KOLCL),
+  }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_THRUSTERV3),
+  }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_SUSHISWAPV3),
+  }),
+  univ3Position.extend({
+    poolType: z.literal(PoolType.DEX_QUICKSWAPV3UNI),
+  }),
 ]);
 
 export type Position = z.infer<typeof position>;
 
 // Create a mapping object for string to Dex enum
-const dexMapping: Record<PoolType, string> = {
-  [PoolType.DEX_UNISWAPV3]: "uniswapv3",
-  [PoolType.DEX_PANCAKESWAPV3]: "pancake-v3",
+const dexMapping: Record<PoolType, string[]> = {
+  [PoolType.DEX_UNISWAPV3]: ["uniswapv3"],
+  [PoolType.DEX_PANCAKESWAPV3]: ["pancake-v3"],
+  [PoolType.DEX_METAVAULTV3]: ["metavault-v3"],
+  [PoolType.DEX_LINEHUBV3]: ["linehub-v3"],
+  [PoolType.DEX_SWAPMODEV3]: ["baseswap-v3", "arbidex-v3", "superswap-v3"],
+  [PoolType.DEX_KOLCL]: ["koi-cl"],
+  [PoolType.DEX_THRUSTERV3]: ["thruster-v3"],
+  [PoolType.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
+  [PoolType.DEX_QUICKSWAPV3UNI]: ["quickswap-uni-v3"],
 
-  // TODO: check if baseswap-v3 is different on other network
-  [PoolType.DEX_SWAPMODEV3]: "baseswap-v3",
-
-  // TODO: fix the following mappings
-  [PoolType.DEX_LINEHUBV3]: "pancake-v3",
-  [PoolType.DEX_METAVAULTV3]: "pancake-v3",
   // Add new DEX mappings here when needed
 } as const;
+
+const dexValues = Object.values(dexMapping).flat();
 
 export const poolResponse = z.object({
   data: z.object({
@@ -148,11 +180,11 @@ export const poolResponse = z.object({
         address: z.string(),
         swapFee: z.number(),
         exchange: z
-          .enum(Object.values(dexMapping) as [string, ...string[]])
+          .enum(dexValues as [string, ...string[]])
           .transform((val) => {
             // Reverse lookup in the enum
-            const dexEnumKey = Object.keys(dexMapping).find(
-              (key) => dexMapping[key as PoolType] === val
+            const dexEnumKey = Object.keys(dexMapping).find((key) =>
+              dexMapping[key as PoolType].includes(val)
             );
             if (!dexEnumKey) {
               throw new Error(`No enum value for exchange: ${val}`);

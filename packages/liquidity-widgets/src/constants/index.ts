@@ -4,6 +4,10 @@ import pancakeLogo from "@/assets/dexes/pancake.png";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
 import linehubLogo from "@/assets/dexes/metavault.svg?url";
 import swapmodeLogo from "@/assets/dexes/swapmode.png";
+import koiclLogo from "@/assets/dexes/koicl.png";
+import thrusterLogo from "@/assets/dexes/thruster.png";
+import sushiLogo from "@/assets/dexes/sushi.png";
+import quickswapLogo from "@/assets/dexes/quickswap.png";
 
 export { PoolType, ChainId };
 
@@ -17,7 +21,7 @@ export const NO_DATA = "--";
 const NOT_SUPPORT = null;
 
 export const NetworkInfo: {
-  [chainId: number]: {
+  [chainId in ChainId]: {
     name: string;
     logo: string;
     scanLink: string;
@@ -47,6 +51,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Bsc]: {
     name: "BSC",
     nativeLogo:
@@ -65,6 +70,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.PolygonPos]: {
     name: "Polygon POS",
     logo: "https://polygonscan.com/assets/poly/images/svg/logos/token-light.svg?v=24.2.3.1",
@@ -83,6 +89,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Arbitrum]: {
     name: "Arbitrum",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
@@ -101,6 +108,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Avalanche]: {
     name: "Avalanche",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/avalanche.svg",
@@ -119,6 +127,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Base]: {
     name: "Base",
     logo: "https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg",
@@ -137,6 +146,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Blast]: {
     name: "Blast",
     logo: "https://static.debank.com/image/project/logo_url/blast/c0e1eb5f4051bd62ca904cf2e3282f47.png",
@@ -155,6 +165,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Fantom]: {
     name: "Fantom",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/fantom.svg",
@@ -173,6 +184,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Linea]: {
     name: "Linea",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg",
@@ -191,6 +203,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Mantle]: {
     name: "Mantle",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png",
@@ -209,6 +222,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Optimism]: {
     name: "Optimism",
     logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/optimism.svg",
@@ -227,6 +241,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.Scroll]: {
     name: "Scroll",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/fe12013c-4d72-4ac3-9415-a278b7d474c71697595633825.png",
@@ -245,6 +260,7 @@ export const NetworkInfo: {
       decimals: 18,
     },
   },
+
   [ChainId.PolygonZkEVM]: {
     name: "Polgyon ZkEVM",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
@@ -259,6 +275,25 @@ export const NetworkInfo: {
       //chainId: ChainId.PolygonZkEVM,
       name: "WETH",
       address: "0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9",
+      symbol: "WETH",
+      decimals: 18,
+    },
+  },
+
+  [ChainId.ZkSync]: {
+    name: "ZkSync",
+    logo: "https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    scanLink: "https://era.zksync.network",
+    multiCall: "0xF9cda624FBC7e059355ce98a31693d299FACd963",
+    defaultRpc: "https://mainnet.era.zksync.io",
+    coingeckoNetworkId: "zksync",
+    coingeckoNativeTokenId: "ethereum",
+    wrappedToken: {
+      //chainId: ChainId.PolygonZkEVM,
+      name: "WETH",
+      address: "0x5aea5775959fbc2557cc8789bc1bf90a239d9a91",
       symbol: "WETH",
       decimals: 18,
     },
@@ -332,6 +367,46 @@ export const DexInfos: Record<PoolType, DexInfo> = {
       [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
     },
   },
+  [PoolType.DEX_KOLCL]: {
+    icon: koiclLogo,
+    name: "KOI CL",
+    nftManagerContract: {
+      [ChainId.ZkSync]: "0xa459EbF3E6A6d5875345f725bA3F107340b67732",
+    },
+  },
+  [PoolType.DEX_THRUSTERV3]: {
+    icon: thrusterLogo,
+    name: "Thruster V3",
+    nftManagerContract: {
+      [ChainId.Blast]: "0x434575EaEa081b735C985FA9bf63CD7b87e227F9",
+    },
+  },
+
+  [PoolType.DEX_SUSHISWAPV3]: {
+    icon: sushiLogo,
+    name: "SushiSwap V3",
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x96E04591579f298681361C6122Dc4Ef405c19385",
+      [ChainId.Avalanche]: "0x18350b048AB366ed601fFDbC669110Ecb36016f3",
+      [ChainId.Base]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+      [ChainId.Blast]: "0x51edb3e5bcE8618B77b60215F84aD3DB14709051",
+      [ChainId.Bsc]: "0xF70c086618dcf2b1A461311275e00D6B722ef914",
+      [ChainId.Ethereum]: "0x2214A42d8e2A1d20635c2cb0664422c528B6A432",
+      [ChainId.Fantom]: "0x10c19390E1Ac2Fd6D0c3643a2320b0abA38E5bAA",
+      [ChainId.Linea]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+      [ChainId.Optimism]: "0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e",
+      [ChainId.PolygonPos]: "0xb7402ee99F0A008e461098AC3A27F4957Df89a40",
+      [ChainId.PolygonZkEVM]: "0xF4d73326C13a4Fc5FD7A064217e12780e9Bd62c3",
+      [ChainId.Scroll]: "0x0389879e0156033202C44BF784ac18fC02edeE4f",
+    },
+  },
+  [PoolType.DEX_QUICKSWAPV3UNI]: {
+    icon: quickswapLogo,
+    name: "QuickSwap V3 Uni",
+    nftManagerContract: {
+      [ChainId.PolygonZkEVM]: "0x331F3a300b7115A45ba31E3428AC002267BB6D77",
+    },
+  },
 };
 
 export const chainIdToChain: { [chainId: number]: string } = {
@@ -348,53 +423,7 @@ export const chainIdToChain: { [chainId: number]: string } = {
   534352: "scroll",
   59144: "linea",
   1101: "polygon-zkevm",
-};
-
-export const NFT_MANAGER_CONTRACT: {
-  [key in PoolType]: { [chainId: number]: string };
-} = {
-  [PoolType.DEX_UNISWAPV3]: {
-    [ChainId.Ethereum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
-    [ChainId.Bsc]: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
-    [ChainId.PolygonPos]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
-    [ChainId.Arbitrum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
-    [ChainId.Avalanche]: "0x655C406EBFa14EE2006250925e54ec43AD184f8B",
-    [ChainId.Base]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    [ChainId.Blast]: "0xB218e4f7cF0533d4696fDfC419A0023D33345F28",
-    [ChainId.Fantom]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    [ChainId.Linea]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    [ChainId.Mantle]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    [ChainId.Optimism]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
-    [ChainId.Scroll]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-    [ChainId.PolygonZkEVM]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-  },
-  [PoolType.DEX_PANCAKESWAPV3]: {
-    [ChainId.Ethereum]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Bsc]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.PolygonPos]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Arbitrum]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Avalanche]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Base]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Blast]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Fantom]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Linea]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Mantle]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Optimism]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.Scroll]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-    [ChainId.PolygonZkEVM]: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  },
-  [PoolType.DEX_METAVAULTV3]: {
-    [ChainId.Linea]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
-    [ChainId.Scroll]: "0x5979C5315625276ff99a56f95eE5cC44293e7b36",
-  },
-  [PoolType.DEX_LINEHUBV3]: {
-    [ChainId.Linea]: "0xD27166FA3E2c1a2C1813d0fe6226b8EB21783184",
-  },
-  [PoolType.DEX_SWAPMODEV3]: {
-    [ChainId.Arbitrum]: "0x81F2c375AEDbdF02f11c1Ae125e2f51Efa777cEa",
-    [ChainId.Base]: "0xDe151D5c92BfAA288Db4B67c21CD55d5826bCc93",
-    [ChainId.Optimism]: "0x74a52eb08d699CD8BE1d42dA4B241d526B8a8285",
-  },
+  324: "zksync",
 };
 
 export const PATHS = {

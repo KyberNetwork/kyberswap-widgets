@@ -30,10 +30,13 @@ import { useMemo } from "react";
 import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useWidgetContext } from "@/stores/widget";
+import { toRawString } from "@kyber/utils/number";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage, tokensIn } = useZapState();
-  const { pool, chainId, theme, position, positionId } = useWidgetContext((s) => s);
+  const { pool, chainId, theme, position, positionId } = useWidgetContext(
+    (s) => s
+  );
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.ADD_LIQUIDITY
@@ -214,12 +217,19 @@ export default function EstLiqValue() {
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
-  const amount0 = position === "loading" ? 0 : Number(position.amount0);
+  const amount0 =
+    position === "loading" || pool === "loading"
+      ? 0
+      : +toRawString(position.amount0, pool.token0.decimals);
+  const amount1 =
+    position === "loading" || pool === "loading"
+      ? 0
+      : +toRawString(position.amount1, pool.token1.decimals);
+
   const positionAmount0Usd =
     (amount0 * +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
-  const amount1 = position === "loading" ? 0 : Number(position.amount1);
   const positionAmount1Usd =
     (amount1 * +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;

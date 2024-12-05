@@ -76,6 +76,17 @@ function App() {
     chainId: ChainId.Base,
     poolAddress: "0xf9a72fd5c30112af583b86b190b2d776b6c3c056",
     poolType: PoolType.DEX_SWAPMODEV3,
+
+    // UNI
+    //chainId: ChainId.PolygonPos,
+    //positionId: "1708279",
+    //poolAddress: "0x45dDa9cb7c25131DF268515131f647d726f50608",
+    //poolType: PoolType.DEX_UNISWAPV3,
+
+    //chainId: ChainId.Bsc,
+    //positionId: "1404415",
+    //poolAddress: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
+    //poolType: PoolType.DEX_PANCAKESWAPV3,
   });
   const [key, setKey] = useState(Date.now());
 
@@ -131,6 +142,7 @@ function App() {
     source: "zap-widget-demo",
     chainId: params.chainId,
     poolAddress: params.poolAddress,
+    positionId: params.positionId,
     poolType: params.poolType,
     connectedAccount: {
       address: wallet?.accounts?.[0].address,
@@ -138,7 +150,7 @@ function App() {
     },
     onSwitchChain: () => {
       setChain({
-        chainId: params.chainId,
+        chainId: params.chainId.toString(),
       });
     },
     onConnectWallet: () => {

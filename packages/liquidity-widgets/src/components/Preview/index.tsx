@@ -17,13 +17,12 @@ import {
   AggregatorSwapAction,
   PoolSwapAction,
 } from "@/hooks/types/zapInTypes";
-import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
+import { DexInfos, NetworkInfo, PATHS, chainIdToChain } from "@/constants";
 import {
   PI_LEVEL,
   formatCurrency,
   formatWei,
   friendlyError,
-  getDexName,
   getPriceImpact,
   getWarningThreshold,
 } from "@/utils";
@@ -40,7 +39,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { formatDisplayNumber } from "@kyber/utils/number";
+import { formatDisplayNumber, toRawString } from "@kyber/utils/number";
 import { useWidgetContext } from "@/stores/widget";
 import { Pool, Token } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
@@ -168,8 +167,15 @@ export default function Preview({
     [addedLiqInfo?.addLiquidity.token1.amount, pool.token1.decimals]
   );
 
-  const amount0 = position === "loading" ? 0 : +position.amount0.toString();
-  const amount1 = position === "loading" ? 0 : +position.amount1.toString();
+  const amount0 =
+    position === "loading"
+      ? 0
+      : +toRawString(position.amount0, pool.token0.decimals);
+  const amount1 =
+    position === "loading"
+      ? 0
+      : +toRawString(position.amount1, pool.token1.decimals);
+
   const positionAmount0Usd = useMemo(
     () =>
       (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
@@ -409,6 +415,11 @@ export default function Preview({
     };
   }, [copied]);
 
+  const dexName =
+    typeof DexInfos[poolType].name === "string"
+      ? DexInfos[poolType].name
+      : DexInfos[poolType].name[chainId];
+
   const handleClick = async () => {
     setAttempTx(true);
     setTxHash("");
@@ -481,9 +492,7 @@ export default function Preview({
               Confirm this transaction in your wallet - Zapping{" "}
               {positionId
                 ? `Position #${positionId}`
-                : `${getDexName(poolType, chainId)} ${pool.token0.symbol}/${
-                    pool.token1.symbol
-                  } ${pool.fee}%`}
+                : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`}
             </div>
           )}
           {txHash && txStatus === "" && (

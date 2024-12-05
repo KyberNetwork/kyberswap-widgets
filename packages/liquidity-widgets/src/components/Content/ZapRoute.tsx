@@ -5,14 +5,18 @@ import {
   PoolSwapAction,
   ZapAction,
 } from "../../hooks/types/zapInTypes";
-import { formatWei, getDexName } from "../../utils";
+import { formatWei } from "../../utils";
 import { useMemo } from "react";
-import { NetworkInfo } from "@/constants";
+import { DexInfos, NetworkInfo } from "@/constants";
 import { useWidgetContext } from "@/stores/widget";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
   const { pool, poolType, chainId } = useWidgetContext((s) => s);
+
+  const dexNameObj = DexInfos[poolType].name;
+  const dexName =
+    typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
 
   const swapInfo = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -65,7 +69,7 @@ export default function ZapRoute() {
           tokenOutSymbol: tokenOut?.symbol || "--",
           amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
           amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: `${getDexName(poolType, chainId)} Pool`,
+          pool: `${dexName} Pool`,
         };
       }) || [];
 
@@ -118,9 +122,7 @@ export default function ZapRoute() {
           {pool === "loading" ? "" : pool.token0.symbol} and{" "}
           {addedLiquidityInfo.addedAmount1}{" "}
           {pool === "loading" ? "" : pool.token1.symbol} on{" "}
-          <span className="font-medium text-text">
-            {getDexName(poolType, chainId)}
-          </span>
+          <span className="font-medium text-text">{dexName}</span>
         </div>
       </div>
     </div>
