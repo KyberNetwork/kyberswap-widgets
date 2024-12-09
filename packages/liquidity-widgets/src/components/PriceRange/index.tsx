@@ -114,8 +114,8 @@ const PriceRange = () => {
           priceUpper,
         });
       } else if (
-        selectedRange.priceLower?.toFixed() !== priceLower.toFixed() ||
-        selectedRange.priceUpper?.toFixed() !== priceUpper.toFixed()
+        selectedRange.priceLower?.toFixed(100) !== priceLower.toFixed(100) ||
+        selectedRange.priceUpper?.toFixed(100) !== priceUpper.toFixed(100)
       )
         setSelectedRange(null);
     }

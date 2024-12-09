@@ -80,7 +80,8 @@ export default function PoolInfo() {
         <span>Est. APR</span>
         <span className="text-text">
           {poolInfo?.apr24h || poolInfo?.apr24h === 0
-            ? poolInfo?.apr24h + "%"
+            ? formatDisplayNumber(poolInfo?.apr24h, { significantDigits: 6 }) +
+              "%"
             : "--"}
         </span>
       </div>

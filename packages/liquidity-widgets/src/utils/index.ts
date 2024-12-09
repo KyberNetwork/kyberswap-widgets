@@ -9,6 +9,7 @@ import linehubLogo from "@/assets/dexes/linehub.svg?url";
 import swapmodeLogo from "@/assets/dexes/swapmode.png";
 import sushiswapLogo from "@/assets/dexes/sushiswap.svg?url";
 import thrusterLogo from "@/assets/dexes/thruster.png";
+import { toString } from "./number";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -295,16 +296,28 @@ export const correctPrice = (
   const defaultTick =
     (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
 
+  const formattedValue = toString(Number(value));
+
   if (revertPrice) {
     const tick =
-      tryParseTick(poolType, pool?.token1, pool?.token0, pool?.fee, value) ??
-      defaultTick;
+      tryParseTick(
+        poolType,
+        pool?.token1,
+        pool?.token0,
+        pool?.fee,
+        formattedValue
+      ) ?? defaultTick;
     if (Number.isInteger(tick))
       setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
   } else {
     const tick =
-      tryParseTick(poolType, pool?.token0, pool?.token1, pool?.fee, value) ??
-      defaultTick;
+      tryParseTick(
+        poolType,
+        pool?.token0,
+        pool?.token1,
+        pool?.fee,
+        formattedValue
+      ) ?? defaultTick;
     if (Number.isInteger(tick))
       setTick(type, nearestUsableTick(poolType, tick, pool.tickSpacing));
   }

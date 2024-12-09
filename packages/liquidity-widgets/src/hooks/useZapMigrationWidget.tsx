@@ -50,7 +50,7 @@ const useZapMigrationWidget = () => {
         dex: Dex.Uniswapv3,
         poolId: "0x2f5e87C9312fa29aed5c179E456625D79015299c",
       },
-      chainId: 42161,
+      chainId: 42161 as ChainId,
       client: "zap-migration-demo",
       connectedAccount: {
         address: account,
