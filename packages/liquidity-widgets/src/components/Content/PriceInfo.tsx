@@ -4,6 +4,12 @@ import { useZapState } from "../../hooks/useZapInState";
 import { formatNumber } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
 import { formatDisplayNumber } from "@/utils/number";
+import { MouseoverTooltip } from "../Tooltip";
+
+const shortenSymbol = (symbol: string, characterNumber: number = 8) =>
+  symbol.length > characterNumber + 2
+    ? symbol.slice(0, characterNumber) + "..."
+    : symbol;
 
 export default function PriceInfo() {
   const { loading, pool, theme } = useWidgetInfo();
@@ -37,6 +43,12 @@ export default function PriceInfo() {
     [marketPrice, revertPrice]
   );
 
+  const firstToken = revertPrice ? pool?.token1 : pool?.token0;
+  const secondToken = revertPrice ? pool?.token0 : pool?.token1;
+
+  const firstTokenShortenSymbol = shortenSymbol(firstToken?.symbol || "");
+  const secondTokenShortenSymbol = shortenSymbol(secondToken?.symbol || "");
+
   if (loading)
     return (
       <div className="rounded-md border border-stroke py-3 px-4">
@@ -52,11 +64,27 @@ export default function PriceInfo() {
           <span className="font-medium text-text">
             {formatDisplayNumber(price, { significantDigits: 6 })}
           </span>
-          <span>
-            {revertPrice
-              ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-              : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-          </span>
+          <MouseoverTooltip
+            text={
+              firstTokenShortenSymbol !== firstToken?.symbol
+                ? firstToken?.symbol
+                : ""
+            }
+            placement="top"
+          >
+            {firstTokenShortenSymbol}
+          </MouseoverTooltip>
+          <span>per</span>
+          <MouseoverTooltip
+            text={
+              secondTokenShortenSymbol !== secondToken?.symbol
+                ? secondToken?.symbol
+                : ""
+            }
+            placement="top"
+          >
+            {secondTokenShortenSymbol}
+          </MouseoverTooltip>
           <SwitchIcon
             className="cursor-pointer"
             onClick={() => toggleRevertPrice()}
@@ -84,15 +112,15 @@ export default function PriceInfo() {
           <div className="italic text-text">
             The pool's current price of{" "}
             <span className="font-medium text-warning not-italic">
-              1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
+              1 {firstToken?.symbol} ={" "}
               {formatDisplayNumber(price, { significantDigits: 6 })}{" "}
-              {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
+              {secondToken?.symbol}
             </span>{" "}
             deviates from the market price{" "}
             <span className="font-medium text-warning not-italic">
-              (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
+              (1 {firstToken?.symbol} ={" "}
               {formatDisplayNumber(marketRate, { significantDigits: 6 })}{" "}
-              {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
+              {secondToken?.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to
             this pool
