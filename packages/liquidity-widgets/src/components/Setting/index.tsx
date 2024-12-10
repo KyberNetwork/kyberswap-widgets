@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import X from "@/assets/svg/x.svg";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { useZapState } from "../../hooks/useZapInState";
@@ -7,17 +7,55 @@ import SlippageInput from "./SlippageInput";
 import { MouseoverTooltip } from "../Tooltip";
 import Modal from "../Modal";
 
+const validateDeadlineString = (str: string): boolean => {
+  const value = Number.parseInt(str, 10);
+
+  // must not be longer than 10000 (5 chars)
+  if (str.length > "10000".length) {
+    return false;
+  }
+
+  // must be an integer
+  if (Number.isNaN(value) || String(Math.floor(value)) !== str) {
+    return false;
+  }
+
+  // must be in (0, 1000)
+  if (0 < value && value < 10000) {
+    return true;
+  }
+
+  return false;
+};
+
 export default function Setting() {
   const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode } =
     useZapState();
   const ref = useRef(null);
+  const [deadline, setDeadline] = useState(ttl);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirm, setConfirm] = useState("");
+
+  const isValid = useMemo(
+    () => validateDeadlineString(deadline.toString()),
+    [deadline]
+  );
+
+  useEffect(() => {
+    if (isValid) {
+      setTtl(deadline);
+    } else {
+      setTtl(20);
+    }
+  }, [deadline, isValid, setTtl]);
+
   useOnClickOutside(ref, () => {
-    if (showSetting) toggleSetting();
+    if (showSetting) {
+      if (!isValid) setDeadline(20);
+      toggleSetting();
+    }
   });
 
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const [confirm, setConfirm] = useState("");
   if (!showSetting) return null;
 
   return (
@@ -106,17 +144,18 @@ export default function Setting() {
 
           <div className="flex py-[6px] px-2 gap-1 rounded-full bg-transparent text-subText text-xs font-medium text-right">
             <input
-              className="border-none outline-none w-12 p-0 bg-transparent text-right text-subText focus:text-text"
+              className="border-none outline-none w-12 p-0 bg-transparent text-right text-subText focus:text-text data-[invalid='true']:text-error"
               maxLength={5}
               placeholder="20"
-              value={ttl ? ttl.toString() : ""}
+              value={deadline ? deadline.toString() : ""}
+              data-invalid={!isValid}
               onChange={(e) => {
                 const v = +e.target.value
                   .trim()
                   .replace(/[^0-9.]/g, "")
                   .replace(/(\..*?)\..*/g, "$1")
                   .replace(/^0[^.]/, "0");
-                setTtl(v);
+                setDeadline(v);
               }}
             />
             <span>mins</span>
