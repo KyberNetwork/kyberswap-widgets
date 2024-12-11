@@ -7,6 +7,7 @@ import { DexInfos, NetworkInfo } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { MouseoverTooltip } from "../Tooltip";
 import { useWidgetContext } from "@/stores/widget";
+import { univ3Position } from "@/schema";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId, pool, poolType, positionId, position, theme } =
@@ -24,9 +25,11 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { icon: logo, name: rawName } = DexInfos[poolType];
   const name = typeof rawName === "string" ? rawName : rawName[chainId];
 
+  const { success, data } = univ3Position.safeParse(position);
+
   const isOutOfRange =
-    positionId !== undefined && position !== "loading"
-      ? pool.tick < position.tickLower || pool.tick >= position.tickUpper
+    positionId !== undefined && success
+      ? pool.tick < data.tickLower || pool.tick >= data.tickUpper
       : false;
 
   return (

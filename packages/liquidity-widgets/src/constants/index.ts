@@ -13,6 +13,7 @@ export { PoolType, ChainId };
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
@@ -406,6 +407,12 @@ export const DexInfos: Record<PoolType, DexInfo> = {
     nftManagerContract: {
       [ChainId.PolygonZkEVM]: "0x331F3a300b7115A45ba31E3428AC002267BB6D77",
     },
+  },
+  [PoolType.DEX_PANCAKESWAPV2]: {
+    icon: pancakeLogo,
+    name: "Pancake V2",
+    // TODO: should not require if univ2 type
+    nftManagerContract: {},
   },
 };
 

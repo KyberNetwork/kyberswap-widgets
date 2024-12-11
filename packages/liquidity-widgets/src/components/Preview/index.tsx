@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/accordion";
 import { formatDisplayNumber, toRawString } from "@kyber/utils/number";
 import { useWidgetContext } from "@/stores/widget";
-import { Pool, Token } from "@/schema";
+import { Pool, Token, univ3PoolNormalize } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
   calculateGasMargin,
@@ -74,7 +74,7 @@ let hideCopied: NodeJS.Timeout;
 
 export default function Preview({
   zapState: {
-    pool,
+    pool: rawPool,
     zapInfo,
     priceLower,
     priceUpper,
@@ -95,6 +95,15 @@ export default function Preview({
     poolAddress,
     onSubmitTx,
   } = useWidgetContext((s) => s);
+
+  const pool = useMemo(() => {
+    const { success, data } = univ3PoolNormalize.safeParse(rawPool);
+    if (success) return data;
+    // TODO: check if return loading here ok?
+    return undefined;
+  }, [rawPool]);
+
+  if (!pool) return null;
 
   const { address: account } = connectedAccount;
 
