@@ -134,7 +134,7 @@ export default function Setting() {
 
         <div className="flex items-center justify-between mt-3">
           <MouseoverTooltip
-            text="Your transaction will revert if it is left confirming for longer than this time."
+            text="Transaction will revert if it is pending for longer than the indicated time."
             width="220px"
           >
             <div className="text-sm border-b border-dotted border-subText">
