@@ -3,20 +3,18 @@ import {
   FULL_PRICE_RANGE,
   PRICE_RANGE,
 } from "@/constants";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
+import { correctPrice } from "@/utils";
+import { Type } from "@/hooks/types/zapInTypes";
+import { Price } from "@/entities/Pool";
 import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
-import {
-  nearestUsableTick,
-  priceToClosestTick,
-  tickToPrice,
-} from "@kyber/utils/uniswapv3";
 
 interface SelectedRange {
   range: typeof FULL_PRICE_RANGE | number;
-  priceLower: string | null;
-  priceUpper: string | null;
+  priceLower: Price | null;
+  priceUpper: Price | null;
 }
 
 const PriceRange = () => {
@@ -24,28 +22,20 @@ const PriceRange = () => {
     null
   );
 
-  const {
-    priceLower,
-    priceUpper,
-    setTickLower,
-    setTickUpper,
-    tickLower,
-    tickUpper,
-    revertPrice,
-  } = useZapState();
+  const { priceLower, priceUpper, setTick, tickLower, tickUpper, revertPrice } =
+    useZapState();
 
-  const { pool, positionId } = useWidgetContext((s) => s);
-  const loading = pool === "loading";
+  const { pool, poolType, positionId, loading } = useWidgetInfo();
 
-  const fee = pool === "loading" ? 0 : pool.fee;
+  const { fee = 0 } = pool || {};
 
   const priceRanges = useMemo(
     () =>
       !fee
         ? []
-        : fee <= 0.01
+        : fee / 10_000 <= 0.01
         ? PRICE_RANGE.LOW_POOL_FEE
-        : fee > 0.1
+        : fee / 10_000 > 0.1
         ? PRICE_RANGE.HIGH_POOL_FEE
         : PRICE_RANGE.MEDIUM_POOL_FEE,
     [fee]
@@ -53,63 +43,64 @@ const PriceRange = () => {
 
   const minPrice = useMemo(() => {
     if (
-      pool !== "loading" &&
-      ((!revertPrice && pool.minTick === tickLower) ||
-        (revertPrice && pool.maxTick === tickUpper))
+      (!revertPrice && pool?.minTick === tickLower) ||
+      (revertPrice && pool?.maxTick === tickUpper)
     )
       return "0";
 
-    return !revertPrice ? priceLower : priceUpper;
+    return (!revertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6);
   }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper]);
 
   const maxPrice = useMemo(() => {
     if (
-      pool !== "loading" &&
-      ((!revertPrice && pool.maxTick === tickUpper) ||
-        (revertPrice && pool.minTick === tickLower))
+      (!revertPrice && pool?.maxTick === tickUpper) ||
+      (revertPrice && pool?.minTick === tickLower)
     )
       return "∞";
 
-    return !revertPrice ? priceUpper : priceLower;
+    return (!revertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6);
   }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
 
   const handleSelectPriceRange = (range: typeof FULL_PRICE_RANGE | number) => {
-    if (pool === "loading") return;
+    if (!pool) return;
 
     if (range === FULL_PRICE_RANGE) {
-      setTickLower(pool.minTick);
-      setTickUpper(pool.maxTick);
+      setTick(Type.PriceLower, revertPrice ? pool.maxTick : pool.minTick);
+      setTick(Type.PriceUpper, revertPrice ? pool.minTick : pool.maxTick);
       setSelectedRange({ range, priceLower: null, priceUpper: null });
       return;
     }
 
-    const currentPoolPrice = tickToPrice(
-      pool.tick,
-      pool.token0.decimals,
-      pool.token1.decimals,
-      false
-    );
+    const currentPoolPrice = pool
+      ? revertPrice
+        ? pool.priceOf(pool.token1)
+        : pool.priceOf(pool.token0)
+      : undefined;
 
     if (!currentPoolPrice) return;
 
-    const left = +currentPoolPrice * (1 - range);
-    const right = +currentPoolPrice * (1 + range);
-
-    const lower = priceToClosestTick(
+    const left = +currentPoolPrice.toSignificant(18) * (1 - range);
+    const right = +currentPoolPrice.toSignificant(18) * (1 + range);
+    correctPrice(
       left.toString(),
-      pool.token0.decimals,
-      pool.token1.decimals,
-      false
+      Type.PriceLower,
+      pool,
+      tickLower,
+      tickUpper,
+      poolType,
+      revertPrice,
+      setTick
     );
-    const upper = priceToClosestTick(
+    correctPrice(
       right.toString(),
-      pool.token0.decimals,
-      pool.token1.decimals,
-      false
+      Type.PriceUpper,
+      pool,
+      tickLower,
+      tickUpper,
+      poolType,
+      revertPrice,
+      setTick
     );
-
-    if (lower) setTickLower(nearestUsableTick(lower, pool.tickSpacing));
-    if (upper) setTickUpper(nearestUsableTick(upper, pool.tickSpacing));
     setSelectedRange({ range, priceLower: null, priceUpper: null });
   };
 
@@ -123,8 +114,8 @@ const PriceRange = () => {
           priceUpper,
         });
       } else if (
-        selectedRange.priceLower !== priceLower ||
-        selectedRange.priceUpper !== priceUpper
+        selectedRange.priceLower?.toFixed(100) !== priceLower.toFixed(100) ||
+        selectedRange.priceUpper?.toFixed(100) !== priceUpper.toFixed(100)
       )
         setSelectedRange(null);
     }
@@ -136,9 +127,9 @@ const PriceRange = () => {
     if (!fee) return;
     if (!selectedRange)
       handleSelectPriceRange(
-        fee <= 0.01
+        fee / 10_000 <= 0.01
           ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
-          : fee > 0.1
+          : fee / 10_000 > 0.1
           ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
           : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
       );

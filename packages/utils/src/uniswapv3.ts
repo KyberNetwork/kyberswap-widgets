@@ -5,7 +5,6 @@ const MaxUint256 = BigInt(
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 );
 
-// TODO: check if other dex type have the same
 // The minimum tick that can be used on any pool.
 export const MIN_TICK: number = -887272;
 // The maximum tick that can be used on any pool.

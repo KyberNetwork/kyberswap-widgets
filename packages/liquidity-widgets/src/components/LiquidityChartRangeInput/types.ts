@@ -1,4 +1,5 @@
-type BigintIsh = bigint | number | string;
+import { BigintIsh } from "@pancakeswap/sdk";
+import { FeeAmount } from "@pancakeswap/v3-sdk";
 
 export interface ChartEntry {
   activeLiquidity: number;
@@ -55,10 +56,7 @@ export interface LiquidityChartRangeInputProps {
 
   brushLabels: (d: "w" | "e", x: number) => string;
   brushDomain: [number, number] | undefined;
-  onBrushDomainChange: (
-    domain: [number, number],
-    mode: string | undefined
-  ) => void;
+  onBrushDomainChange: (domain: [number, number], mode: string | undefined) => void;
 
   zoomLevels: ZoomLevels;
   showZoomButtons?: boolean;
@@ -84,26 +82,26 @@ export interface TickProcessed {
   price0: string;
 }
 
-export const ZOOM_LEVELS: Record<number, ZoomLevels> = {
-  100: {
+export const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
+  [FeeAmount.LOWEST]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,
     max: 1.5,
   },
-  500: {
+  [FeeAmount.LOW]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,
     max: 1.5,
   },
-  2500: {
+  [FeeAmount.MEDIUM]: {
     initialMin: 0.5,
     initialMax: 2,
     min: 0.00001,
     max: 20,
   },
-  10000: {
+  [FeeAmount.HIGH]: {
     initialMin: 0.5,
     initialMax: 2,
     min: 0.00001,

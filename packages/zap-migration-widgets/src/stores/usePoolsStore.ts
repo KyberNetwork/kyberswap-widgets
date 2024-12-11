@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
 import { z } from "zod";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+// import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 interface GetPoolParams {
   chainId: ChainId;
@@ -69,7 +69,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
     dexFrom,
     dexTo,
   }: GetPoolParams) => {
-    const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
+    // const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
     try {
       const res = await fetch(
         `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}`
@@ -104,10 +104,10 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       const toPoolToken1 = toPool.tokens[1];
 
       const addresses = [
-        fromPoolToken0,
-        fromPoolToken1,
-        toPoolToken0,
-        toPoolToken1,
+        fromPoolToken0?.address,
+        fromPoolToken1?.address,
+        toPoolToken0?.address,
+        toPoolToken1?.address,
       ];
 
       const tokens: {
@@ -123,14 +123,14 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      const prices = await fetchPrices(
-        addresses.map((item) => item.address.toLowerCase())
-      );
+      // const prices = await fetchPrices(
+      //   addresses.map((item) => item.address.toLowerCase())
+      // );
 
       const enrichLogoAndPrice = (
         token: Pick<Token, "address">
       ): Token | undefined => {
-        const price = prices[token.address.toLowerCase()];
+        // const price = prices[token.address.toLowerCase()];
         const tk = tokens.find(
           (item) => item.address.toLowerCase() === token.address.toLowerCase()
         );
@@ -143,12 +143,12 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           ...token,
           ...tk,
           logo: tk?.logoURI,
-          price: price?.PriceBuy || 0,
+          // price: price?.PriceBuy || 0,
         };
       };
-
       const tokenFrom0 = enrichLogoAndPrice(fromPoolToken0);
       const tokenFrom1 = enrichLogoAndPrice(fromPoolToken1);
+
       if (!tokenFrom0 || !tokenFrom1) {
         set({ error: "Can't get token info" });
         return;

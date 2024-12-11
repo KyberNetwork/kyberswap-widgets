@@ -2,7 +2,7 @@ import { area, curveStepAfter, ScaleLinear } from "d3";
 import { useMemo } from "react";
 
 import { ChartEntry } from "./types";
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 export const Area = ({
   series,
@@ -21,7 +21,7 @@ export const Area = ({
   fill?: string | undefined;
   opacity?: number;
 }) => {
-  const theme = useWidgetContext((s) => s.theme);
+  const { theme } = useWidgetInfo();
   return useMemo(
     () => (
       <path

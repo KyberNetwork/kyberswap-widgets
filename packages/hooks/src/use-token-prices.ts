@@ -51,15 +51,18 @@ export function useTokenPrices({
     }
 
     fetchPrices(addresses)
-      .then((prices) => {
+      .then((fetchedPrices) => {
         setPrices(
           addresses.reduce((acc, address) => {
             return {
               ...acc,
-              [address]: prices[address]?.PriceBuy || 0,
+              [address]: fetchedPrices[address]?.PriceBuy || 0,
             };
           }, {})
         );
+      })
+      .catch((_error) => {
+        // console.log("Failed to fetch token prices:", error);
       })
       .finally(() => {
         setLoading(false);

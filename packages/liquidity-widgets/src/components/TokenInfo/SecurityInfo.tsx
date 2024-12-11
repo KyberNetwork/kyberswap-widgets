@@ -1,4 +1,7 @@
+import { Token } from "@/entities/Pool";
+import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { MouseoverTooltip } from "@/components/Tooltip";
+import { useWeb3Provider } from "@/hooks/useProvider";
 import { useMemo } from "react";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import IconSecurity from "@/assets/svg/security.svg";
@@ -7,11 +10,10 @@ import useSecurityTokenInfo from "@/components/TokenInfo/useSecurityTokenInfo";
 import CollapseInfoItem from "@/components/TokenInfo/CollapseInfoItem";
 import IconSecurityTrading from "@/assets/svg/security-trading.svg";
 import IconSecurityContract from "@/assets/svg/security-contract.svg";
-import { useWidgetContext } from "@/stores/widget";
-import { Token } from "@/schema";
 
 const SecurityInfo = ({ token }: { token: Token }) => {
-  const { theme, chainId } = useWidgetContext((s) => s);
+  const { theme } = useWidgetInfo();
+  const { chainId } = useWeb3Provider();
 
   const tokenAddress = useMemo(
     () =>

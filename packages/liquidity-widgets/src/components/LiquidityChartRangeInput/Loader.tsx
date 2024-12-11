@@ -1,4 +1,4 @@
-import { useWidgetContext } from "@/stores/widget";
+import { useWidgetInfo } from "../../hooks/useWidgetInfo";
 
 /**
  * Takes in custom size and stroke for circle color, default to primary color as fill,
@@ -16,7 +16,7 @@ export default function Loader({
   strokeWidth?: number;
   [k: string]: unknown;
 }) {
-  const theme = useWidgetContext((s) => s.theme);
+  const { theme } = useWidgetInfo();
   return (
     <svg
       viewBox="0 0 24 24"
