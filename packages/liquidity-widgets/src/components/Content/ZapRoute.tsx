@@ -21,7 +21,7 @@ import { NetworkInfo } from "@/constants";
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
   const { pool, poolType } = useWidgetInfo();
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const onExpand = () => setExpanded((prev) => !prev);
   const { chainId } = useWeb3Provider();

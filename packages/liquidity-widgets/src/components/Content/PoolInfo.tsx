@@ -78,7 +78,13 @@ export default function PoolInfo() {
       </div>
       <div className="flex justify-between">
         <span>Est. APR</span>
-        <span className="text-text">
+        <span
+          className={
+            poolInfo?.apr24h || poolInfo?.apr24h === 0
+              ? "text-accent"
+              : "text-text"
+          }
+        >
           {poolInfo?.apr24h || poolInfo?.apr24h === 0
             ? formatDisplayNumber(poolInfo?.apr24h, { significantDigits: 6 }) +
               "%"
