@@ -30,6 +30,12 @@ export enum PoolType {
   DEX_QUICKSWAPV3UNI = "DEX_QUICKSWAPV3UNI",
 
   DEX_PANCAKESWAPV2 = "DEX_PANCAKESWAPV2",
+  DEX_UNISWAPV2 = "DEX_UNISWAPV2",
+  DEX_PANGOLINSTANDARD = "DEX_PANGOLINSTANDARD ",
+  DEX_SUSHISWAPV2 = "DEX_SUSHISWAPV2",
+  DEX_QUICKSWAPV2 = "DEX_QUICKSWAPV2",
+  DEX_THRUSTERV2 = "DEX_THRUSTERV2",
+  DEX_SWAPMODEV2 = "DEX_SWAPMODEV2",
 }
 
 export const univ3Types = [
@@ -45,7 +51,15 @@ export const univ3Types = [
 ] as const;
 export const univ3PoolType = z.enum(univ3Types);
 
-export const univ2Types = [PoolType.DEX_PANCAKESWAPV2] as const;
+export const univ2Types = [
+  PoolType.DEX_PANCAKESWAPV2,
+  PoolType.DEX_UNISWAPV2,
+  PoolType.DEX_PANGOLINSTANDARD,
+  PoolType.DEX_SUSHISWAPV2,
+  PoolType.DEX_QUICKSWAPV2,
+  PoolType.DEX_THRUSTERV2,
+  PoolType.DEX_SWAPMODEV2,
+] as const;
 export const univ2PoolType = z.enum(univ2Types);
 
 export const poolType = univ3PoolType.or(univ2PoolType);
@@ -161,6 +175,12 @@ const dexMapping: Record<PoolType, string[]> = {
 
   // uni v2 forks
   [PoolType.DEX_PANCAKESWAPV2]: ["pancake"],
+  [PoolType.DEX_UNISWAPV2]: ["uniswap"],
+  [PoolType.DEX_PANGOLINSTANDARD]: ["pangolin"],
+  [PoolType.DEX_SUSHISWAPV2]: ["sushiswap"],
+  [PoolType.DEX_QUICKSWAPV2]: ["quickswap"],
+  [PoolType.DEX_THRUSTERV2]: ["thruster-v2"],
+  [PoolType.DEX_SWAPMODEV2]: ["baseswap, arbidex, superswap"],
 } as const;
 
 const dexValues = Object.values(dexMapping).flat();
