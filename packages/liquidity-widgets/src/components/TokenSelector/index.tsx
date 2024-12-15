@@ -1,15 +1,18 @@
-import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  MouseEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Token } from "@/entities/Pool";
 import { useZapState } from "@/hooks/useZapInState";
 import { useTokenList } from "../../hooks/useTokenList";
-import { formatWei, isAddress, getDexLogo } from "@/utils";
-import {
-  MAX_ZAP_IN_TOKENS,
-  NATIVE_TOKEN_ADDRESS,
-  NetworkInfo,
-} from "@/constants";
+import { formatWei, isAddress } from "@/utils";
+import { MAX_ZAP_IN_TOKENS, NATIVE_TOKEN_ADDRESS } from "@/constants";
 import { Button } from "../ui/button";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { formatUnits } from "ethers/lib/utils";
@@ -21,7 +24,10 @@ import Info from "@/assets/svg/info.svg";
 import X from "@/assets/svg/x.svg";
 import Check from "@/assets/svg/check.svg";
 import IconCopy from "@/assets/svg/copy.svg";
+import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
 import useZapMigrationWidget from "@/hooks/useZapMigrationWidget";
+import { useWeb3Provider } from "@/hooks/useProvider";
+import { formatDisplayNumber } from "@/utils/number";
 
 export enum TOKEN_SELECT_MODE {
   SELECT = "SELECT",
@@ -46,34 +52,108 @@ interface CustomizeToken extends Token {
   disabled: boolean;
 }
 
+export enum PositionStatus {
+  IN_RANGE = "IN_RANGE",
+  OUT_RANGE = "OUT_RANGE",
+}
+
+export interface PositionAmount {
+  token: {
+    address: string;
+    symbol: string;
+    name: string;
+    decimals: number;
+    logo: string;
+    tag: string;
+    price: number;
+  };
+  tokenType: string;
+  tokenID: string;
+  balance: string;
+  quotes: {
+    usd: {
+      symbol: string;
+      marketPrice: number;
+      price: number;
+      priceChange24hPercentage: number;
+      value: number;
+      timestamp: number;
+    };
+  };
+}
+
+export interface EarnPosition {
+  [x: string]: any;
+  chainName: "eth";
+  chainId: number;
+  chainLogo: string;
+  userAddress: string;
+  id: string;
+  tokenAddress: string;
+  tokenId: string;
+  liquidity: string;
+  minPrice: number;
+  maxPrice: number;
+  currentAmounts: Array<PositionAmount>;
+  providedAmounts: Array<PositionAmount>;
+  feePending: Array<PositionAmount>;
+  feesClaimed: Array<PositionAmount>;
+  farmRewardsPending: Array<PositionAmount>;
+  farmRewardsClaimed: Array<PositionAmount>;
+  feeEarned24h: Array<PositionAmount>;
+  farmReward24h: Array<PositionAmount>;
+  createdTime: number;
+  lastUpdateBlock: number;
+  openedBlock: number;
+  openedTime: number;
+  closedBlock: number;
+  closedTime: number;
+  closedPrice: number;
+  farming: boolean;
+  impermanentLoss: number;
+  apr: number;
+  feeApr: number;
+  farmApr: number;
+  pnl: number;
+  initialUnderlyingValue: number;
+  currentUnderlyingValue: number;
+  currentPositionValue: number;
+  compareWithHodl: number;
+  returnOnInvestment: number;
+  totalDepositValue: number;
+  totalWithdrawValue: number;
+  yesterdayEarning: number;
+  earning24h: number;
+  status: PositionStatus;
+  avgConvertPrice: number;
+  isConvertedFromToken0: boolean;
+  gasUsed: number;
+  isSupportAutomation: boolean;
+  hasAutomationOrder: boolean;
+  pool: {
+    id: string;
+    poolAddress: string;
+    price: number;
+    tokenAmounts: Array<PositionAmount>;
+    farmRewardTokens: Array<PositionAmount>;
+    fees: Array<number>;
+    rewards24h: Array<PositionAmount>;
+    tickSpacing: number;
+    project: string;
+    projectLogo: string;
+    projectAddress: string;
+    showWarning: boolean;
+    tvl: number;
+    farmAddress: string;
+    tag: string;
+  };
+}
+
 const MESSAGE_TIMEOUT = 4_000;
 let messageTimeout: NodeJS.Timeout;
 
-const fakePair = {
-  chainId: 42161,
-  token0: {
-    symbol: "USDT",
-    name: "Tether USD",
-    logoURI:
-      "https://storage.googleapis.com/ks-setting-1d682dca/c5cbcd57-0597-4c7b-8433-6fa98c90c5f9.png",
-  },
-  token1: {
-    symbol: "WETH",
-    name: "Wrapped Ether",
-    logoURI:
-      "https://storage.googleapis.com/ks-setting-1d682dca/1eebc9df-2870-41bd-a78c-5cce81a74ffa.png",
-  },
-  fee: "1.0",
-  amount: "$3,765",
-  positionId: "24654",
-  poolAddress: "0x6b175474e89094c44da98b954eedeac495271d0f",
-};
-
-const fakePairs = new Array(10).fill(fakePair).map((pair, index) => ({
-  ...pair,
-  active: index % 2,
-  dex: index % 2 ? "DEX_UNISWAPV3" : "DEX_PANCAKESWAPV3",
-}));
+const COPY_TIMEOUT = 2000;
+let hideCopied: NodeJS.Timeout;
 
 export default function TokenSelector({
   selectedTokenAddress,
@@ -92,6 +172,7 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
+  const { account } = useWeb3Provider();
   const { pool, theme } = useWidgetInfo();
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } =
     useZapState();
@@ -106,6 +187,7 @@ export default function TokenSelector({
   const { zapMigrationWidget, handleOpenZapMigrationWidget } =
     useZapMigrationWidget();
 
+  const [copied, setCopied] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
@@ -116,6 +198,7 @@ export default function TokenSelector({
 
   const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
+  const [userPositions, setUserPositions] = useState([]);
 
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
@@ -373,6 +456,36 @@ export default function TokenSelector({
     // }
     setTokenToImport(token);
   };
+
+  const copy = (position: EarnPosition) => {
+    if (!navigator?.clipboard) return;
+    navigator.clipboard.writeText(position.tokenId);
+    setCopied(position.tokenId);
+
+    clearTimeout(hideCopied);
+    hideCopied = setTimeout(() => {
+      setCopied(null);
+    }, COPY_TIMEOUT);
+  };
+
+  const handleGetUserPositions = useCallback(async () => {
+    if (!account) return;
+    try {
+      const response = await fetch(
+        `https://api.krystal.app/all/v1/lp/userPositions?addresses=${account}&quoteSymbol=usd&offset=0&orderBy=liquidity&orderASC=false&positionStatus=open`
+      );
+      const data = await response.json();
+      if (data?.positions) {
+        setUserPositions(data.positions);
+      }
+    } catch (error) {
+      console.log("fetch user positions error", error);
+    }
+  }, [account]);
+
+  useEffect(() => {
+    handleGetUserPositions();
+  }, [handleGetUserPositions]);
 
   useEffect(() => {
     if (message) {
@@ -667,19 +780,19 @@ export default function TokenSelector({
             )}
 
             {modalTabSelected === MODAL_TAB.POSITIONS &&
-              (fakePairs.length ? (
-                fakePairs.map((pair, index) => (
-                  <div key={index}>
+              (userPositions.length ? (
+                userPositions.map((position: EarnPosition, index: number) => (
+                  <div key={position.tokenId}>
                     <div
                       className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
-                      onClick={handleOpenZapMigrationWidget}
+                      onClick={() => handleOpenZapMigrationWidget(position)}
                     >
                       <div className="flex items-center justify-between w-full">
                         <div className="flex gap-2 items-center">
                           <div className="flex items-end">
                             <img
-                              className="rounded-full w-[26px] h-[26px] border-[2px] border-layer2"
-                              src={pair.token0.logoURI}
+                              className="rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                              src={position.pool.tokenAmounts[0]?.token.logo}
                               alt="token0 logo"
                               onError={({ currentTarget }) => {
                                 currentTarget.onerror = null;
@@ -687,8 +800,8 @@ export default function TokenSelector({
                               }}
                             />
                             <img
-                              className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-layer2"
-                              src={pair.token1.logoURI}
+                              className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                              src={position.pool.tokenAmounts[1]?.token.logo}
                               alt="token1 logo"
                               onError={({ currentTarget }) => {
                                 currentTarget.onerror = null;
@@ -696,8 +809,8 @@ export default function TokenSelector({
                               }}
                             />
                             <img
-                              className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-layer2 relative top-1"
-                              src={NetworkInfo[pair.chainId].logo}
+                              className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-transparent relative top-1"
+                              src={position.chainLogo}
                               onError={({ currentTarget }) => {
                                 currentTarget.onerror = null;
                                 currentTarget.src = defaultTokenLogo;
@@ -705,18 +818,26 @@ export default function TokenSelector({
                             />
                           </div>
                           <span>
-                            {pair.token0.symbol}/{pair.token1.symbol}
+                            {position.pool.tokenAmounts[0]?.token.symbol || ""}/
+                            {position.pool.tokenAmounts[1]?.token.symbol || ""}
                           </span>
-                          <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
-                            {pair.fee}%
-                          </div>
+                          {position.pool.fees?.length > 0 && (
+                            <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
+                              {position.pool.fees[0]}%
+                            </div>
+                          )}
                         </div>
-                        <div>{pair.amount}</div>
+                        <div>
+                          {formatDisplayNumber(position.currentPositionValue, {
+                            style: "currency",
+                            significantDigits: 4,
+                          })}
+                        </div>
                       </div>
                       <div className="flex items-center justify-between w-full">
                         <div className="flex gap-2 items-center">
                           <img
-                            src={getDexLogo(pair.dex)}
+                            src={position.pool.projectLogo}
                             width={20}
                             height={20}
                             alt=""
@@ -726,28 +847,48 @@ export default function TokenSelector({
                             }}
                           />
                           <span className="text-subText">
-                            #{pair.positionId}
+                            #{position.tokenId}
                           </span>
                           <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
-                            {shortenAddress(pair.chainId, pair.poolAddress, 4)}
-                            <IconCopy className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer" />
+                            {shortenAddress(
+                              position.chainId,
+                              position.pool.poolAddress,
+                              4
+                            )}
+                            {copied !== position.tokenId ? (
+                              <IconCopy
+                                className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  copy(position);
+                                }}
+                              />
+                            ) : (
+                              <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
+                            )}
                           </div>
                         </div>
                         <div
                           className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                            !pair.active ? "warning" : "accent"
+                            position.status === PositionStatus.OUT_RANGE
+                              ? "warning"
+                              : "accent"
                           }`}
                           style={{
                             background: `${
-                              !pair.active ? theme.warning : theme.accent
+                              position.status === PositionStatus.OUT_RANGE
+                                ? theme.warning
+                                : theme.accent
                             }33`,
                           }}
                         >
-                          {!pair.active ? "● Out of range" : "● In range"}
+                          {position.status === PositionStatus.OUT_RANGE
+                            ? "● Out of range"
+                            : "● In range"}
                         </div>
                       </div>
                     </div>
-                    {index !== fakePairs.length - 1 && (
+                    {index !== userPositions.length - 1 && (
                       <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
                     )}
                   </div>
