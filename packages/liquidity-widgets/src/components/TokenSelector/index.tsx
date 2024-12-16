@@ -569,8 +569,7 @@ export default function TokenSelector({
                 unImportedTokens.map((token: Token) => (
                   <div
                     key={token.symbol}
-                    className="flex items-center justify-between py-2 px-6"
-                    style={{ color: "red" }}
+                    className="flex items-center justify-between py-2 px-6 text-red"
                   >
                     <div className="flex items-center gap-2">
                       <img

@@ -42,7 +42,7 @@ export default function PriceInfo() {
       });
     }
     return assertUnreachable(poolType as never, "poolType is not handled");
-  }, [pool, revertPrice]);
+  }, [pool, poolType, revertPrice]);
 
   const isDeviated = useMemo(
     () =>
@@ -59,21 +59,26 @@ export default function PriceInfo() {
     [marketPrice, revertPrice]
   );
 
-  if (loading) return <div className="price-info">Loading...</div>;
+  if (loading)
+    return (
+      <div className="rounded-md border border-stroke py-3 px-4">
+        Loading...
+      </div>
+    );
 
   return (
     <>
-      <div className="price-info">
-        <div className="row">
+      <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
+        <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
-          <span className="price">{price}</span>
+          <span className="font-medium text-text">{price}</span>
           <span>
             {revertPrice
               ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
               : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
           </span>
           <SwitchIcon
-            style={{ cursor: "pointer" }}
+            className="cursor-pointer"
             onClick={() => toggleRevertPrice()}
             role="button"
           />
@@ -82,10 +87,10 @@ export default function PriceInfo() {
 
       {marketPrice === null && (
         <div
-          className="price-warning"
+          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <span className="text">
+          <span className="italic text-text">
             Unable to get the market price. Please be cautious!
           </span>
         </div>
@@ -93,29 +98,17 @@ export default function PriceInfo() {
 
       {isDeviated && (
         <div
-          className="price-warning"
+          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <div className="text">
+          <div className="italic text-text">
             The pool's current price of{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
+            <span className="font-medium text-warning not-italic">
               1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
               {price} {revertPrice ? pool?.token0.symbol : pool?.token1.symbol}
             </span>{" "}
             deviates from the market price{" "}
-            <span
-              style={{
-                fontWeight: "500",
-                color: theme.warning,
-                fontStyle: "normal",
-              }}
-            >
+            <span className="font-medium text-warning not-italic">
               (1 {revertPrice ? pool?.token1.symbol : pool?.token0.symbol} ={" "}
               {marketRate}{" "}
               {revertPrice ? pool?.token0.symbol : pool?.token1.symbol})
