@@ -200,7 +200,7 @@ export const ZapContextProvider = ({
       ),
       { significantDigits: 8 }
     );
-  }, [pool, tickUpper]);
+  }, [pool, tickLower]);
 
   const priceUpper = useMemo(() => {
     if (pool === "loading" || tickUpper === null) return null;
@@ -550,7 +550,7 @@ export const ZapContextProvider = ({
     }
 
     return assertUnreachable(poolType as never, "poolType is not handled");
-  }, [pool, revertPrice]);
+  }, [pool, poolType, revertPrice]);
 
   return (
     <ZapContext.Provider

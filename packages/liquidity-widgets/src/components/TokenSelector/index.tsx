@@ -622,9 +622,9 @@ export default function TokenSelector({
                               : "bg-gray-700"
                           }`}
                         >
-                          {modalTokensInAddress.includes(token.address) && (
-                            <Check className="h-3 w-3 text-black" />
-                          )}
+                          {modalTokensInAddress.includes(
+                            token.address?.toLowerCase()
+                          ) && <Check className="h-3 w-3 text-black" />}
                         </div>
                       )}
                       <img

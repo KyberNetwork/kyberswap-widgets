@@ -143,7 +143,7 @@ export default function Preview({
         clearInterval(i);
       };
     }
-  }, [txHash]);
+  }, [chainId, txHash]);
 
   const addedLiqInfo = useMemo(
     () =>
@@ -346,7 +346,7 @@ export default function Preview({
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [feeInfo, zapInfo, chainId]);
+  }, [zapInfo?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -396,7 +396,7 @@ export default function Preview({
               await Promise.all([
                 estimateGas(rpcUrl, txData),
                 fetchPrices([wethAddress])
-                  .then((prices: { [x: string]: { PriceBuy: number; }; }) => {
+                  .then((prices: { [x: string]: { PriceBuy: number } }) => {
                     return prices[wethAddress]?.PriceBuy || 0;
                   })
                   .catch(() => 0),
@@ -414,7 +414,7 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, source, zapInfo.route]);
+  }, [account, chainId, deadline, fetchPrices, rpcUrl, source, zapInfo.route]);
 
   const dexName =
     typeof DexInfos[poolType].name === "string"
@@ -764,7 +764,7 @@ export default function Preview({
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div className="text-end w-min">
                   {formatDisplayNumber(
                     positionId !== undefined ? amount0 : +addedAmount0,
                     { significantDigits: 5 }

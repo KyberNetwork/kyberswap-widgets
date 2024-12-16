@@ -14,10 +14,10 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId, pool, poolType, positionId, position, theme, poolAddress } =
     useWidgetContext((s) => s);
 
-    const Copy = useCopy({
-      text: poolAddress,
-      copyClassName: "!text-[#027BC7] hover:brightness-125",
-    });
+  const Copy = useCopy({
+    text: poolAddress,
+    copyClassName: "!text-[#2C9CE4] hover:brightness-125",
+  });
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -74,7 +74,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
         </div>
       </div>
       <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center flex-wrap gap-1 text-sm">
+        <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
           <div className="flex items-end">
             <img
               src={token0.logo}
@@ -87,7 +87,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             />
             <img
               src={token1.logo}
-              className="ml-[-6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
+              className="-ml-[6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
               alt="token1 logo"
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -95,7 +95,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               }}
             />
             <img
-              className="ml-[-4px] rounded-full w-[14px] h-[14px] border-[2px] border-layer1"
+              className="-ml-1 bg-layer1 rounded-full w-[14px] h-[14px] border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2"
               src={NetworkInfo[chainId].logo}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -110,9 +110,9 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
           <div className="flex ml-[2px] gap-[6px] text-subText items-center">
             <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
-            Fee {fee}%
+              Fee {fee}%
             </div>
-            <div className="rounded-full text-xs bg-layer2 text-[#027BC7] px-3 py-1 flex gap-1">
+            <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
               {shortenAddress(chainId, poolAddress, 4)}
               {Copy}
             </div>
@@ -130,7 +130,10 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           </div>
         </div>
 
-        <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
+        <MouseoverTooltip
+          className="top-16 right-6 max-sm:absolute"
+          text={degenMode ? "Degen Mode is turned on!" : ""}
+        >
           <div
             className="w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95"
             role="button"

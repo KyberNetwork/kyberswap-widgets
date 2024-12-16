@@ -306,6 +306,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
       store.getState().getPool(fetchPrices);
     }, 15_000);
     return () => clearInterval(i);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
