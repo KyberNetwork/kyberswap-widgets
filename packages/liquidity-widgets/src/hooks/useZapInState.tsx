@@ -435,7 +435,6 @@ export const ZapContextProvider = ({
         tokensIn: formattedTokensIn,
         amountsIn: formattedAmountsInWeis,
         slippage,
-        "aggregatorOptions.disable": false,
         ...(positionId ? { "position.id": positionId } : {}),
         ...(feeAddress ? { feeAddress, feePcm } : {}),
         ...(includedSources
