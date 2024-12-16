@@ -49,7 +49,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           {pool.token0.symbol}/{pool.token1.symbol}{" "}
           {positionId !== undefined && (
             <>
-              <div className="text-accent">#{positionId}</div>
+              <div>#{positionId}</div>
               <div
                 className={`rounded-full text-xs px-2 py-1 font-normal text-${
                   isOutOfRange ? "warning" : "accent"

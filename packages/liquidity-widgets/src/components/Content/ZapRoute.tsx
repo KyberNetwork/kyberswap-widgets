@@ -19,7 +19,7 @@ import {
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
   const { pool, poolType, chainId } = useWidgetContext((s) => s);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   const defaultToken = {
     decimals: undefined,
