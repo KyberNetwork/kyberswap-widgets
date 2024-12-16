@@ -57,6 +57,23 @@ export const NetworkInfo: Record<ChainId, Chain> = {
   //  },
   //},
   //
+  [ChainId.Arbitrum]: {
+    chainId: ChainId.Arbitrum,
+    name: "Arbitrum",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
+    scanLink: "https://arbiscan.io",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://arbitrum.kyberengineering.io",
+    wrappedToken: {
+      name: "WETH",
+      address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+      symbol: "WETH",
+      decimals: 18,
+    },
+    zapPath: "arb",
+  },
   //42161: {
   //  name: "Arbitrum",
   //  logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
@@ -90,6 +107,23 @@ export const NetworkInfo: Record<ChainId, Chain> = {
   //    decimals: 18,
   //  },
   //},
+  [ChainId.Base]: {
+    chainId: ChainId.Base,
+    name: "Base",
+    logo: "https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    scanLink: "https://basescan.org",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://mainnet.base.org",
+    wrappedToken: {
+      name: "ETH",
+      address: "0x4200000000000000000000000000000000000006",
+      symbol: "WETH",
+      decimals: 18,
+    },
+    zapPath: "base",
+  },
   //8453: {
   //  name: "Base",
   //  logo: "https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg",
@@ -228,6 +262,17 @@ export const DexInfos: Record<Dex, DexInfo> = {
     nftManagerContract: {
       [ChainId.Ethereum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
       [ChainId.Bsc]: "0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613",
+      // [ChainId.PolygonPos]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      [ChainId.Arbitrum]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      // [ChainId.Avalanche]: "0x655C406EBFa14EE2006250925e54ec43AD184f8B",
+      [ChainId.Base]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      // [ChainId.Blast]: "0xB218e4f7cF0533d4696fDfC419A0023D33345F28",
+      // [ChainId.Fantom]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      // [ChainId.Linea]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      // [ChainId.Mantle]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      // [ChainId.Optimism]: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",
+      // [ChainId.Scroll]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
+      // [ChainId.PolygonZkEVM]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
     },
   },
   [Dex.Pancakev3]: {
@@ -235,6 +280,24 @@ export const DexInfos: Record<Dex, DexInfo> = {
     name: "Pancake V3",
     nftManagerContract: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
+  // [Dex.Sushi]: {
+  //   icon: sushiLogo,
+  //   name: "SushiSwap V3",
+  //   nftManagerContract: {
+  //     [ChainId.Arbitrum]: "0x96E04591579f298681361C6122Dc4Ef405c19385",
+  //     [ChainId.Avalanche]: "0x18350b048AB366ed601fFDbC669110Ecb36016f3",
+  //     [ChainId.Base]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+  //     [ChainId.Blast]: "0x51edb3e5bcE8618B77b60215F84aD3DB14709051",
+  //     [ChainId.Bsc]: "0xF70c086618dcf2b1A461311275e00D6B722ef914",
+  //     [ChainId.Ethereum]: "0x2214A42d8e2A1d20635c2cb0664422c528B6A432",
+  //     [ChainId.Fantom]: "0x10c19390E1Ac2Fd6D0c3643a2320b0abA38E5bAA",
+  //     [ChainId.Linea]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
+  //     [ChainId.Optimism]: "0x1af415a1EbA07a4986a52B6f2e7dE7003D82231e",
+  //     [ChainId.PolygonPos]: "0xb7402ee99F0A008e461098AC3A27F4957Df89a40",
+  //     [ChainId.PolygonZkEVM]: "0xF4d73326C13a4Fc5FD7A064217e12780e9Bd62c3",
+  //     [ChainId.Scroll]: "0x0389879e0156033202C44BF784ac18fC02edeE4f",
+  //   },
+  // },
 };
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";

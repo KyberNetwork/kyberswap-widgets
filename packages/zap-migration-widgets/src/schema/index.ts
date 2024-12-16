@@ -3,7 +3,9 @@ import { z } from "zod";
 export enum ChainId {
   Ethereum = 1,
   Bsc = 56,
+  Base = 8453,
   //PolygonPos = 137,
+  Arbitrum = 42161,
 }
 
 export const chainId = z.nativeEnum(ChainId);
