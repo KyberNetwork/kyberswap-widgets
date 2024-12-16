@@ -17,11 +17,11 @@
 
   .ks-outline-btn {
     @apply flex justify-center items-center justify-self-end;
-    @apply border border-accent rounded-md;
-    @apply text-sm font-medium bg-transparent text-accent;
+    @apply border border-[#ffffffb3] rounded-md;
+    @apply text-sm font-medium bg-transparent text-[#ffffffb3];
     @apply px-3 py-[10px] cursor-pointer;
 
-    @apply hover:brightness-120;
+    @apply hover:border-accent hover:text-accent;
     @apply active:scale-99;
   }
 
