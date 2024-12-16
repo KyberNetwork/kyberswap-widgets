@@ -1,8 +1,38 @@
+import { PATHS } from "@/constants";
 import { useZapState } from "@/hooks/useZapInState";
+import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { useEffect, useState } from "react";
+import { useWidgetContext } from "@/stores/widget";
+
+interface PoolInfo {
+  tvl: number;
+  volume24h: number;
+  fees24h: number;
+  apr24h: number;
+}
 
 export default function PoolInfo() {
   const { positionId } = useZapState();
+  const { chainId, poolAddress } = useWidgetContext((s) => s);
+  const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
+
+  useEffect(() => {
+    const handleFetchPoolInfo = () => {
+      fetch(
+        `${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`
+      )
+        .then((res) => res.json())
+        .then(
+          (data) => data?.data?.poolStats && setPoolInfo(data.data.poolStats)
+        )
+        .catch((e) => {
+          console.log(e.message);
+        });
+    };
+
+    handleFetchPoolInfo();
+  }, [chainId, poolAddress]);
 
   return (
     <div
@@ -13,19 +43,51 @@ export default function PoolInfo() {
     >
       <div className="flex justify-between">
         <span>TVL</span>
-        <span className="text-text">$115.6M</span>
+        <span className="text-text">
+          {poolInfo?.tvl || poolInfo?.tvl === 0
+            ? formatDisplayNumber(poolInfo?.tvl, {
+                style: "currency",
+                significantDigits: 6,
+              })
+            : "--"}
+        </span>
       </div>
       <div className="flex justify-between">
         <span>24h Volume</span>
-        <span className="text-text">$2.7M</span>
+        <span className="text-text">
+          {poolInfo?.volume24h || poolInfo?.volume24h === 0
+            ? formatDisplayNumber(poolInfo?.volume24h, {
+                style: "currency",
+                significantDigits: 6,
+              })
+            : "--"}
+        </span>
       </div>
       <div className="flex justify-between">
         <span>24h Fees</span>
-        <span className="text-text">$8.2K</span>
+        <span className="text-text">
+          {poolInfo?.fees24h || poolInfo?.fees24h === 0
+            ? formatDisplayNumber(poolInfo?.fees24h, {
+                style: "currency",
+                significantDigits: 6,
+              })
+            : "--"}
+        </span>
       </div>
       <div className="flex justify-between">
         <span>Est. APR</span>
-        <span className="text-text">1.65%</span>
+        <span
+          className={
+            poolInfo?.apr24h || poolInfo?.apr24h === 0
+              ? "text-accent"
+              : "text-text"
+          }
+        >
+          {poolInfo?.apr24h || poolInfo?.apr24h === 0
+            ? formatDisplayNumber(poolInfo?.apr24h, { significantDigits: 6 }) +
+              "%"
+            : "--"}
+        </span>
       </div>
     </div>
   );
