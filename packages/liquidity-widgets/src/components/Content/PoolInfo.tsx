@@ -14,13 +14,13 @@ interface PoolInfo {
 
 export default function PoolInfo() {
   const { positionId } = useZapState();
-  const { chainId, poolAddress } = useWidgetContext((s) => s);
+  const { chainId, poolAddress, poolType } = useWidgetContext((s) => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
       fetch(
-        `${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`
+        `${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`
       )
         .then((res) => res.json())
         .then(
@@ -32,7 +32,7 @@ export default function PoolInfo() {
     };
 
     handleFetchPoolInfo();
-  }, [chainId, poolAddress]);
+  }, [chainId, poolAddress, poolType]);
 
   return (
     <div

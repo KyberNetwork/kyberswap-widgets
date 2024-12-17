@@ -74,6 +74,10 @@ interface WidgetState extends WidgetProps {
       address: string[]
     ) => Promise<{ [key: string]: { PriceBuy: number } }>
   ) => void;
+
+  setConnectedAccount: (
+    connectedAccount: WidgetProps["connectedAccount"]
+  ) => void;
 }
 
 type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
@@ -90,7 +94,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
       const { poolAddress, chainId, poolType, positionId } = get();
 
       const res = await fetch(
-        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
+        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse({
         poolType,
@@ -284,6 +288,11 @@ const createWidgetStore = (initProps: WidgetProps) => {
         throw new Error("Invalid pool type");
       }
     },
+    setConnectedAccount: (
+      connectedAccount: WidgetProps["connectedAccount"]
+    ) => {
+      set({ connectedAccount });
+    },
   }));
 };
 
@@ -308,6 +317,11 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
     return () => clearInterval(i);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    store.getState().setConnectedAccount(props.connectedAccount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.connectedAccount]);
 
   return (
     <WidgetContext.Provider value={store}>{children}</WidgetContext.Provider>

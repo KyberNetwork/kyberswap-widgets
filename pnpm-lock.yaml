@@ -354,9 +354,6 @@ importers:
 
   packages/liquidity-widgets:
     dependencies:
-      '@kyberswap/zap-migration-widgets':
-        specifier: workspace:^
-        version: link:../zap-migration-widgets
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -427,6 +424,9 @@ importers:
       '@kyber/utils':
         specifier: workspace:^
         version: link:../utils
+      '@kyberswap/zap-migration-widgets':
+        specifier: workspace:^
+        version: link:../zap-migration-widgets
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
