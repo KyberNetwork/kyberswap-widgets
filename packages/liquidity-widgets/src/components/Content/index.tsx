@@ -19,7 +19,7 @@ import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
 import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
-import { PI_LEVEL, formatNumber, getPriceImpact } from "../../utils";
+import { PI_LEVEL, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
 import { BigNumber } from "ethers";
 import { TOKEN_SELECT_MODE } from "../TokenSelector";
@@ -268,10 +268,7 @@ export default function Content() {
   }, [newPool, position]);
 
   const marketRate = useMemo(
-    () =>
-      marketPrice
-        ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
-        : null,
+    () => (marketPrice ? (revertPrice ? 1 / marketPrice : marketPrice) : null),
     [marketPrice, revertPrice]
   );
 
@@ -452,13 +449,15 @@ export default function Content() {
               <div className="italic text-text">
                 The pool's estimated price after zapping of{" "}
                 <span className="font-medium text-warning not-italic ml-[2px]">
-                  1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
+                  1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
+                  {formatDisplayNumber(price, { significantDigits: 6 })}{" "}
                   {revertPrice ? token0?.symbol : token1?.symbol}
                 </span>{" "}
                 deviates from the market price{" "}
                 <span className="font-medium text-warning not-italic">
                   (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                  {marketRate} {revertPrice ? token0?.symbol : token1?.symbol})
+                  {formatDisplayNumber(marketRate, { significantDigits: 6 })}{" "}
+                  {revertPrice ? token0?.symbol : token1?.symbol})
                 </span>
                 . You might have high impermanent loss after you add liquidity
                 to this pool

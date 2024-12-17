@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import X from "@/assets/svg/x.svg";
 import { Button } from "@/components/ui/button";
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import { getEtherscanLink } from "@/utils";

@@ -1,7 +1,7 @@
 import Modal from "@/components/Modal";
 import { useState } from "react";
 import { Dex, ZapMigration, ChainId } from "@kyberswap/zap-migration-widgets";
-import "@kyber/zap-migration-widgets/dist/style.css";
+import "@kyberswap/zap-migration-widgets/dist/style.css";
 import { NetworkInfo, PoolType } from "@/constants";
 import { EarnPosition } from "@/components/TokenSelector";
 import { useWidgetContext } from "@/stores/widget";

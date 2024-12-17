@@ -178,8 +178,14 @@ export default function EstLiqValue() {
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatWei(
+          item.tokenIn.amount,
+          tokenIn?.decimals
+        ).replace(",", "");
+        const amountOut = formatWei(
+          item.tokenOut.amount,
+          tokenOut?.decimals
+        ).replace(",", "");
 
         const pi =
           ((parseFloat(item.tokenIn.amountUsd) -

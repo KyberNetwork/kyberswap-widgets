@@ -83,9 +83,7 @@ export default function PriceInfo() {
       <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
         <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
-          <span className="font-medium text-text">
-            {formatDisplayNumber(price, { significantDigits: 6 })}
-          </span>
+          <span className="font-medium text-text">{price}</span>
           <MouseoverTooltip
             text={
               firstTokenShortenSymbol !== firstToken?.symbol
