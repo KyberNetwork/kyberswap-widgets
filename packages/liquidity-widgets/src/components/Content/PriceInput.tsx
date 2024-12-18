@@ -10,7 +10,6 @@ import {
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { formatDisplayNumber } from "@kyber/utils/number";
 import { univ3PoolNormalize } from "@/schema";
 
 export default function PriceInput({ type }: { type: Type }) {
@@ -24,6 +23,8 @@ export default function PriceInput({ type }: { type: Type }) {
   } = useZapState();
   const { pool: rawPool } = useWidgetContext((s) => s);
   const [localValue, setLocalValue] = useState("");
+
+  // console.log("localValue", localValue);
 
   const pool = useMemo(() => {
     if (rawPool === "loading") return rawPool;
@@ -122,28 +123,22 @@ export default function PriceInput({ type }: { type: Type }) {
           ? revertPrice
             ? "0"
             : "∞"
-          : formatDisplayNumber(
-              +tickToPrice(
-                tickUpper,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                revertPrice
-              ),
-              { significantDigits: 8 }
+          : tickToPrice(
+              tickUpper,
+              pool.token0.decimals,
+              pool.token1.decimals,
+              revertPrice
             );
       if (tickLower !== null)
         minPrice = isMinTick
           ? revertPrice
             ? "∞"
             : "0"
-          : formatDisplayNumber(
-              +tickToPrice(
-                tickLower,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                revertPrice
-              ),
-              { significantDigits: 8 }
+          : tickToPrice(
+              tickLower,
+              pool.token0.decimals,
+              pool.token1.decimals,
+              revertPrice
             );
 
       if (type === Type.PriceLower) {
