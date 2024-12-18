@@ -113,7 +113,9 @@ export function Preview({
           .catch(() => 0),
       ]);
       const gasUsd =
-        (parseInt(gasEstimation, 16) / 10 ** 18) * gasPrice * nativeTokenPrice;
+        (parseInt(gasEstimation.toString(), 16) / 10 ** 18) *
+        gasPrice *
+        nativeTokenPrice;
 
       setGasUsd(gasUsd);
     })();

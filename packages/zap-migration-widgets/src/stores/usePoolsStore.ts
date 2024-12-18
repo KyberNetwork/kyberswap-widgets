@@ -22,6 +22,7 @@ const BFF_API = "https://bff.kyberswap.com/api";
 const dexMapping: Record<Dex, string> = {
   [Dex.Uniswapv3]: "uniswapv3",
   [Dex.Pancakev3]: "pancake-v3",
+  [Dex.Sushiv3]: "sushiswap-v3",
   // Add new DEX mappings here when needed
 } as const;
 

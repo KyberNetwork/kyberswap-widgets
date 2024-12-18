@@ -44,6 +44,7 @@ const useZapMigrationWidget = () => {
     connectedAccount,
     chainId,
     onSubmitTx,
+    onSwitchChain,
   } = useWidgetContext((s) => s);
   const { address: account, chainId: networkChainId } = connectedAccount || {};
   const [zapMigrationParams, setZapMigrationParams] =
@@ -55,26 +56,34 @@ const useZapMigrationWidget = () => {
   const handleOpenZapMigrationWidget = (position: EarnPosition) => {
     if (
       position.pool.project !== "Uniswap V3" &&
-      position.pool.project !== "PancakeSwap V3"
+      position.pool.project !== "PancakeSwap V3" &&
+      position.pool.project !== "SushiSwap V3"
     )
       return;
     if (
       poolType !== PoolType.DEX_UNISWAPV3 &&
-      poolType !== PoolType.DEX_PANCAKESWAPV3
+      poolType !== PoolType.DEX_PANCAKESWAPV3 &&
+      poolType !== PoolType.DEX_SUSHISWAPV3
     )
       return;
     setZapMigrationParams({
       from: {
         dex:
-          position.pool.project !== "Uniswap V3"
+          position.pool.project === "Uniswap V3"
             ? Dex.Uniswapv3
-            : Dex.Pancakev3,
+            : position.pool.project === "PancakeSwap V3"
+            ? Dex.Pancakev3
+            : Dex.Sushiv3,
         poolId: position.pool.poolAddress,
         positionId: position.tokenId,
       },
       to: {
         dex:
-          poolType === PoolType.DEX_UNISWAPV3 ? Dex.Uniswapv3 : Dex.Pancakev3,
+          poolType === PoolType.DEX_UNISWAPV3
+            ? Dex.Uniswapv3
+            : poolType === PoolType.DEX_PANCAKESWAPV3
+            ? Dex.Pancakev3
+            : Dex.Sushiv3,
         poolId: poolAddress,
         positionId: positionId || undefined,
       },
@@ -86,7 +95,7 @@ const useZapMigrationWidget = () => {
       },
       onClose: handleCloseZapMigrationWidget,
       onConnectWallet: onConnectWallet || (() => {}),
-      onSwitchChain: () => {},
+      onSwitchChain: onSwitchChain || (() => {}),
       onSubmitTx: async (txData: {
         from: string;
         to: string;
