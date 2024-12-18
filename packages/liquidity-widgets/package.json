@@ -24,7 +24,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@kyberswap/zap-migration-widgets": "workspace:^",
     "@popperjs/core": "^2.11.8",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-icons": "^1.3.0",
@@ -43,6 +42,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@kyberswap/zap-migration-widgets": "workspace:^",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/ui": "workspace:^",
