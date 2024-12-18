@@ -256,3 +256,8 @@ export const assertUnreachable = (x: never, errorMsg?: string) => {
   }
   throw new Error("Unhandled case: " + x);
 };
+
+export const countDecimals = (value: string | number) => {
+  if (Math.floor(+value) === +value) return 0;
+  return value.toString().split(".")[1].length || 0;
+};

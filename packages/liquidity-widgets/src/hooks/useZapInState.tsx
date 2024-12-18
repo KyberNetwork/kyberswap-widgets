@@ -12,7 +12,6 @@ import { ZapRouteDetail } from "@/hooks/types/zapInTypes";
 import useMarketPrice from "@/hooks/useMarketPrice";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenBalances from "@/hooks/useTokenBalances";
-
 import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -20,7 +19,7 @@ import {
   ZERO_ADDRESS,
   chainIdToChain,
 } from "@/constants";
-import { assertUnreachable, formatWei } from "@/utils";
+import { assertUnreachable, formatWei, countDecimals } from "@/utils";
 import {
   Token,
   univ2PoolNormalize,
@@ -42,7 +41,7 @@ export const ERROR_MESSAGE = {
   INVALID_PRICE_RANGE: "Invalid price range",
   ENTER_AMOUNT: "Enter amount for",
   INSUFFICIENT_BALANCE: "Insufficient balance",
-  INVALID_INPUT_AMOUNTT: "Invalid input amount",
+  INVALID_INPUT_AMOUNT: "Invalid input amount",
 };
 
 const ZapContext = createContext<{
@@ -258,11 +257,13 @@ export const ZapContextProvider = ({
           tokensIn[i].decimals
         );
 
+        if (countDecimals(listAmountsIn[i]) > tokensIn[i].decimals)
+          return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
         if (parseFloat(listAmountsIn[i]) > parseFloat(balance))
           return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
       }
     } catch (e) {
-      return ERROR_MESSAGE.INVALID_INPUT_AMOUNTT;
+      return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
     }
 
     if (zapApiError) return zapApiError;
