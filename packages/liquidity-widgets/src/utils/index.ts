@@ -159,11 +159,12 @@ export enum PI_LEVEL {
 
 export const getPriceImpact = (
   pi: number | null | undefined,
+  type: "Swap Price Impact" | "Zap Impact",
   zapFeeInfo?: ProtocolFeeAction
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
-      msg: "Unable to calculate Price Impact",
+      msg: `Unable to calculate ${type}`,
       level: PI_LEVEL.INVALID,
       display: "--",
     };
@@ -174,7 +175,7 @@ export const getPriceImpact = (
 
   if (pi > 10 * warningThreshold) {
     return {
-      msg: "Warning: The price impact seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.",
+      msg: `Warning: The ${type} seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.`,
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -182,7 +183,7 @@ export const getPriceImpact = (
 
   if (pi > warningThreshold) {
     return {
-      msg: "Price impact is high",
+      msg: `${type} is high`,
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };

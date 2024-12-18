@@ -106,7 +106,11 @@ export default function EstLiqValue() {
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    "Zap Impact",
+    feeInfo
+  );
 
   const swapPi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
@@ -144,7 +148,7 @@ export default function EstLiqValue() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -181,7 +185,7 @@ export default function EstLiqValue() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -376,7 +380,7 @@ export default function EstLiqValue() {
                           : "!text-error !border-error"
                       }`}
                     >
-                      Swap Impact
+                      Swap Price Impact
                     </div>
                   </MouseoverTooltip>
                 </AccordionTrigger>
@@ -502,6 +506,24 @@ export default function EstLiqValue() {
         </div>
       </div>
 
+      {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+        <div
+          className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
+            swapPiRes.piRes.level === PI_LEVEL.HIGH
+              ? "text-warning"
+              : "text-error"
+          }`}
+          style={{
+            backgroundColor:
+              swapPiRes.piRes.level === PI_LEVEL.HIGH
+                ? `${theme.warning}33`
+                : `${theme.error}33`,
+          }}
+        >
+          {swapPiRes.piRes.msg}
+        </div>
+      )}
+
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
@@ -517,26 +539,6 @@ export default function EstLiqValue() {
           {piRes.msg}
         </div>
       )}
-
-      {zapInfo &&
-        piRes.level === PI_LEVEL.NORMAL &&
-        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div
-            className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-              swapPiRes.piRes.level === PI_LEVEL.HIGH
-                ? "text-warning"
-                : "text-error"
-            }`}
-            style={{
-              backgroundColor:
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? `${theme.warning}33`
-                  : `${theme.error}33`,
-            }}
-          >
-            {swapPiRes.piRes.msg}
-          </div>
-        )}
     </>
   );
 }

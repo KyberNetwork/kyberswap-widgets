@@ -262,7 +262,11 @@ export default function Preview({
   ) as ProtocolFeeAction | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    zapInfo?.zapDetails.priceImpact,
+    "Zap Impact",
+    feeInfo
+  );
 
   const piVeryHigh =
     zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
@@ -304,7 +308,7 @@ export default function Preview({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -333,7 +337,7 @@ export default function Preview({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, feeInfo);
+        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -861,7 +865,7 @@ export default function Preview({
                           : "!text-error !border-error"
                       }`}
                     >
-                      Swap Impact
+                      Swap Price Impact
                     </div>
                   </MouseoverTooltip>
                 </AccordionTrigger>
@@ -988,6 +992,24 @@ export default function Preview({
         </div>
       )}
 
+      {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+        <div
+          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
+            swapPiRes.piRes.level === PI_LEVEL.HIGH
+              ? "text-warning"
+              : "text-error"
+          }`}
+          style={{
+            backgroundColor:
+              swapPiRes.piRes.level === PI_LEVEL.HIGH
+                ? `${theme.warning}33`
+                : `${theme.error}33`,
+          }}
+        >
+          {swapPiRes.piRes.msg}
+        </div>
+      )}
+
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
@@ -1000,26 +1022,6 @@ export default function Preview({
           {piRes.msg}
         </div>
       )}
-
-      {zapInfo &&
-        piRes.level === PI_LEVEL.NORMAL &&
-        swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div
-            className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
-              swapPiRes.piRes.level === PI_LEVEL.HIGH
-                ? "text-warning"
-                : "text-error"
-            }`}
-            style={{
-              backgroundColor:
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? `${theme.warning}33`
-                  : `${theme.error}33`,
-            }}
-          >
-            {swapPiRes.piRes.msg}
-          </div>
-        )}
 
       <p className="text-[#737373] italic text-xs mt-4">
         The information is intended solely for your reference at the time you

@@ -114,7 +114,11 @@ export default function Content() {
       (item) => item.type === ZapAction.PROTOCOL_FEE
     ) as ProtocolFeeAction | undefined;
 
-    const piRes = getPriceImpact(zapInfo?.zapDetails.priceImpact, feeInfo);
+    const piRes = getPriceImpact(
+      zapInfo?.zapDetails.priceImpact,
+      "Zap Impact",
+      feeInfo
+    );
 
     const aggregatorSwapPi =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
@@ -123,7 +127,7 @@ export default function Content() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, feeInfo);
+        return getPriceImpact(pi, "Swap Price Impact", feeInfo);
       }) || [];
     const poolSwapPi =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
@@ -132,7 +136,7 @@ export default function Content() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, feeInfo);
+        return getPriceImpact(pi, "Swap Price Impact", feeInfo);
       }) || [];
 
     const swapPiHigh = !!aggregatorSwapPi
