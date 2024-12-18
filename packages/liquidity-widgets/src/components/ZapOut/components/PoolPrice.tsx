@@ -1,4 +1,5 @@
 import { univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
+import SwitchIcon from "@/assets/svg/switch.svg";
 import { useZapOutContext } from "@/stores/zapout";
 import { assertUnreachable } from "@/utils";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
@@ -6,8 +7,9 @@ import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { useMemo } from "react";
 
 export function PoolPrice() {
-  const { pool, poolType } = useZapOutContext((s) => s);
-  const revertPrice = false;
+  const { pool, poolType, revertPrice, toggleRevertPrice } = useZapOutContext(
+    (s) => s
+  );
 
   const price = useMemo(() => {
     if (pool === "loading") return "--";
@@ -41,13 +43,18 @@ export function PoolPrice() {
   }, [pool, revertPrice]);
 
   return (
-    <div className="rouned-xl flex items-center">
-      Pool Price {price}{" "}
+    <div className="rounded-lg flex items-center border border-stroke px-4 py-3 text-subText text-sm">
+      Pool Price <span className="text-text mx-2">{price}</span>{" "}
       {pool === "loading"
         ? ""
         : `${revertPrice ? pool.token0.symbol : pool.token1.symbol} per ${
             revertPrice ? pool.token1.symbol : pool.token0.symbol
           }`}
+      <SwitchIcon
+        style={{ cursor: "pointer", marginLeft: "4px" }}
+        onClick={() => toggleRevertPrice()}
+        role="button"
+      />
     </div>
   );
 }
