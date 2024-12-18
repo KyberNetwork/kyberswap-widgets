@@ -436,7 +436,8 @@ export const ZapContextProvider = ({
       if (
         !formattedTokensIn ||
         !formattedAmountsInWeis ||
-        formattedAmountsInWeis === "0"
+        formattedAmountsInWeis === "0" ||
+        formattedAmountsInWeis === "00"
       ) {
         setZapInfo(null);
         return;

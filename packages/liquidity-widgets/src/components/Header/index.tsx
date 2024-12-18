@@ -1,7 +1,7 @@
 import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-
+import RefreshLoading from "./RefreshLoading";
 import { DexInfos, NetworkInfo } from "../../constants";
 import { useZapState } from "../../hooks/useZapInState";
 import { MouseoverTooltip } from "../Tooltip";
@@ -64,6 +64,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               </div>
             </>
           )}
+          <RefreshLoading />
         </div>
         <div
           className="cursor-pointer text-subText"

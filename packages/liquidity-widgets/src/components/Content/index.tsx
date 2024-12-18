@@ -391,7 +391,7 @@ export default function Content() {
         />
       )}
       {showWidget && (
-        <>
+        <div className="p-6">
           <Header onDismiss={onClose} />
           <div className="mt-5 flex gap-5 max-sm:flex-col">
             <div className="flex-1 w-1/2 max-sm:w-full">
@@ -527,7 +527,7 @@ export default function Content() {
               )}
             </button>
           </div>
-        </>
+        </div>
       )}
     </>
   );
