@@ -424,7 +424,10 @@ export const ZapContextProvider = ({
 
         formattedAmountsInWeis = tokensIn
           .map((token: Token, index: number) =>
-            parseUnits(listAmountsIn[index] || "0", token.decimals).toString()
+            parseUnits(
+              Number(listAmountsIn[index]).toFixed(token.decimals) || "0",
+              token.decimals
+            ).toString()
           )
           .join(",");
       } catch (error) {

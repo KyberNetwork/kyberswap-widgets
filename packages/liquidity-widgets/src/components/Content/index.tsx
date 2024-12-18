@@ -76,7 +76,10 @@ export default function Content() {
         : amountsIn
             .split(",")
             .map((amount, index) =>
-              parseUnits(amount || "0", tokensIn[index]?.decimals).toString()
+              parseUnits(
+                Number(amount).toFixed(tokensIn[index].decimals) || "0",
+                tokensIn[index].decimals
+              ).toString()
             ),
     [tokensIn, amountsIn]
   );
