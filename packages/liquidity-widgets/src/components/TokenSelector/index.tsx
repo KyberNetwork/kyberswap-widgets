@@ -572,7 +572,7 @@ export default function TokenSelector({
           modalTabSelected === MODAL_TAB.TOKENS && (
             <div className="flex space-x-4 rounded-lg px-4">
               <Button
-                // variant="outline"
+                variant="outline"
                 className="flex-1 !bg-transparent text-subText border-subText rounded-full hover:text-accent hover:border-accent"
                 onClick={onClose}
               >
