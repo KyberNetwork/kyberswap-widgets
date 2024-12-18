@@ -2,6 +2,7 @@ import {
   PoolType,
   LiquidityWidget,
   ChainId,
+  ZapOut,
 } from "@kyberswap/liquidity-widgets";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -183,7 +184,33 @@ function App() {
         </button>
         <div>{wallet?.accounts?.[0].address}</div>
       </div>
+      <ZapOut
+        poolAddress="0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5"
+        poolType={PoolType.DEX_PANCAKESWAPV3}
+        positionId="1404415"
+        chainId={ChainId.Bsc}
+        connectedAccount={{
+          address: wallet?.accounts?.[0].address,
+          chainId: +(wallet?.chains[0].id || ChainId.Bsc),
+        }}
+        onClose={() => {
+          //
+        }}
+        onConnectWallet={() => {
+          //
+        }}
+        onSwitchChain={() => {
+          //
+        }}
+        onSubmitTx={async (txData) => {
+          const res = await ethersProvider?.getSigner().sendTransaction(txData);
+          if (!res) throw new Error("Transaction failed");
+          return res.hash;
+        }}
+        source="zap-out-demo"
+      />
 
+      {/*
       <div className="ks-demo-app-wrapper">
         <div className="ks-demo-params-wrapper">
           <Params params={params} setParams={handleUpdateParams} />
@@ -191,6 +218,7 @@ function App() {
 
         <LiquidityWidget key={key + JSON.stringify(props)} {...props} />
       </div>
+      */}
     </div>
   );
 }

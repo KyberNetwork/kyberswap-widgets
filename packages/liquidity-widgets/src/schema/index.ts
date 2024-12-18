@@ -115,6 +115,7 @@ export const univ3PoolNormalize = z.object({
   minTick: z.number(),
   maxTick: z.number(),
 });
+export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;
 
 export const univ2PoolNormalize = z.object({
   token0: token,
@@ -142,6 +143,7 @@ export const univ3Position = z.object({
   amount0: z.bigint(),
   amount1: z.bigint(),
 });
+export type UniV3Position = z.infer<typeof univ3Position>;
 
 export const univ2Position = z.object({
   liquidity: z.string(),
