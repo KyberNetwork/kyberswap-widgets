@@ -482,7 +482,6 @@ export default function Content() {
           */}
         </div>
       </div>
-
       <div className="flex gap-6 mt-6">
         <button className="ks-outline-btn flex-1" onClick={onClose}>
           Cancel

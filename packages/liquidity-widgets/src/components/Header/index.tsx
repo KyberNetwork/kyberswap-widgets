@@ -135,7 +135,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
           text={degenMode ? "Degen Mode is turned on!" : ""}
         >
           <div
-            className={`w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
+            className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
               degenMode ? "text-warning" : ""
             }`}
             role="button"

@@ -104,10 +104,10 @@ const SlippageInput = () => {
 
   return (
     <>
-      <div className="relative border rounded-full text-subText text-sm p-1 font-medium w-12 flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent">
+      <div className="rounded-full mt-2 bg-layer1 p-1 flex gap-[2px]">
         {[5, 10, 50, 100].map((item) => (
           <div
-            className="slp-item"
+            className="relative border rounded-full text-subText text-sm p-1 font-medium w-12 flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent"
             data-active={item === slippage}
             role="button"
             onClick={() => setSlippage(item)}
