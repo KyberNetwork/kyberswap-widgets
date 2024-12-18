@@ -68,6 +68,7 @@ interface WidgetState extends WidgetProps {
   pool: "loading" | Pool;
   position: "loading" | Position;
   errorMsg: string;
+  showWidget: boolean;
 
   getPool: (
     fetchPrices: (
@@ -78,6 +79,8 @@ interface WidgetState extends WidgetProps {
   setConnectedAccount: (
     connectedAccount: WidgetProps["connectedAccount"]
   ) => void;
+
+  toggleShowWidget: (newState: boolean) => void;
 }
 
 type WidgetProviderProps = React.PropsWithChildren<WidgetProps>;
@@ -89,6 +92,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
     pool: "loading",
     position: "loading",
     errorMsg: "",
+    showWidget: true,
 
     getPool: async (fetchPrices) => {
       const { poolAddress, chainId, poolType, positionId } = get();
@@ -293,6 +297,8 @@ const createWidgetStore = (initProps: WidgetProps) => {
     ) => {
       set({ connectedAccount });
     },
+    toggleShowWidget: (newState: boolean) =>
+      set(() => ({ showWidget: newState })),
   }));
 };
 
