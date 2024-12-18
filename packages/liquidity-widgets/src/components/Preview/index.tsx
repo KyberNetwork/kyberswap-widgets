@@ -853,9 +853,9 @@ export default function Preview({
                     width="220px"
                   >
                     <div
-                      className={`label border-b border-dotted border-subText text-xs ${
+                      className={`text-sm font-medium border-b border-dotted border-subText ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
-                          ? ""
+                          ? "text-subText"
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
                           ? "!text-warning !border-warning"
                           : "!text-error !border-error"

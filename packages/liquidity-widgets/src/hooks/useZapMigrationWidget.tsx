@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Dex, ZapMigration, ChainId } from "@kyberswap/zap-migration-widgets";
 import "@kyberswap/zap-migration-widgets/dist/style.css";
 import { NetworkInfo, PoolType } from "@/constants";
-import { EarnPosition } from "@/components/TokenSelector";
+import { EarnPosition } from "@/components/TokenSelector/UserPositions";
 import { useWidgetContext } from "@/stores/widget";
 import { calculateGasMargin, estimateGas } from "@kyber/utils/crypto";
 
