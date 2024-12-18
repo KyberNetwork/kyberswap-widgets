@@ -86,7 +86,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           onClose={onCloseTokenSelectModal}
         />
       )}
-      <div className="mt-[10px] border border-stroke rounded-md p-3 brightness-85 bg-layer2 relative">
+      <div className="mt-4 border border-stroke rounded-md p-3 brightness-85 bg-layer2 relative">
         <div className="flex justify-between text-subText text-sm font-medium">
           <div className="flex items-center gap-[6px]">
             <button
