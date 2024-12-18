@@ -115,7 +115,15 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             </button>
           </div>
 
-          <div className="flex items-center gap-[6px]">
+          <div
+            className="flex items-center gap-[6px] cursor-pointer"
+            onClick={() => {
+              if (balanceInWei)
+                onChangeTokenAmount(
+                  formatUnits(BigInt(balanceInWei).toString(), token.decimals)
+                );
+            }}
+          >
             <WalletIcon />
             {formatWei(balanceInWei, token.decimals) || ""}
           </div>

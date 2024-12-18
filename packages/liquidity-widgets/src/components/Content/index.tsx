@@ -451,22 +451,19 @@ export default function Content() {
               )}
               {isDeviated && (
                 <div
-                  className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
+                  className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
                   style={{ backgroundColor: `${theme.warning}33` }}
                 >
                   <div className="italic text-text">
                     The pool's estimated price after zapping of{" "}
                     <span className="font-medium text-warning not-italic ml-[2px]">
                       1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                      {formatDisplayNumber(price, { significantDigits: 6 })}{" "}
-                      {revertPrice ? token0?.symbol : token1?.symbol}
+                      {price} {revertPrice ? token0?.symbol : token1?.symbol}
                     </span>{" "}
                     deviates from the market price{" "}
                     <span className="font-medium text-warning not-italic">
                       (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                      {formatDisplayNumber(marketRate, {
-                        significantDigits: 6,
-                      })}{" "}
+                      {marketRate}{" "}
                       {revertPrice ? token0?.symbol : token1?.symbol})
                     </span>
                     . You might have high impermanent loss after you add

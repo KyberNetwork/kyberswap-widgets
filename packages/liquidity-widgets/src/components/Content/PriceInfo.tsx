@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useZapState } from "../../hooks/useZapInState";
-import { assertUnreachable, formatNumber } from "../../utils";
+import { assertUnreachable } from "../../utils";
 import SwitchIcon from "@/assets/svg/switch.svg";
 import { useWidgetContext } from "@/stores/widget";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
@@ -44,7 +44,7 @@ export default function PriceInfo() {
         18
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 8,
+        significantDigits: 6,
       });
     }
     return assertUnreachable(poolType as never, "poolType is not handled");
@@ -60,7 +60,9 @@ export default function PriceInfo() {
   const marketRate = useMemo(
     () =>
       marketPrice
-        ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
+        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
+            significantDigits: 6,
+          })
         : null,
     [marketPrice, revertPrice]
   );
@@ -132,15 +134,11 @@ export default function PriceInfo() {
           <div className="italic text-text">
             The pool's current price of{" "}
             <span className="font-medium text-warning not-italic">
-              1 {firstToken.symbol} ={" "}
-              {formatDisplayNumber(price, { significantDigits: 6 })}{" "}
-              {secondToken.symbol}
+              1 {firstToken.symbol} = {price} {secondToken.symbol}
             </span>{" "}
             deviates from the market price{" "}
             <span className="font-medium text-warning not-italic">
-              (1 {firstToken.symbol} ={" "}
-              {formatDisplayNumber(marketRate, { significantDigits: 6 })}{" "}
-              {secondToken.symbol})
+              (1 {firstToken.symbol} = {marketRate} {secondToken.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to
             this pool
