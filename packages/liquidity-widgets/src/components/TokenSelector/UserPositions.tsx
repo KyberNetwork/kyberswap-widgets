@@ -3,6 +3,8 @@ import { shortenAddress } from "../TokenInfo/utils";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
 import IconCopy from "@/assets/svg/copy.svg";
+import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
+import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
 import { useWidgetContext } from "@/stores/widget";
 import useZapMigrationWidget from "@/hooks/useZapMigrationWidget";
 import { formatDisplayNumber } from "@kyber/utils/number";
@@ -122,7 +124,8 @@ const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
 
 const UserPositions = ({ search }: { search: string }) => {
-  const { theme, connectedAccount, poolAddress } = useWidgetContext((s) => s);
+  const { theme, connectedAccount, poolAddress, onConnectWallet } =
+    useWidgetContext((s) => s);
   const { address: account } = connectedAccount || {};
   const { zapMigrationWidget, handleOpenZapMigrationWidget } =
     useZapMigrationWidget();
@@ -206,6 +209,20 @@ const UserPositions = ({ search }: { search: string }) => {
   useEffect(() => {
     handleGetUserPositions();
   }, [handleGetUserPositions]);
+
+  if (!account)
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[300px] relative mx-6">
+        <IconPositionConnectWallet />
+        No positions found. Connect your wallet first.
+        <button
+          className="ks-primary-btn w-full absolute -bottom-14 left-0"
+          onClick={onConnectWallet}
+        >
+          Connect
+        </button>
+      </div>
+    );
 
   return (
     <>
@@ -341,8 +358,9 @@ const UserPositions = ({ search }: { search: string }) => {
           </div>
         ))
       ) : (
-        <div className="text-center text-[#6C7284] font-medium mt-4">
-          No results found.
+        <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[300px]">
+          <IconPositionNotFound />
+          No positions found.
         </div>
       )}
     </>

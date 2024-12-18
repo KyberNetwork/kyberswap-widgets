@@ -253,9 +253,7 @@ export default function TokenSelector({
       listAmountsIn.splice(index, 1);
       setTokensIn(clonedTokensIn);
       setAmountsIn(listAmountsIn.join(","));
-
       setSelectedTokens(clonedTokensIn);
-
       removeToken(token);
 
       if (
@@ -350,11 +348,7 @@ export default function TokenSelector({
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
         <div className="flex justify-between items-center p-6 pb-0">
-          <h2 className="text-xl">
-            {mode === TOKEN_SELECT_MODE.ADD
-              ? "Add more tokens"
-              : "Select a token"}
-          </h2>
+          <h2 className="text-xl">Select Liquidity Source</h2>
           <div
             className="text-subText hover:text-white cursor-pointer"
             onClick={onClose}
@@ -364,7 +358,7 @@ export default function TokenSelector({
         </div>
 
         <div
-          className="border rounded-full p-[2px] flex mx-6 text-sm"
+          className="border rounded-full p-[2px] flex mx-6 text-sm gap-1"
           style={{ borderColor: `${theme.icons}33` }}
         >
           <div
