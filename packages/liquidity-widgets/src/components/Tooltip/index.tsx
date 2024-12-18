@@ -54,7 +54,9 @@ export function MouseoverTooltip({
   ...rest
 }: Omit<TooltipProps, "show">) {
   const [show, setShow] = useState(false);
-  const [closeTimeout, setCloseTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [closeTimeout, setCloseTimeout] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const hovering = useRef(false);
   const open = useCallback(() => {
     if (rest.text) {

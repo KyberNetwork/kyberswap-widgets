@@ -17,11 +17,9 @@ import { APPROVAL_STATE, useApprovals } from "../../hooks/useApproval";
 import { useMemo, useState } from "react";
 import Header from "../Header";
 import Preview, { ZapState } from "../Preview";
-import { parseUnits } from "ethers/lib/utils";
 import Modal from "../Modal";
 import { PI_LEVEL, getPriceImpact } from "../../utils";
 import InfoHelper from "../InfoHelper";
-import { BigNumber } from "ethers";
 import { TOKEN_SELECT_MODE } from "../TokenSelector";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import PriceRange from "../PriceRange";
@@ -39,6 +37,7 @@ import {
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import PoolInfo from "./PoolInfo";
+import { parseUnits } from "@kyber/utils/crypto";
 
 export default function Content() {
   const {
@@ -212,9 +211,10 @@ export default function Content() {
           poolType: pt,
           sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
           tick: zapInfo.poolDetails.uniswapV3.newTick,
-          liquidity: BigNumber.from(data.liquidity)
-            .add(BigNumber.from(zapInfo.positionDetails.addedLiquidity))
-            .toString(),
+          liquidity: (
+            BigInt(data.liquidity) +
+            BigInt(zapInfo.positionDetails.addedLiquidity)
+          ).toString(),
         };
       if (isUniV2 && isUniV2PoolType)
         return {

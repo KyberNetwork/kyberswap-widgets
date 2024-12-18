@@ -28,7 +28,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import InfoHelper from "../InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
-import { formatUnits } from "ethers/lib/utils";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import {
   Accordion,
@@ -47,6 +46,7 @@ import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
   calculateGasMargin,
   estimateGas,
+  formatUnits,
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
@@ -403,7 +403,7 @@ export default function Preview({
               ]);
 
             const gasUsd =
-              +formatUnits(gasPrice) *
+              +formatUnits(gasPrice, 18) *
               +gasEstimation.toString() *
               nativeTokenPrice;
 
