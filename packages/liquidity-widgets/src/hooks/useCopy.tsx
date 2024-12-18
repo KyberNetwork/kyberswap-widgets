@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+let hideCopied: ReturnType<typeof setTimeout>;
 
 export default function useCopy({
   text,

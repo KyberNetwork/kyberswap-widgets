@@ -119,7 +119,7 @@ const earnSupportedProtocols = [
 ];
 
 const COPY_TIMEOUT = 2000;
-let hideCopied: NodeJS.Timeout;
+let hideCopied: ReturnType<typeof setTimeout>;
 
 const UserPositions = ({ search }: { search: string }) => {
   const { theme, connectedAccount, poolAddress } = useWidgetContext((s) => s);
@@ -165,7 +165,7 @@ const UserPositions = ({ search }: { search: string }) => {
 
   const copy = (position: EarnPosition) => {
     if (!navigator?.clipboard) return;
-    navigator.clipboard.writeText(position.tokenId);
+    navigator.clipboard.writeText(position.pool.poolAddress);
     setCopied(position.tokenId);
 
     clearTimeout(hideCopied);
