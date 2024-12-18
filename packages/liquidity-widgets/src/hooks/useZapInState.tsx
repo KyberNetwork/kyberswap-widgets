@@ -305,6 +305,7 @@ export const ZapContextProvider = ({
 
   const token0Price = pool !== "loading" ? pool.token0.price || 0 : 0;
   const token1Price = pool !== "loading" ? pool.token1.price || 0 : 0;
+
   // set init tokens in
   useEffect(() => {
     if (!pool || tokensIn.length) return;
@@ -348,8 +349,8 @@ export const ZapContextProvider = ({
     if (
       !initDepositTokens &&
       pool !== "loading" &&
-      pool.token0.price &&
-      pool.token1.price &&
+      (pool.token0.price || pool.token0.price === 0) &&
+      (pool.token1.price || pool.token1.price === 0) &&
       Object.keys(balances).length
     ) {
       const isToken0Native =
