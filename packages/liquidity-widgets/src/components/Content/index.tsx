@@ -77,7 +77,10 @@ export default function Content() {
         : amountsIn
             .split(",")
             .map((amount, index) =>
-              parseUnits(amount || "0", tokensIn[index].decimals).toString()
+              parseUnits(
+                amount || "0",
+                tokensIn[index]?.decimals || 0
+              ).toString()
             ),
     [tokensIn, amountsIn]
   );
@@ -237,8 +240,8 @@ export default function Content() {
     if (success)
       return +tickToPrice(
         data.tick,
-        data.token0.decimals,
-        data.token1.decimals,
+        data.token0?.decimals,
+        data.token1?.decimals,
         false
       );
 
@@ -247,8 +250,8 @@ export default function Content() {
 
     if (isUniV2) {
       return +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       );
     }

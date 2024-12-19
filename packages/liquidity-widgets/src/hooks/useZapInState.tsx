@@ -181,7 +181,7 @@ export const ZapContextProvider = ({
   const nativeToken = useMemo(
     () => ({
       address: NATIVE_TOKEN_ADDRESS,
-      decimals: NetworkInfo[chainId].wrappedToken.decimals,
+      decimals: NetworkInfo[chainId].wrappedToken?.decimals,
       symbol: NetworkInfo[chainId].wrappedToken.symbol.slice(1) || "",
       logo: NetworkInfo[chainId].nativeLogo,
     }),
@@ -193,8 +193,8 @@ export const ZapContextProvider = ({
     return formatDisplayNumber(
       +tickToPrice(
         tickLower,
-        pool.token0.decimals,
-        pool.token1.decimals,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
         false
       ),
       { significantDigits: 8 }
@@ -206,8 +206,8 @@ export const ZapContextProvider = ({
     return formatDisplayNumber(
       +tickToPrice(
         tickUpper,
-        pool.token0.decimals,
-        pool.token1.decimals,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
         false
       ),
       { significantDigits: 8 }
@@ -254,10 +254,10 @@ export const ZapContextProvider = ({
               ? NATIVE_TOKEN_ADDRESS
               : tokensIn[i]?.address.toLowerCase()
           ]?.toString() || "0",
-          tokensIn[i].decimals
+          tokensIn[i]?.decimals
         );
 
-        if (countDecimals(listAmountsIn[i]) > tokensIn[i].decimals)
+        if (countDecimals(listAmountsIn[i]) > tokensIn[i]?.decimals)
           return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
         if (parseFloat(listAmountsIn[i]) > parseFloat(balance))
           return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
@@ -370,7 +370,7 @@ export const ZapContextProvider = ({
             ? NATIVE_TOKEN_ADDRESS
             : pool.token0.address.toLowerCase()
         ]?.toString() || "0",
-        token0.decimals
+        token0?.decimals
       );
       const token1Balance = formatWei(
         balances[
@@ -378,7 +378,7 @@ export const ZapContextProvider = ({
             ? NATIVE_TOKEN_ADDRESS
             : pool.token1.address.toLowerCase()
         ]?.toString() || "0",
-        token1.decimals
+        token1?.decimals
       );
 
       setTokensIn([
@@ -426,7 +426,7 @@ export const ZapContextProvider = ({
 
         formattedAmountsInWeis = tokensIn
           .map((token: Token, index: number) =>
-            parseUnits(listAmountsIn[index] || "0", token.decimals).toString()
+            parseUnits(listAmountsIn[index] || "0", token?.decimals).toString()
           )
           .join(",");
       } catch (error) {
@@ -531,8 +531,8 @@ export const ZapContextProvider = ({
     if (success) {
       return +tickToPrice(
         data.tick,
-        data.token0.decimals,
-        data.token1.decimals,
+        data.token0?.decimals,
+        data.token1?.decimals,
         revertPrice
       );
     }
@@ -542,8 +542,8 @@ export const ZapContextProvider = ({
 
     if (isUniV2) {
       const p = +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       );
       return revertPrice ? 1 / p : p;

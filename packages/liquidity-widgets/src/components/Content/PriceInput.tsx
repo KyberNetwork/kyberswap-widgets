@@ -94,8 +94,8 @@ export default function PriceInput({ type }: { type: Type }) {
     if (pool === "loading") return;
     const tick = priceToClosestTick(
       value,
-      pool.token0.decimals,
-      pool.token1.decimals,
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       revertPrice
     );
     if (tick !== undefined) {
@@ -125,8 +125,8 @@ export default function PriceInput({ type }: { type: Type }) {
             : "∞"
           : tickToPrice(
               tickUpper,
-              pool.token0.decimals,
-              pool.token1.decimals,
+              pool.token0?.decimals,
+              pool.token1?.decimals,
               revertPrice
             );
       if (tickLower !== null)
@@ -136,8 +136,8 @@ export default function PriceInput({ type }: { type: Type }) {
             : "0"
           : tickToPrice(
               tickLower,
-              pool.token0.decimals,
-              pool.token1.decimals,
+              pool.token0?.decimals,
+              pool.token1?.decimals,
               revertPrice
             );
 

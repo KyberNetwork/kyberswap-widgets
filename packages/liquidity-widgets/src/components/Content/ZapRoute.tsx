@@ -102,11 +102,11 @@ export default function ZapRoute() {
 
     const addedAmount0 = formatWei(
       data?.addLiquidity.token0.amount,
-      pool?.token0.decimals
+      pool?.token0?.decimals
     );
     const addedAmount1 = formatWei(
       data?.addLiquidity.token1.amount,
-      pool?.token1.decimals
+      pool?.token1?.decimals
     );
 
     return { addedAmount0, addedAmount1 };

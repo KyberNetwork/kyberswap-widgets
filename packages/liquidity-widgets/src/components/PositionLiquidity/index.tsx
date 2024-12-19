@@ -10,11 +10,11 @@ const PositionLiquidity = () => {
   const amount0 =
     position === "loading" || pool === "loading"
       ? "0"
-      : formatTokenAmount(position.amount0, pool.token0.decimals);
+      : formatTokenAmount(position.amount0, pool.token0?.decimals);
   const amount1 =
     position === "loading" || pool === "loading"
       ? "0"
-      : formatTokenAmount(position.amount1, pool.token1.decimals);
+      : formatTokenAmount(position.amount1, pool.token1?.decimals);
 
   return (
     <div className="px-4 py-3 mt-4 border border-stroke rounded-md">

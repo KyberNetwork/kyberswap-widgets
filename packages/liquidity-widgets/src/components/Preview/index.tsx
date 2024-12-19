@@ -156,28 +156,28 @@ export default function Preview({
     () =>
       formatUnits(
         addedLiqInfo?.addLiquidity.token0.amount,
-        pool.token0.decimals
+        pool.token0?.decimals
       ),
-    [addedLiqInfo?.addLiquidity.token0.amount, pool.token0.decimals]
+    [addedLiqInfo?.addLiquidity.token0.amount, pool]
   );
 
   const addedAmount1 = useMemo(
     () =>
       formatUnits(
         addedLiqInfo?.addLiquidity.token1.amount,
-        pool.token1.decimals
+        pool.token1?.decimals
       ),
-    [addedLiqInfo?.addLiquidity.token1.amount, pool.token1.decimals]
+    [addedLiqInfo?.addLiquidity.token1.amount, pool]
   );
 
   const amount0 =
     position === "loading"
       ? 0
-      : +toRawString(position.amount0, pool.token0.decimals);
+      : +toRawString(position.amount0, pool.token0?.decimals);
   const amount1 =
     position === "loading"
       ? 0
-      : +toRawString(position.amount1, pool.token1.decimals);
+      : +toRawString(position.amount1, pool.token1?.decimals);
 
   const positionAmount0Usd = useMemo(
     () =>
@@ -208,12 +208,12 @@ export default function Preview({
 
   const refundAmount0 = formatWei(
     refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token0.decimals
+    pool.token0?.decimals
   );
 
   const refundAmount1 = formatWei(
     refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token1.decimals
+    pool.token1?.decimals
   );
 
   const refundUsd =
@@ -224,8 +224,8 @@ export default function Preview({
     univ2PoolNormalize.safeParse(pool);
   const univ2Price = isUniV2
     ? +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       )
     : 0;
@@ -234,8 +234,8 @@ export default function Preview({
     ? formatDisplayNumber(
         tickToPrice(
           univ3Pool.tick,
-          pool.token0.decimals,
-          pool.token1.decimals,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
           revert
         ),
         { significantDigits: 6 }

@@ -26,8 +26,8 @@ export default function PriceInfo() {
       return formatDisplayNumber(
         tickToPrice(
           data.tick,
-          data.token0.decimals,
-          data.token1.decimals,
+          data.token0?.decimals,
+          data.token1?.decimals,
           revertPrice
         ),
         { significantDigits: 6 }
@@ -39,8 +39,8 @@ export default function PriceInfo() {
 
     if (isUniV2) {
       const p = divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1.decimals),
+        BigInt(uniV2Pool.reserves[1]) * BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * BigInt(uniV2Pool.token1?.decimals),
         18
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {

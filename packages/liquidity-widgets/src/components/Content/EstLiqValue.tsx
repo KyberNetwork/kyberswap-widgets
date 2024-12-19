@@ -217,11 +217,11 @@ export default function EstLiqValue() {
   }, [swapPi]);
 
   const amount0 =
-    position === "loading" || pool === "loading"
+    position === "loading" || pool === "loading" || !pool.token0?.decimals
       ? 0
       : +toRawString(position.amount0, pool.token0.decimals);
   const amount1 =
-    position === "loading" || pool === "loading"
+    position === "loading" || pool === "loading" || !pool.token1.decimals
       ? 0
       : +toRawString(position.amount1, pool.token1.decimals);
 

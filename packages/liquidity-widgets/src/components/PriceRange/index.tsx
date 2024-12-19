@@ -94,8 +94,8 @@ const PriceRange = () => {
 
     const currentPoolPrice = tickToPrice(
       data.tick,
-      pool.token0.decimals,
-      pool.token1.decimals,
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       false
     );
 
@@ -106,14 +106,14 @@ const PriceRange = () => {
 
     const lower = priceToClosestTick(
       toString(Number(left)),
-      pool.token0.decimals,
-      pool.token1.decimals,
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       false
     );
     const upper = priceToClosestTick(
       toString(Number(right)),
-      pool.token0.decimals,
-      pool.token1.decimals,
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       false
     );
 

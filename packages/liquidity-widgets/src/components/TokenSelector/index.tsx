@@ -109,8 +109,8 @@ export default function TokenSelector({
 
           return {
             ...token,
-            balance: formatWei(balanceInWei, token.decimals),
-            balanceToSort: formatUnits(balanceInWei, token.decimals),
+            balance: formatWei(balanceInWei, token?.decimals),
+            balanceToSort: formatUnits(balanceInWei, token?.decimals),
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
               !foundTokenSelected ||

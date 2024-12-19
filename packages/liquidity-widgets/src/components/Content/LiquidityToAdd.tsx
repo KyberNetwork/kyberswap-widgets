@@ -93,7 +93,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
-                    formatUnits(BigInt(balanceInWei).toString(), token.decimals)
+                    formatUnits(BigInt(balanceInWei).toString(), token?.decimals)
                   );
               }}
             >
@@ -120,12 +120,12 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             onClick={() => {
               if (balanceInWei)
                 onChangeTokenAmount(
-                  formatUnits(BigInt(balanceInWei).toString(), token.decimals)
+                  formatUnits(BigInt(balanceInWei).toString(), token?.decimals)
                 );
             }}
           >
             <WalletIcon />
-            {formatWei(balanceInWei, token.decimals) || ""}
+            {formatWei(balanceInWei, token?.decimals) || ""}
           </div>
         </div>
 
