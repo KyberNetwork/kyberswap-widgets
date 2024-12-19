@@ -10,7 +10,6 @@ import {
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { formatDisplayNumber } from "@kyber/utils/number";
 import { univ3PoolNormalize } from "@/schema";
 
 export default function PriceInput({ type }: { type: Type }) {
@@ -24,6 +23,8 @@ export default function PriceInput({ type }: { type: Type }) {
   } = useZapState();
   const { pool: rawPool } = useWidgetContext((s) => s);
   const [localValue, setLocalValue] = useState("");
+
+  // console.log("localValue", localValue);
 
   const pool = useMemo(() => {
     if (rawPool === "loading") return rawPool;
@@ -78,12 +79,23 @@ export default function PriceInput({ type }: { type: Type }) {
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
+  const onPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, ".");
+    const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
+    if (
+      value === "" ||
+      inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    ) {
+      setLocalValue(value);
+    }
+  };
+
   const wrappedCorrectPrice = (value: string) => {
     if (pool === "loading") return;
     const tick = priceToClosestTick(
       value,
-      pool.token0.decimals,
-      pool.token1.decimals,
+      pool.token0?.decimals,
+      pool.token1?.decimals,
       revertPrice
     );
     if (tick !== undefined) {
@@ -111,28 +123,22 @@ export default function PriceInput({ type }: { type: Type }) {
           ? revertPrice
             ? "0"
             : "∞"
-          : formatDisplayNumber(
-              +tickToPrice(
-                tickUpper,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                revertPrice
-              ),
-              { significantDigits: 8 }
+          : tickToPrice(
+              tickUpper,
+              pool.token0?.decimals,
+              pool.token1?.decimals,
+              revertPrice
             );
       if (tickLower !== null)
         minPrice = isMinTick
           ? revertPrice
             ? "∞"
             : "0"
-          : formatDisplayNumber(
-              +tickToPrice(
-                tickLower,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                revertPrice
-              ),
-              { significantDigits: 8 }
+          : tickToPrice(
+              tickLower,
+              pool.token0?.decimals,
+              pool.token1?.decimals,
+              revertPrice
             );
 
       if (type === Type.PriceLower) {
@@ -141,24 +147,25 @@ export default function PriceInput({ type }: { type: Type }) {
         setLocalValue(revertPrice ? minPrice : maxPrice);
       }
     }
-  }, [tickUpper, tickLower, pool, revertPrice, isMaxTick, isMinTick]);
+  }, [
+    tickUpper,
+    tickLower,
+    pool,
+    revertPrice,
+    isMaxTick,
+    isMinTick,
+    localValue,
+    type,
+  ]);
 
   return (
-    <div className="price-input">
-      <div className="input-wrapper">
+    <div className="mt-[0.6rem] py-[10px] px-[14px] gap-[10px] flex border border-stroke rounded-md">
+      <div className="flex flex-col gap-2 flex-1 text-xs font-medium text-subText">
         <span>{type === Type.PriceLower ? "Min" : "Max"} price</span>
         <input
+          className="bg-transparent text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
           value={localValue}
-          onChange={(e) => {
-            const value = e.target.value.replace(/,/g, ".");
-            const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
-            if (
-              value === "" ||
-              inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-            ) {
-              setLocalValue(value);
-            }
-          }}
+          onChange={onPriceChange}
           onBlur={(e) => wrappedCorrectPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
@@ -181,8 +188,9 @@ export default function PriceInput({ type }: { type: Type }) {
       </div>
 
       {positionId === undefined && (
-        <div className="action">
+        <div className="flex flex-col gap-3 justify-center">
           <button
+            className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => {
               if (type === Type.PriceLower) {
                 revertPrice ? decreaseTickUpper() : increaseTickLower();
@@ -195,6 +203,7 @@ export default function PriceInput({ type }: { type: Type }) {
             +
           </button>
           <button
+            className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             role="button"
             onClick={() => {
               if (type === Type.PriceLower) {

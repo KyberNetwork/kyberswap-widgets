@@ -2,30 +2,6 @@ import { ChainId, NetworkInfo } from "../constants";
 import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
 import { formatUnits } from "@kyber/utils/number";
 
-export function copyToClipboard(textToCopy: string) {
-  // navigator clipboard api needs a secure context (https)
-  if (navigator.clipboard && window.isSecureContext) {
-    // navigator clipboard api method'
-    return navigator.clipboard.writeText(textToCopy);
-  } else {
-    // text area method
-    const textArea = document.createElement("textarea");
-    textArea.value = textToCopy;
-    // make the textarea out of viewport
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    return new Promise((res, rej) => {
-      // here the magic happens
-      document.execCommand("copy") ? res(textToCopy) : rej();
-      textArea.remove();
-    });
-  }
-}
-
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -183,11 +159,12 @@ export enum PI_LEVEL {
 
 export const getPriceImpact = (
   pi: number | null | undefined,
+  type: "Swap Price Impact" | "Zap Impact",
   zapFeeInfo?: ProtocolFeeAction
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
-      msg: "Unable to calculate Price Impact",
+      msg: `Unable to calculate ${type}`,
       level: PI_LEVEL.INVALID,
       display: "--",
     };
@@ -198,7 +175,7 @@ export const getPriceImpact = (
 
   if (pi > 10 * warningThreshold) {
     return {
-      msg: "Warning: The price impact seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.",
+      msg: `Warning: The ${type} seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.`,
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -206,7 +183,7 @@ export const getPriceImpact = (
 
   if (pi > warningThreshold) {
     return {
-      msg: "Price impact is high",
+      msg: `${type} is high`,
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -279,4 +256,9 @@ export const assertUnreachable = (x: never, errorMsg?: string) => {
     throw new Error(errorMsg);
   }
   throw new Error("Unhandled case: " + x);
+};
+
+export const countDecimals = (value: string | number) => {
+  if (Math.floor(+value) === +value) return 0;
+  return value.toString().split(".")[1].length || 0;
 };

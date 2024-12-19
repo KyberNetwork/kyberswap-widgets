@@ -36,7 +36,7 @@ const TokenListContext = createContext<TokenListContextState>({
 export const TokenListProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const chainId = useWidgetContext((s) => s.chainId);
+  const { chainId, pool } = useWidgetContext((s) => s);
 
   const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
     if (typeof window !== "undefined") {
@@ -54,10 +54,37 @@ export const TokenListProvider = ({ children }: { children: ReactNode }) => {
     return [];
   });
 
-  const allTokens = useMemo(
-    () => tokens.concat(importedTokens),
-    [tokens, importedTokens]
-  );
+  const defaultToken = {
+    decimals: undefined,
+    address: "",
+    logo: "",
+    symbol: "",
+  };
+  const { address: token0Address } =
+    pool === "loading" ? defaultToken : pool.token0;
+  const { address: token1Address } =
+    pool === "loading" ? defaultToken : pool.token1;
+
+  const allTokens = useMemo(() => {
+    const mergedTokens = [...tokens, ...importedTokens];
+    if (
+      pool !== "loading" &&
+      !mergedTokens.find(
+        (t) => t.address.toLowerCase() === token0Address.toLowerCase()
+      )
+    )
+      mergedTokens.push(pool.token0);
+
+    if (
+      pool !== "loading" &&
+      !mergedTokens.find(
+        (t) => t.address.toLowerCase() === token1Address.toLowerCase()
+      )
+    )
+      mergedTokens.push(pool.token1);
+
+    return mergedTokens;
+  }, [tokens, importedTokens, pool, token0Address, token1Address]);
 
   const addToken = useCallback(
     (token: Token) => {
