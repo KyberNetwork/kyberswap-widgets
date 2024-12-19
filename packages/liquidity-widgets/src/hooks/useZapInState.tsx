@@ -452,7 +452,8 @@ export const ZapContextProvider = ({
         "pool.fee": pool.fee * 10_000,
         ...(isUniv3Pool &&
         debounceTickUpper !== null &&
-        debounceTickLower !== null
+        debounceTickLower !== null &&
+        !positionId
           ? {
               "position.tickUpper": debounceTickUpper,
               "position.tickLower": debounceTickLower,
