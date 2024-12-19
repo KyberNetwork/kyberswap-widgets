@@ -502,7 +502,7 @@ export default function TokenSelector({
                       )}
                       <img
                         className="h-6 w-6"
-                        src={token.logo}
+                        src={token.logo ? token.logo : defaultTokenLogo}
                         alt=""
                         onError={({ currentTarget }) => {
                           currentTarget.onerror = null;

@@ -93,7 +93,10 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               onClick={() => {
                 if (balanceInWei)
                   onChangeTokenAmount(
-                    formatUnits(BigInt(balanceInWei).toString(), token?.decimals)
+                    formatUnits(
+                      BigInt(balanceInWei).toString(),
+                      token?.decimals
+                    )
                   );
               }}
             >
@@ -156,7 +159,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             onClick={onOpenTokenSelectModal}
           >
             <img
-              src={token.logo}
+              src={token.logo ? token.logo : defaultTokenLogo}
               alt="TokenLogo"
               width="20px"
               className="rounded-full brightness-75"

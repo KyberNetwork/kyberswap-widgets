@@ -144,10 +144,13 @@ export default function EstLiqValue() {
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
-          ((parseFloat(item.tokenIn.amountUsd) -
-            parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
+          parseFloat(item.tokenIn.amountUsd) === 0
+            ? 0
+            : ((parseFloat(item.tokenIn.amountUsd) -
+                parseFloat(item.tokenOut.amountUsd)) /
+                parseFloat(item.tokenIn.amountUsd)) *
+              100;
+
         const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
 
         return {
@@ -181,10 +184,12 @@ export default function EstLiqValue() {
         ).replace(",", "");
 
         const pi =
-          ((parseFloat(item.tokenIn.amountUsd) -
-            parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
+          parseFloat(item.tokenIn.amountUsd) === 0
+            ? 0
+            : ((parseFloat(item.tokenIn.amountUsd) -
+                parseFloat(item.tokenOut.amountUsd)) /
+                parseFloat(item.tokenIn.amountUsd)) *
+              100;
         const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
 
         return {
