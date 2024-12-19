@@ -115,7 +115,7 @@ ZapMigrationProps) => {
 
       <div
         className={cn(
-          "bg-background w-full max-w-[800px] border rounded-md p-6 border-stroke",
+          "bg-background w-full h-full max-w-[800px] border rounded-md p-6 border-stroke",
           "text-text",
           className
         )}
