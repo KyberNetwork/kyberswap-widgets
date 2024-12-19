@@ -41,7 +41,6 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@kyberswap/zap-migration-widgets": "workspace:^",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/ui": "workspace:^",
