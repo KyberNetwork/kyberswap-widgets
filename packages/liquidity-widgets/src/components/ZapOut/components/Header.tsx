@@ -8,15 +8,14 @@ import { cn } from "@kyber/utils/tailwind-helpers";
 import { DexInfos, NetworkInfo } from "@/constants";
 import { SyntheticEvent } from "react";
 import { MouseoverTooltip } from "@/components/Tooltip";
+import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 
 export const Header = () => {
   const { onClose, poolType, pool, position, positionId, theme, chainId } =
     useZapOutContext((s) => s);
   const isUniV3 = univ3PoolType.safeParse(poolType).success;
 
-  // TODO:
-  const degenMode = false;
-  const toggleSetting = () => {};
+  const { degenMode, toggleSetting } = useZapOutUserState();
 
   const loading = pool === "loading" || position === "loading";
 

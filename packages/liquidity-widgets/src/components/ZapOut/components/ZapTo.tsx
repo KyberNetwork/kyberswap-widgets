@@ -14,10 +14,18 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
+import { useZapOutUserState } from "@/stores/zapout/zapout-state";
+import { useEffect } from "react";
 
 export function ZapTo() {
-  const { position, pool, poolType, liquidityOut } = useZapOutContext((s) => s);
+  const { position, pool, poolType } = useZapOutContext((s) => s);
   const loading = position === "loading" || pool === "loading";
+
+  const { liquidityOut, tokenOut, setTokenOut } = useZapOutUserState();
+
+  useEffect(() => {
+    if (!tokenOut && pool !== "loading") setTokenOut(pool.token0);
+  }, [tokenOut, pool]);
 
   let amount0 = 0n;
   let amount1 = 0n;

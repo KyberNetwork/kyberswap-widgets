@@ -1,10 +1,13 @@
 import { univ3PoolNormalize, univ3Position } from "@/schema";
 import { useZapOutContext } from "@/stores/zapout";
+import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export function PositionPriceRange() {
-  const { position, pool, revertPrice } = useZapOutContext((s) => s);
+  const { position, pool } = useZapOutContext((s) => s);
+
+  const { revertPrice } = useZapOutUserState();
 
   const { success: isUniv3, data: univ3Pos } =
     univ3Position.safeParse(position);

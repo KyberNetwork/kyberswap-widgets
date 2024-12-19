@@ -5,11 +5,12 @@ import { assertUnreachable } from "@/utils";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { useMemo } from "react";
+import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 
 export function PoolPrice() {
-  const { pool, poolType, revertPrice, toggleRevertPrice } = useZapOutContext(
-    (s) => s
-  );
+  const { pool, poolType } = useZapOutContext((s) => s);
+
+  const { revertPrice, toggleRevertPrice } = useZapOutUserState();
 
   const price = useMemo(() => {
     if (pool === "loading") return "--";

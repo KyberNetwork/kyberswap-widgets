@@ -16,12 +16,14 @@ import {
 } from "@/schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { assertUnreachable } from "@/utils";
+import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 
 export function LiquidityToRemove() {
-  const { position, pool, poolType, liquidityOut, setLiquidityOut } =
-    useZapOutContext((s) => s);
+  const { position, pool, poolType } = useZapOutContext((s) => s);
   const [percent, setPercent] = useState(100);
   const loading = position === "loading" || pool === "loading";
+
+  const { liquidityOut, setLiquidityOut } = useZapOutUserState();
 
   useEffect(() => {
     if (position === "loading") return;

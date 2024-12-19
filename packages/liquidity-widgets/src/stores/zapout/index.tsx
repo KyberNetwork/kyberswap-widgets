@@ -61,12 +61,6 @@ interface ZapOutState extends ZapOutProps {
       address: string[]
     ) => Promise<{ [key: string]: { PriceBuy: number } }>
   ) => void;
-
-  // Zap state
-  revertPrice: boolean;
-  toggleRevertPrice: () => void;
-  liquidityOut: bigint;
-  setLiquidityOut: (val: bigint) => void;
 }
 
 type ZapOutProviderState = React.PropsWithChildren<ZapOutProps>;
@@ -78,15 +72,6 @@ const createZapOutStore = (initProps: ZapOutProps) => {
     pool: "loading",
     position: "loading",
     errorMsg: "",
-    revertPrice: false,
-    toggleRevertPrice: () => {
-      const { revertPrice } = get();
-      set({ revertPrice: !revertPrice });
-    },
-    liquidityOut: 0n,
-    setLiquidityOut: (val) => {
-      set({ liquidityOut: val });
-    },
 
     getPool: async (fetchPrices) => {
       const { poolAddress, chainId, poolType, positionId } = get();
