@@ -1,7 +1,7 @@
 import "./App.css";
 import { useSwitchChain } from "wagmi";
 import { Dex, ZapMigration, ChainId } from "@kyberswap/zap-migration-widgets";
-import "@kyber/zap-migration-widgets/dist/style.css";
+import "@kyberswap/zap-migration-widgets/dist/style.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import {
   ConnectButton,

@@ -73,7 +73,13 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
     // const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
     try {
       const res = await fetch(
-        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}`
+        `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${
+          dexFrom === Dex.Uniswapv3
+            ? "DEX_UNISWAPV3"
+            : dexFrom === Dex.Pancakev3
+            ? "DEX_PANCAKESWAPV3"
+            : "DEX_SUSHISWAPV3"
+        }`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse(res);
 
@@ -109,7 +115,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         fromPoolToken1,
         toPoolToken0,
         toPoolToken1,
-      ];
+      ].map((item) => item.address.toLowerCase());
 
       const tokens: {
         address: string;
