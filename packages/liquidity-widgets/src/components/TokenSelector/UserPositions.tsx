@@ -213,6 +213,8 @@ const UserPositions = ({ search }: { search: string }) => {
     handleGetUserPositions();
   }, [handleGetUserPositions]);
 
+  if (!onOpenZapMigration) return null;
+
   if (!account)
     return (
       <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[300px] relative mx-6">

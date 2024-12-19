@@ -40,7 +40,7 @@ export interface WidgetProps {
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onOpenZapMigration: (position: {
+  onOpenZapMigration?: (position: {
     exchange: string;
     poolId: string;
     positionId: string | number;

@@ -60,7 +60,7 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const { pool, theme } = useWidgetContext((s) => s);
+  const { pool, theme, onOpenZapMigration } = useWidgetContext((s) => s);
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } =
     useZapState();
   const { importedTokens, allTokens, fetchTokenInfo, removeToken } =
@@ -357,27 +357,29 @@ export default function TokenSelector({
           </div>
         </div>
 
-        <div
-          className="border rounded-full p-[2px] flex mx-6 text-sm gap-1"
-          style={{ borderColor: `${theme.icons}33` }}
-        >
+        {onOpenZapMigration && (
           <div
-            className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
-              modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""
-            }`}
-            onClick={() => setModalTabSelected(MODAL_TAB.TOKENS)}
+            className="border rounded-full p-[2px] flex mx-6 text-sm gap-1"
+            style={{ borderColor: `${theme.icons}33` }}
           >
-            Token(s)
+            <div
+              className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
+                modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""
+              }`}
+              onClick={() => setModalTabSelected(MODAL_TAB.TOKENS)}
+            >
+              Token(s)
+            </div>
+            <div
+              className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
+                modalTabSelected === MODAL_TAB.POSITIONS ? "bg-[#ffffff33]" : ""
+              }`}
+              onClick={() => setModalTabSelected(MODAL_TAB.POSITIONS)}
+            >
+              Your Position(s)
+            </div>
           </div>
-          <div
-            className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
-              modalTabSelected === MODAL_TAB.POSITIONS ? "bg-[#ffffff33]" : ""
-            }`}
-            onClick={() => setModalTabSelected(MODAL_TAB.POSITIONS)}
-          >
-            Your Position(s)
-          </div>
-        </div>
+        )}
 
         {mode === TOKEN_SELECT_MODE.SELECT &&
           modalTabSelected === MODAL_TAB.TOKENS && (
