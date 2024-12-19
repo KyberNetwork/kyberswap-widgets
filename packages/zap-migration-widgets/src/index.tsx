@@ -1,4 +1,5 @@
 import "./index.css";
+import "./index.scss";
 import { Preview } from "./components/Preview";
 import "@kyber/ui/styles.css";
 
@@ -101,7 +102,7 @@ ZapMigrationProps) => {
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
 
   return (
-    <>
+    <div className="ks-lw-style">
       <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
         <DialogContent>
           <DialogHeader>
@@ -146,6 +147,6 @@ ZapMigrationProps) => {
           onClose={onClose}
         />
       </div>
-    </>
+    </div>
   );
 };
