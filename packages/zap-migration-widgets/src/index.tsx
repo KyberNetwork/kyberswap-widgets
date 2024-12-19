@@ -102,7 +102,10 @@ ZapMigrationProps) => {
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
 
   return (
-    <div className="ks-lw-style">
+    <div
+      className="ks-lw-migration-style"
+      style={{ width: "100%", height: "100%" }}
+    >
       <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
         <DialogContent>
           <DialogHeader>
