@@ -24,7 +24,7 @@ export function SourcePoolState() {
   useEffect(() => {
     if (position === "loading") return;
     setLiquidityOut((position.liquidity * BigInt(percent)) / BigInt(100));
-  }, [percent, position]);
+  }, [percent, position, setLiquidityOut]);
 
   let amount0 = 0n;
   let amount1 = 0n;

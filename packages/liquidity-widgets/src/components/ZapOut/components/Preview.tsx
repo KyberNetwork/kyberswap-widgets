@@ -147,7 +147,11 @@ export const Preview = () => {
     (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
-  const piRes = getPriceImpact(route?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    route?.zapDetails.priceImpact,
+    "Zap Impact",
+    feeInfo
+  );
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 

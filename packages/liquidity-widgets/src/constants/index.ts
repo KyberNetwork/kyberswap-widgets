@@ -491,6 +491,7 @@ export const PATHS = {
   ZAP_API: "https://zap-api.kyberswap.com",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
+  ZAP_EARN_API: "https://pre-zap-earn-service.kyberengineering.io/api",
 };
 
 export const DEFAULT_PRICE_RANGE = {

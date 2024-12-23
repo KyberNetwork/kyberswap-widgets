@@ -2,7 +2,7 @@ import "../../globals.css";
 import "../Widget/Widget.scss";
 import "@kyber/ui/styles.css";
 
-import { TokenListProvider } from "@/hooks/useTokenList";
+//import { TokenListProvider } from "@/hooks/useTokenList";
 import { ZapOutProps, ZapOutProvider, useZapOutContext } from "@/stores/zapout";
 import { Theme } from "@/theme";
 import { useEffect, useMemo, useState } from "react";
@@ -31,26 +31,24 @@ export default function ZapOut(props: ZapOutProps) {
 
   return (
     <ZapOutProvider {...props}>
-      <TokenListProvider chainId={props.chainId}>
-        <div className="ks-lw ks-lw-style">
-          <Header />
-          <div className="grid grid-cols-2 gap-6 mt-4">
-            <div className="flex flex-col gap-4">
-              <PoolPrice />
-              <PositionPriceRange />
-              <LiquidityToRemove />
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <ZapTo />
-              <EstLiqValue />
-              <ZapSummary />
-            </div>
+      <div className="ks-lw ks-lw-style">
+        <Header />
+        <div className="grid grid-cols-2 gap-6 mt-4">
+          <div className="flex flex-col gap-4">
+            <PoolPrice />
+            <PositionPriceRange />
+            <LiquidityToRemove />
           </div>
-          <Action />
-          <Preview />
+
+          <div className="flex flex-col gap-4">
+            <ZapTo />
+            <EstLiqValue />
+            <ZapSummary />
+          </div>
         </div>
-      </TokenListProvider>
+        <Action />
+        <Preview />
+      </div>
     </ZapOutProvider>
   );
 }

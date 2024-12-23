@@ -34,7 +34,11 @@ export function EstLiqValue() {
     (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
-  const piRes = getPriceImpact(route?.zapDetails.priceImpact, feeInfo);
+  const piRes = getPriceImpact(
+    route?.zapDetails.priceImpact,
+    "Zap Impact",
+    feeInfo
+  );
 
   useEffect(() => {
     if (showPreview) return;

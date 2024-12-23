@@ -1,7 +1,7 @@
 import "./App.css";
 import { useSwitchChain } from "wagmi";
-import { Dex, ZapMigration, ChainId } from "@kyber/zap-migration-widgets";
-import "@kyber/zap-migration-widgets/dist/style.css";
+import { Dex, ZapMigration, ChainId } from "@kyberswap/zap-migration-widgets";
+import "@kyberswap/zap-migration-widgets/dist/style.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import {
   ConnectButton,
@@ -63,15 +63,25 @@ function App() {
       poolId: string;
     };
   }>({
-    chainId: "56",
+    // chainId: "56",
+    // from: {
+    //   dex: Dex.Pancakev3,
+    //   poolId: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
+    //   positionId: 1404415,
+    // },
+    // to: {
+    //   dex: Dex.Pancakev3,
+    //   poolId: "0xf2688Fb5B81049DFB7703aDa5e770543770612C4",
+    // },
+    chainId: "42161",
     from: {
-      dex: Dex.Pancakev3,
-      poolId: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
-      positionId: 1404415,
+      dex: Dex.Uniswapv3,
+      poolId: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
+      positionId: 3611201,
     },
     to: {
-      dex: Dex.Pancakev3,
-      poolId: "0xf2688Fb5B81049DFB7703aDa5e770543770612C4",
+      dex: Dex.Uniswapv3,
+      poolId: "0x2f5e87C9312fa29aed5c179E456625D79015299c",
     },
   });
 
