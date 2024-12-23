@@ -62,7 +62,7 @@ export function EstLiqValue() {
       <div className="mt-2 h-[1px] w-full bg-stroke"></div>
 
       <div className="flex items-center justify-between mt-2">
-        <div className="text-subText text-xs border-b border-dotted border-subText flex items-center gap-2">
+        <div className="text-subText text-xs ">
           Est. Received {tokenOut?.symbol}
         </div>
         {fetchingRoute || !tokenOut ? (
@@ -89,7 +89,10 @@ export function EstLiqValue() {
       </div>
 
       <div className="flex items-center justify-between mt-2">
-        <MouseoverTooltip text="TODO" width="220px">
+        <MouseoverTooltip
+          text="View all the detailed estimated price impact of each swap"
+          width="220px"
+        >
           <div className="text-subText text-xs border-b border-dotted border-subText">
             Swap Impact
           </div>

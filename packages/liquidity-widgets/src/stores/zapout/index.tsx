@@ -279,6 +279,13 @@ const ZapOutContext = createContext<ZapOutStore | null>(null);
 export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
   const store = useRef(createZapOutStore(props)).current;
 
+  // Update store when props change
+  useEffect(() => {
+    store.setState({
+      ...props,
+    });
+  }, [props]);
+
   const { fetchPrices } = useTokenPrices({
     addresses: [],
     chainId: store.getState().chainId,

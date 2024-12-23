@@ -62,7 +62,6 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   route: null,
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
     const { tokenOut, liquidityOut, slippage } = get();
-    console.log(tokenOut, liquidityOut, slippage);
 
     if (!tokenOut?.address || liquidityOut === 0n) return;
 
