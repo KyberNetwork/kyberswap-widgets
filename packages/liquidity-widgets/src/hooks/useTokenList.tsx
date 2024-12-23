@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { PATHS } from "@/constants";
-import { Token } from "@/schema";
+import { ChainId, Token } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
 
 type TokenListContextState = {
@@ -33,10 +33,16 @@ const TokenListContext = createContext<TokenListContextState>({
   fetchTokenInfo: () => Promise.resolve([]),
 });
 
-export const TokenListProvider = ({ children }: { children: ReactNode }) => {
+export const TokenListProvider = ({
+  children,
+  chainId,
+}: {
+  children: ReactNode;
+  chainId: ChainId;
+}) => {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const { chainId, pool } = useWidgetContext((s) => s);
+  const { pool } = useWidgetContext((s) => s);
 
   const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
     if (typeof window !== "undefined") {
