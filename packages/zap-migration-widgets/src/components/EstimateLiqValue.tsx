@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useDebounce } from "@kyber/hooks/use-debounce";
 import { usePositionStore } from "../stores/useFromPositionStore";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
@@ -29,6 +30,7 @@ export function EstimateLiqValue({
 }) {
   const { pools } = usePoolsStore();
   const { position } = usePositionStore();
+
   const {
     fetchZapRoute,
     tickUpper,
@@ -41,6 +43,8 @@ export function EstimateLiqValue({
     showPreview,
   } = useZapStateStore();
 
+  const debounceLiquidityOut = useDebounce(liquidityOut, 500);
+
   useEffect(() => {
     if (showPreview) return;
     fetchZapRoute(chainId);
@@ -50,7 +54,7 @@ export function EstimateLiqValue({
     fetchZapRoute,
     tickUpper,
     tickLower,
-    liquidityOut,
+    debounceLiquidityOut,
     showPreview,
   ]);
 

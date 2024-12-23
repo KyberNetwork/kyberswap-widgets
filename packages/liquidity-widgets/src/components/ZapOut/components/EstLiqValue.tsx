@@ -1,6 +1,6 @@
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
-import useDebounce from "@/hooks/useDebounce";
+import { useDebounce } from "@kyber/hooks/use-debounce";
 import { useZapOutContext } from "@/stores/zapout";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";

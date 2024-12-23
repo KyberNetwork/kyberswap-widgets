@@ -401,7 +401,7 @@ export const Preview = () => {
       </div>
 
       <button
-        className="primary-btn w-full mt-4"
+        className="ks-primary-btn w-full mt-4"
         onClick={async () => {
           if (!account) return;
           if (!buildData) {

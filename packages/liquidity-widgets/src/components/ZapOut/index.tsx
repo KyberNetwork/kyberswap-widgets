@@ -128,11 +128,11 @@ const Action = () => {
 
   return (
     <div className="grid grid-cols-2 gap-6 mt-5">
-      <button className="outline-btn flex-1 w-full" onClick={onClose}>
+      <button className="ks-outline-btn flex-1 w-full" onClick={onClose}>
         Cancel
       </button>
       <button
-        className="primary-btn flex-1 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        className="ks-primary-btn flex-1 w-full disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={disabled}
         onClick={handleClick}
       >
