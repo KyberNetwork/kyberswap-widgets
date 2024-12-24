@@ -5,6 +5,7 @@ import {
 } from "@/schema";
 import questionImg from "@/assets/svg/question.svg?url";
 import { useZapOutContext } from "@/stores/zapout";
+import DropdownIcon from "@/assets/svg/dropdown.svg";
 import { assertUnreachable } from "@/utils";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
@@ -14,14 +15,19 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
-import { useZapOutUserState } from "@/stores/zapout/zapout-state";
+import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useEffect } from "react";
 
 export function ZapTo() {
   const { position, pool, poolType } = useZapOutContext((s) => s);
   const loading = position === "loading" || pool === "loading";
 
-  const { liquidityOut, tokenOut, setTokenOut } = useZapOutUserState();
+  const { liquidityOut, tokenOut, setTokenOut, route } = useZapOutUserState();
+
+  const actionRefund = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REFUND"
+  ) as RefundAction | undefined;
+  const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
 
   useEffect(() => {
     if (!tokenOut && pool !== "loading") setTokenOut(pool.token0);
@@ -128,7 +134,30 @@ export function ZapTo() {
 
       <div className="rounded-lg border border-stroke px-4 py-3 text-subText text-sm">
         <div>Zap to </div>
-        <div className="flex justify-between items-center">xxx</div>
+        <div className="flex justify-between items-center mt-2">
+          <button
+            className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
+            onClick={() => {
+              //
+            }}
+          >
+            <img
+              src={tokenOut?.logo ? tokenOut.logo : questionImg}
+              alt="TokenLogo"
+              width="20px"
+              className="rounded-full brightness-75"
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null;
+                currentTarget.src = questionImg;
+              }}
+            />
+            <span>{tokenOut?.symbol}</span>
+            <DropdownIcon />
+          </button>
+          <div className="text-text text-xl font-medium">
+            {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+          </div>
+        </div>
       </div>
     </>
   );

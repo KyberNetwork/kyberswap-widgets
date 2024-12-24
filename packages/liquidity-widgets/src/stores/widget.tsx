@@ -335,10 +335,12 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Update store when props change
   useEffect(() => {
-    store.getState().setConnectedAccount(props.connectedAccount);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.connectedAccount]);
+    store.setState({
+      ...props,
+    });
+  }, [props]);
 
   return (
     <WidgetContext.Provider value={store}>{children}</WidgetContext.Provider>

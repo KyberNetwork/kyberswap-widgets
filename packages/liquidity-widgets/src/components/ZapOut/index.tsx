@@ -32,22 +32,24 @@ export default function ZapOut(props: ZapOutProps) {
   return (
     <ZapOutProvider {...props}>
       <div className="ks-lw ks-lw-style">
-        <Header />
-        <div className="grid grid-cols-2 gap-6 mt-4">
-          <div className="flex flex-col gap-4">
-            <PoolPrice />
-            <PositionPriceRange />
-            <LiquidityToRemove />
-          </div>
+        <div className="p-6">
+          <Header />
+          <div className="grid grid-cols-2 gap-6 mt-4">
+            <div className="flex flex-col gap-4">
+              <PoolPrice />
+              <PositionPriceRange />
+              <LiquidityToRemove />
+            </div>
 
-          <div className="flex flex-col gap-4">
-            <ZapTo />
-            <EstLiqValue />
-            <ZapSummary />
+            <div className="flex flex-col gap-4">
+              <ZapTo />
+              <EstLiqValue />
+              <ZapSummary />
+            </div>
           </div>
+          <Action />
+          <Preview />
         </div>
-        <Action />
-        <Preview />
       </div>
     </ZapOutProvider>
   );
