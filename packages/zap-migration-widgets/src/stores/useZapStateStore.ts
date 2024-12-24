@@ -122,6 +122,29 @@ const addliquidtyAction = z.object({
 
 export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
 
+const poolSwapAction = z.object({
+  type: z.literal("ACTION_TYPE_POOL_SWAP"),
+  poolSwap: z.object({
+    swaps: z.array(
+      z.object({
+        tokenIn: token,
+        tokenOut: token,
+      })
+    ),
+  }),
+});
+export type PoolSwapAction = z.infer<typeof poolSwapAction>;
+
+const protocolFeeAction = z.object({
+  type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+  protocolFee: z.object({
+    pcm: z.number(),
+    tokens: z.array(token),
+  }),
+});
+
+export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
+
 const apiResponse = z.object({
   poolDetails: z.object({
     category: z.string(), // TODO: "exotic_pair",
@@ -143,27 +166,10 @@ const apiResponse = z.object({
     actions: z.array(
       z.discriminatedUnion("type", [
         removeLiquidityAction,
-        z.object({
-          type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
-          protocolFee: z.object({
-            pcm: z.number(),
-            tokens: z.array(token),
-          }),
-        }),
-
+        protocolFeeAction,
         aggregatorSwapAction,
 
-        z.object({
-          type: z.literal("ACTION_TYPE_POOL_SWAP"),
-          poolSwap: z.object({
-            swaps: z.array(
-              z.object({
-                tokenIn: token,
-                tokenOut: token,
-              })
-            ),
-          }),
-        }),
+        poolSwapAction,
 
         addliquidtyAction,
 

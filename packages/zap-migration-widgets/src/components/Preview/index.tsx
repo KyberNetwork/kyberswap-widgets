@@ -3,6 +3,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogPortal,
   DialogTitle,
 } from "@kyber/ui/dialog";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
@@ -221,7 +222,7 @@ export function Preview({
           setSubmiting(false);
         }}
       >
-        <DialogContent>
+        <DialogContent containerClassName="ks-lw-migration-style">
           <DialogDescription>{content}</DialogDescription>
         </DialogContent>
       </Dialog>
@@ -229,236 +230,242 @@ export function Preview({
   }
 
   return (
-    <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
+        <DialogPortal>
+          <DialogContent containerClassName="ks-lw-migration-style">
+            <DialogHeader>
+              <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
+            </DialogHeader>
 
-        <DialogDescription>
-          <div>
-            Migrate{" "}
-            {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
-              style: "currency",
-            })}{" "}
-            value
-          </div>
-          <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
-            <div className="flex items-end">
-              <Image
-                src={pools[0].token0.logo || ""}
-                alt={pools[0].token0.symbol}
-                className="w-9 h-9 z-0"
-              />
-              <Image
-                src={pools[0].token1.logo || ""}
-                alt={pools[0].token1.symbol}
-                className="w-9 h-9 -ml-3 z-10"
-              />
-              <Image
-                src={NetworkInfo[chainId].logo}
-                alt={NetworkInfo[chainId].name}
-                className="w-4 h-4 -ml-1.5 z-20"
-              />
-            </div>
-            <div>
-              <div className="flex gap-1 items-center">
-                {pools[0].token0.symbol}/{pools[0].token1.symbol}{" "}
-                <CopyIcon className="text-subText w-4 h-4" />
+            <DialogDescription>
+              <div>
+                Migrate{" "}
+                {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
+                  style: "currency",
+                })}{" "}
+                value
               </div>
-              <div className="flex gap-1 items-center text-subText mt-1">
-                <Image
-                  src={DexInfos[pools[0].dex].icon}
-                  alt={DexInfos[pools[0].dex].name}
-                  className="w-3 h-3"
-                />
-                <div className="text-sm opacity-70">
-                  {DexInfos[pools[0].dex].name}
+              <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
+                <div className="flex items-end">
+                  <Image
+                    src={pools[0].token0.logo || ""}
+                    alt={pools[0].token0.symbol}
+                    className="w-9 h-9 z-0"
+                  />
+                  <Image
+                    src={pools[0].token1.logo || ""}
+                    alt={pools[0].token1.symbol}
+                    className="w-9 h-9 -ml-3 z-10"
+                  />
+                  <Image
+                    src={NetworkInfo[chainId].logo}
+                    alt={NetworkInfo[chainId].name}
+                    className="w-4 h-4 -ml-1.5 z-20"
+                  />
                 </div>
-                <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-                  Fee {pools[0].fee}%
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
-            <div className="flex items-end">
-              <Image
-                src={pools[1].token0.logo || ""}
-                alt={pools[1].token0.symbol}
-                className="w-9 h-9 z-0"
-              />
-              <Image
-                src={pools[1].token1.logo || ""}
-                alt={pools[1].token1.symbol}
-                className="w-9 h-9 -ml-3 z-10"
-              />
-              <Image
-                src={NetworkInfo[chainId].logo}
-                alt={NetworkInfo[chainId].name}
-                className="w-4 h-4 -ml-1.5 z-20"
-              />
-            </div>
-            <div>
-              <div className="flex gap-1 items-center">
-                {pools[1].token0.symbol}/{pools[1].token1.symbol}{" "}
-                <CopyIcon className="text-subText w-4 h-4" />
-              </div>
-              <div className="flex gap-1 items-center text-subText mt-1">
-                <Image
-                  src={DexInfos[pools[1].dex].icon}
-                  alt={DexInfos[pools[1].dex].name}
-                  className="w-3 h-3"
-                />
-                <div className="text-sm opacity-70">
-                  {DexInfos[pools[1].dex].name}
-                </div>
-                <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-                  Fee {pools[1].fee}%
+                <div>
+                  <div className="flex gap-1 items-center">
+                    {pools[0].token0.symbol}/{pools[0].token1.symbol}{" "}
+                    <CopyIcon className="text-subText w-4 h-4" />
+                  </div>
+                  <div className="flex gap-1 items-center text-subText mt-1">
+                    <Image
+                      src={DexInfos[pools[0].dex].icon}
+                      alt={DexInfos[pools[0].dex].name}
+                      className="w-3 h-3"
+                    />
+                    <div className="text-sm opacity-70">
+                      {DexInfos[pools[0].dex].name}
+                    </div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+                      Fee {pools[0].fee}%
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="mt-4 rounded-md px-5 py-4 bg-interactive">
-            <span className="text-subText text-sm">New Pool Liquidity</span>
-            <div className="flex justify-between items-start text-base mt-2">
-              <div className="flex items-center gap-1">
-                <Image
-                  className="w-4 h-4"
-                  src={pools[1].token0.logo || ""}
-                  alt=""
-                />
-                {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
-                {pools[1].token0.symbol}
+              <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
+                <div className="flex items-end">
+                  <Image
+                    src={pools[1].token0.logo || ""}
+                    alt={pools[1].token0.symbol}
+                    className="w-9 h-9 z-0"
+                  />
+                  <Image
+                    src={pools[1].token1.logo || ""}
+                    alt={pools[1].token1.symbol}
+                    className="w-9 h-9 -ml-3 z-10"
+                  />
+                  <Image
+                    src={NetworkInfo[chainId].logo}
+                    alt={NetworkInfo[chainId].name}
+                    className="w-4 h-4 -ml-1.5 z-20"
+                  />
+                </div>
+                <div>
+                  <div className="flex gap-1 items-center">
+                    {pools[1].token0.symbol}/{pools[1].token1.symbol}{" "}
+                    <CopyIcon className="text-subText w-4 h-4" />
+                  </div>
+                  <div className="flex gap-1 items-center text-subText mt-1">
+                    <Image
+                      src={DexInfos[pools[1].dex].icon}
+                      alt={DexInfos[pools[1].dex].name}
+                      className="w-3 h-3"
+                    />
+                    <div className="text-sm opacity-70">
+                      {DexInfos[pools[1].dex].name}
+                    </div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+                      Fee {pools[1].fee}%
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-subText">
-                ~
-                {formatDisplayNumber(
-                  (pools[1].token0.price || 0) *
-                    Number(toRawString(amount0, pools[1].token0.decimals)),
-                  { style: "currency" }
-                )}
+
+              <div className="mt-4 rounded-md px-5 py-4 bg-interactive">
+                <span className="text-subText text-sm">New Pool Liquidity</span>
+                <div className="flex justify-between items-start text-base mt-2">
+                  <div className="flex items-center gap-1">
+                    <Image
+                      className="w-4 h-4"
+                      src={pools[1].token0.logo || ""}
+                      alt=""
+                    />
+                    {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
+                    {pools[1].token0.symbol}
+                  </div>
+                  <div className="text-subText">
+                    ~
+                    {formatDisplayNumber(
+                      (pools[1].token0.price || 0) *
+                        Number(toRawString(amount0, pools[1].token0.decimals)),
+                      { style: "currency" }
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-start text-base mt-2">
+                  <div className="flex items-center gap-1">
+                    <Image
+                      className="w-4 h-4"
+                      src={pools[1].token1.logo || ""}
+                      alt=""
+                    />
+                    {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
+                    {pools[1].token1.symbol}
+                  </div>
+                  <div className="text-subText">
+                    ~
+                    {formatDisplayNumber(
+                      (pools[1].token1.price || 0) *
+                        Number(toRawString(amount1, pools[1].token1.decimals)),
+                      { style: "currency" }
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="flex justify-between items-start text-base mt-2">
-              <div className="flex items-center gap-1">
-                <Image
-                  className="w-4 h-4"
-                  src={pools[1].token1.logo || ""}
-                  alt=""
-                />
-                {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
-                {pools[1].token1.symbol}
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Remaining Amount
+                </div>
+                <div>TODO</div>
               </div>
-              <div className="text-subText">
-                ~
-                {formatDisplayNumber(
-                  (pools[1].token1.price || 0) *
-                    Number(toRawString(amount1, pools[1].token1.decimals)),
-                  { style: "currency" }
-                )}
+
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Max Slippage
+                </div>
+                <div className="text-sm">
+                  {formatDisplayNumber((slippage * 100) / 10_000, {
+                    style: "percent",
+                  })}
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Remaining Amount
-            </div>
-            <div>TODO</div>
-          </div>
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Swap Price Impact
+                </div>
+                <div>TODO</div>
+              </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Max Slippage
-            </div>
-            <div className="text-sm">
-              {formatDisplayNumber((slippage * 100) / 10_000, {
-                style: "percent",
-              })}
-            </div>
-          </div>
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Est. Gas Fee
+                </div>
+                <div className="text-sm">
+                  {gasUsd
+                    ? formatDisplayNumber(gasUsd, { style: "currency" })
+                    : "--"}
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Swap Price Impact
-            </div>
-            <div>TODO</div>
-          </div>
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Migration Fee
+                </div>
+                <div>TODO</div>
+              </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Est. Gas Fee
-            </div>
-            <div className="text-sm">
-              {gasUsd
-                ? formatDisplayNumber(gasUsd, { style: "currency" })
-                : "--"}
-            </div>
-          </div>
+              <div className="flex gap-5 mt-8">
+                <button
+                  className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
+                  onClick={() => togglePreview()}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={cn(
+                    "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
+                    "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
+                  )}
+                  onClick={async () => {
+                    if (!buildData) {
+                      setShowProcessing(true);
+                      return;
+                    }
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Migration Fee
-            </div>
-            <div>TODO</div>
-          </div>
+                    const txData = {
+                      from: account,
+                      to: buildData.routerAddress,
+                      value: "0x0", // alway use WETH when remove this this is alway 0
+                      data: buildData.callData,
+                    };
 
-          <div className="flex gap-5 mt-8">
-            <button
-              className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
-              onClick={() => togglePreview()}
-            >
-              Cancel
-            </button>
-            <button
-              className={cn(
-                "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
-                "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
-              )}
-              onClick={async () => {
-                if (!buildData) {
-                  setShowProcessing(true);
-                  return;
-                }
+                    setShowProcessing(true);
+                    setSubmiting(true);
+                    const gas = await estimateGas(rpcUrl, txData).catch(
+                      (err) => {
+                        console.log(err.message);
+                        setSubmiting(false);
+                        setError(`Estimate Gas Failed: ${err.message}`);
+                        return "0";
+                      }
+                    );
 
-                const txData = {
-                  from: account,
-                  to: buildData.routerAddress,
-                  value: "0x0", // alway use WETH when remove this this is alway 0
-                  data: buildData.callData,
-                };
+                    if (gas === "0") return;
 
-                setShowProcessing(true);
-                setSubmiting(true);
-                const gas = await estimateGas(rpcUrl, txData).catch((err) => {
-                  console.log(err.message);
-                  setSubmiting(false);
-                  setError(`Estimate Gas Failed: ${err.message}`);
-                  return "0";
-                });
+                    try {
+                      const txHash = await onSubmitTx(txData);
+                      setTxHash(txHash);
+                    } catch (err) {
+                      setSubmiting(false);
+                      setError(`Submit Tx Failed: ${JSON.stringify(err)}`);
+                    }
+                  }}
+                >
+                  Migrate
+                </button>
+              </div>
 
-                if (gas === "0") return;
-
-                try {
-                  const txHash = await onSubmitTx(txData);
-                  setTxHash(txHash);
-                } catch (err) {
-                  setSubmiting(false);
-                  setError(`Submit Tx Failed: ${JSON.stringify(err)}`);
-                }
-              }}
-            >
-              Migrate
-            </button>
-          </div>
-
-          <MigrationSummary route={route} />
-        </DialogDescription>
-      </DialogContent>
-    </Dialog>
+              <MigrationSummary route={route} />
+            </DialogDescription>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
+    </>
   );
 }

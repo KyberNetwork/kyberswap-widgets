@@ -22,6 +22,7 @@ import {
 import { SourcePoolState } from "./components/SourcePoolState";
 import { TargetPoolState } from "./components/TargetPoolState";
 import { EstimateLiqValue } from "./components/EstimateLiqValue";
+import { useZapStateStore } from "./stores/useZapStateStore";
 
 export { Dex, ChainId };
 
@@ -70,6 +71,7 @@ export const ZapMigration = ({
 ZapMigrationProps) => {
   const { getPools, error: poolError } = usePoolsStore();
   const { fetchPosition, error: posError } = usePositionStore();
+  const { showPreview } = useZapStateStore();
 
   // fetch position on load
   useEffect(() => {
@@ -107,7 +109,7 @@ ZapMigrationProps) => {
       style={{ width: "100%", height: "100%" }}
     >
       <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
-        <DialogContent>
+        <DialogContent containerClassName="ks-lw-migration-style">
           <DialogHeader>
             <DialogTitle>Error</DialogTitle>
             <DialogDescription className="text-red-500 mt-4">
@@ -142,13 +144,15 @@ ZapMigrationProps) => {
           onSwitchChain={onSwitchChain}
         />
 
-        <Preview
-          chainId={chainId}
-          onSubmitTx={onSubmitTx}
-          account={connectedAccount.address}
-          client={client}
-          onClose={onClose}
-        />
+        {showPreview && (
+          <Preview
+            chainId={chainId}
+            onSubmitTx={onSubmitTx}
+            account={connectedAccount.address}
+            client={client}
+            onClose={onClose}
+          />
+        )}
       </div>
     </div>
   );

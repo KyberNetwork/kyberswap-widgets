@@ -118,6 +118,45 @@ export function TargetPoolState() {
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
+  useEffect(() => {
+    if (pool !== "loading" && tickLower === null && tickUpper === null) {
+      handleSelectRange(20);
+    }
+  }, [pool, tickLower, tickUpper]);
+
+  const handleSelectRange = (percent: number) => {
+    if (pool === "loading") return;
+    if (percent === 100) {
+      setTickUpper(nearestUsableTick(MAX_TICK, pool.tickSpacing));
+      setTickLower(nearestUsableTick(MIN_TICK, pool.tickSpacing));
+      return;
+    }
+
+    const currentPrice = tickToPrice(
+      pool.tick,
+      pool.token0.decimals,
+      pool.token1.decimals,
+      false
+    );
+    if (!currentPrice) return;
+
+    const lower = priceToClosestTick(
+      (+currentPrice * (1 - percent / 100)).toString(),
+      pool.token0.decimals,
+      pool.token1.decimals,
+      false
+    );
+    const upper = priceToClosestTick(
+      (+currentPrice * (1 + percent / 100)).toString(),
+      pool.token0.decimals,
+      pool.token1.decimals,
+      false
+    );
+
+    if (lower) setTickLower(nearestUsableTick(lower, pool.tickSpacing));
+    if (upper) setTickUpper(nearestUsableTick(upper, pool.tickSpacing));
+  };
+
   return (
     <div className="flex-1">
       <div className="border border-stroke rounded-md px-4 py-3 text-subText text-sm flex items-center gap-1 flex-wrap">
@@ -155,40 +194,7 @@ export function TargetPoolState() {
               "border rounded-full border-stroke px-3 py-1 flex items-center justify-center",
               percent === 100 ? "w-max-content" : "flex-1"
             )}
-            onClick={() => {
-              if (pool === "loading") return;
-              if (percent === 100) {
-                setTickUpper(nearestUsableTick(MAX_TICK, pool.tickSpacing));
-                setTickLower(nearestUsableTick(MIN_TICK, pool.tickSpacing));
-                return;
-              }
-
-              const currentPrice = tickToPrice(
-                pool.tick,
-                pool.token0.decimals,
-                pool.token1.decimals,
-                false
-              );
-              if (!currentPrice) return;
-
-              const lower = priceToClosestTick(
-                (+currentPrice * (1 - percent / 100)).toString(),
-                pool.token0.decimals,
-                pool.token1.decimals,
-                false
-              );
-              const upper = priceToClosestTick(
-                (+currentPrice * (1 + percent / 100)).toString(),
-                pool.token0.decimals,
-                pool.token1.decimals,
-                false
-              );
-
-              if (lower)
-                setTickLower(nearestUsableTick(lower, pool.tickSpacing));
-              if (upper)
-                setTickUpper(nearestUsableTick(upper, pool.tickSpacing));
-            }}
+            onClick={() => handleSelectRange(percent)}
           >
             {percent === 100 ? "Full Range" : `${percent}%`}
           </button>

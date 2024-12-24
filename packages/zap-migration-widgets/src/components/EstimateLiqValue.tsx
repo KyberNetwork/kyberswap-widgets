@@ -13,6 +13,7 @@ import {
 } from "@kyber/utils/number";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { SwapPI } from "./SwapImpact";
 
 export function EstimateLiqValue({
   chainId,
@@ -199,12 +200,7 @@ export function EstimateLiqValue({
           </div>
           <div className="h-auto w-[1px] bg-stroke" />
           <div className="flex-1 text-xs">
-            <div className="flex justify-between items-start">
-              <span className="text-subText border-b border-dotted border-subText">
-                Swap Impact
-              </span>
-              <span>TODO%</span>
-            </div>
+            <SwapPI chainId={chainId} />
             <div className="flex justify-between items-start mt-2">
               <span className="text-subText border-b border-dotted border-subText">
                 Swap Max Slippage
@@ -218,10 +214,10 @@ export function EstimateLiqValue({
               </span>
               <span>
                 {formatDisplayNumber(route?.zapDetails.priceImpact, {
-                  style: "percent",
                   fallback: "--",
                   fractionDigits: 2,
                 })}
+                %
               </span>
             </div>
           </div>
