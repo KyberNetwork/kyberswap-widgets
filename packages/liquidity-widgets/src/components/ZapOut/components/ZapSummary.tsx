@@ -34,8 +34,8 @@ export function ZapSummary() {
     (item) => item.address.toLowerCase() === tokens?.[1]?.address.toLowerCase()
   );
 
-  const amountToken0 = BigInt(tokens?.[0].amount || 0);
-  const amountToken1 = BigInt(tokens?.[1].amount || 0);
+  const amountToken0 = BigInt(tokens?.[0]?.amount || 0);
+  const amountToken1 = BigInt(tokens?.[1]?.amount || 0);
 
   const feeAmount0 = fees?.[0].amount || 0;
   const feeAmount1 = fees?.[1].amount || 0;
