@@ -63,7 +63,7 @@ init({
 function App() {
   const [{ wallet }, connect, disconnect] = useConnectWallet();
   const connectedWallets = useWallets();
-  const [{}, setChain] = useSetChain();
+  const [, setChain] = useSetChain();
 
   // create an ethers provider
   let ethersProvider: providers.Web3Provider | undefined;
@@ -91,6 +91,11 @@ function App() {
     chainId: ChainId.Bsc,
     poolAddress: "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae",
     poolType: PoolType.DEX_PANCAKESWAPV2,
+
+    // chainId: ChainId.Base,
+    // poolAddress: "0xd0b53d9277642d899df5c87a3966a349a798f224",
+    // poolType: PoolType.DEX_UNISWAPV3,
+    // positionId: "24654",
   });
   const [key, setKey] = useState(Date.now());
 

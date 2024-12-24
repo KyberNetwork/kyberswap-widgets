@@ -1,8 +1,45 @@
 type BigintIsh = bigint | number | string;
 
+export enum FeeAmount {
+  LOWEST = 100,
+  LOW = 500,
+  MEDIUM = 3000,
+  HIGH = 10000,
+}
+
+/**
+ * The default factory tick spacings by fee amount.
+ */
+export const TICK_SPACINGS = {
+  [FeeAmount.LOWEST]: 1,
+  [FeeAmount.LOW]: 10,
+  [FeeAmount.MEDIUM]: 50,
+  [FeeAmount.HIGH]: 200,
+};
+
+export const PRICE_FIXED_DIGITS = 8;
+
+export interface TickProcessed {
+  tick: number;
+  liquidityActive: bigint;
+  liquidityNet: bigint;
+  price0: string;
+}
+
+export interface TickDataRaw {
+  index: string | number;
+  liquidityGross: BigintIsh;
+  liquidityNet: BigintIsh;
+}
+
 export interface ChartEntry {
   activeLiquidity: number;
   price0: number;
+}
+
+export enum Bound {
+  LOWER = "LOWER",
+  UPPER = "UPPER",
 }
 
 interface Dimensions {
@@ -64,46 +101,26 @@ export interface LiquidityChartRangeInputProps {
   showZoomButtons?: boolean;
 }
 
-export enum Bound {
-  LOWER = "LOWER",
-  UPPER = "UPPER",
-}
-
-export interface TickDataRaw {
-  tick: string | number;
-  liquidityGross: BigintIsh;
-  liquidityNet: BigintIsh;
-  price0: string;
-}
-
-// Tick with fields parsed to bigints, and active liquidity computed.
-export interface TickProcessed {
-  tick: number;
-  liquidityActive: bigint;
-  liquidityNet: bigint;
-  price0: string;
-}
-
-export const ZOOM_LEVELS: Record<number, ZoomLevels> = {
-  100: {
+export const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
+  [FeeAmount.LOWEST]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,
     max: 1.5,
   },
-  500: {
+  [FeeAmount.LOW]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,
     max: 1.5,
   },
-  2500: {
+  [FeeAmount.MEDIUM]: {
     initialMin: 0.5,
     initialMax: 2,
     min: 0.00001,
     max: 20,
   },
-  10000: {
+  [FeeAmount.HIGH]: {
     initialMin: 0.5,
     initialMax: 2,
     min: 0.00001,

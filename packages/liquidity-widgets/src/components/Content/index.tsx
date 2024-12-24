@@ -38,6 +38,7 @@ import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import PoolInfo from "./PoolInfo";
 import { parseUnits } from "@kyber/utils/crypto";
+import LiquidityChart from "../LiquidityChart";
 
 export default function Content() {
   const {
@@ -400,7 +401,7 @@ export default function Content() {
             <div className="flex-1 w-1/2 max-sm:w-full">
               <PoolInfo />
               <PriceInfo />
-              {/* <LiquidityChart /> */}
+              <LiquidityChart />
               <PriceRange />
               {positionId === undefined ? (
                 isUniV3PoolType && (

@@ -17,7 +17,7 @@ export const Line = ({
         y1="0"
         x2={xScale(value)}
         y2={innerHeight}
-        className="opacity-50 stroke-2 stroke-accent"
+        className="opacity-50 stroke-2 stroke-white"
       />
     ),
     [value, xScale, innerHeight]

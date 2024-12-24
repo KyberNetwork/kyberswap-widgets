@@ -1,8 +1,8 @@
 import { BrushBehavior, brushX, D3BrushEvent, ScaleLinear, select } from "d3";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { brushHandleAccentPath, brushHandlePath, OffScreenHandle } from "./svg";
-import usePreviousValue from "../../hooks/usePreviousValue";
+import { brushHandlePath } from "./svg";
+import usePreviousValue from "@/hooks/usePreviousValue";
 import { useWidgetContext } from "@/stores/widget";
 
 // flips the handles draggers when close to the container edges
@@ -157,14 +157,6 @@ export const Brush = ({
     localBrushExtent &&
     xScale(localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX;
 
-  const showWestArrow =
-    localBrushExtent &&
-    (xScale(localBrushExtent[0]) < 0 || xScale(localBrushExtent[1]) < 0);
-  const showEastArrow =
-    localBrushExtent &&
-    (xScale(localBrushExtent[0]) > innerWidth ||
-      xScale(localBrushExtent[1]) > innerWidth);
-
   const westHandleInView =
     localBrushExtent &&
     xScale(localBrushExtent[0]) >= 0 &&
@@ -188,14 +180,11 @@ export const Brush = ({
             <stop stopColor={westHandleColor} />
             <stop stopColor={eastHandleColor} offset="1" />
           </linearGradient>
-
-          {/* clips at exactly the svg area */}
           <clipPath id={`${id}-brush-clip`}>
             <rect x="0" y="0" width={innerWidth} height={innerHeight} />
           </clipPath>
         </defs>
 
-        {/* will host the d3 brush */}
         <g
           ref={brushRef}
           clipPath={`url(#${id}-brush-clip)`}
@@ -215,24 +204,12 @@ export const Brush = ({
                 )}, 0), scale(${flipWestHandle ? "-1" : "1"}, 1)`}
               >
                 <g>
-                  {/* TODO: check color*/}
-
                   <path
                     d={brushHandlePath(innerHeight)}
-                    cursor="ew-resize"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     pointerEvents={"none"}
-                    stroke={theme.subText}
-                    fill={theme.subText}
-                  />
-
-                  <path
-                    d={brushHandleAccentPath()}
-                    cursor="ew-resize"
-                    pointerEvents="none"
-                    strokeWidth={1.5}
-                    stroke={theme.layer1}
-                    opacity={1}
+                    stroke={theme.accent}
+                    fill={"transparent"}
                   />
                 </g>
 
@@ -249,7 +226,7 @@ export const Brush = ({
                     height="30"
                     width="60"
                     rx="8"
-                    fill={theme.subText}
+                    fill={"transparent"}
                   />
 
                   <text
@@ -258,7 +235,7 @@ export const Brush = ({
                     dominantBaseline="middle"
                     textAnchor="middle"
                     fontSize="13px"
-                    fill={theme.layer1}
+                    fill={theme.subText}
                   >
                     {brushLabelValue("w", localBrushExtent[0])}
                   </text>
@@ -266,7 +243,6 @@ export const Brush = ({
               </g>
             ) : null}
 
-            {/* east handle */}
             {eastHandleInView ? (
               <g
                 transform={`translate(${xScale(
@@ -274,23 +250,12 @@ export const Brush = ({
                 )}, 0), scale(${flipEastHandle ? "-1" : "1"}, 1)`}
               >
                 <g>
-                  {/* TODO: check color*/}
                   <path
                     d={brushHandlePath(innerHeight)}
-                    cursor="ew-resize"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     pointerEvents={"none"}
-                    stroke={theme.subText}
-                    fill={theme.subText}
-                  />
-
-                  <path
-                    d={brushHandleAccentPath()}
-                    cursor="ew-resize"
-                    pointerEvents="none"
-                    strokeWidth={1.5}
-                    stroke={theme.layer1}
-                    opacity={1}
+                    stroke={"#7289DA"}
+                    fill={"transparent"}
                   />
                 </g>
 
@@ -307,7 +272,7 @@ export const Brush = ({
                     height="30"
                     width="60"
                     rx="8"
-                    fill={theme.subText}
+                    fill={"transparent"}
                   />
 
                   <text
@@ -315,21 +280,13 @@ export const Brush = ({
                     dominantBaseline="middle"
                     fontSize="13px"
                     textAnchor="middle"
-                    fill={theme.layer1}
+                    fill={theme.subText}
                   >
                     {brushLabelValue("e", localBrushExtent[1])}
                   </text>
                 </g>
               </g>
             ) : null}
-
-            {showWestArrow && <OffScreenHandle color={westHandleColor} />}
-
-            {showEastArrow && (
-              <g transform={`translate(${innerWidth}, 0) scale(-1, 1)`}>
-                <OffScreenHandle color={eastHandleColor} />
-              </g>
-            )}
           </>
         )}
       </>
@@ -346,9 +303,7 @@ export const Brush = ({
       innerHeight,
       innerWidth,
       localBrushExtent,
-      showEastArrow,
       showLabels,
-      showWestArrow,
       westHandleColor,
       westHandleInView,
       xScale,
