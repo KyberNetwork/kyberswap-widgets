@@ -1,7 +1,7 @@
 import { BrushBehavior, brushX, D3BrushEvent, ScaleLinear, select } from "d3";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { brushHandlePath } from "./svg";
+import { brushHandlePath, OffScreenHandle } from "./svg";
 import usePreviousValue from "@/hooks/usePreviousValue";
 import { useWidgetContext } from "@/stores/widget";
 
@@ -157,6 +157,14 @@ export const Brush = ({
     localBrushExtent &&
     xScale(localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX;
 
+  const showWestArrow =
+    localBrushExtent &&
+    (xScale(localBrushExtent[0]) < 0 || xScale(localBrushExtent[1]) < 0);
+  const showEastArrow =
+    localBrushExtent &&
+    (xScale(localBrushExtent[0]) > innerWidth ||
+      xScale(localBrushExtent[1]) > innerWidth);
+
   const westHandleInView =
     localBrushExtent &&
     xScale(localBrushExtent[0]) >= 0 &&
@@ -180,11 +188,14 @@ export const Brush = ({
             <stop stopColor={westHandleColor} />
             <stop stopColor={eastHandleColor} offset="1" />
           </linearGradient>
+
+          {/* clips at exactly the svg area */}
           <clipPath id={`${id}-brush-clip`}>
             <rect x="0" y="0" width={innerWidth} height={innerHeight} />
           </clipPath>
         </defs>
 
+        {/* will host the d3 brush */}
         <g
           ref={brushRef}
           clipPath={`url(#${id}-brush-clip)`}
@@ -287,26 +298,37 @@ export const Brush = ({
                 </g>
               </g>
             ) : null}
+
+            {showWestArrow && <OffScreenHandle color={theme.accent} />}
+
+            {showEastArrow && (
+              <g transform={`translate(${innerWidth}, 0) scale(-1, 1)`}>
+                <OffScreenHandle color={"#7289DA"} />
+              </g>
+            )}
           </>
         )}
       </>
     ),
     [
-      brushLabelValue,
-      eastHandleColor,
-      eastHandleInView,
-      flipEastHandle,
-      flipWestHandle,
-      hovering,
       id,
-      theme,
-      innerHeight,
-      innerWidth,
-      localBrushExtent,
-      showLabels,
       westHandleColor,
+      eastHandleColor,
+      innerWidth,
+      innerHeight,
+      localBrushExtent,
       westHandleInView,
       xScale,
+      flipWestHandle,
+      theme.accent,
+      theme.subText,
+      showLabels,
+      hovering,
+      brushLabelValue,
+      eastHandleInView,
+      flipEastHandle,
+      showWestArrow,
+      showEastArrow,
     ]
   );
 };
