@@ -8,7 +8,7 @@ import {
 } from "d3";
 import { useEffect, useMemo, useRef } from "react";
 
-import { ZoomLevels } from "./types";
+import { ZoomLevels } from "../types";
 
 export default function Zoom({
   svg,
@@ -98,24 +98,12 @@ export default function Zoom({
 
   return (
     <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: `repeat(${showResetButton ? 3 : 2}, 1fr)`,
-        gap: "6px",
-        position: "absolute",
-        top: "-18px",
-        right: 0,
-      }}
+      className={`grid gap-[6px] absolute -top-[18px] right-0 ${
+        showResetButton ? "grid-cols-3" : "grid-cols-2"
+      }`}
     >
       {showResetButton && (
-        <div
-          style={{
-            cursor: "pointer",
-            textAlign: "center",
-            paddingTop: "2px",
-            paddingLeft: "4px",
-          }}
-        >
+        <div className="cursor-pointer items-center pt-[2px] pl-1">
           <div
             onClick={() => {
               resetBrush();
@@ -126,12 +114,7 @@ export default function Zoom({
           </div>
         </div>
       )}
-      <div
-        style={{
-          cursor: "pointer",
-        }}
-        onClick={zoomIn}
-      >
+      <div className="cursor-pointer" onClick={zoomIn}>
         <svg
           width="24"
           height="18"
@@ -145,12 +128,7 @@ export default function Zoom({
           ></path>
         </svg>
       </div>
-      <div
-        style={{
-          cursor: "pointer",
-        }}
-        onClick={zoomOut}
-      >
+      <div className="cursor-pointer" onClick={zoomOut}>
         <svg
           width="24"
           height="18"

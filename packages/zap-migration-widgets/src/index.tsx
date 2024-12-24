@@ -1,4 +1,5 @@
 import "./index.css";
+import "./index.scss";
 import { Preview } from "./components/Preview";
 import "@kyber/ui/styles.css";
 
@@ -79,7 +80,7 @@ ZapMigrationProps) => {
     }, 15_000);
 
     return () => clearInterval(interval);
-  }, [chainId, from, from.dex]);
+  }, [chainId, fetchPosition, from, from.dex]);
 
   // fetch pool on load
   useEffect(() => {
@@ -98,10 +99,13 @@ ZapMigrationProps) => {
     }, 15_000);
 
     return () => clearInterval(interval);
-  }, [chainId, from.poolId, to.poolId, from.dex, to.dex]);
+  }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
 
   return (
-    <>
+    <div
+      className="ks-lw-migration-style"
+      style={{ width: "100%", height: "100%" }}
+    >
       <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
         <DialogContent>
           <DialogHeader>
@@ -115,7 +119,7 @@ ZapMigrationProps) => {
 
       <div
         className={cn(
-          "bg-background w-full max-w-[800px] border rounded-md p-6 border-stroke",
+          "bg-background w-full h-full max-w-[800px] border rounded-md p-6 border-stroke",
           "text-text",
           className
         )}
@@ -146,6 +150,6 @@ ZapMigrationProps) => {
           onClose={onClose}
         />
       </div>
-    </>
+    </div>
   );
 };

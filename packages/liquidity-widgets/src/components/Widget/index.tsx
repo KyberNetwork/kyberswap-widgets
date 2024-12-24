@@ -40,7 +40,7 @@ export default function Widget(props: WidgetProps) {
 
   return (
     <WidgetProvider {...props}>
-      <TokenListProvider>
+      <TokenListProvider chainId={props.chainId}>
         <ZapContextProvider
           includedSources={aggregatorOptions?.includedSources?.join(",")}
           excludedSources={aggregatorOptions?.excludedSources?.join(",")}
