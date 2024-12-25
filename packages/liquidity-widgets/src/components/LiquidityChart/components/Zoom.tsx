@@ -8,7 +8,7 @@ import {
 } from "d3";
 import { useEffect, useMemo, useRef } from "react";
 
-import { ZoomLevels } from "./types";
+import { ZoomLevels } from "../types";
 
 export default function Zoom({
   svg,

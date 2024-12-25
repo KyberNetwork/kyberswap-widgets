@@ -1,7 +1,7 @@
 import { area, curveStepAfter, ScaleLinear } from "d3";
 import { useMemo } from "react";
 
-import { ChartEntry } from "./types";
+import { ChartEntry } from "../types";
 import { useWidgetContext } from "@/stores/widget";
 
 export const Area = ({

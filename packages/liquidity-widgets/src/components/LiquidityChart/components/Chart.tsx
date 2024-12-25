@@ -6,7 +6,7 @@ import { Area } from "./Area";
 import { AxisBottom } from "./AxisBottom";
 import { Brush } from "./Brush";
 import { Line } from "./Line";
-import { Bound, ChartEntry, LiquidityChartRangeInputProps } from "./types";
+import { Bound, ChartEntry, LiquidityChartRangeInputProps } from "../types";
 import Zoom from "./Zoom";
 import { useWidgetContext } from "@/stores/widget";
 
@@ -142,16 +142,6 @@ export function Chart({
         className="overflow-visible"
       >
         <defs>
-          <linearGradient id="green-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={theme.success} stopOpacity={1} />
-            <stop offset="100%" stopColor={theme.success} stopOpacity={0.2} />
-          </linearGradient>
-          <linearGradient id="red-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={theme.error} stopOpacity={1} />
-            <stop offset="100%" stopColor={theme.error} stopOpacity={0.2} />
-          </linearGradient>
-        </defs>
-        <defs>
           <clipPath id={`${id}-chart-clip`}>
             <rect x="0" y="0" width={innerWidth} height={height} />
           </clipPath>
@@ -178,8 +168,8 @@ export function Chart({
               yScale={yScale}
               xValue={xAccessor}
               yValue={yAccessor}
-              opacity={0.5}
-              fill="url(#red-gradient)"
+              opacity={1}
+              fill={'#065F44'}
             />
             <Area
               series={rightSeries}
@@ -187,21 +177,21 @@ export function Chart({
               yScale={yScale}
               xValue={xAccessor}
               yValue={yAccessor}
-              opacity={0.5}
-              fill="url(#green-gradient)"
+              opacity={1}
+              fill={'#065F44'}
             />
 
             {brushDomain && (
               // duplicate area chart with mask for selected area
               <g mask={`url(#${id}-chart-area-mask)`}>
                 <Area
-                  opacity={0.1}
+                  opacity={1}
                   series={series}
                   xScale={xScale}
                   yScale={yScale}
                   xValue={xAccessor}
                   yValue={yAccessor}
-                  fill="white"
+                  fill={theme.accent}
                 />
               </g>
             )}

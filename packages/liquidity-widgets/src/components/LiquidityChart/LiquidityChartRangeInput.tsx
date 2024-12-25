@@ -1,10 +1,9 @@
 import { format } from "d3";
-import { saturate } from "polished";
 import { useCallback, useMemo } from "react";
 
-import { Chart } from "./Chart";
-import { InfoBox } from "./InfoBox";
-import Loader from "./Loader";
+import { Chart } from "./components/Chart";
+import { InfoBox } from "./components/InfoBox";
+import Loader from "./components/Loader";
 import {
   Bound,
   ChartEntry,
@@ -12,39 +11,29 @@ import {
   ZOOM_LEVELS,
   ZoomLevels,
 } from "./types";
-import { useZapState } from "../../hooks/useZapInState";
+import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
-import { Token } from "@/schema";
 
-export function LiquidityChartRangeInput({
-  currencyA,
-  currencyB,
+export default function LiquidityChartRangeInput({
   feeAmount,
   ticksAtLimit = {},
   price,
   priceLower,
   priceUpper,
-  onBothRangeInput = () => {
-    // default
-  },
-  onLeftRangeInput = () => {
-    // default
-  },
-  onRightRangeInput = () => {
-    // default
-  },
+  onBothRangeInput = () => {},
+  onLeftRangeInput = () => {},
+  onRightRangeInput = () => {},
   interactive = true,
   isLoading,
   error,
   zoomLevel,
   formattedData,
+  isUninitialized,
 }: {
   tickCurrent?: number;
   liquidity?: bigint;
   isLoading?: boolean;
   error?: Error;
-  currencyA?: Token | null;
-  currencyB?: Token | null;
   feeAmount?: number;
   ticks?: TickDataRaw[];
   ticksAtLimit?: { [bound in Bound]?: boolean };
@@ -57,12 +46,9 @@ export function LiquidityChartRangeInput({
   interactive?: boolean;
   zoomLevel?: ZoomLevels;
   formattedData: ChartEntry[] | undefined;
+  isUninitialized: boolean;
 }) {
   const theme = useWidgetContext((s) => s.theme);
-
-  // Get token color
-  const tokenAColor = "#7645D9";
-  const tokenBColor = "#7645D9";
 
   const { revertPrice } = useZapState();
   const isSorted = !revertPrice;
@@ -73,7 +59,10 @@ export function LiquidityChartRangeInput({
     const rightPrice = isSorted ? priceUpper : priceLower;
 
     return leftPrice && rightPrice
-      ? [parseFloat(leftPrice), parseFloat(rightPrice)]
+      ? [
+          parseFloat(leftPrice.replace(",", "")),
+          parseFloat(rightPrice.replace(",", "")),
+        ]
       : undefined;
   }, [isSorted, priceLower, priceUpper]);
 
@@ -152,9 +141,6 @@ export function LiquidityChartRangeInput({
     [isSorted, price, ticksAtLimit]
   );
 
-  const isUninitialized =
-    !currencyA || !currencyB || (formattedData === undefined && !isLoading);
-
   return (
     <div className="flex items-center min-h-52 w-full mt-2 gap-4 justify-center">
       {isUninitialized ? (
@@ -181,8 +167,8 @@ export function LiquidityChartRangeInput({
               },
               brush: {
                 handle: {
-                  west: saturate(0.1, tokenAColor) ?? theme.text,
-                  east: saturate(0.1, tokenBColor) ?? theme.text,
+                  west: "transparent",
+                  east: "transparent",
                 },
               },
             }}
@@ -190,7 +176,9 @@ export function LiquidityChartRangeInput({
             brushLabels={brushLabelValue}
             brushDomain={brushDomain}
             onBrushDomainChange={onBrushDomainChangeEnded}
-            zoomLevels={zoomLevel ?? ZOOM_LEVELS[feeAmount ?? 2500]}
+            zoomLevels={
+              zoomLevel ?? ZOOM_LEVELS[feeAmount as keyof typeof ZOOM_LEVELS]
+            }
             ticksAtLimit={ticksAtLimit}
           />
         </div>

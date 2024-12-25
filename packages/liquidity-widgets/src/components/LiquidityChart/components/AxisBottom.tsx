@@ -1,3 +1,4 @@
+import { useWidgetContext } from "@/stores/widget";
 import {
   Axis as d3Axis,
   axisBottom,
@@ -8,11 +9,17 @@ import {
 import { useMemo } from "react";
 
 const Axis = ({ axisGenerator }: { axisGenerator: d3Axis<NumberValue> }) => {
+  const theme = useWidgetContext((s) => s.theme);
+
   const axisRef = (axis: SVGGElement) => {
     axis &&
       select(axis)
         .call(axisGenerator)
-        .call((g) => g.select(".domain").remove());
+        .call((g) =>
+          g.select(".domain").attr("color", "#064E38").attr("stroke-width", 1.5)
+        )
+        .call((g) => g.selectAll(".tick line").attr("color", "transparent"))
+        .call((g) => g.selectAll(".tick text").attr("color", theme.subText));
   };
 
   return <g ref={axisRef} />;

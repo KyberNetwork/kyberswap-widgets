@@ -126,7 +126,6 @@ const UserPositions = ({ search }: { search: string }) => {
   const {
     theme,
     connectedAccount,
-    poolAddress,
     chainId,
     onOpenZapMigration,
     onConnectWallet,
@@ -138,12 +137,9 @@ const UserPositions = ({ search }: { search: string }) => {
   const [copied, setCopied] = useState<string | null>(null);
 
   const positions = useMemo(() => {
-    const positions = userPositions.filter(
-      (position: EarnPosition) => position.pool.poolAddress !== poolAddress
-    );
-    if (!search) return positions;
+    if (!search) return userPositions;
 
-    return positions.filter((position: EarnPosition) => {
+    return userPositions.filter((position: EarnPosition) => {
       const poolAddress = position.pool.poolAddress.toLowerCase();
       const token0Symbol =
         position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
@@ -167,7 +163,7 @@ const UserPositions = ({ search }: { search: string }) => {
             token0Name.includes(search.toLowerCase()) ||
             token1Name.includes(search.toLowerCase());
     });
-  }, [poolAddress, search, userPositions]);
+  }, [search, userPositions]);
 
   const copy = (position: EarnPosition) => {
     if (!navigator?.clipboard) return;
