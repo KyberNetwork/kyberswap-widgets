@@ -7,7 +7,10 @@ import {
   DialogTitle,
 } from "@kyber/ui/dialog";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-import { useZapStateStore } from "../../stores/useZapStateStore";
+import {
+  ProtocolFeeAction,
+  useZapStateStore,
+} from "../../stores/useZapStateStore";
 import {
   formatDisplayNumber,
   formatTokenAmount,
@@ -30,6 +33,7 @@ import {
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { MigrationSummary } from "./MigrationSummary";
+import { SwapPI } from "../SwapImpact";
 
 export function Preview({
   chainId,
@@ -151,6 +155,12 @@ export function Preview({
       BigInt(route.positionDetails.addedLiquidity)
     ));
   }
+
+  const feeInfo = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+
+  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
   if (showProcessing) {
     let content = <></>;
@@ -386,10 +396,7 @@ export function Preview({
               </div>
 
               <div className="flex items-center justify-between mt-4">
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Swap Price Impact
-                </div>
-                <div>TODO</div>
+                <SwapPI chainId={chainId} />
               </div>
 
               <div className="flex items-center justify-between mt-4">
@@ -407,7 +414,9 @@ export function Preview({
                 <div className="text-subText text-xs border-b border-dotted border-subText">
                   Migration Fee
                 </div>
-                <div>TODO</div>
+                <div className="text-sm font-medium">
+                  {parseFloat(zapFee.toFixed(3))}%
+                </div>
               </div>
 
               <div className="flex gap-5 mt-8">

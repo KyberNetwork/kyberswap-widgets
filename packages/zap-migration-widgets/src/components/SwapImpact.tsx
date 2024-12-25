@@ -9,6 +9,14 @@ import { usePoolsStore } from "../stores/usePoolsStore";
 import { NetworkInfo } from "../constants";
 import { ChainId } from "..";
 import { PI_LEVEL, formatWei, getPriceImpact } from "../utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@kyber/ui/accordion";
+import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
   const { route } = useZapStateStore();
@@ -131,7 +139,7 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
   }, [swapPi]);
 
   return (
-    <div className="flex justify-between items-start">
+    <div className="flex justify-between items-start w-full">
       {swapPi.length ? (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
@@ -141,7 +149,7 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
                 width="220px"
               >
                 <div
-                  className={`text-sm font-medium border-b border-dotted border-subText ${
+                  className={`text-xs font-medium border-b border-dotted border-subText ${
                     swapPiRes.piRes.level === PI_LEVEL.NORMAL
                       ? "text-subText"
                       : swapPiRes.piRes.level === PI_LEVEL.HIGH
@@ -153,7 +161,7 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
                 </div>
               </MouseoverTooltip>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="mt-2">
               {swapPi.map((item, index: number) => (
                 <div
                   className={`text-xs flex justify-between align-middle ${

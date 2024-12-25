@@ -21,7 +21,7 @@
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
-    "@kyber/ui": "workspace:*",
+    "@kyber/ui": "workspace:^",
     "@kyber/utils": "workspace:*",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",

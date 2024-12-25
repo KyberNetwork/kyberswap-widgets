@@ -23,10 +23,12 @@ import { SourcePoolState } from "./components/SourcePoolState";
 import { TargetPoolState } from "./components/TargetPoolState";
 import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { useZapStateStore } from "./stores/useZapStateStore";
+import { Theme } from "./theme";
 
 export { Dex, ChainId };
 
 export interface ZapMigrationProps {
+  theme?: Theme;
   chainId: ChainId;
   className?: string;
   from: DexFrom;
@@ -66,12 +68,21 @@ export const ZapMigration = ({
   onConnectWallet,
   onSwitchChain,
   onSubmitTx,
+  theme,
 }: //aggregatorOptions,
 //feeConfig,
 ZapMigrationProps) => {
   const { getPools, error: poolError } = usePoolsStore();
   const { fetchPosition, error: posError } = usePositionStore();
   const { showPreview } = useZapStateStore();
+
+  useEffect(() => {
+    if (!theme) return;
+    const r = document.querySelector<HTMLElement>(":root");
+    Object.keys(theme).forEach((key) => {
+      r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    });
+  }, [theme]);
 
   // fetch position on load
   useEffect(() => {

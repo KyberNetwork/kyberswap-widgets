@@ -34,7 +34,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@kyber/ui/accordion";
 import {
   divideBigIntToString,
   formatDisplayNumber,

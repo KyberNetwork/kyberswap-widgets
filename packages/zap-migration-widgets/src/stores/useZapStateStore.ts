@@ -145,6 +145,15 @@ const protocolFeeAction = z.object({
 
 export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
 
+const refundAction = z.object({
+  type: z.literal("ACTION_TYPE_REFUND"),
+  refund: z.object({
+    tokens: z.array(token),
+  }),
+});
+
+export type RefundAction = z.infer<typeof refundAction>;
+
 const apiResponse = z.object({
   poolDetails: z.object({
     category: z.string(), // TODO: "exotic_pair",
@@ -172,13 +181,7 @@ const apiResponse = z.object({
         poolSwapAction,
 
         addliquidtyAction,
-
-        z.object({
-          type: z.literal("ACTION_TYPE_REFUND"),
-          refund: z.object({
-            tokens: z.array(token),
-          }),
-        }),
+        refundAction,
       ])
     ),
 
