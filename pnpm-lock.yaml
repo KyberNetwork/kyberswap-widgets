@@ -561,6 +561,55 @@ importers:
         specifier: 5.3.2
         version: 5.3.2
 
+  packages/shema:
+    dependencies:
+      react:
+        specifier: '>=16.8.0'
+        version: 18.3.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@kyber/eslint-config':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@kyber/tailwind-config':
+        specifier: workspace:^
+        version: link:../config-tailwind
+      '@kyber/typescript-config':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@kyber/utils':
+        specifier: workspace:^
+        version: link:../utils
+      '@types/eslint':
+        specifier: ^8.56.5
+        version: 8.56.12
+      '@types/node':
+        specifier: ^20.11.24
+        version: 20.17.6
+      '@types/react':
+        specifier: ^18.0.17
+        version: 18.3.12
+      '@types/react-dom':
+        specifier: ^18.0.6
+        version: 18.3.1
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      postcss:
+        specifier: ^8.4.47
+        version: 8.4.49
+      tailwindcss:
+        specifier: ^3.4.13
+        version: 3.4.14
+      typescript:
+        specifier: 5.3.2
+        version: 5.3.2
+
   packages/svgr-esbuild-plugin:
     dependencies:
       '@svgr/core':
@@ -670,12 +719,18 @@ importers:
 
   packages/ui:
     dependencies:
+      '@popperjs/core':
+        specifier: ^2.11.8
+        version: 2.11.8
       '@radix-ui/react-accordion':
         specifier: ^1.2.1
         version: 1.2.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
       '@radix-ui/react-dialog':
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
+      '@radix-ui/react-scroll-area':
+        specifier: ^1.1.0
+        version: 1.2.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
       '@radix-ui/react-slider':
         specifier: ^1.2.1
         version: 1.2.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1)(react@18.3.1)
@@ -685,10 +740,19 @@ importers:
       react:
         specifier: '>=16.8.0'
         version: 18.3.1
+      react-popper:
+        specifier: ^2.3.0
+        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1)(react@18.3.1)
     devDependencies:
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
+      '@kyber/hooks':
+        specifier: workspace:^
+        version: link:../hooks
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../shema
       '@kyber/tailwind-config':
         specifier: workspace:^
         version: link:../config-tailwind
@@ -800,7 +864,7 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@kyber/ui':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../ui
       '@kyber/utils':
         specifier: workspace:*

@@ -5,17 +5,29 @@ import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import { decodePosition } from "@kyber/utils/uniswapv3";
 
 export const usePositionStore = create<{
-  position: "loading" | Position;
+  fromPosition: "loading" | Position;
+  toPosition: "loading" | Position | null;
+  setToPositionNull: () => void;
   error: string;
   fetchPosition: (
     dex: Dex,
     chainId: ChainId,
-    positionId: number
+    positionId: number,
+    isFromPos: boolean
   ) => Promise<void>;
 }>((set) => ({
-  position: "loading",
+  fromPosition: "loading",
+  toPosition: "loading",
+  setToPositionNull: () => {
+    set({ toPosition: null });
+  },
   error: "",
-  fetchPosition: async (dex: Dex, chainId: ChainId, positionId: number) => {
+  fetchPosition: async (
+    dex: Dex,
+    chainId: ChainId,
+    positionId: number,
+    isFromPos: boolean
+  ) => {
     const contract = DexInfos[dex].nftManagerContract;
     const contractAddress =
       typeof contract === "string" ? contract : contract[chainId];
@@ -55,15 +67,27 @@ export const usePositionStore = create<{
     if (result && result !== "0x") {
       const data = decodePosition(result);
 
-      set({
-        position: {
-          id: positionId,
-          dex,
-          liquidity: data.liquidity,
-          tickLower: data.tickLower,
-          tickUpper: data.tickUpper,
-        },
-      });
+      if (isFromPos)
+        set({
+          fromPosition: {
+            id: positionId,
+            dex,
+            liquidity: data.liquidity,
+            tickLower: data.tickLower,
+            tickUpper: data.tickUpper,
+          },
+        });
+      else {
+        set({
+          toPosition: {
+            id: positionId,
+            dex,
+            liquidity: data.liquidity,
+            tickLower: data.tickLower,
+            tickUpper: data.tickUpper,
+          },
+        });
+      }
       return;
     }
 

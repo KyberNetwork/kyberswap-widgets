@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { usePoolsStore } from "./usePoolsStore";
-import { usePositionStore } from "./useFromPositionStore";
+import { usePositionStore } from "./usePositionStore";
 import { NetworkInfo, ZAP_URL } from "../constants";
 import { ChainId } from "../schema";
 
@@ -20,9 +20,21 @@ interface ZapState {
   route: GetRouteResponse | null;
   showPreview: boolean;
   togglePreview: () => void;
+  degenMode: boolean;
+  toggleDegenMode: () => void;
+  showSetting: boolean;
+  toggleSetting: () => void;
+  ttl: number;
+  setTtl: (value: number) => void;
 }
 
 export const useZapStateStore = create<ZapState>((set, get) => ({
+  showSetting: false,
+  ttl: 20,
+  setTtl: (value: number) => set({ ttl: value }),
+  toggleSetting: () => set((state) => ({ showSetting: !state.showSetting })),
+  degenMode: false,
+  toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
   slippage: 50,
   setSlippage: (value: number) => set({ slippage: value }),
   showPreview: false,
@@ -36,9 +48,16 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
   fetchZapRoute: async (chainId: ChainId) => {
-    const { liquidityOut, tickLower, tickUpper } = get();
+    const { liquidityOut, tickLower: lower, tickUpper: upper } = get();
     const { pools } = usePoolsStore.getState();
-    const { position } = usePositionStore.getState();
+    const { fromPosition: position, toPosition } = usePositionStore.getState();
+
+    let tickLower = lower,
+      tickUpper = upper;
+    if (toPosition !== "loading" && toPosition !== null) {
+      tickLower = toPosition.tickLower;
+      tickUpper = toPosition.tickUpper;
+    }
 
     if (
       pools === "loading" ||
@@ -51,7 +70,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
 
     set({ fetchingRoute: true });
 
-    const params: { [key: string]: string | number | boolean } = {
+    const params: { [key: string]: string | number | boolean | undefined } = {
       dexFrom: pools[0].dex,
       "poolFrom.id": pools[0].address,
       "positionFrom.id": position.id,
@@ -60,10 +79,12 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       "poolTo.id": pools[1].address,
       "positionTo.tickLower": tickLower,
       "positionTo.tickUpper": tickUpper,
+      "positionTo.id":
+        toPosition !== "loading" && toPosition?.id ? toPosition.id : undefined,
     };
     let tmp = "";
     Object.keys(params).forEach((key) => {
-      tmp = `${tmp}&${key}=${params[key]}`;
+      if (params[key] !== undefined) tmp = `${tmp}&${key}=${params[key]}`;
     });
 
     try {
@@ -122,6 +143,38 @@ const addliquidtyAction = z.object({
 
 export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
 
+const poolSwapAction = z.object({
+  type: z.literal("ACTION_TYPE_POOL_SWAP"),
+  poolSwap: z.object({
+    swaps: z.array(
+      z.object({
+        tokenIn: token,
+        tokenOut: token,
+      })
+    ),
+  }),
+});
+export type PoolSwapAction = z.infer<typeof poolSwapAction>;
+
+const protocolFeeAction = z.object({
+  type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+  protocolFee: z.object({
+    pcm: z.number(),
+    tokens: z.array(token),
+  }),
+});
+
+export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
+
+const refundAction = z.object({
+  type: z.literal("ACTION_TYPE_REFUND"),
+  refund: z.object({
+    tokens: z.array(token),
+  }),
+});
+
+export type RefundAction = z.infer<typeof refundAction>;
+
 const apiResponse = z.object({
   poolDetails: z.object({
     category: z.string(), // TODO: "exotic_pair",
@@ -143,36 +196,13 @@ const apiResponse = z.object({
     actions: z.array(
       z.discriminatedUnion("type", [
         removeLiquidityAction,
-        z.object({
-          type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
-          protocolFee: z.object({
-            pcm: z.number(),
-            tokens: z.array(token),
-          }),
-        }),
-
+        protocolFeeAction,
         aggregatorSwapAction,
 
-        z.object({
-          type: z.literal("ACTION_TYPE_POOL_SWAP"),
-          poolSwap: z.object({
-            swaps: z.array(
-              z.object({
-                tokenIn: token,
-                tokenOut: token,
-              })
-            ),
-          }),
-        }),
+        poolSwapAction,
 
         addliquidtyAction,
-
-        z.object({
-          type: z.literal("ACTION_TYPE_REFUND"),
-          refund: z.object({
-            tokens: z.array(token),
-          }),
-        }),
+        refundAction,
       ])
     ),
 

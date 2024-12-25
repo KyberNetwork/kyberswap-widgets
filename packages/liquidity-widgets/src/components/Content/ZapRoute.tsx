@@ -14,7 +14,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@kyber/ui/accordion";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();

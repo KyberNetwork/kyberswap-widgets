@@ -1,7 +1,7 @@
 import { Skeleton } from "@kyber/ui/skeleton";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
-import { usePositionStore } from "../stores/useFromPositionStore";
+import { usePositionStore } from "../stores/usePositionStore";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
@@ -21,7 +21,7 @@ export const LiquiditySkeleton = () => (
 
 export function FromPool() {
   const { pools } = usePoolsStore();
-  const { position } = usePositionStore();
+  const { fromPosition: position } = usePositionStore();
 
   let amount0 = 0n;
   let amount1 = 0n;

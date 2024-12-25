@@ -3,10 +3,16 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogPortal,
   DialogTitle,
 } from "@kyber/ui/dialog";
+import { ScrollArea } from "@kyber/ui/scroll-area";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-import { useZapStateStore } from "../../stores/useZapStateStore";
+import {
+  ProtocolFeeAction,
+  RefundAction,
+  useZapStateStore,
+} from "../../stores/useZapStateStore";
 import {
   formatDisplayNumber,
   formatTokenAmount,
@@ -19,16 +25,21 @@ import LoadingIcon from "../../assets/icons/loader-circle.svg";
 import CheckIcon from "../../assets/icons/circle-check.svg";
 import { Image } from "../Image";
 import { ZAP_URL, DexInfos, NetworkInfo } from "../../constants";
-import { ChainId } from "../../schema";
+import { ChainId, Token } from "../../schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import {
+  calculateGasMargin,
   estimateGas,
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { MigrationSummary } from "./MigrationSummary";
+import { SwapPI } from "../SwapImpact";
+import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { InfoHelper } from "@kyber/ui/info-helper";
+import { formatCurrency, getWarningThreshold } from "../../utils";
 
 export function Preview({
   chainId,
@@ -44,13 +55,14 @@ export function Preview({
     to: string;
     value: string;
     data: string;
+    gasLimit: string;
   }) => Promise<string>;
   account: string | undefined;
   onClose: () => void;
 }) {
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
-  const { pools } = usePoolsStore();
+  const { pools, theme } = usePoolsStore();
 
   const [buildData, setBuildData] = useState<{
     callData: string;
@@ -92,13 +104,13 @@ export function Preview({
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
   useEffect(() => {
-    if (!buildData) return;
+    if (!buildData || !account) return;
     (async () => {
       const wethAddress =
         NetworkInfo[chainId].wrappedToken.address.toLowerCase();
       const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
         estimateGas(rpcUrl, {
-          from: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
+          from: account,
           to: buildData.routerAddress,
           value: "0x0", // alway use WETH when remove this this is alway 0
           data: buildData.callData,
@@ -119,7 +131,7 @@ export function Preview({
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData]);
+  }, [buildData, account]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -150,6 +162,43 @@ export function Preview({
       BigInt(route.positionDetails.addedLiquidity)
     ));
   }
+
+  const feeInfo = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+
+  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+
+  const tokens: Token[] = [
+    pools[0].token0,
+    pools[0].token1,
+    pools[1].token0,
+    pools[1].token1,
+  ];
+
+  const refundInfo = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REFUND"
+  ) as RefundAction | null;
+
+  const refundUsd =
+    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
+    0;
+
+  const refunds: { amount: string; symbol: string }[] = [];
+  refundInfo?.refund.tokens.forEach((refund) => {
+    const token = tokens.find(
+      (t) => t.address.toLowerCase() === refund.address.toLowerCase()
+    );
+    if (token) {
+      refunds.push({
+        amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
+        symbol: token.symbol,
+      });
+    }
+  });
+
+  const warningThreshold =
+    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
   if (showProcessing) {
     let content = <></>;
@@ -202,9 +251,11 @@ export function Preview({
             <AlertIcon className="w-6 h-6 text-error" />
             Failed to migrate
           </div>
-          <div className="text-subText mt-6 break-all	text-center max-h-[200px] overflow-y-scroll">
-            {error}
-          </div>
+          <ScrollArea className="mt-4">
+            <div className="text-subText mt-6 break-all	text-center max-h-[200px]">
+              {error}
+            </div>
+          </ScrollArea>
         </>
       );
     }
@@ -221,7 +272,7 @@ export function Preview({
           setSubmiting(false);
         }}
       >
-        <DialogContent>
+        <DialogContent containerClassName="ks-lw-migration-style">
           <DialogDescription>{content}</DialogDescription>
         </DialogContent>
       </Dialog>
@@ -229,236 +280,282 @@ export function Preview({
   }
 
   return (
-    <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
+        <DialogPortal>
+          <DialogContent containerClassName="ks-lw-migration-style">
+            <DialogHeader>
+              <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
+            </DialogHeader>
 
-        <DialogDescription>
-          <div>
-            Migrate{" "}
-            {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
-              style: "currency",
-            })}{" "}
-            value
-          </div>
-          <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
-            <div className="flex items-end">
-              <Image
-                src={pools[0].token0.logo || ""}
-                alt={pools[0].token0.symbol}
-                className="w-9 h-9 z-0"
-              />
-              <Image
-                src={pools[0].token1.logo || ""}
-                alt={pools[0].token1.symbol}
-                className="w-9 h-9 -ml-3 z-10"
-              />
-              <Image
-                src={NetworkInfo[chainId].logo}
-                alt={NetworkInfo[chainId].name}
-                className="w-4 h-4 -ml-1.5 z-20"
-              />
-            </div>
-            <div>
-              <div className="flex gap-1 items-center">
-                {pools[0].token0.symbol}/{pools[0].token1.symbol}{" "}
-                <CopyIcon className="text-subText w-4 h-4" />
+            <DialogDescription>
+              <div>
+                Migrate{" "}
+                {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
+                  style: "currency",
+                })}{" "}
+                value
               </div>
-              <div className="flex gap-1 items-center text-subText mt-1">
-                <Image
-                  src={DexInfos[pools[0].dex].icon}
-                  alt={DexInfos[pools[0].dex].name}
-                  className="w-3 h-3"
-                />
-                <div className="text-sm opacity-70">
-                  {DexInfos[pools[0].dex].name}
+              <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
+                <div className="flex items-end">
+                  <Image
+                    src={pools[0].token0.logo || ""}
+                    alt={pools[0].token0.symbol}
+                    className="w-9 h-9 z-0"
+                  />
+                  <Image
+                    src={pools[0].token1.logo || ""}
+                    alt={pools[0].token1.symbol}
+                    className="w-9 h-9 -ml-3 z-10"
+                  />
+                  <Image
+                    src={NetworkInfo[chainId].logo}
+                    alt={NetworkInfo[chainId].name}
+                    className="w-4 h-4 -ml-1.5 z-20"
+                  />
                 </div>
-                <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-                  Fee {pools[0].fee}%
+                <div>
+                  <div className="flex gap-1 items-center">
+                    {pools[0].token0.symbol}/{pools[0].token1.symbol}{" "}
+                    <CopyIcon className="text-subText w-4 h-4" />
+                  </div>
+                  <div className="flex gap-1 items-center text-subText mt-1">
+                    <Image
+                      src={DexInfos[pools[0].dex].icon}
+                      alt={DexInfos[pools[0].dex].name}
+                      className="w-3 h-3"
+                    />
+                    <div className="text-sm opacity-70">
+                      {DexInfos[pools[0].dex].name}
+                    </div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+                      Fee {pools[0].fee}%
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
-            <div className="flex items-end">
-              <Image
-                src={pools[1].token0.logo || ""}
-                alt={pools[1].token0.symbol}
-                className="w-9 h-9 z-0"
-              />
-              <Image
-                src={pools[1].token1.logo || ""}
-                alt={pools[1].token1.symbol}
-                className="w-9 h-9 -ml-3 z-10"
-              />
-              <Image
-                src={NetworkInfo[chainId].logo}
-                alt={NetworkInfo[chainId].name}
-                className="w-4 h-4 -ml-1.5 z-20"
-              />
-            </div>
-            <div>
-              <div className="flex gap-1 items-center">
-                {pools[1].token0.symbol}/{pools[1].token1.symbol}{" "}
-                <CopyIcon className="text-subText w-4 h-4" />
-              </div>
-              <div className="flex gap-1 items-center text-subText mt-1">
-                <Image
-                  src={DexInfos[pools[1].dex].icon}
-                  alt={DexInfos[pools[1].dex].name}
-                  className="w-3 h-3"
-                />
-                <div className="text-sm opacity-70">
-                  {DexInfos[pools[1].dex].name}
+              <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
+                <div className="flex items-end">
+                  <Image
+                    src={pools[1].token0.logo || ""}
+                    alt={pools[1].token0.symbol}
+                    className="w-9 h-9 z-0"
+                  />
+                  <Image
+                    src={pools[1].token1.logo || ""}
+                    alt={pools[1].token1.symbol}
+                    className="w-9 h-9 -ml-3 z-10"
+                  />
+                  <Image
+                    src={NetworkInfo[chainId].logo}
+                    alt={NetworkInfo[chainId].name}
+                    className="w-4 h-4 -ml-1.5 z-20"
+                  />
                 </div>
-                <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-                  Fee {pools[1].fee}%
+                <div>
+                  <div className="flex gap-1 items-center">
+                    {pools[1].token0.symbol}/{pools[1].token1.symbol}{" "}
+                    <CopyIcon className="text-subText w-4 h-4" />
+                  </div>
+                  <div className="flex gap-1 items-center text-subText mt-1">
+                    <Image
+                      src={DexInfos[pools[1].dex].icon}
+                      alt={DexInfos[pools[1].dex].name}
+                      className="w-3 h-3"
+                    />
+                    <div className="text-sm opacity-70">
+                      {DexInfos[pools[1].dex].name}
+                    </div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+                      Fee {pools[1].fee}%
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="mt-4 rounded-md px-5 py-4 bg-interactive">
-            <span className="text-subText text-sm">New Pool Liquidity</span>
-            <div className="flex justify-between items-start text-base mt-2">
-              <div className="flex items-center gap-1">
-                <Image
-                  className="w-4 h-4"
-                  src={pools[1].token0.logo || ""}
-                  alt=""
-                />
-                {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
-                {pools[1].token0.symbol}
+              <div className="mt-4 rounded-md px-5 py-4 bg-interactive">
+                <span className="text-subText text-sm">New Pool Liquidity</span>
+                <div className="flex justify-between items-start text-base mt-2">
+                  <div className="flex items-center gap-1">
+                    <Image
+                      className="w-4 h-4"
+                      src={pools[1].token0.logo || ""}
+                      alt=""
+                    />
+                    {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
+                    {pools[1].token0.symbol}
+                  </div>
+                  <div className="text-subText">
+                    ~
+                    {formatDisplayNumber(
+                      (pools[1].token0.price || 0) *
+                        Number(toRawString(amount0, pools[1].token0.decimals)),
+                      { style: "currency" }
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-start text-base mt-2">
+                  <div className="flex items-center gap-1">
+                    <Image
+                      className="w-4 h-4"
+                      src={pools[1].token1.logo || ""}
+                      alt=""
+                    />
+                    {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
+                    {pools[1].token1.symbol}
+                  </div>
+                  <div className="text-subText">
+                    ~
+                    {formatDisplayNumber(
+                      (pools[1].token1.price || 0) *
+                        Number(toRawString(amount1, pools[1].token1.decimals)),
+                      { style: "currency" }
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="text-subText">
-                ~
-                {formatDisplayNumber(
-                  (pools[1].token0.price || 0) *
-                    Number(toRawString(amount0, pools[1].token0.decimals)),
-                  { style: "currency" }
+
+              <div className="flex items-center justify-between mt-4">
+                <MouseoverTooltip
+                  text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+                  width="220px"
+                >
+                  <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+                    Est. Remaining Value
+                  </div>
+                </MouseoverTooltip>
+
+                {refunds.length > 0 ? (
+                  <div>
+                    {formatCurrency(refundUsd)}
+                    <InfoHelper
+                      text={
+                        <div>
+                          {refunds.map((refund) => (
+                            <div key={refund.symbol}>
+                              {refund.amount} {refund.symbol}{" "}
+                            </div>
+                          ))}
+                        </div>
+                      }
+                    />
+                  </div>
+                ) : (
+                  <div>--</div>
                 )}
               </div>
-            </div>
 
-            <div className="flex justify-between items-start text-base mt-2">
-              <div className="flex items-center gap-1">
-                <Image
-                  className="w-4 h-4"
-                  src={pools[1].token1.logo || ""}
-                  alt=""
-                />
-                {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
-                {pools[1].token1.symbol}
+              <div className="flex items-center justify-between mt-2">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Max Slippage
+                </div>
+                <div className="text-sm">
+                  <span
+                    className={`text-sm font-medium ${
+                      slippage > warningThreshold ? "text-warning" : "text-text"
+                    }`}
+                  >
+                    {((slippage * 100) / 10_000).toFixed(2)}%
+                  </span>
+                </div>
               </div>
-              <div className="text-subText">
-                ~
-                {formatDisplayNumber(
-                  (pools[1].token1.price || 0) *
-                    Number(toRawString(amount1, pools[1].token1.decimals)),
-                  { style: "currency" }
-                )}
+
+              <div className="flex items-center justify-between mt-2">
+                <SwapPI chainId={chainId} />
               </div>
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Remaining Amount
-            </div>
-            <div>TODO</div>
-          </div>
+              <div className="flex items-center justify-between mt-2">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Est. Gas Fee
+                </div>
+                <div className="text-sm">
+                  {gasUsd
+                    ? formatDisplayNumber(gasUsd, { style: "currency" })
+                    : "--"}
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Max Slippage
-            </div>
-            <div className="text-sm">
-              {formatDisplayNumber((slippage * 100) / 10_000, {
-                style: "percent",
-              })}
-            </div>
-          </div>
+              <div className="flex items-center justify-between mt-2">
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Migration Fee
+                </div>
+                <div className="text-sm font-medium">
+                  {parseFloat(zapFee.toFixed(3))}%
+                </div>
+              </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Swap Price Impact
-            </div>
-            <div>TODO</div>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Est. Gas Fee
-            </div>
-            <div className="text-sm">
-              {gasUsd
-                ? formatDisplayNumber(gasUsd, { style: "currency" })
-                : "--"}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Migration Fee
-            </div>
-            <div>TODO</div>
-          </div>
-
-          <div className="flex gap-5 mt-8">
-            <button
-              className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
-              onClick={() => togglePreview()}
-            >
-              Cancel
-            </button>
-            <button
-              className={cn(
-                "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
-                "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
+              {slippage > warningThreshold && (
+                <div
+                  className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+                  style={{
+                    backgroundColor: `${theme.warning}33`,
+                  }}
+                >
+                  Slippage is high, your transaction might be front-run!
+                </div>
               )}
-              onClick={async () => {
-                if (!buildData) {
-                  setShowProcessing(true);
-                  return;
-                }
 
-                const txData = {
-                  from: account,
-                  to: buildData.routerAddress,
-                  value: "0x0", // alway use WETH when remove this this is alway 0
-                  data: buildData.callData,
-                };
+              <div className="flex gap-5 mt-8">
+                <button
+                  className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
+                  onClick={() => togglePreview()}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={cn(
+                    "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
+                    "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
+                  )}
+                  onClick={async () => {
+                    if (!buildData) {
+                      setShowProcessing(true);
+                      return;
+                    }
 
-                setShowProcessing(true);
-                setSubmiting(true);
-                const gas = await estimateGas(rpcUrl, txData).catch((err) => {
-                  console.log(err.message);
-                  setSubmiting(false);
-                  setError(`Estimate Gas Failed: ${err.message}`);
-                  return "0";
-                });
+                    const txData = {
+                      from: account,
+                      to: buildData.routerAddress,
+                      value: "0x0", // alway use WETH when remove this this is alway 0
+                      data: buildData.callData,
+                    };
 
-                if (gas === "0") return;
+                    setShowProcessing(true);
+                    setSubmiting(true);
+                    const gas = await estimateGas(rpcUrl, txData).catch(
+                      (err) => {
+                        console.log(err.message);
+                        setSubmiting(false);
+                        setError(`Estimate Gas Failed: ${err.message}`);
+                        return 0n;
+                      }
+                    );
 
-                try {
-                  const txHash = await onSubmitTx(txData);
-                  setTxHash(txHash);
-                } catch (err) {
-                  setSubmiting(false);
-                  setError(`Submit Tx Failed: ${JSON.stringify(err)}`);
-                }
-              }}
-            >
-              Migrate
-            </button>
-          </div>
+                    if (gas === 0n) return;
 
-          <MigrationSummary route={route} />
-        </DialogDescription>
-      </DialogContent>
-    </Dialog>
+                    try {
+                      const txHash = await onSubmitTx({
+                        ...txData,
+                        gasLimit: calculateGasMargin(gas),
+                      });
+                      setTxHash(txHash);
+                    } catch (err) {
+                      setSubmiting(false);
+                      setError(`Submit Tx Failed: ${JSON.stringify(err)}`);
+                    }
+                  }}
+                >
+                  Migrate
+                </button>
+              </div>
+
+              <MigrationSummary route={route} />
+            </DialogDescription>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
+    </>
   );
 }

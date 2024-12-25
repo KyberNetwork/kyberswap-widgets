@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/zap-migration-widgets",
   "license": "MIT",
-  "version": "0.0.1-rc",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
@@ -21,7 +21,7 @@
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
-    "@kyber/ui": "workspace:*",
+    "@kyber/ui": "workspace:^",
     "@kyber/utils": "workspace:*",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",
