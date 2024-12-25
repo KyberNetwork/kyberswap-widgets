@@ -86,17 +86,7 @@ export default function PriceInfo() {
         <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
           <span className="font-medium text-text">{price}</span>
-          <MouseoverTooltip
-            text={
-              firstTokenShortenSymbol !== firstToken?.symbol
-                ? firstToken?.symbol
-                : ""
-            }
-            placement="top"
-          >
-            {firstTokenShortenSymbol}
-          </MouseoverTooltip>
-          <span>per</span>
+
           <MouseoverTooltip
             text={
               secondTokenShortenSymbol !== secondToken?.symbol
@@ -106,6 +96,17 @@ export default function PriceInfo() {
             placement="top"
           >
             {secondTokenShortenSymbol}
+          </MouseoverTooltip>
+          <span>per</span>
+          <MouseoverTooltip
+            text={
+              firstTokenShortenSymbol !== firstToken?.symbol
+                ? firstToken?.symbol
+                : ""
+            }
+            placement="top"
+          >
+            {firstTokenShortenSymbol}
           </MouseoverTooltip>
           <SwitchIcon
             className="cursor-pointer"
@@ -134,11 +135,11 @@ export default function PriceInfo() {
           <div className="italic text-text">
             The pool's current price of{" "}
             <span className="font-medium text-warning not-italic">
-              1 {firstToken.symbol} = {price} {secondToken.symbol}
+              1 {secondToken.symbol} = {price} {firstToken.symbol}
             </span>{" "}
             deviates from the market price{" "}
             <span className="font-medium text-warning not-italic">
-              (1 {firstToken.symbol} = {marketRate} {secondToken.symbol})
+              (1 {secondToken.symbol} = {marketRate} {firstToken.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to
             this pool
