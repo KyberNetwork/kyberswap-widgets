@@ -63,16 +63,18 @@ export function PoolInfo({
         <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
           Fee {pool.fee}%
         </div>
-        <div
-          className={`rounded-full text-xs px-2 py-1 font-normal text-${
-            isOutOfRange ? "warning" : "accent"
-          }`}
-          style={{
-            background: `${isOutOfRange ? theme.warning : theme.accent}33`,
-          }}
-        >
-          {isOutOfRange ? "● Out of range" : "● In range"}
-        </div>
+        {position && (
+          <div
+            className={`rounded-full text-xs px-2 py-1 font-normal ${
+              isOutOfRange ? "text-warning" : "text-accent"
+            }`}
+            style={{
+              background: `${isOutOfRange ? theme.warning : theme.accent}33`,
+            }}
+          >
+            {isOutOfRange ? "● Out of range" : "● In range"}
+          </div>
+        )}
       </div>
     </>
   );
