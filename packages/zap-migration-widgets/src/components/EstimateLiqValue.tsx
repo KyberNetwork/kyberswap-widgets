@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDebounce } from "@kyber/hooks/use-debounce";
-import { usePositionStore } from "../stores/useFromPositionStore";
+import { usePositionStore } from "../stores/usePositionStore";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
 import { ChainId } from "../schema";
@@ -13,13 +13,19 @@ import {
 } from "@kyber/utils/number";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { SwapPI } from "./SwapImpact";
+import { SwapPI, useSwapPI } from "./SwapImpact";
+import { useNftApproval } from "../hooks/use-nft-approval";
+import { DexInfos, NetworkInfo } from "../constants";
+import { PI_LEVEL } from "../utils";
+import { InfoHelper } from "@kyber/ui/info-helper";
 
 export function EstimateLiqValue({
   chainId,
   onSwitchChain,
   onConnectWallet,
   connectedAccount,
+  onClose,
+  onSubmitTx,
 }: {
   chainId: ChainId;
   connectedAccount: {
@@ -28,11 +34,20 @@ export function EstimateLiqValue({
   };
   onConnectWallet: () => void;
   onSwitchChain: () => void;
+  onClose: () => void;
+  onSubmitTx: (txData: {
+    from: string;
+    to: string;
+    value: string;
+    data: string;
+    gasLimit: string;
+  }) => Promise<string>;
 }) {
-  const { pools } = usePoolsStore();
-  const { position } = usePositionStore();
+  const { pools, theme } = usePoolsStore();
+  const { fromPosition: position } = usePositionStore();
 
   const {
+    toggleSetting,
     fetchZapRoute,
     tickUpper,
     tickLower,
@@ -42,9 +57,28 @@ export function EstimateLiqValue({
     slippage,
     togglePreview,
     showPreview,
+    degenMode,
   } = useZapStateStore();
 
+  const nftManager =
+    pools === "loading" ? undefined : DexInfos[pools[0].dex].nftManagerContract;
+
+  const { isChecking, isApproved, approve, pendingTx } = useNftApproval({
+    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    nftManagerContract: nftManager
+      ? typeof nftManager === "string"
+        ? nftManager
+        : nftManager[chainId]
+      : undefined,
+    nftId: position === "loading" ? undefined : position.id,
+    spender: route?.routerAddress,
+    account: connectedAccount.address,
+    onSubmitTx,
+  });
+
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
+  const debouncedTickUpper = useDebounce(tickUpper, 500);
+  const debouncedTickLower = useDebounce(tickLower, 500);
 
   useEffect(() => {
     if (showPreview) return;
@@ -53,8 +87,8 @@ export function EstimateLiqValue({
     pools,
     position,
     fetchZapRoute,
-    tickUpper,
-    tickLower,
+    debouncedTickUpper,
+    debouncedTickLower,
     debounceLiquidityOut,
     showPreview,
   ]);
@@ -71,6 +105,14 @@ export function EstimateLiqValue({
     ));
   }
 
+  const { swapPiRes, zapPiRes } = useSwapPI(chainId);
+  const pi = {
+    piHigh: swapPiRes.piRes.level === PI_LEVEL.HIGH,
+    piVeryHigh: swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH,
+  };
+
+  const [clickedApprove, setClickedApprove] = useState(false);
+
   let btnText = "";
   if (fetchingRoute) btnText = "Fetching Route...";
   else if (liquidityOut === 0n) btnText = "Select Liquidity to Remove";
@@ -79,6 +121,10 @@ export function EstimateLiqValue({
   else if (route === null) btnText = "No Route Found";
   else if (!connectedAccount.address) btnText = "Connect Wallet";
   else if (connectedAccount.chainId !== chainId) btnText = "Switch Network";
+  else if (isChecking) btnText = "Checking Allowance";
+  else if (pendingTx || clickedApprove) btnText = "Approving...";
+  else if (!isApproved) btnText = "Approve NFT";
+  else if (pi.piVeryHigh) btnText = "Zap anyway";
   else btnText = "Preview";
 
   const disableBtn =
@@ -86,7 +132,21 @@ export function EstimateLiqValue({
     route === null ||
     liquidityOut === 0n ||
     tickLower === null ||
-    tickUpper === null;
+    tickUpper === null ||
+    isChecking ||
+    !!pendingTx ||
+    clickedApprove;
+
+  const handleClick = async () => {
+    if (!connectedAccount.address) onConnectWallet();
+    else if (connectedAccount.chainId !== chainId) onSwitchChain();
+    else if (!isApproved) {
+      setClickedApprove(true);
+      await approve();
+      setClickedApprove(false);
+    } else if (pi.piVeryHigh && !degenMode) toggleSetting();
+    else togglePreview();
+  };
 
   return (
     <>
@@ -103,7 +163,6 @@ export function EstimateLiqValue({
             </div>
           )}
         </div>
-
         <div className="py-4 flex gap-6">
           <div className="flex-1">
             <div className="flex justify-between items-start">
@@ -222,24 +281,76 @@ export function EstimateLiqValue({
             </div>
           </div>
         </div>
+
+        {route && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+          <div
+            className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
+              swapPiRes.piRes.level === PI_LEVEL.HIGH
+                ? "text-warning"
+                : "text-error"
+            }`}
+            style={{
+              backgroundColor:
+                swapPiRes.piRes.level === PI_LEVEL.HIGH
+                  ? `${theme.warning}33`
+                  : `${theme.error}33`,
+            }}
+          >
+            {swapPiRes.piRes.msg}
+          </div>
+        )}
+
+        {route && zapPiRes.level !== PI_LEVEL.NORMAL && (
+          <div
+            className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
+              zapPiRes.level === PI_LEVEL.HIGH ? "text-warning" : "text-error"
+            }`}
+            style={{
+              backgroundColor:
+                zapPiRes.level === PI_LEVEL.HIGH
+                  ? `${theme.warning}33`
+                  : `${theme.error}33`,
+            }}
+          >
+            {zapPiRes.msg}
+          </div>
+        )}
       </div>
       <div className="flex gap-5 mt-8">
-        <button className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium">
+        <button
+          className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
+          onClick={onClose}
+        >
           Cancel
         </button>
         <button
           className={cn(
             "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
-            "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
+            "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed",
+            !disableBtn && isApproved
+              ? pi.piVeryHigh
+                ? "bg-error border-solid border-error text-white"
+                : pi.piHigh
+                ? "bg-warning border-solid border-warning"
+                : ""
+              : ""
           )}
           disabled={disableBtn}
-          onClick={() => {
-            if (!connectedAccount.address) onConnectWallet();
-            else if (connectedAccount.chainId !== chainId) onSwitchChain();
-            else togglePreview();
-          }}
+          onClick={handleClick}
         >
           {btnText}
+
+          {pi.piVeryHigh && (
+            <InfoHelper
+              color="#ffffff"
+              width="300px"
+              text={
+                degenMode
+                  ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                  : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+              }
+            />
+          )}
         </button>
       </div>
     </>

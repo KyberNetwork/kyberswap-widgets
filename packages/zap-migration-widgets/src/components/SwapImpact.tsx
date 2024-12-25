@@ -18,7 +18,7 @@ import {
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import { formatDisplayNumber } from "@kyber/utils/number";
 
-export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
+export const useSwapPI = (chainId: ChainId) => {
   const { route } = useZapStateStore();
   const { pools } = usePoolsStore();
 
@@ -137,6 +137,18 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
 
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
+
+  const zapPiRes = getPriceImpact(
+    route?.zapDetails.priceImpact,
+    "Zap Impact",
+    feeInfo
+  );
+
+  return { swapPi, swapPiRes, zapPiRes };
+};
+
+export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
+  const { swapPi, swapPiRes } = useSwapPI(chainId);
 
   return (
     <div className="flex justify-between items-start w-full">

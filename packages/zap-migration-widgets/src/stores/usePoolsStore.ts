@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { ChainId, Dex, Pool, Token, tick, token } from "../schema";
 import { z } from "zod";
+import { Theme, defaultTheme } from "../theme";
 // import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 interface GetPoolParams {
@@ -9,11 +10,16 @@ interface GetPoolParams {
   dexFrom: Dex;
   poolTo: string;
   dexTo: Dex;
+  fetchPrices: (
+    address: string[]
+  ) => Promise<{ [key: string]: { PriceBuy: number } }>;
 }
 interface PoolsState {
   pools: "loading" | [Pool, Pool];
   error: string;
   getPools: (params: GetPoolParams) => void;
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
 }
 
 const BFF_API = "https://bff.kyberswap.com/api";
@@ -63,14 +69,16 @@ const poolResponse = z.object({
 export const usePoolsStore = create<PoolsState>((set, get) => ({
   pools: "loading",
   error: "",
+  theme: defaultTheme,
+  setTheme: (theme: Theme) => set({ theme }),
   getPools: async ({
     chainId,
     poolFrom,
     poolTo,
     dexFrom,
     dexTo,
+    fetchPrices,
   }: GetPoolParams) => {
-    // const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
     try {
       const res = await fetch(
         `${BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${
@@ -130,14 +138,14 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      // const prices = await fetchPrices(
-      //   addresses.map((item) => item.address.toLowerCase())
-      // );
+      const prices = await fetchPrices(
+        addresses.map((item) => item.toLowerCase())
+      );
 
       const enrichLogoAndPrice = (
         token: Pick<Token, "address">
       ): Token | undefined => {
-        // const price = prices[token.address.toLowerCase()];
+        const price = prices[token.address.toLowerCase()];
         const tk = tokens.find(
           (item) => item.address.toLowerCase() === token.address.toLowerCase()
         );
@@ -150,7 +158,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           ...token,
           ...tk,
           logo: tk?.logoURI,
-          // price: price?.PriceBuy || 0,
+          price: price?.PriceBuy || 0,
         };
       };
 

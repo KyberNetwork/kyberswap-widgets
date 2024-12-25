@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/zap-migration-widgets",
   "license": "MIT",
-  "version": "0.0.1-rc",
+  "version": "1.0.4",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",

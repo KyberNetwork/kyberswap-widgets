@@ -6,7 +6,7 @@ import "@kyber/ui/styles.css";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { ChainId, Dex, DexFrom, DexTo } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
-import { usePositionStore } from "./stores/useFromPositionStore";
+import { usePositionStore } from "./stores/usePositionStore";
 import { useEffect } from "react";
 import { Header } from "./components/Header";
 import { FromPool } from "./components/FromPool";
@@ -24,6 +24,7 @@ import { TargetPoolState } from "./components/TargetPoolState";
 import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { useZapStateStore } from "./stores/useZapStateStore";
 import { Theme } from "./theme";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export { Dex, ChainId };
 
@@ -54,8 +55,22 @@ export interface ZapMigrationProps {
     to: string;
     value: string;
     data: string;
+    gasLimit: string;
   }) => Promise<string>;
 }
+
+// createModalRoot.js
+const createModalRoot = () => {
+  let modalRoot = document.getElementById("ks-lw-modal-root");
+  if (!modalRoot) {
+    modalRoot = document.createElement("div");
+    modalRoot.id = "ks-lw-modal-root";
+    modalRoot.className = "ks-lw-migration-style";
+    document.body.appendChild(modalRoot);
+  }
+};
+
+createModalRoot();
 
 export const ZapMigration = ({
   client,
@@ -72,12 +87,19 @@ export const ZapMigration = ({
 }: //aggregatorOptions,
 //feeConfig,
 ZapMigrationProps) => {
-  const { getPools, error: poolError } = usePoolsStore();
-  const { fetchPosition, error: posError } = usePositionStore();
+  const { getPools, error: poolError, setTheme } = usePoolsStore();
+  const {
+    fetchPosition,
+    error: posError,
+    setToPositionNull,
+  } = usePositionStore();
+
   const { showPreview } = useZapStateStore();
+  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
     if (!theme) return;
+    setTheme(theme);
     const r = document.querySelector<HTMLElement>(":root");
     Object.keys(theme).forEach((key) => {
       r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
@@ -86,10 +108,12 @@ ZapMigrationProps) => {
 
   // fetch position on load
   useEffect(() => {
-    fetchPosition(from.dex, chainId, +from.positionId);
+    fetchPosition(from.dex, chainId, +from.positionId, true);
+    if (to.positionId) fetchPosition(to.dex, chainId, +to.positionId, false);
+    else setToPositionNull();
 
     const interval = setInterval(() => {
-      fetchPosition(from.dex, chainId, +from.positionId);
+      fetchPosition(from.dex, chainId, +from.positionId, true);
     }, 15_000);
 
     return () => clearInterval(interval);
@@ -103,6 +127,7 @@ ZapMigrationProps) => {
       poolTo: to.poolId,
       dexFrom: from.dex,
       dexTo: to.dex,
+      fetchPrices,
     };
     getPools(params);
 
@@ -153,6 +178,8 @@ ZapMigrationProps) => {
           connectedAccount={connectedAccount}
           onConnectWallet={onConnectWallet}
           onSwitchChain={onSwitchChain}
+          onClose={onClose}
+          onSubmitTx={onSubmitTx}
         />
 
         {showPreview && (

@@ -61,6 +61,7 @@ function App() {
     to: {
       dex: Dex;
       poolId: string;
+      positionId?: number;
     };
   }>({
     // chainId: "56",
@@ -76,12 +77,13 @@ function App() {
     chainId: "42161",
     from: {
       dex: Dex.Uniswapv3,
-      poolId: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
-      positionId: 3611201,
+      poolId: "0x2f5e87C9312fa29aed5c179E456625D79015299c",
+      positionId: 4040452,
     },
     to: {
       dex: Dex.Uniswapv3,
-      poolId: "0x2f5e87C9312fa29aed5c179E456625D79015299c",
+      poolId: "0x641C00A822e8b671738d32a431a4Fb6074E5c79d",
+      //positionId: 3611201,
     },
   });
 
@@ -261,6 +263,7 @@ function App() {
               to={{
                 dex: state.to.dex,
                 poolId: state.to.poolId,
+                positionId: state.to.positionId,
                 //dex: Dex.Uniswapv3,
                 //poolId: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
               }}

@@ -4,7 +4,7 @@ import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
-import { usePositionStore } from "../stores/useFromPositionStore";
+import { usePositionStore } from "../stores/usePositionStore";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
@@ -15,7 +15,7 @@ import { useZapStateStore } from "../stores/useZapStateStore";
 
 export function SourcePoolState() {
   const { pools } = usePoolsStore();
-  const { position } = usePositionStore();
+  const { fromPosition: position } = usePositionStore();
 
   const { liquidityOut, setLiquidityOut } = useZapStateStore();
 

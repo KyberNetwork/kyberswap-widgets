@@ -78,7 +78,8 @@ export const dexFrom = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Position ID must be a number for Uniswapv3 or Pancakev3",
+        message:
+          "Position ID must be a number for Uniswapv3 or Pancakev3 or Sushiv3",
         path: ["positionId"],
       });
     }

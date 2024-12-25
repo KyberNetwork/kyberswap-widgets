@@ -6,9 +6,11 @@ import {
   DialogPortal,
   DialogTitle,
 } from "@kyber/ui/dialog";
+import { ScrollArea } from "@kyber/ui/scroll-area";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   ProtocolFeeAction,
+  RefundAction,
   useZapStateStore,
 } from "../../stores/useZapStateStore";
 import {
@@ -23,17 +25,21 @@ import LoadingIcon from "../../assets/icons/loader-circle.svg";
 import CheckIcon from "../../assets/icons/circle-check.svg";
 import { Image } from "../Image";
 import { ZAP_URL, DexInfos, NetworkInfo } from "../../constants";
-import { ChainId } from "../../schema";
+import { ChainId, Token } from "../../schema";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import {
+  calculateGasMargin,
   estimateGas,
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { MigrationSummary } from "./MigrationSummary";
 import { SwapPI } from "../SwapImpact";
+import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { InfoHelper } from "@kyber/ui/info-helper";
+import { formatCurrency, getWarningThreshold } from "../../utils";
 
 export function Preview({
   chainId,
@@ -49,13 +55,14 @@ export function Preview({
     to: string;
     value: string;
     data: string;
+    gasLimit: string;
   }) => Promise<string>;
   account: string | undefined;
   onClose: () => void;
 }) {
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
-  const { pools } = usePoolsStore();
+  const { pools, theme } = usePoolsStore();
 
   const [buildData, setBuildData] = useState<{
     callData: string;
@@ -97,13 +104,13 @@ export function Preview({
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
   useEffect(() => {
-    if (!buildData) return;
+    if (!buildData || !account) return;
     (async () => {
       const wethAddress =
         NetworkInfo[chainId].wrappedToken.address.toLowerCase();
       const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
         estimateGas(rpcUrl, {
-          from: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
+          from: account,
           to: buildData.routerAddress,
           value: "0x0", // alway use WETH when remove this this is alway 0
           data: buildData.callData,
@@ -124,7 +131,7 @@ export function Preview({
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData]);
+  }, [buildData, account]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -161,6 +168,37 @@ export function Preview({
   ) as ProtocolFeeAction | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+
+  const tokens: Token[] = [
+    pools[0].token0,
+    pools[0].token1,
+    pools[1].token0,
+    pools[1].token1,
+  ];
+
+  const refundInfo = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REFUND"
+  ) as RefundAction | null;
+
+  const refundUsd =
+    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
+    0;
+
+  const refunds: { amount: string; symbol: string }[] = [];
+  refundInfo?.refund.tokens.forEach((refund) => {
+    const token = tokens.find(
+      (t) => t.address.toLowerCase() === refund.address.toLowerCase()
+    );
+    if (token) {
+      refunds.push({
+        amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
+        symbol: token.symbol,
+      });
+    }
+  });
+
+  const warningThreshold =
+    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
   if (showProcessing) {
     let content = <></>;
@@ -213,9 +251,11 @@ export function Preview({
             <AlertIcon className="w-6 h-6 text-error" />
             Failed to migrate
           </div>
-          <div className="text-subText mt-6 break-all	text-center max-h-[200px] overflow-y-scroll">
-            {error}
-          </div>
+          <ScrollArea className="mt-4">
+            <div className="text-subText mt-6 break-all	text-center max-h-[200px]">
+              {error}
+            </div>
+          </ScrollArea>
         </>
       );
     }
@@ -378,28 +418,55 @@ export function Preview({
               </div>
 
               <div className="flex items-center justify-between mt-4">
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Remaining Amount
-                </div>
-                <div>TODO</div>
+                <MouseoverTooltip
+                  text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+                  width="220px"
+                >
+                  <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+                    Est. Remaining Value
+                  </div>
+                </MouseoverTooltip>
+
+                {refunds.length > 0 ? (
+                  <div>
+                    {formatCurrency(refundUsd)}
+                    <InfoHelper
+                      text={
+                        <div>
+                          {refunds.map((refund) => (
+                            <div key={refund.symbol}>
+                              {refund.amount} {refund.symbol}{" "}
+                            </div>
+                          ))}
+                        </div>
+                      }
+                    />
+                  </div>
+                ) : (
+                  <div>--</div>
+                )}
               </div>
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between mt-2">
                 <div className="text-subText text-xs border-b border-dotted border-subText">
                   Max Slippage
                 </div>
                 <div className="text-sm">
-                  {formatDisplayNumber((slippage * 100) / 10_000, {
-                    style: "percent",
-                  })}
+                  <span
+                    className={`text-sm font-medium ${
+                      slippage > warningThreshold ? "text-warning" : "text-text"
+                    }`}
+                  >
+                    {((slippage * 100) / 10_000).toFixed(2)}%
+                  </span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between mt-2">
                 <SwapPI chainId={chainId} />
               </div>
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between mt-2">
                 <div className="text-subText text-xs border-b border-dotted border-subText">
                   Est. Gas Fee
                 </div>
@@ -410,7 +477,7 @@ export function Preview({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between mt-2">
                 <div className="text-subText text-xs border-b border-dotted border-subText">
                   Migration Fee
                 </div>
@@ -418,6 +485,17 @@ export function Preview({
                   {parseFloat(zapFee.toFixed(3))}%
                 </div>
               </div>
+
+              {slippage > warningThreshold && (
+                <div
+                  className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+                  style={{
+                    backgroundColor: `${theme.warning}33`,
+                  }}
+                >
+                  Slippage is high, your transaction might be front-run!
+                </div>
+              )}
 
               <div className="flex gap-5 mt-8">
                 <button
@@ -451,14 +529,17 @@ export function Preview({
                         console.log(err.message);
                         setSubmiting(false);
                         setError(`Estimate Gas Failed: ${err.message}`);
-                        return "0";
+                        return 0n;
                       }
                     );
 
-                    if (gas === "0") return;
+                    if (gas === 0n) return;
 
                     try {
-                      const txHash = await onSubmitTx(txData);
+                      const txHash = await onSubmitTx({
+                        ...txData,
+                        gasLimit: calculateGasMargin(gas),
+                      });
                       setTxHash(txHash);
                     } catch (err) {
                       setSubmiting(false);
