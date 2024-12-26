@@ -4,6 +4,9 @@ import TokenSelector from ".";
 import { ChainId, Token } from "@/schema";
 import Modal from "@/components/Modal";
 import TokenInfo from "@/components/TokenInfo";
+import useTokenBalances from "@/hooks/useTokenBalances";
+import { useTokenList } from "@/hooks/useTokenList";
+import { useZapOutContext } from "@/stores/zapout";
 
 const TokenSelectorModal = ({
   onClose,
@@ -14,6 +17,16 @@ const TokenSelectorModal = ({
 }) => {
   const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
   const [tokenToImport, setTokenToImport] = useState<Token | null>(null);
+
+  const { connectedAccount } = useZapOutContext((s) => s);
+  const { address: account } = connectedAccount;
+
+  const { allTokens } = useTokenList();
+  const { balances: balanceTokens } = useTokenBalances(
+    chainId,
+    allTokens.map((item) => item.address),
+    account
+  );
 
   return (
     <Modal
@@ -38,7 +51,7 @@ const TokenSelectorModal = ({
           setTokenToShow={setTokenToShow}
           setTokenToImport={setTokenToImport}
           onClose={onClose}
-          chainId={chainId}
+          balanceTokens={balanceTokens}
         />
       )}
     </Modal>

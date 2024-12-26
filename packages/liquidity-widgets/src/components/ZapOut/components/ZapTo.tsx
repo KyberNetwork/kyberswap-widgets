@@ -22,6 +22,7 @@ import TokenSelectorModal from "./TokenSelector/TokenSelectorModal";
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { position, pool, poolType } = useZapOutContext((s) => s);
+
   const loading = position === "loading" || pool === "loading";
   const [showTokenSelect, setShowTokenSelect] = useState(false);
 

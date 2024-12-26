@@ -8,13 +8,12 @@ import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
 import X from "@/assets/svg/x.svg";
-import { ChainId, Token } from "@/schema";
+import { Token } from "@/schema";
 import { formatUnits, isAddress } from "@kyber/utils/crypto";
 import { Button } from "@/components/ui/button";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useTokenList } from "@/hooks/useTokenList";
 import { useZapOutContext } from "@/stores/zapout";
-import useTokenBalances from "@/hooks/useTokenBalances";
 
 export enum TOKEN_TAB {
   ALL,
@@ -34,25 +33,18 @@ export default function TokenSelector({
   setTokenToShow,
   setTokenToImport,
   onClose,
-  chainId,
+  balanceTokens,
 }: {
   setTokenToShow: (token: Token) => void;
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
-  chainId: ChainId;
+  balanceTokens: { [key: string]: bigint };
 }) {
-  const { pool, connectedAccount } = useZapOutContext((s) => s);
-  const { address: account } = connectedAccount;
-  // balanceTokens
+  const { pool } = useZapOutContext((s) => s);
+
   const { tokenOut, setTokenOut } = useZapOutUserState();
   const { importedTokens, allTokens, fetchTokenInfo, removeToken } =
     useTokenList();
-
-  const { balances: balanceTokens } = useTokenBalances(
-    chainId,
-    allTokens.map((item) => item.address),
-    account
-  );
 
   const defaultToken = {
     decimals: undefined,
@@ -99,7 +91,7 @@ export default function TokenSelector({
       tabSelected,
       allTokens,
       importedTokens,
-      // balanceTokens,
+      balanceTokens,
       token0Address,
       token1Address,
     ]
