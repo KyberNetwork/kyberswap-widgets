@@ -143,7 +143,11 @@ export const ZapContextProvider = ({
 
   const networkChainId = connectedAccount?.chainId;
   const { allTokens } = useTokenList();
-  const { balances } = useTokenBalances(allTokens.map((item) => item.address));
+  const { balances } = useTokenBalances(
+    chainId,
+    allTokens.map((item) => item.address),
+    account
+  );
 
   const [showSetting, setShowSeting] = useState(false);
   const [slippage, setSlippage] = useState(10);

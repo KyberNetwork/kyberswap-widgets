@@ -1,4 +1,5 @@
 import Modal from "@/components/Modal";
+import { ScrollArea } from "@kyber/ui/scroll-area";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import X from "@/assets/svg/x.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
@@ -6,7 +7,12 @@ import { useZapOutContext } from "@/stores/zapout";
 import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { formatTokenAmount } from "@kyber/utils/number";
-import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
+import {
+  PI_LEVEL,
+  formatCurrency,
+  getPriceImpact,
+  getWarningThreshold,
+} from "@/utils";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
 import {
@@ -21,6 +27,7 @@ import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import AlertIcon from "@/assets/svg/error.svg";
 import LoadingIcon from "@/assets/svg/loader.svg";
 import CheckIcon from "@/assets/svg/success.svg";
+import { SwapPI } from "./SwapImpact";
 export const Preview = () => {
   const {
     onClose,
@@ -164,6 +171,8 @@ export const Preview = () => {
       currentTarget.src = defaultTokenLogo;
     },
   };
+  const warningThreshold =
+    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
   if (showProcessing) {
     let content = <></>;
@@ -216,9 +225,14 @@ export const Preview = () => {
             <AlertIcon className="w-6 h-6 text-error" />
             Failed to remove liquidity
           </div>
-          <div className="text-subText mt-6 break-all	text-center max-h-[200px] overflow-y-scroll">
-            {error}
-          </div>
+          <ScrollArea>
+            <div
+              className="text-subText mt-6 break-all	text-center max-h-[200px]"
+              style={{ wordBreak: "break-word" }}
+            >
+              {error}
+            </div>
+          </ScrollArea>
         </>
       );
     }
@@ -317,19 +331,17 @@ export const Preview = () => {
               Max Slippage
             </div>
           </MouseoverTooltip>
-          <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
+          <span
+            className={`text-sm font-medium ${
+              slippage > warningThreshold ? "text-warning" : "text-text"
+            }`}
+          >
+            {((slippage * 100) / 10_000).toFixed(2)}%
+          </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <MouseoverTooltip
-            text="View all the detailed estimated price impact of each swap"
-            width="220px"
-          >
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Swap Impact
-            </div>
-          </MouseoverTooltip>
-          TODO
+          <SwapPI />
         </div>
 
         <div className="flex items-center justify-between">
@@ -393,6 +405,17 @@ export const Preview = () => {
           <div>{parseFloat(zapFee.toFixed(3))}%</div>
         </div>
       </div>
+
+      {slippage > warningThreshold && (
+        <div
+          className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+          style={{
+            backgroundColor: `${theme.warning}33`,
+          }}
+        >
+          Slippage is high, your transaction might be front-run!
+        </div>
+      )}
 
       <div className="text-xs italic mt-4 text-subText">
         The information is intended solely for your reference at the time you

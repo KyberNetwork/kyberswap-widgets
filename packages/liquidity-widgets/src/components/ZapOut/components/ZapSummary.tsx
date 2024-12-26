@@ -37,8 +37,15 @@ export function ZapSummary() {
   const amountToken0 = BigInt(tokens?.[0]?.amount || 0);
   const amountToken1 = BigInt(tokens?.[1]?.amount || 0);
 
-  const feeAmount0 = fees?.[0].amount || 0;
-  const feeAmount1 = fees?.[1].amount || 0;
+  const feeToken0 = poolTokens.find(
+    (item) => item.address.toLowerCase() === fees?.[0]?.address.toLowerCase()
+  );
+  const feeToken1 = poolTokens.find(
+    (item) => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase()
+  );
+
+  const feeAmount0 = BigInt(fees?.[0].amount || 0);
+  const feeAmount1 = BigInt(fees?.[1].amount || 0);
 
   const swapAction = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
@@ -67,7 +74,7 @@ export function ZapSummary() {
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
-      <div>Est. Liquidity Value</div>
+      <div>Est. Received Value</div>
       <div className="text-xs italic text-subText mt-1">
         The actual Zap Routes could be adjusted with on-chain states
       </div>
@@ -79,17 +86,29 @@ export function ZapSummary() {
           1
         </div>
         <div className="flex-1 text-subText text-xs">
-          Remove {formatTokenAmount(amountToken0, token0?.decimals || 18)}{" "}
-          {token0?.symbol} +{" "}
-          {formatTokenAmount(amountToken1, token1?.decimals || 18)}{" "}
-          {token1?.symbol}{" "}
-          {feeAmount0 || feeAmount1 ? (
+          Remove{" "}
+          {amountToken0 !== 0n
+            ? formatTokenAmount(amountToken0, token0?.decimals || 18)
+            : ""}{" "}
+          {token0?.symbol}
+          {amountToken1 !== 0n
+            ? `+ ${formatTokenAmount(amountToken1, token1?.decimals || 18)} ${
+                token1?.symbol
+              }`
+            : ""}{" "}
+          {feeAmount0 !== 0n || feeAmount1 !== 0n ? (
             <>
               and claim fee{" "}
-              {formatTokenAmount(BigInt(feeAmount0), token0?.decimals || 18)}{" "}
-              {token0?.symbol} +{" "}
-              {formatTokenAmount(BigInt(feeAmount1), token1?.decimals || 18)}{" "}
-              {token1?.symbol}
+              {feeAmount0 !== 0n
+                ? formatTokenAmount(feeAmount0, feeToken0?.decimals || 18)
+                : ""}{" "}
+              {feeAmount0 !== 0n ? feeToken0?.symbol : ""}{" "}
+              {feeAmount1 !== 0n
+                ? `+ ${formatTokenAmount(
+                    feeAmount1,
+                    feeToken1?.decimals || 18
+                  )} ${feeToken1?.symbol}`
+                : ""}{" "}
             </>
           ) : (
             ""

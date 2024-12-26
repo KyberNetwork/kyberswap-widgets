@@ -1,9 +1,7 @@
-import { PATHS } from "@/constants";
-import { useZapState } from "@/hooks/useZapInState";
+import { PATHS, PoolType } from "@/constants";
 import { formatDisplayNumber } from "@/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
-import { useWidgetContext } from "@/stores/widget";
 
 interface PoolInfo {
   tvl: number;
@@ -12,9 +10,17 @@ interface PoolInfo {
   apr24h: number;
 }
 
-export default function PoolInfo() {
-  const { positionId } = useZapState();
-  const { chainId, poolAddress, poolType } = useWidgetContext((s) => s);
+export default function PoolInfo({
+  chainId,
+  poolAddress,
+  poolType,
+  positionId,
+}: {
+  chainId: number;
+  poolAddress: string;
+  poolType: PoolType;
+  positionId?: string;
+}) {
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
   useEffect(() => {

@@ -4,6 +4,9 @@ import { z } from "zod";
 import { create } from "zustand";
 
 interface ZapOutUserState {
+  ttl: number;
+  setTtl: (value: number) => void;
+
   showSetting: boolean;
   toggleSetting: () => void;
 
@@ -36,6 +39,9 @@ interface ZapOutUserState {
 }
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
+  ttl: 20,
+  setTtl: (value: number) => set({ ttl: value }),
+
   tokenOut: null,
   setTokenOut: (token) => set({ tokenOut: token }),
 
@@ -63,7 +69,10 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
     const { tokenOut, liquidityOut, slippage } = get();
 
-    if (!tokenOut?.address || liquidityOut === 0n) return;
+    if (!tokenOut?.address || liquidityOut === 0n) {
+      set({ fetchingRoute: false, route: null });
+      return;
+    }
 
     const params: { [key: string]: string | number | boolean } = {
       dexFrom: poolTypeToDexId[poolType],
@@ -90,7 +99,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
       console.log(e);
-      set({ fetchingRoute: false });
+      set({ fetchingRoute: false, route: null });
     }
   },
 }));

@@ -903,7 +903,7 @@ export default function Preview({
                 text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
                 width="220px"
               >
-                <div className="border-b border-dotted border-subText">
+                <div className="border-b border-dotted border-subText text-xs text-subText">
                   Swap Impact
                 </div>
               </MouseoverTooltip>

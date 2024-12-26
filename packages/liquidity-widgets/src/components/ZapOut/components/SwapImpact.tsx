@@ -1,14 +1,5 @@
 import { useMemo } from "react";
-import {
-  AggregatorSwapAction,
-  PoolSwapAction,
-  ProtocolFeeAction,
-  useZapStateStore,
-} from "../stores/useZapStateStore";
-import { usePoolsStore } from "../stores/usePoolsStore";
-import { NetworkInfo } from "../constants";
-import { ChainId } from "..";
-import { PI_LEVEL, formatWei, getPriceImpact } from "../utils";
+import { PI_LEVEL, formatWei, getPriceImpact } from "@/utils";
 import {
   Accordion,
   AccordionContent,
@@ -17,10 +8,17 @@ import {
 } from "@kyber/ui/accordion";
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import { formatDisplayNumber } from "@kyber/utils/number";
+import { PoolSwapAction, ProtocolFeeAction } from "@/hooks/types/zapInTypes";
+import {
+  AggregatorSwapAction,
+  useZapOutUserState,
+} from "@/stores/zapout/zapout-state";
+import { useZapOutContext } from "@/stores/zapout";
+import { NetworkInfo } from "@/constants";
 
-export const useSwapPI = (chainId: ChainId) => {
-  const { route } = useZapStateStore();
-  const { pools } = usePoolsStore();
+export const useSwapPI = () => {
+  const { route, tokenOut } = useZapOutUserState();
+  const { pool, chainId } = useZapOutContext((s) => s);
 
   const feeInfo = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
@@ -28,10 +26,10 @@ export const useSwapPI = (chainId: ChainId) => {
 
   const tokensIn = useMemo(
     () =>
-      pools === "loading"
+      pool === "loading" || !tokenOut
         ? []
-        : [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1],
-    [pools]
+        : [pool.token0, pool.token1, pool.token0, pool.token1, tokenOut],
+    [pool, tokenOut]
   );
 
   const swapPi = useMemo(() => {
@@ -43,7 +41,7 @@ export const useSwapPI = (chainId: ChainId) => {
       (item) => item.type === "ACTION_TYPE_POOL_SWAP"
     ) as PoolSwapAction | null;
 
-    if (pools === "loading") return [];
+    if (pool === "loading") return [];
 
     const tokens = [...tokensIn, NetworkInfo[chainId].wrappedToken];
 
@@ -119,7 +117,7 @@ export const useSwapPI = (chainId: ChainId) => {
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [route?.zapDetails.actions, pools, tokensIn, chainId, feeInfo]);
+  }, [route?.zapDetails.actions, pool, tokensIn, chainId, feeInfo]);
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
@@ -147,8 +145,8 @@ export const useSwapPI = (chainId: ChainId) => {
   return { swapPi, swapPiRes, zapPiRes };
 };
 
-export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
-  const { swapPi, swapPiRes } = useSwapPI(chainId);
+export const SwapPI = () => {
+  const { swapPi, swapPiRes } = useSwapPI();
 
   return (
     <div className="flex justify-between items-start w-full">
@@ -207,7 +205,7 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="border-b border-dotted border-subText text-xs text-subText">
+            <div className="border-b border-dotted border-subText text-subText text-xs">
               Swap Impact
             </div>
           </MouseoverTooltip>
