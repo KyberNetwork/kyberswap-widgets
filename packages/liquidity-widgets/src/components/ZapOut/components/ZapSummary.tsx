@@ -67,7 +67,7 @@ export function ZapSummary() {
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
-      <div>Est. Liquidity Value</div>
+      <div>Est. Received Value</div>
       <div className="text-xs italic text-subText mt-1">
         The actual Zap Routes could be adjusted with on-chain states
       </div>
@@ -79,17 +79,29 @@ export function ZapSummary() {
           1
         </div>
         <div className="flex-1 text-subText text-xs">
-          Remove {formatTokenAmount(amountToken0, token0?.decimals || 18)}{" "}
-          {token0?.symbol} +{" "}
-          {formatTokenAmount(amountToken1, token1?.decimals || 18)}{" "}
-          {token1?.symbol}{" "}
+          Remove{" "}
+          {amountToken0 !== 0n
+            ? formatTokenAmount(amountToken0, token0?.decimals || 18)
+            : ""}{" "}
+          {token0?.symbol}
+          {amountToken1 !== 0n
+            ? `+ ${formatTokenAmount(amountToken1, token1?.decimals || 18)} ${
+                token1?.symbol
+              }`
+            : ""}{" "}
           {feeAmount0 || feeAmount1 ? (
             <>
               and claim fee{" "}
-              {formatTokenAmount(BigInt(feeAmount0), token0?.decimals || 18)}{" "}
-              {token0?.symbol} +{" "}
-              {formatTokenAmount(BigInt(feeAmount1), token1?.decimals || 18)}{" "}
-              {token1?.symbol}
+              {feeAmount0
+                ? formatTokenAmount(BigInt(feeAmount0), token0?.decimals || 18)
+                : ""}{" "}
+              {feeAmount0 ? token0?.symbol : ""}{" "}
+              {feeAmount1
+                ? `+ ${formatTokenAmount(
+                    BigInt(feeAmount1),
+                    token1?.decimals || 18
+                  )} ${token1?.symbol}`
+                : ""}{" "}
             </>
           ) : (
             ""

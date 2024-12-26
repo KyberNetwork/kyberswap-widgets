@@ -96,7 +96,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
       console.log(e);
-      set({ fetchingRoute: false });
+      set({ fetchingRoute: false, route: null });
     }
   },
 }));

@@ -1,4 +1,5 @@
 import { MouseoverTooltip } from "@/components/Tooltip";
+import questionImg from "@/assets/svg/question.svg?url";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { useZapOutContext } from "@/stores/zapout";
@@ -7,6 +8,7 @@ import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { useEffect } from "react";
+import { SwapPI } from "./SwapImpact";
 
 export function EstLiqValue() {
   const { chainId, positionId, poolAddress, poolType, pool, theme } =
@@ -54,7 +56,7 @@ export function EstLiqValue() {
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
       <div className="flex items-center justify-between">
-        <div>Est. Liquidity Value</div>
+        <div>Est. Received Value</div>
 
         {fetchingRoute ? (
           <Skeleton className="w-6 h-3" />
@@ -73,7 +75,15 @@ export function EstLiqValue() {
           <Skeleton className="w-20 h-4" />
         ) : (
           <div className="flex items-center gap-1">
-            <img src={tokenOut?.logo} className="w-4 h-4 rounded-full" alt="" />
+            <img
+              src={tokenOut?.logo}
+              className="w-4 h-4 rounded-full"
+              alt=""
+              onError={({ currentTarget }) => {
+                currentTarget.onerror = null; // prevents looping
+                currentTarget.src = questionImg;
+              }}
+            />
             {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
             {tokenOut?.symbol}
           </div>
@@ -93,15 +103,7 @@ export function EstLiqValue() {
       </div>
 
       <div className="flex items-center justify-between mt-2">
-        <MouseoverTooltip
-          text="View all the detailed estimated price impact of each swap"
-          width="220px"
-        >
-          <div className="text-subText text-xs border-b border-dotted border-subText">
-            Swap Impact
-          </div>
-        </MouseoverTooltip>
-        TODO
+        <SwapPI />
       </div>
 
       <div className="flex items-center justify-between mt-2">

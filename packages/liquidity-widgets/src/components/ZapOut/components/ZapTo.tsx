@@ -34,7 +34,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
 
   useEffect(() => {
-    if (!tokenOut && pool !== "loading") setTokenOut(pool.token0);
+    if (!tokenOut && pool !== "loading") {
+      setTokenOut(pool.token0);
+    }
   }, [tokenOut, pool]);
 
   let amount0 = 0n;

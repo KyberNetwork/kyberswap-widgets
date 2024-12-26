@@ -252,7 +252,10 @@ export function Preview({
             Failed to migrate
           </div>
           <ScrollArea className="mt-4">
-            <div className="text-subText mt-6 break-all	text-center max-h-[200px]">
+            <div
+              className="text-subText mt-6 break-all	text-center max-h-[200px]"
+              style={{ wordBreak: "break-word" }}
+            >
               {error}
             </div>
           </ScrollArea>
