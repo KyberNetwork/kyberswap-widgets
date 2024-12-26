@@ -19,7 +19,6 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import { usePoolsStore } from "../../stores/usePoolsStore";
-import CopyIcon from "../../assets/icons/copy.svg";
 import AlertIcon from "../../assets/icons/circle-alert.svg";
 import LoadingIcon from "../../assets/icons/loader-circle.svg";
 import CheckIcon from "../../assets/icons/circle-check.svg";
@@ -32,14 +31,16 @@ import { useEffect, useState } from "react";
 import {
   calculateGasMargin,
   estimateGas,
+  formatUnits,
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { MigrationSummary } from "./MigrationSummary";
-import { SwapPI } from "../SwapImpact";
+import { SwapPI, useSwapPI } from "../SwapImpact";
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import { InfoHelper } from "@kyber/ui/info-helper";
-import { formatCurrency, getWarningThreshold } from "../../utils";
+import { PI_LEVEL, formatCurrency, getWarningThreshold } from "../../utils";
+import useCopy from "../../hooks/use-copy";
 
 export function Preview({
   chainId,
@@ -63,6 +64,18 @@ export function Preview({
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
   const { pools, theme } = usePoolsStore();
+
+  const copyPoolAddress0 = useCopy({
+    text: pools === "loading" ? "" : pools[0].address,
+    copyClassName: "text-subText w-4 h-4",
+    successClassName: "w-4 h-4",
+  });
+
+  const copyPoolAddress1 = useCopy({
+    text: pools === "loading" ? "" : pools[1].address,
+    copyClassName: "text-subText w-4 h-4",
+    successClassName: "w-4 h-4",
+  });
 
   const [buildData, setBuildData] = useState<{
     callData: string;
@@ -103,6 +116,7 @@ export function Preview({
   const rpcUrl = NetworkInfo[chainId].defaultRpc;
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
+
   useEffect(() => {
     if (!buildData || !account) return;
     (async () => {
@@ -125,8 +139,8 @@ export function Preview({
           .catch(() => 0),
       ]);
       const gasUsd =
-        (parseInt(gasEstimation.toString(), 16) / 10 ** 18) *
-        gasPrice *
+        +formatUnits(gasPrice, 18) *
+        +gasEstimation.toString() *
         nativeTokenPrice;
 
       setGasUsd(gasUsd);
@@ -196,6 +210,8 @@ export function Preview({
       });
     }
   });
+
+  const { zapPiRes } = useSwapPI(chainId);
 
   const warningThreshold =
     ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
@@ -320,7 +336,7 @@ export function Preview({
                 <div>
                   <div className="flex gap-1 items-center">
                     {pools[0].token0.symbol}/{pools[0].token1.symbol}{" "}
-                    <CopyIcon className="text-subText w-4 h-4" />
+                    {copyPoolAddress0}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
                     <Image
@@ -359,7 +375,7 @@ export function Preview({
                 <div>
                   <div className="flex gap-1 items-center">
                     {pools[1].token0.symbol}/{pools[1].token1.symbol}{" "}
-                    <CopyIcon className="text-subText w-4 h-4" />
+                    {copyPoolAddress1}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
                     <Image
@@ -469,6 +485,28 @@ export function Preview({
                 <SwapPI chainId={chainId} />
               </div>
 
+              <div className="flex justify-between items-start mt-2">
+                <span className="text-subText border-b border-dotted border-subText text-xs">
+                  Zap Impact
+                </span>
+                {route ? (
+                  <div
+                    className={`text-sm font-medium ${
+                      zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                      zapPiRes.level === PI_LEVEL.INVALID
+                        ? "text-error"
+                        : zapPiRes.level === PI_LEVEL.HIGH
+                        ? "text-warning"
+                        : "text-text"
+                    }`}
+                  >
+                    {zapPiRes.display}
+                  </div>
+                ) : (
+                  "--"
+                )}
+              </div>
+
               <div className="flex items-center justify-between mt-2">
                 <div className="text-subText text-xs border-b border-dotted border-subText">
                   Est. Gas Fee
@@ -554,7 +592,7 @@ export function Preview({
                 </button>
               </div>
 
-              <MigrationSummary route={route} />
+              <MigrationSummary route={route} chainId={chainId} />
             </DialogDescription>
           </DialogContent>
         </DialogPortal>

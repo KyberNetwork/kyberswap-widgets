@@ -23,9 +23,9 @@ export function PoolInfo({
       </div>
     );
 
-  const isOutOfRange =
-    position &&
-    (position.tickLower < pool.tick || position.tickUpper > pool.tick);
+  const isOutOfRange = position
+    ? pool.tick < position.tickLower || pool.tick > position.tickUpper
+    : false;
 
   return (
     <>

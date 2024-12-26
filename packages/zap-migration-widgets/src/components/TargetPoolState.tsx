@@ -8,11 +8,23 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import SwapIcon from "../assets/icons/swap.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useZapStateStore } from "../stores/useZapStateStore";
 import { usePositionStore } from "../stores/usePositionStore";
+
+const DEFAULT_PRICE_RANGE = {
+  LOW_POOL_FEE: 1,
+  MEDIUM_POOL_FEE: 10,
+  HIGH_POOL_FEE: 50,
+};
+
+const PRICE_RANGE = {
+  LOW_POOL_FEE: [100, 1, 0.5, 0.1],
+  MEDIUM_POOL_FEE: [100, 20, 10, 5],
+  HIGH_POOL_FEE: [100, 50, 20, 10],
+};
 
 export function TargetPoolState() {
   const { pools } = usePoolsStore();
@@ -130,14 +142,35 @@ export function TargetPoolState() {
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
+  const fee = pool === "loading" ? 0 : pool.fee;
+
+  const priceRanges = useMemo(
+    () =>
+      !fee
+        ? []
+        : fee <= 0.01
+        ? PRICE_RANGE.LOW_POOL_FEE
+        : fee > 0.1
+        ? PRICE_RANGE.HIGH_POOL_FEE
+        : PRICE_RANGE.MEDIUM_POOL_FEE,
+    [fee]
+  );
+
   useEffect(() => {
+    if (!fee) return;
     if (
       pool !== "loading" &&
       tickLower === null &&
       tickUpper === null &&
       toPosition === null
     ) {
-      handleSelectRange(20);
+      handleSelectRange(
+        fee <= 0.01
+          ? DEFAULT_PRICE_RANGE.LOW_POOL_FEE
+          : fee > 0.1
+          ? DEFAULT_PRICE_RANGE.HIGH_POOL_FEE
+          : DEFAULT_PRICE_RANGE.MEDIUM_POOL_FEE
+      );
     }
   }, [pool, tickLower, tickUpper, toPosition]);
 
@@ -236,7 +269,7 @@ export function TargetPoolState() {
       ) : (
         <>
           <div className="flex items-center gap-2 justify-between text-subText text-sm mt-4">
-            {[100, 80, 50, 20].map((percent) => {
+            {priceRanges.map((percent) => {
               return (
                 <button
                   key={percent}
