@@ -748,7 +748,7 @@ export default function Preview({
                 </div>
               </div>
 
-              {position && (
+              {positionId && (
                 <div className="text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
@@ -785,7 +785,7 @@ export default function Preview({
                   {pool?.token1.symbol}
                 </div>
               </div>
-              {position && (
+              {positionId && (
                 <div className="text-end">
                   +{" "}
                   {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}

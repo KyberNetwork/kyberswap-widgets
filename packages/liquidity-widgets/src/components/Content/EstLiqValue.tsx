@@ -277,7 +277,7 @@ export default function EstLiqValue() {
                   {symbol0}
                 </div>
               </div>
-              {positionId !== undefined && (
+              {positionId && (
                 <div className="text-end">
                   + {formatNumber(+addedAmount0)} {symbol0}
                 </div>
@@ -321,7 +321,7 @@ export default function EstLiqValue() {
                   {symbol1}
                 </div>
               </div>
-              {position && (
+              {positionId && (
                 <div className="text-end">
                   + {formatNumber(+addedAmount1)} {symbol1}
                 </div>

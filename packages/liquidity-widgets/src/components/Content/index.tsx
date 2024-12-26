@@ -278,7 +278,12 @@ export default function Content() {
   }, [newPool, position]);
 
   const marketRate = useMemo(
-    () => (marketPrice ? (revertPrice ? 1 / marketPrice : marketPrice) : null),
+    () =>
+      marketPrice
+        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
+            significantDigits: 6,
+          })
+        : null,
     [marketPrice, revertPrice]
   );
 
