@@ -92,11 +92,11 @@ export const useSwapPI = () => {
         const amountIn = formatWei(
           item.tokenIn.amount,
           tokenIn?.decimals
-        ).replace(",", "");
+        ).replace(/,/g, "");
         const amountOut = formatWei(
           item.tokenOut.amount,
           tokenOut?.decimals
-        ).replace(",", "");
+        ).replace(/,/g, "");
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0

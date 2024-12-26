@@ -60,8 +60,8 @@ export default function LiquidityChartRangeInput({
 
     return leftPrice && rightPrice
       ? [
-          parseFloat(leftPrice.replace(",", "")),
-          parseFloat(rightPrice.replace(",", "")),
+          parseFloat(leftPrice.replace(/,/g, "")),
+          parseFloat(rightPrice.replace(/,/g, "")),
         ]
       : undefined;
   }, [isSorted, priceLower, priceUpper]);

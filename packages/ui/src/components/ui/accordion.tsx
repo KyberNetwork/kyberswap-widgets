@@ -1,8 +1,7 @@
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import ChevronDownIcon from "../icons/chevron-down.svg";
-
 import { cn } from "@kyber/utils/tailwind-helpers";
+import ChevronDownIcon from "../icons/chevron-down.svg";
 
 const Accordion = AccordionPrimitive.Root;
 
@@ -10,7 +9,7 @@ const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn("", className)} {...props} />
+  <AccordionPrimitive.Item className={cn("", className)} ref={ref} {...props} />
 ));
 AccordionItem.displayName = "AccordionItem";
 
@@ -20,11 +19,11 @@ const AccordionTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
-      ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between transition-all [&[data-state=open]>svg]:rotate-180 w-full",
+        "flex flex-1 items-center justify-between transition-all [&[data-state=open]>svg]:rotate-180 w-full outline-none",
         className
       )}
+      ref={ref}
       {...props}
     >
       {children}
@@ -39,8 +38,8 @@ const AccordionContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
-    ref={ref}
     className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    ref={ref}
     {...props}
   >
     <div className={cn("pt-2", className)}>{children}</div>

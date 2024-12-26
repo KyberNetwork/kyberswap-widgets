@@ -216,6 +216,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
             set({
               errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,
             });
+            set({ poolLoading: false });
             return;
           }
           // Function signature and encoded token ID
@@ -272,10 +273,12 @@ const createWidgetStore = (initProps: WidgetProps) => {
                 amount1,
               },
             });
+            set({ poolLoading: false });
             return;
           }
 
           set({ errorMsg: error.message || "Position not found" });
+          set({ poolLoading: false });
         }
       } else if (isUniV2) {
         const { success: isUniV2PoolType, data: pt } =
@@ -340,6 +343,7 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
     store.setState({
       ...props,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
   return (

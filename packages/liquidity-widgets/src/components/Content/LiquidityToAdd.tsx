@@ -1,6 +1,6 @@
 import { useZapState } from "../../hooks/useZapInState";
 import { useMemo, useState } from "react";
-import { formatCurrency, formatWei } from "@/utils";
+import { formatWei } from "@/utils";
 import { TOKEN_SELECT_MODE } from "../TokenSelector/index";
 import WalletIcon from "@/assets/svg/wallet.svg";
 import DropdownIcon from "@/assets/svg/dropdown.svg";
@@ -9,6 +9,7 @@ import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TokenSelectorModal from "../TokenSelector/TokenSelectorModal";
 import { formatUnits } from "@kyber/utils/crypto";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const {
@@ -150,8 +151,12 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             />
           </div>
           {!!usdAmount && (
-            <div className="text-subText text-xs">
-              ~{formatCurrency(usdAmount)}
+            <div className="text-subText text-xs max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
+              ~
+              {formatDisplayNumber(usdAmount, {
+                significantDigits: 6,
+                style: "currency",
+              })}
             </div>
           )}
           <button

@@ -147,6 +147,7 @@ export default function PriceInput({ type }: { type: Type }) {
         setLocalValue(revertPrice ? minPrice : maxPrice);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tickUpper,
     tickLower,
@@ -154,7 +155,7 @@ export default function PriceInput({ type }: { type: Type }) {
     revertPrice,
     isMaxTick,
     isMinTick,
-    localValue,
+    // localValue,
     type,
   ]);
 

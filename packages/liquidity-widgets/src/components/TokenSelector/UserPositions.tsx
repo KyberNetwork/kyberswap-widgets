@@ -219,7 +219,7 @@ const UserPositions = ({ search }: { search: string }) => {
 
   if (!account)
     return (
-      <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[300px] relative mx-6">
+      <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[260px] relative mx-6">
         <IconPositionConnectWallet />
         No positions found. Connect your wallet first.
         <button
@@ -364,7 +364,7 @@ const UserPositions = ({ search }: { search: string }) => {
       </div>
     ))
   ) : (
-    <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[300px]">
+    <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[280px]">
       <IconPositionNotFound />
       No positions found.
     </div>

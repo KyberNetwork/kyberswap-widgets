@@ -1,13 +1,13 @@
 import { useWidgetContext } from "@/stores/widget";
 import { useDensityChartData } from "./hooks";
 import { useZapState } from "@/hooks/useZapInState";
-import { nearestUsableTick } from "@kyber/utils/uniswapv3";
+import { nearestUsableTick, priceToClosestTick } from "@kyber/utils/uniswapv3";
 import LiquidityChartRangeInput from "./LiquidityChartRangeInput";
 
 export default function LiquidityChart() {
   const chartData = useDensityChartData();
 
-  const { position, pool } = useWidgetContext((s) => s);
+  const { position, pool, positionId } = useWidgetContext((s) => s);
   const {
     priceLower,
     priceUpper,
@@ -44,9 +44,27 @@ export default function LiquidityChart() {
       priceLower={priceLower || undefined}
       priceUpper={priceUpper || undefined}
       onBothRangeInput={(l, r) => {
-        if (!pool || position) return;
-        const tickLower = nearestUsableTick(Number(l), tickSpacing);
-        const tickUpper = nearestUsableTick(Number(r), tickSpacing);
+        if (pool === "loading" || positionId) return;
+        const tickLowerFromPrice = priceToClosestTick(
+          l,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          revertPrice
+        );
+        const tickUpperFromPrice = priceToClosestTick(
+          r,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          revertPrice
+        );
+        const tickLower = nearestUsableTick(
+          Number(tickLowerFromPrice),
+          tickSpacing
+        );
+        const tickUpper = nearestUsableTick(
+          Number(tickUpperFromPrice),
+          tickSpacing
+        );
 
         if (tickUpper)
           revertPrice ? setTickLower(tickUpper) : setTickUpper(tickUpper);
@@ -54,13 +72,25 @@ export default function LiquidityChart() {
           revertPrice ? setTickUpper(tickLower) : setTickLower(tickLower);
       }}
       onLeftRangeInput={(value) => {
-        if (!pool || position) return;
-        const tick = nearestUsableTick(Number(value), tickSpacing);
+        if (pool === "loading" || positionId) return;
+        const tickFromPrice = priceToClosestTick(
+          value,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          revertPrice
+        );
+        const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
         if (tick) revertPrice ? setTickUpper(tick) : setTickLower(tick);
       }}
       onRightRangeInput={(value) => {
-        if (!pool || position) return;
-        const tick = nearestUsableTick(Number(value), tickSpacing);
+        if (pool === "loading" || positionId) return;
+        const tickFromPrice = priceToClosestTick(
+          value,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          revertPrice
+        );
+        const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
         if (tick) revertPrice ? setTickLower(tick) : setTickUpper(tick);
       }}
       formattedData={chartData}
