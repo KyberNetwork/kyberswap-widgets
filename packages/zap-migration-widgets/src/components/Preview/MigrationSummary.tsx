@@ -1,15 +1,88 @@
 import { formatTokenAmount } from "@kyber/utils/number";
-import { DexInfos } from "../../constants";
+import { DexInfos, NetworkInfo } from "../../constants";
 import { usePoolsStore } from "../../stores/usePoolsStore";
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
   GetRouteResponse,
+  PoolSwapAction,
   RemoveLiquidityAction,
 } from "../../stores/useZapStateStore";
+import { useMemo } from "react";
+import { ChainId } from "../..";
+import { formatWei } from "../../utils";
 
-export function MigrationSummary({ route }: { route: GetRouteResponse }) {
+export function MigrationSummary({
+  route,
+  chainId,
+}: {
+  route: GetRouteResponse;
+  chainId: ChainId;
+}) {
   const { pools } = usePoolsStore();
+
+  const swaps = useMemo(() => {
+    const aggregatorSwapInfo = route?.zapDetails.actions.find(
+      (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
+    ) as AggregatorSwapAction | null;
+
+    const poolSwapInfo = route?.zapDetails.actions.find(
+      (item) => item.type === "ACTION_TYPE_POOL_SWAP"
+    ) as PoolSwapAction | null;
+
+    if (pools === "loading") return [];
+    const tokens = [
+      pools[0].token0,
+      pools[0].token1,
+      pools[1].token0,
+      pools[1].token1,
+      NetworkInfo[chainId].wrappedToken,
+    ];
+
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
+          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
+          pool: "KyberSwap",
+        };
+      }) || [];
+
+    const dexNameObj = DexInfos[pools[1].dex].name;
+    const dexName =
+      typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
+
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
+          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
+          pool: `${dexName} Pool`,
+        };
+      }) || [];
+
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [chainId, pools, route?.zapDetails.actions]);
 
   if (pools === "loading") return null;
   const actionRemove = route.zapDetails.actions.find(
@@ -23,44 +96,6 @@ export function MigrationSummary({ route }: { route: GetRouteResponse }) {
     actionRemove?.removeLiquidity.tokens.find(
       (tk) => tk.address.toLowerCase() === pools[0].token1.address.toLowerCase()
     )?.amount || "0";
-
-  const swapAction = route.zapDetails.actions.find(
-    (action) => action.type === "ACTION_TYPE_AGGREGATOR_SWAP"
-  ) as AggregatorSwapAction | undefined;
-
-  const swaps = (swapAction?.aggregatorSwap.swaps || [])
-    .map((item) => {
-      const tokenIn =
-        pools[0].token0.address === item.tokenIn.address.toLowerCase()
-          ? pools[0].token0
-          : pools[0].token1.address === item.tokenIn.address.toLowerCase()
-          ? pools[0].token1
-          : undefined;
-      const tokenOut =
-        pools[1].token0.address === item.tokenOut.address.toLowerCase()
-          ? pools[1].token0
-          : pools[1].token1.address === item.tokenOut.address.toLowerCase()
-          ? pools[1].token1
-          : undefined;
-
-      if (!tokenIn || !tokenOut) return;
-
-      return {
-        tokenIn,
-        tokenOut,
-        amountIn: formatTokenAmount(
-          BigInt(item.tokenIn.amount),
-          tokenIn.decimals,
-          8
-        ),
-        amountOut: formatTokenAmount(
-          BigInt(item.tokenOut.amount),
-          tokenOut.decimals,
-          8
-        ),
-      };
-    })
-    .filter(Boolean);
 
   const addliquidityAction = route.zapDetails.actions.find(
     (action) => action.type === "ACTION_TYPE_ADD_LIQUIDITY"
@@ -98,10 +133,11 @@ export function MigrationSummary({ route }: { route: GetRouteResponse }) {
           2
         </div>
         <div className="text-xs">
-          {swaps.map((swap, index) => (
-            <div key={index}>
-              Swap {swap?.amountIn} {swap?.tokenIn.symbol} to {swap?.amountOut}{" "}
-              {swap?.tokenOut.symbol}
+          {swaps.map((item) => (
+            <div className="flex-1 text-subText leading-4">
+              Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
+              {item.tokenOutSymbol} via{" "}
+              <span className="font-medium text-text">{item.pool}</span>
             </div>
           ))}
         </div>

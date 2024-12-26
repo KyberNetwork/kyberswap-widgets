@@ -271,13 +271,22 @@ export function EstimateLiqValue({
               <span className="text-subText border-b border-dotted border-subText">
                 Zap Impact
               </span>
-              <span>
-                {formatDisplayNumber(route?.zapDetails.priceImpact, {
-                  fallback: "--",
-                  fractionDigits: 2,
-                })}
-                %
-              </span>
+              {route ? (
+                <div
+                  className={`text-sm font-medium ${
+                    zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                    zapPiRes.level === PI_LEVEL.INVALID
+                      ? "text-error"
+                      : zapPiRes.level === PI_LEVEL.HIGH
+                      ? "text-warning"
+                      : "text-text"
+                  }`}
+                >
+                  {zapPiRes.display}
+                </div>
+              ) : (
+                "--"
+              )}
             </div>
           </div>
         </div>

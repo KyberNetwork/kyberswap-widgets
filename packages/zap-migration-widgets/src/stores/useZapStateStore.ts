@@ -48,7 +48,12 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
   fetchZapRoute: async (chainId: ChainId) => {
-    const { liquidityOut, tickLower: lower, tickUpper: upper } = get();
+    const {
+      liquidityOut,
+      tickLower: lower,
+      tickUpper: upper,
+      slippage,
+    } = get();
     const { pools } = usePoolsStore.getState();
     const { fromPosition: position, toPosition } = usePositionStore.getState();
 
@@ -71,6 +76,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
     set({ fetchingRoute: true });
 
     const params: { [key: string]: string | number | boolean | undefined } = {
+      slippage,
       dexFrom: pools[0].dex,
       "poolFrom.id": pools[0].address,
       "positionFrom.id": position.id,
