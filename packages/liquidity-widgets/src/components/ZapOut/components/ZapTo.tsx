@@ -1,4 +1,5 @@
 import {
+  ChainId,
   UniV3Position,
   univ2PoolNormalize,
   univ3PoolNormalize,
@@ -16,11 +17,13 @@ import {
 } from "@kyber/utils/number";
 import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import TokenSelectorModal from "./TokenSelector/TokenSelectorModal";
 
-export function ZapTo() {
+export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { position, pool, poolType } = useZapOutContext((s) => s);
   const loading = position === "loading" || pool === "loading";
+  const [showTokenSelect, setShowTokenSelect] = useState(false);
 
   const { liquidityOut, tokenOut, setTokenOut, route } = useZapOutUserState();
 
@@ -58,6 +61,12 @@ export function ZapTo() {
 
   return (
     <>
+      {showTokenSelect && (
+        <TokenSelectorModal
+          onClose={() => setShowTokenSelect(false)}
+          chainId={chainId}
+        />
+      )}
       <div className="rounded-lg border border-stroke px-4 py-3 text-subText text-sm">
         <div>Your Position Liquidity</div>
 
@@ -138,7 +147,7 @@ export function ZapTo() {
           <button
             className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
             onClick={() => {
-              //
+              setShowTokenSelect(true);
             }}
           >
             <img

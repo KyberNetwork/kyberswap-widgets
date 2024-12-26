@@ -9,6 +9,7 @@ import { DexInfos, NetworkInfo } from "@/constants";
 import { SyntheticEvent } from "react";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
+import Setting from "./Setting";
 
 export const Header = () => {
   const { onClose, poolType, pool, position, positionId, theme, chainId } =
@@ -76,7 +77,7 @@ export const Header = () => {
           <X />
         </div>
       </div>
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center mt-4 relative">
         {loading ? (
           <Skeleton className="w-[300px] h-6 mt-1" />
         ) : (
@@ -135,6 +136,7 @@ export const Header = () => {
             <SettingIcon />
           </div>
         </MouseoverTooltip>
+        <Setting />
       </div>
     </>
   );

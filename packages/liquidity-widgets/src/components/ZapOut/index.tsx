@@ -5,7 +5,7 @@ import "@kyber/ui/styles.css";
 //import { TokenListProvider } from "@/hooks/useTokenList";
 import { ZapOutProps, ZapOutProvider, useZapOutContext } from "@/stores/zapout";
 import { Theme } from "@/theme";
-import { useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { Header } from "./components/Header";
 import { PoolPrice } from "./components/PoolPrice";
 import { PositionPriceRange } from "./components/PositionPriceRange";
@@ -17,6 +17,7 @@ import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { Preview } from "./components/Preview";
 import { DexInfos, NetworkInfo } from "@/constants";
 import { useNftApproval } from "@/hooks/useNftApproval";
+import { TokenListProvider } from "@/hooks/useTokenList";
 
 export default function ZapOut(props: ZapOutProps) {
   const { theme } = props;
@@ -31,29 +32,46 @@ export default function ZapOut(props: ZapOutProps) {
 
   return (
     <ZapOutProvider {...props}>
-      <div className="ks-lw ks-lw-style">
-        <div className="p-6">
-          <Header />
-          <div className="grid grid-cols-2 gap-6 mt-4">
-            <div className="flex flex-col gap-4">
-              <PoolPrice />
-              <PositionPriceRange />
-              <LiquidityToRemove />
-            </div>
+      <TokenProvider chainId={props.chainId}>
+        <div className="ks-lw ks-lw-style">
+          <div className="p-6">
+            <Header />
+            <div className="grid grid-cols-2 gap-6 mt-4">
+              <div className="flex flex-col gap-4">
+                <PoolPrice />
+                <PositionPriceRange />
+                <LiquidityToRemove />
+              </div>
 
-            <div className="flex flex-col gap-4">
-              <ZapTo />
-              <EstLiqValue />
-              <ZapSummary />
+              <div className="flex flex-col gap-4">
+                <ZapTo chainId={props.chainId} />
+                <EstLiqValue />
+                <ZapSummary />
+              </div>
             </div>
+            <Action />
+            <Preview />
           </div>
-          <Action />
-          <Preview />
         </div>
-      </div>
+      </TokenProvider>
     </ZapOutProvider>
   );
 }
+
+const TokenProvider = ({
+  children,
+  chainId,
+}: {
+  children: ReactNode;
+  chainId: number;
+}) => {
+  const pool = useZapOutContext((s) => s.pool);
+  return (
+    <TokenListProvider chainId={chainId} pool={pool}>
+      {children}
+    </TokenListProvider>
+  );
+};
 
 const Action = () => {
   const {

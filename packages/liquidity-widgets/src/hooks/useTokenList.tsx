@@ -8,8 +8,7 @@ import {
   useState,
 } from "react";
 import { PATHS } from "@/constants";
-import { ChainId, Token } from "@/schema";
-import { useWidgetContext } from "@/stores/widget";
+import { ChainId, Pool, Token } from "@/schema";
 
 type TokenListContextState = {
   tokens: Token[];
@@ -36,13 +35,14 @@ const TokenListContext = createContext<TokenListContextState>({
 export const TokenListProvider = ({
   children,
   chainId,
+  pool,
 }: {
   children: ReactNode;
   chainId: ChainId;
+  pool: "loading" | Pool;
 }) => {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const { pool } = useWidgetContext((s) => s);
 
   const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
     if (typeof window !== "undefined") {

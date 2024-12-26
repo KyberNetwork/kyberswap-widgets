@@ -4,6 +4,9 @@ import { z } from "zod";
 import { create } from "zustand";
 
 interface ZapOutUserState {
+  ttl: number;
+  setTtl: (value: number) => void;
+
   showSetting: boolean;
   toggleSetting: () => void;
 
@@ -36,6 +39,9 @@ interface ZapOutUserState {
 }
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
+  ttl: 20,
+  setTtl: (value: number) => set({ ttl: value }),
+
   tokenOut: null,
   setTokenOut: (token) => set({ tokenOut: token }),
 
