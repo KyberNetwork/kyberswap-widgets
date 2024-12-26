@@ -10,13 +10,27 @@ import { SyntheticEvent } from "react";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { useZapOutUserState } from "@/stores/zapout/zapout-state";
 import Setting from "./Setting";
+import { shortenAddress } from "@/components/TokenInfo/utils";
+import useCopy from "@/hooks/useCopy";
 
 export const Header = () => {
-  const { onClose, poolType, pool, position, positionId, theme, chainId } =
-    useZapOutContext((s) => s);
+  const {
+    poolAddress,
+    onClose,
+    poolType,
+    pool,
+    position,
+    positionId,
+    theme,
+    chainId,
+  } = useZapOutContext((s) => s);
   const isUniV3 = univ3PoolType.safeParse(poolType).success;
 
   const { degenMode, toggleSetting } = useZapOutUserState();
+  const Copy = useCopy({
+    text: poolAddress,
+    copyClassName: "!text-[#2C9CE4] hover:brightness-125",
+  });
 
   const loading = pool === "loading" || position === "loading";
 
@@ -49,8 +63,8 @@ export const Header = () => {
                 #{positionId}
                 <div
                   className={cn(
-                    "flex gap-1 items-center rounded-full text-xs px-2 py-1 font-medium",
-                    isOutOfRange ? "text-warning" : "text-success"
+                    "flex gap-1 items-center rounded-full text-xs px-2 py-1 font-normal",
+                    isOutOfRange ? "text-warning" : "text-accent"
                   )}
                   style={{
                     background: `${
@@ -58,15 +72,7 @@ export const Header = () => {
                     }33`,
                   }}
                 >
-                  <div
-                    className={cn("w-3 h-3 rounded-full")}
-                    style={{
-                      background: `${
-                        isOutOfRange ? theme.warning : theme.success
-                      }`,
-                    }}
-                  />{" "}
-                  {isOutOfRange ? "Inactive" : "In Range"}
+                  {isOutOfRange ? "● Out of range" : "● In range"}
                 </div>
               </>
             )}
@@ -108,10 +114,16 @@ export const Header = () => {
               Fee {pool.fee}%
             </div>
 
+            <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
+              {shortenAddress(chainId, poolAddress, 4)}
+              {Copy}
+            </div>
+
             <img
               src={logo}
               width={16}
               height={16}
+              className="rounded-full"
               alt=""
               onError={onImgError}
             />

@@ -6,7 +6,8 @@ export const parseSlippageInput = (str: string): number =>
   Math.round(Number.parseFloat(str) * 100);
 
 export const validateSlippageInput = (
-  str: string
+  str: string,
+  degenMode = false
 ): { isValid: boolean; message?: string } => {
   if (str === "") {
     return {
@@ -41,7 +42,7 @@ export const validateSlippageInput = (
       isValid: true,
       message: `Your transaction may fail`,
     };
-  } else if (rawSlippage > 5000) {
+  } else if (rawSlippage > (!degenMode ? 2000 : 5000)) {
     return {
       isValid: false,
       message: `Enter a smaller slippage percentage`,
@@ -59,14 +60,14 @@ export const validateSlippageInput = (
 };
 
 const SlippageInput = () => {
-  const { slippage, setSlippage } = useZapOutUserState();
+  const { slippage, setSlippage, degenMode } = useZapOutUserState();
   const [v, setV] = useState(() => {
     if ([5, 10, 50, 100].includes(slippage)) return "";
     return ((slippage * 100) / 10_000).toString();
   });
 
   const [isFocus, setIsFocus] = useState(false);
-  const { isValid, message } = validateSlippageInput(v);
+  const { isValid, message } = validateSlippageInput(v, degenMode);
 
   const onCustomSlippageFocus = () => setIsFocus(true);
 

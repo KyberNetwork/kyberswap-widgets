@@ -69,6 +69,8 @@ export default function Content() {
     onConnectWallet,
     onSwitchChain,
     toggleShowWidget,
+    poolAddress,
+    chainId,
   } = useWidgetContext((s) => s);
 
   const amountsInWei: string[] = useMemo(
@@ -399,7 +401,12 @@ export default function Content() {
           <Header onDismiss={onClose} />
           <div className="mt-5 flex gap-5 max-sm:flex-col">
             <div className="flex-1 w-1/2 max-sm:w-full">
-              <PoolInfo />
+              <PoolInfo
+                chainId={chainId}
+                poolAddress={poolAddress}
+                poolType={poolType}
+                positionId={positionId}
+              />
               <PriceInfo />
               <LiquidityChart />
               <PriceRange />

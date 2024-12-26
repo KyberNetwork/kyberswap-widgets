@@ -23,7 +23,7 @@ export function PoolPrice() {
           data.token1.decimals,
           revertPrice
         ),
-        { significantDigits: 6 }
+        { significantDigits: 5 }
       );
     }
 
@@ -37,7 +37,7 @@ export function PoolPrice() {
         18
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 8,
+        significantDigits: 5,
       });
     }
     return assertUnreachable(poolType as never, "poolType is not handled");

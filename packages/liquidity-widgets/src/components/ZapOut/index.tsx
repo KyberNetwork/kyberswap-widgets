@@ -22,6 +22,8 @@ import InfoHelper from "../InfoHelper";
 import { useSwapPI } from "./components/SwapImpact";
 import { PI_LEVEL } from "@/utils";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import PoolInfo from "../Content/PoolInfo";
+import { PoolFee } from "./components/PoolFee";
 
 export default function ZapOut(props: ZapOutProps) {
   const { theme } = props;
@@ -42,9 +44,18 @@ export default function ZapOut(props: ZapOutProps) {
             <Header />
             <div className="grid grid-cols-2 gap-6 mt-4">
               <div className="flex flex-col gap-4">
+                <div className="-mb-4">
+                  <PoolInfo
+                    chainId={props.chainId}
+                    poolType={props.poolType}
+                    positionId={props.positionId}
+                    poolAddress={props.poolAddress}
+                  />
+                </div>
                 <PoolPrice />
                 <PositionPriceRange />
                 <LiquidityToRemove />
+                <PoolFee />
               </div>
 
               <div className="flex flex-col gap-4">
@@ -153,7 +164,7 @@ const Action = () => {
     if (!isApproved) return "Approve NFT";
     if (fetchingRoute) return "Fetching Route...";
     if (pi.piVeryHigh) return "Remove anyway";
-    if (!route) return "Failed to get route";
+    if (!route) return "No route found";
     return "Preview";
   }, [
     account,

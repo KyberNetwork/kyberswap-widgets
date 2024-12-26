@@ -69,7 +69,10 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
     const { tokenOut, liquidityOut, slippage } = get();
 
-    if (!tokenOut?.address || liquidityOut === 0n) return;
+    if (!tokenOut?.address || liquidityOut === 0n) {
+      set({ fetchingRoute: false, route: null });
+      return;
+    }
 
     const params: { [key: string]: string | number | boolean } = {
       dexFrom: poolTypeToDexId[poolType],
