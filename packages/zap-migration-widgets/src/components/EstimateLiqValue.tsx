@@ -117,7 +117,7 @@ export function EstimateLiqValue({
 
   let btnText = "";
   if (fetchingRoute) btnText = "Fetching Route...";
-  else if (liquidityOut === 0n) btnText = "Select Liquidity to Remove";
+  else if (liquidityOut === 0n) btnText = "Select Liquidity to Migrate";
   else if (tickLower === null || tickUpper === null)
     btnText = "Select Price Range";
   else if (route === null) btnText = "No Route Found";
@@ -273,7 +273,17 @@ export function EstimateLiqValue({
             </div>
 
             <div className="flex justify-between items-start mt-2">
-              <span className="text-subText border-b border-dotted border-subText">
+              <span
+                className={cn(
+                  "text-subText border-b border-dotted border-subText",
+                  zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                    zapPiRes.level === PI_LEVEL.INVALID
+                    ? "text-error border-error"
+                    : zapPiRes.level === PI_LEVEL.HIGH
+                    ? "text-warning border-warning"
+                    : "text-subText border-subText"
+                )}
+              >
                 Zap Impact
               </span>
               {route ? (
