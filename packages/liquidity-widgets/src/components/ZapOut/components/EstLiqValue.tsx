@@ -4,7 +4,12 @@ import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { useZapOutContext } from "@/stores/zapout";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
-import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
+import {
+  PI_LEVEL,
+  formatCurrency,
+  getPriceImpact,
+  getWarningThreshold,
+} from "@/utils";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { useEffect } from "react";
@@ -53,6 +58,11 @@ export function EstLiqValue() {
     tokenOut?.address,
   ]);
 
+  const warningThreshold =
+    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
+
+  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
       <div className="flex items-center justify-between">
@@ -99,7 +109,24 @@ export function EstLiqValue() {
             Max Slippage
           </div>
         </MouseoverTooltip>
-        <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
+        <MouseoverTooltip
+          text={
+            slippage > warningThreshold
+              ? "Slippage is high, your transaction might be front-run!"
+              : ""
+          }
+          width="220px"
+        >
+          <span
+            className={`text-sm font-medium ${
+              slippage > warningThreshold
+                ? "text-warning border-b border-warning border-dotted"
+                : "text-text"
+            }`}
+          >
+            {((slippage * 100) / 10_000).toFixed(2)}%
+          </span>
+        </MouseoverTooltip>
       </div>
 
       <div className="flex items-center justify-between mt-2">
@@ -111,7 +138,22 @@ export function EstLiqValue() {
           text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
           width="220px"
         >
-          <div className="text-subText text-xs border-b border-dotted border-subText">
+          <div
+            className="text-subText text-xs border-b border-dotted border-subText"
+            style={
+              route
+                ? {
+                    color:
+                      piRes.level === PI_LEVEL.VERY_HIGH ||
+                      piRes.level === PI_LEVEL.INVALID
+                        ? theme.error
+                        : piRes.level === PI_LEVEL.HIGH
+                        ? theme.warning
+                        : theme.subText,
+                  }
+                : {}
+            }
+          >
             Zap Impact
           </div>
         </MouseoverTooltip>
@@ -132,6 +174,31 @@ export function EstLiqValue() {
         ) : (
           "--"
         )}
+      </div>
+
+      <div className="flex items-center justify-between mt-2">
+        <MouseoverTooltip
+          text={
+            <div>
+              Fees charged for automatically zapping into a liquidity pool. You
+              still have to pay the standard gas fees.{" "}
+              <a
+                style={{ color: theme.accent }}
+                href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                target="_blank"
+                rel="noopener norefferer"
+              >
+                More details.
+              </a>
+            </div>
+          }
+          width="220px"
+        >
+          <div className="text-subText text-xs border-b border-dotted border-subText">
+            Zap Fee
+          </div>
+        </MouseoverTooltip>
+        <div>{parseFloat(zapFee.toFixed(3))}%</div>
       </div>
     </div>
   );
