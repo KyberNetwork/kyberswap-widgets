@@ -7,6 +7,7 @@ import {
   ZoomTransform,
 } from "d3";
 import { useEffect, useMemo, useRef } from "react";
+import RefreshIcon from "@/assets/svg/ic_refresh.svg";
 
 import { ZoomLevels } from "../types";
 
@@ -103,15 +104,18 @@ export default function Zoom({
       }`}
     >
       {showResetButton && (
-        <div className="cursor-pointer items-center pt-[2px] pl-1">
-          <div
-            onClick={() => {
-              resetBrush();
-              zoomReset();
-            }}
-          >
-            AutoRenewIcon
-          </div>
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            resetBrush();
+            zoomReset();
+          }}
+        >
+          <RefreshIcon
+            className="relative -top-[1px]"
+            width={18}
+            height={18}
+          />
         </div>
       )}
       <div className="cursor-pointer" onClick={zoomIn}>

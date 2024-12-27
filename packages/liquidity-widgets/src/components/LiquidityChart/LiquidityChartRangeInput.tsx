@@ -15,7 +15,6 @@ import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
 import { toString } from "@/utils/number";
 import { univ3PoolNormalize } from "@/schema";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export default function LiquidityChartRangeInput({
   feeAmount,
@@ -49,7 +48,7 @@ export default function LiquidityChartRangeInput({
 }) {
   const { theme, pool: rawPool } = useWidgetContext((s) => s);
 
-  const { revertPrice, tickLower, tickUpper } = useZapState();
+  const { revertPrice, priceLower, priceUpper } = useZapState();
 
   const pool = useMemo(() => {
     if (rawPool === "loading") return rawPool;
@@ -60,44 +59,24 @@ export default function LiquidityChartRangeInput({
   }, [rawPool]);
 
   const isSorted = !revertPrice;
-  const isMinTick = pool !== "loading" && tickLower === pool.minTick;
-  const isMaxTick = pool !== "loading" && tickUpper === pool.maxTick;
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    if (pool === "loading" || !tickUpper || !tickLower) return;
-    const maxPrice = isMaxTick
-      ? revertPrice
-        ? "0"
-        : "∞"
-      : tickToPrice(
-          tickUpper,
-          pool.token0?.decimals,
-          pool.token1?.decimals,
-          revertPrice
-        );
+    if (pool === "loading" || !priceLower || !priceUpper) return;
 
-    const minPrice = isMinTick
-      ? revertPrice
-        ? "∞"
-        : "0"
-      : tickToPrice(
-          tickLower,
-          pool.token0?.decimals,
-          pool.token1?.decimals,
-          revertPrice
-        );
+    const leftPrice = isSorted
+      ? priceLower
+      : 1 / parseFloat(priceUpper.toString().replace(/,/g, ""));
+    const rightPrice = isSorted
+      ? priceUpper
+      : 1 / parseFloat(priceLower.toString().replace(/,/g, ""));
 
-    if (minPrice && maxPrice) {
-      const sortedPrices = [
-        parseFloat(minPrice.toString().replace(/,/g, "")),
-        parseFloat(maxPrice.toString().replace(/,/g, "")),
-      ].sort((a, b) => a - b);
-      return sortedPrices.length === 2
-        ? (sortedPrices as [number, number])
-        : undefined;
-    }
-    return undefined;
-  }, [isMaxTick, isMinTick, pool, revertPrice, tickLower, tickUpper]);
+    return leftPrice && rightPrice
+      ? [
+          parseFloat(leftPrice.toString().replace(/,/g, "")),
+          parseFloat(rightPrice.toString().replace(/,/g, "")),
+        ]
+      : undefined;
+  }, [isSorted, pool, priceLower, priceUpper]);
 
   const onBrushDomainChangeEnded = useCallback(
     (domain: [number, number], mode: string | undefined) => {

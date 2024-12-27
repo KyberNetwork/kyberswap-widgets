@@ -141,12 +141,14 @@ export default function PriceInput({ type }: { type: Type }) {
             );
 
       if (type === Type.PriceLower) {
+        const valueToSet = revertPrice ? maxPrice : minPrice;
         setLocalValue(
-          formatNumber(parseFloat(revertPrice ? maxPrice : minPrice))
+          valueToSet === "∞" ? valueToSet : formatNumber(parseFloat(valueToSet))
         );
       } else {
+        const valueToSet = revertPrice ? minPrice : maxPrice;
         setLocalValue(
-          formatNumber(parseFloat(revertPrice ? minPrice : maxPrice))
+          valueToSet === "∞" ? valueToSet : formatNumber(parseFloat(valueToSet))
         );
       }
     }
