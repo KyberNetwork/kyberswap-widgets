@@ -26,24 +26,30 @@ interface ZapState {
   toggleSetting: () => void;
   ttl: number;
   setTtl: (value: number) => void;
+  reset: () => void;
 }
 
-export const useZapStateStore = create<ZapState>((set, get) => ({
+const initState = {
   showSetting: false,
   ttl: 20,
-  setTtl: (value: number) => set({ ttl: value }),
-  toggleSetting: () => set((state) => ({ showSetting: !state.showSetting })),
   degenMode: false,
-  toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
   slippage: 50,
-  setSlippage: (value: number) => set({ slippage: value }),
   showPreview: false,
-  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
   liquidityOut: 0n,
   tickLower: null,
   tickUpper: null,
   fetchingRoute: false,
   route: null,
+};
+
+export const useZapStateStore = create<ZapState>((set, get) => ({
+  ...initState,
+  reset: () => set(initState),
+  setTtl: (value: number) => set({ ttl: value }),
+  toggleSetting: () => set((state) => ({ showSetting: !state.showSetting })),
+  toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
+  setSlippage: (value: number) => set({ slippage: value }),
+  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),

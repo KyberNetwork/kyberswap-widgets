@@ -46,12 +46,16 @@ export function useNftApproval({
       value: "0x0",
     };
 
-    const gasEstimation = await estimateGas(rpcUrl, txData);
-    const txHash = await onSubmitTx({
-      ...txData,
-      gasLimit: calculateGasMargin(gasEstimation),
-    });
-    setPendingTx(txHash);
+    try {
+      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const txHash = await onSubmitTx({
+        ...txData,
+        gasLimit: calculateGasMargin(gasEstimation),
+      });
+      setPendingTx(txHash);
+    } catch (e) {
+      console.log(e);
+    }
   }, [account, approvalData, nftManagerContract, onSubmitTx, rpcUrl]);
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export function useNftApproval({
       .finally(() => {
         setIsChecking(false);
       });
-  }, [nftManagerContract, nftId, spender]);
+  }, [nftManagerContract, nftId, spender, account]);
 
   return { isChecking, isApproved, approve, pendingTx };
 }

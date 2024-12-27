@@ -20,6 +20,7 @@ interface PoolsState {
   getPools: (params: GetPoolParams) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  reset: () => void;
 }
 
 const BFF_API = "https://bff.kyberswap.com/api";
@@ -66,10 +67,14 @@ const poolResponse = z.object({
   }),
 });
 
-export const usePoolsStore = create<PoolsState>((set, get) => ({
-  pools: "loading",
+const initState = {
+  pools: "loading" as "loading" | [Pool, Pool],
   error: "",
   theme: defaultTheme,
+};
+export const usePoolsStore = create<PoolsState>((set, get) => ({
+  ...initState,
+  reset: () => set(initState),
   setTheme: (theme: Theme) => set({ theme }),
   getPools: async ({
     chainId,

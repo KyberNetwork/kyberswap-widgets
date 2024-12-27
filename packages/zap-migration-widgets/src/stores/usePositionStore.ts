@@ -4,24 +4,30 @@ import { DexInfos, NetworkInfo } from "../constants";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import { decodePosition } from "@kyber/utils/uniswapv3";
 
+const initState = {
+  fromPosition: "loading" as "loading" | Position,
+  toPosition: "loading" as "loading" | Position | null,
+  error: "",
+};
+
 export const usePositionStore = create<{
   fromPosition: "loading" | Position;
   toPosition: "loading" | Position | null;
-  setToPositionNull: () => void;
   error: string;
+  setToPositionNull: () => void;
   fetchPosition: (
     dex: Dex,
     chainId: ChainId,
     positionId: number,
     isFromPos: boolean
   ) => Promise<void>;
+  reset: () => void;
 }>((set) => ({
-  fromPosition: "loading",
-  toPosition: "loading",
+  ...initState,
+  reset: () => set(initState),
   setToPositionNull: () => {
     set({ toPosition: null });
   },
-  error: "",
   fetchPosition: async (
     dex: Dex,
     chainId: ChainId,

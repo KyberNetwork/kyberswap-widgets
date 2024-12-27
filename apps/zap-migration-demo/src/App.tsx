@@ -10,7 +10,7 @@ import {
   getDefaultWallets,
   useConnectModal,
 } from "@rainbow-me/rainbowkit";
-import { arbitrum, mainnet, polygon, bsc } from "wagmi/chains";
+import { arbitrum, mainnet, polygon, bsc, base } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   useAccount,
@@ -26,7 +26,7 @@ const wagmiConfig = getDefaultConfig({
   appName: "Liquidity Widgets",
   projectId: "d5fd1fd479f2a155c151efdf91c12c9e",
   wallets,
-  chains: [mainnet, arbitrum, polygon, bsc],
+  chains: [mainnet, arbitrum, polygon, bsc, base],
   storage: createStorage({
     storage: localStorage,
   }),
@@ -64,6 +64,16 @@ function App() {
       positionId?: number;
     };
   }>({
+    //chainId: "8453",
+    //from: {
+    //  dex: Dex.Uniswapv3,
+    //  poolId: "0x48424f43a7239a01831ca4fbf98a6a553d66d49d",
+    //  positionId: 1507268,
+    //},
+    //to: {
+    //  dex: Dex.Uniswapv3,
+    //  poolId: "0xd0b53d9277642d899df5c87a3966a349a798f224",
+    //},
     chainId: "56",
     from: {
       dex: Dex.Pancakev3,

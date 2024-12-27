@@ -72,22 +72,39 @@ const createModalRoot = () => {
 
 createModalRoot();
 
-export const ZapMigration = ({
-  client,
-  className,
-  chainId,
-  from,
-  to,
-  onClose,
-  connectedAccount,
-  onConnectWallet,
-  onSwitchChain,
-  onSubmitTx,
-  theme,
-}: //aggregatorOptions,
-//feeConfig,
-ZapMigrationProps) => {
-  const { getPools, error: poolError, setTheme } = usePoolsStore();
+export const ZapMigration = (props: ZapMigrationProps) => {
+  const {
+    client,
+    className,
+    chainId,
+    from,
+    to,
+    onClose: rawClose,
+    connectedAccount,
+    onConnectWallet,
+    onSwitchChain,
+    onSubmitTx,
+    theme,
+    //aggregatorOptions,
+    //feeConfig,
+  } = props;
+
+  const {
+    getPools,
+    error: poolError,
+    setTheme,
+    reset: resetPools,
+  } = usePoolsStore();
+  const { reset } = useZapStateStore();
+  const { reset: resetPos } = usePositionStore();
+
+  const onClose = () => {
+    resetPos();
+    resetPools();
+    reset();
+    rawClose();
+  };
+
   const {
     fetchPosition,
     error: posError,

@@ -147,8 +147,7 @@ export function EstimateLiqValue({
     else if (connectedAccount.chainId !== chainId) onSwitchChain();
     else if (!isApproved) {
       setClickedApprove(true);
-      await approve();
-      setClickedApprove(false);
+      await approve().finally(() => setClickedApprove(false));
     } else if (pi.piVeryHigh && !degenMode) toggleSetting();
     else togglePreview();
   };
@@ -276,19 +275,21 @@ export function EstimateLiqValue({
               <span
                 className={cn(
                   "text-subText border-b border-dotted border-subText",
-                  zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                    zapPiRes.level === PI_LEVEL.INVALID
-                    ? "text-error border-error"
-                    : zapPiRes.level === PI_LEVEL.HIGH
-                    ? "text-warning border-warning"
-                    : "text-subText border-subText"
+                  route
+                    ? zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                      zapPiRes.level === PI_LEVEL.INVALID
+                      ? "text-error border-error"
+                      : zapPiRes.level === PI_LEVEL.HIGH
+                      ? "text-warning border-warning"
+                      : "text-subText border-subText"
+                    : ""
                 )}
               >
                 Zap Impact
               </span>
               {route ? (
                 <div
-                  className={`text-sm font-medium ${
+                  className={`text-xs  ${
                     zapPiRes.level === PI_LEVEL.VERY_HIGH ||
                     zapPiRes.level === PI_LEVEL.INVALID
                       ? "text-error"
