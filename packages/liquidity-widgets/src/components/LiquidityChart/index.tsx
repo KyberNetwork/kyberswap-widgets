@@ -19,7 +19,12 @@ export default function LiquidityChart() {
   } = useZapState();
 
   const price =
-    pool !== "loading" && (revertPrice ? pool.token1.price : pool.token0.price);
+    pool !== "loading" &&
+    pool.token0.price &&
+    pool.token1.price &&
+    (revertPrice
+      ? pool.token1.price / pool.token0.price
+      : pool.token0.price / pool.token1.price);
   const fee = pool === "loading" ? undefined : pool.fee * 10_000;
   const tickSpacing =
     pool === "loading" || !("tickSpacing" in pool)
