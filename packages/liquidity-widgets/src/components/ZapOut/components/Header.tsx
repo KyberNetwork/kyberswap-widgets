@@ -93,10 +93,10 @@ export const Header = () => {
                 src={pool.token0.logo}
                 alt="token0 logo"
                 onError={onImgError}
-                className="w-6 h-6"
+                className="w-6 h-6 rounded-full"
               />
               <img
-                className="w-6 h-6 -ml-2"
+                className="w-6 h-6 -ml-2 rounded-full"
                 src={pool.token1.logo}
                 alt="token1 logo"
                 onError={onImgError}

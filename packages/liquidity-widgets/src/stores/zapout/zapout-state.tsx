@@ -114,7 +114,7 @@ const removeLiquidityAction = z.object({
   type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
   removeLiquidity: z.object({
     tokens: z.array(token),
-    fees: z.array(token),
+    fees: z.array(token).optional(),
   }),
 });
 

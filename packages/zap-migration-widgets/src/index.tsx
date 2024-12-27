@@ -125,6 +125,10 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
   // fetch position on load
   useEffect(() => {
+    resetPos();
+    resetPools();
+    reset();
+
     fetchPosition(from.dex, chainId, +from.positionId, true);
     if (to.positionId) fetchPosition(to.dex, chainId, +to.positionId, false);
     else setToPositionNull();

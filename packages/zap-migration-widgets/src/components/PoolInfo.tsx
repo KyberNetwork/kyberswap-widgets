@@ -34,17 +34,17 @@ export function PoolInfo({
           <Image
             src={pool.token0.logo || ""}
             alt={pool.token0.symbol}
-            className="w-6 h-6 z-0"
+            className="w-6 h-6 z-0 rounded-full"
           />
           <Image
             src={pool.token1.logo || ""}
             alt={pool.token1.symbol}
-            className="w-6 h-6 -ml-2 z-10"
+            className="w-6 h-6 -ml-2 z-10 rounded-full"
           />
           <Image
             src={NetworkInfo[chainId].logo}
             alt={NetworkInfo[chainId].name}
-            className="w-3 h-3 -ml-1.5 z-20"
+            className="w-3 h-3 -ml-1.5 z-20 rounded-full"
           />
         </div>
         <div className="text-xl self-center">
@@ -57,7 +57,7 @@ export function PoolInfo({
         <Image
           src={DexInfos[pool.dex].icon}
           alt={DexInfos[pool.dex].name}
-          className="w-4 h-4"
+          className="w-4 h-4 rounded-full"
         />
         <div className="text-sm opacity-70">{DexInfos[pool.dex].name}</div>
         <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">

@@ -73,6 +73,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
     if (
       pools === "loading" ||
       position === "loading" ||
+      toPosition === "loading" ||
       liquidityOut === 0n ||
       tickLower === null ||
       tickUpper === null ||
@@ -92,10 +93,15 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       liquidityOut: liquidityOut.toString(),
       dexTo: pools[1].dex,
       "poolTo.id": pools[1].address,
-      "positionTo.tickLower": tickLower,
-      "positionTo.tickUpper": tickUpper,
-      "positionTo.id":
-        toPosition !== "loading" && toPosition?.id ? toPosition.id : undefined,
+
+      ...(toPosition?.id
+        ? {
+            "positionTo.id": toPosition.id,
+          }
+        : {
+            "positionTo.tickLower": tickLower,
+            "positionTo.tickUpper": tickUpper,
+          }),
     };
     let tmp = "";
     Object.keys(params).forEach((key) => {
@@ -133,7 +139,7 @@ const removeLiquidityAction = z.object({
   type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
   removeLiquidity: z.object({
     tokens: z.array(token),
-    fees: z.array(token),
+    fees: z.array(token).optional(),
   }),
 });
 
