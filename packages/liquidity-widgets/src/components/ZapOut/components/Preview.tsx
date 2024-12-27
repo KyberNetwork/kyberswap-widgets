@@ -349,7 +349,22 @@ export const Preview = () => {
             text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
             width="220px"
           >
-            <div className="text-subText text-xs border-b border-dotted border-subText">
+            <div
+              className="text-subText text-xs border-b border-dotted border-subText"
+              style={
+                route
+                  ? {
+                      color:
+                        piRes.level === PI_LEVEL.VERY_HIGH ||
+                        piRes.level === PI_LEVEL.INVALID
+                          ? theme.error
+                          : piRes.level === PI_LEVEL.HIGH
+                          ? theme.warning
+                          : theme.subText,
+                    }
+                  : {}
+              }
+            >
               Zap Impact
             </div>
           </MouseoverTooltip>

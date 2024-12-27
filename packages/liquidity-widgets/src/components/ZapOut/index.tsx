@@ -117,16 +117,13 @@ const Action = () => {
 
   const [clickedApprove, setClickedApprove] = useState(false);
 
-  const disabled = useMemo(() => {
-    return (
-      !account ||
-      clickedApprove ||
-      isChecking ||
-      fetchingRoute ||
-      Boolean(pendingTx) ||
-      !route
-    );
-  }, [account, clickedApprove, isChecking, fetchingRoute, pendingTx, route]);
+  const disabled =
+    !account ||
+    clickedApprove ||
+    isChecking ||
+    fetchingRoute ||
+    Boolean(pendingTx) ||
+    !route;
 
   const handleClick = async () => {
     if (!account) {
@@ -158,13 +155,13 @@ const Action = () => {
 
   const btnText = useMemo(() => {
     if (!account) return "Connect Wallet";
+    if (!route) return "No route found";
     if (chainId !== walletChainId) return "Switch Network";
     if (isChecking) return "Checking Approval...";
     if (clickedApprove || pendingTx) return "Approving...";
     if (!isApproved) return "Approve NFT";
     if (fetchingRoute) return "Fetching Route...";
     if (pi.piVeryHigh) return "Remove anyway";
-    if (!route) return "No route found";
     return "Preview";
   }, [
     account,
@@ -233,17 +230,19 @@ const Action = () => {
           onClick={handleClick}
         >
           {btnText}
-          {pi.piVeryHigh && (
-            <InfoHelper
-              color="#ffffff"
-              width="300px"
-              text={
-                degenMode
-                  ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                  : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-              }
-            />
-          )}
+          {pi.piVeryHigh &&
+            chainId === walletChainId &&
+            account &&
+            isApproved && (
+              <InfoHelper
+                width="300px"
+                text={
+                  degenMode
+                    ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                    : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+                }
+              />
+            )}
         </button>
       </div>
     </>

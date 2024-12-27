@@ -15,6 +15,7 @@ import {
 } from "@/stores/zapout/zapout-state";
 import { useZapOutContext } from "@/stores/zapout";
 import { NetworkInfo } from "@/constants";
+import { formatUnits } from "@kyber/utils/crypto";
 
 export const useSwapPI = () => {
   const { route, tokenOut } = useZapOutUserState();
@@ -55,8 +56,8 @@ export const useSwapPI = () => {
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0

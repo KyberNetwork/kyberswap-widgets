@@ -38,10 +38,10 @@ export const PoolFee = () => {
   const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
 
   const feeAmount0Ref = useRef(feeAmount0);
-  if (feeAmount0 !== 0n) feeAmount0Ref.current = feeAmount0;
+  if (route) feeAmount0Ref.current = feeAmount0;
 
   const feeAmount1Ref = useRef(feeAmount1);
-  if (feeAmount1 !== 0n) feeAmount1Ref.current = feeAmount1;
+  if (route) feeAmount1Ref.current = feeAmount1;
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
