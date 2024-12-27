@@ -389,7 +389,7 @@ export default function Preview({
             from: account,
             to: data.routerAddress,
             data: data.callData,
-            value: data.value,
+            value: `0x${BigInt(data.value).toString(16)}`,
           };
 
           try {

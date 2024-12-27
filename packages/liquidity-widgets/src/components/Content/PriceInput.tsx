@@ -11,6 +11,7 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import { univ3PoolNormalize } from "@/schema";
+import { formatNumber } from "@/utils";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -140,9 +141,13 @@ export default function PriceInput({ type }: { type: Type }) {
             );
 
       if (type === Type.PriceLower) {
-        setLocalValue(revertPrice ? maxPrice : minPrice);
+        setLocalValue(
+          formatNumber(parseFloat(revertPrice ? maxPrice : minPrice))
+        );
       } else {
-        setLocalValue(revertPrice ? minPrice : maxPrice);
+        setLocalValue(
+          formatNumber(parseFloat(revertPrice ? minPrice : maxPrice))
+        );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
