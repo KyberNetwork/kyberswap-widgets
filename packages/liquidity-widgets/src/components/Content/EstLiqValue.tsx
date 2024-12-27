@@ -140,8 +140,14 @@ export default function EstLiqValue() {
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatWei(
+          item.tokenIn.amount,
+          tokenIn?.decimals
+        ).replace(/,/g, "");
+        const amountOut = formatWei(
+          item.tokenOut.amount,
+          tokenOut?.decimals
+        ).replace(/,/g, "");
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0
@@ -433,9 +439,12 @@ export default function EstLiqValue() {
         </div>
 
         <div className="flex justify-between items-start mt-3 text-xs">
-          <MouseoverTooltip text="Swap Max Slippage" width="220px">
+          <MouseoverTooltip
+            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+            width="220px"
+          >
             <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
-              Swap Max Slippage
+              Max Slippage
             </div>
           </MouseoverTooltip>
           <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
