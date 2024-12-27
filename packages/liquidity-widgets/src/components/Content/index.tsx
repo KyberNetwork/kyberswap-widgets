@@ -413,7 +413,7 @@ export default function Content() {
                 positionId={positionId}
               />
               <PriceInfo />
-              <LiquidityChart />
+              {!positionId && <LiquidityChart />}
               <PriceRange />
               {positionId === undefined ? (
                 isUniV3PoolType && (
