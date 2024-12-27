@@ -30,7 +30,6 @@ export { Dex, ChainId };
 
 export interface ZapMigrationProps {
   theme?: Theme;
-  source: string;
   chainId: ChainId;
   className?: string;
   from: DexFrom;
