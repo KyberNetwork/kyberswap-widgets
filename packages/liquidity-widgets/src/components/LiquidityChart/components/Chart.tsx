@@ -107,7 +107,7 @@ export function Chart({
 
     return [left, right];
   }, [current, series]);
-
+  
   return (
     <>
       {showZoomButtons && (
@@ -169,7 +169,7 @@ export function Chart({
               xValue={xAccessor}
               yValue={yAccessor}
               opacity={1}
-              fill={'#065F44'}
+              fill={"#065F44"}
             />
             <Area
               series={rightSeries}
@@ -178,7 +178,7 @@ export function Chart({
               xValue={xAccessor}
               yValue={yAccessor}
               opacity={1}
-              fill={'#065F44'}
+              fill={"#065F44"}
             />
 
             {brushDomain && (
