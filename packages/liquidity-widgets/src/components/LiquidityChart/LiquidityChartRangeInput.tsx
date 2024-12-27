@@ -13,13 +13,14 @@ import {
 } from "./types";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
+import { toString } from "@/utils/number";
+import { univ3PoolNormalize } from "@/schema";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export default function LiquidityChartRangeInput({
   feeAmount,
   ticksAtLimit = {},
   price,
-  priceLower,
-  priceUpper,
   onBothRangeInput = () => {},
   onLeftRangeInput = () => {},
   onRightRangeInput = () => {},
@@ -38,8 +39,6 @@ export default function LiquidityChartRangeInput({
   ticks?: TickDataRaw[];
   ticksAtLimit?: { [bound in Bound]?: boolean };
   price?: number;
-  priceLower?: string;
-  priceUpper?: string;
   onLeftRangeInput?: (typedValue: string) => void;
   onRightRangeInput?: (typedValue: string) => void;
   onBothRangeInput?: (leftTypedValue: string, rightTypedValue: string) => void;
@@ -48,23 +47,57 @@ export default function LiquidityChartRangeInput({
   formattedData: ChartEntry[] | undefined;
   isUninitialized: boolean;
 }) {
-  const theme = useWidgetContext((s) => s.theme);
+  const { theme, pool: rawPool } = useWidgetContext((s) => s);
 
-  const { revertPrice } = useZapState();
+  const { revertPrice, tickLower, tickUpper } = useZapState();
+
+  const pool = useMemo(() => {
+    if (rawPool === "loading") return rawPool;
+    const { success, data } = univ3PoolNormalize.safeParse(rawPool);
+    if (success) return data;
+    // TODO: check if return loading here ok?
+    return "loading";
+  }, [rawPool]);
+
   const isSorted = !revertPrice;
+  const isMinTick = pool !== "loading" && tickLower === pool.minTick;
+  const isMaxTick = pool !== "loading" && tickUpper === pool.maxTick;
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    // TODO: handle chart
-    const leftPrice = isSorted ? priceLower : priceUpper;
-    const rightPrice = isSorted ? priceUpper : priceLower;
+    if (pool === "loading" || !tickUpper || !tickLower) return;
+    const maxPrice = isMaxTick
+      ? revertPrice
+        ? "0"
+        : "∞"
+      : tickToPrice(
+          tickUpper,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          revertPrice
+        );
 
-    return leftPrice && rightPrice
-      ? [
-          parseFloat(leftPrice.replace(/,/g, "")),
-          parseFloat(rightPrice.replace(/,/g, "")),
-        ]
-      : undefined;
-  }, [isSorted, priceLower, priceUpper]);
+    const minPrice = isMinTick
+      ? revertPrice
+        ? "∞"
+        : "0"
+      : tickToPrice(
+          tickLower,
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          revertPrice
+        );
+
+    if (minPrice && maxPrice) {
+      const sortedPrices = [
+        parseFloat(minPrice.toString().replace(/,/g, "")),
+        parseFloat(maxPrice.toString().replace(/,/g, "")),
+      ].sort((a, b) => a - b);
+      return sortedPrices.length === 2
+        ? (sortedPrices as [number, number])
+        : undefined;
+    }
+    return undefined;
+  }, [isMaxTick, isMinTick, pool, revertPrice, tickLower, tickUpper]);
 
   const onBrushDomainChangeEnded = useCallback(
     (domain: [number, number], mode: string | undefined) => {
@@ -92,8 +125,12 @@ export default function LiquidityChartRangeInput({
         rightRangeValue !== rightPrice;
 
       if (updateLeft && updateRight) {
-        const parsedLeftRangeValue = parseFloat(leftRangeValue.toFixed(18));
-        const parsedRightRangeValue = parseFloat(rightRangeValue.toFixed(18));
+        const parsedLeftRangeValue = parseFloat(
+          toString(Number(leftRangeValue.toFixed(18)))
+        );
+        const parsedRightRangeValue = parseFloat(
+          toString(Number(rightRangeValue.toFixed(18)))
+        );
         if (
           parsedLeftRangeValue > 0 &&
           parsedRightRangeValue > 0 &&

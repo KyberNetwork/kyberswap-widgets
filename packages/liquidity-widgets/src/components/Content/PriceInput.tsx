@@ -24,8 +24,6 @@ export default function PriceInput({ type }: { type: Type }) {
   const { pool: rawPool } = useWidgetContext((s) => s);
   const [localValue, setLocalValue] = useState("");
 
-  // console.log("localValue", localValue);
-
   const pool = useMemo(() => {
     if (rawPool === "loading") return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
@@ -160,7 +158,11 @@ export default function PriceInput({ type }: { type: Type }) {
   ]);
 
   return (
-    <div className="mt-[0.6rem] py-[10px] px-[14px] gap-[10px] flex border border-stroke rounded-md">
+    <div
+      className={`mt-[0.6rem] py-[10px] px-[14px] gap-[10px] flex border ${
+        type === Type.PriceLower ? "border-accent" : "border-[#7289DA]"
+      } rounded-md`}
+    >
       <div className="flex flex-col gap-2 flex-1 text-xs font-medium text-subText">
         <span>{type === Type.PriceLower ? "Min" : "Max"} price</span>
         <input

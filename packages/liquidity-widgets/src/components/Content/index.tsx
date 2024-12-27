@@ -441,11 +441,12 @@ export default function Content() {
                 className="my-3 text-accent cursor-pointer w-fit text-sm"
                 onClick={onOpenTokenSelectModal}
               >
-                + Add more token
+                + Add Token(s) or Use Existing Position
                 <InfoHelper
                   placement="bottom"
-                  text={`Can zap in with up to ${MAX_ZAP_IN_TOKENS} tokens`}
+                  text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
                   color={theme.accent}
+                  width="300px"
                   style={{
                     verticalAlign: "baseline",
                     position: "relative",
