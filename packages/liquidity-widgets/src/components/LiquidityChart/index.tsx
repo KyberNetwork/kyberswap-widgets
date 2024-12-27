@@ -8,15 +8,8 @@ export default function LiquidityChart() {
   const chartData = useDensityChartData();
 
   const { position, pool, positionId } = useWidgetContext((s) => s);
-  const {
-    priceLower,
-    priceUpper,
-    tickLower,
-    tickUpper,
-    revertPrice,
-    setTickLower,
-    setTickUpper,
-  } = useZapState();
+  const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper } =
+    useZapState();
 
   const price =
     pool !== "loading" &&
@@ -46,8 +39,6 @@ export default function LiquidityChart() {
           pool !== "loading" && "maxTick" in pool && pool.maxTick === tickUpper,
       }}
       price={price ? parseFloat(price.toFixed(8)) : undefined}
-      priceLower={priceLower || undefined}
-      priceUpper={priceUpper || undefined}
       onBothRangeInput={(l, r) => {
         if (pool === "loading" || positionId) return;
         const tickLowerFromPrice = priceToClosestTick(

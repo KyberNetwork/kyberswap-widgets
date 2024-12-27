@@ -107,7 +107,7 @@ export function Chart({
 
     return [left, right];
   }, [current, series]);
-  
+
   return (
     <>
       {showZoomButtons && (
