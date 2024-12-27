@@ -15,7 +15,7 @@ interface ZapState {
   setTickLower: (tickLower: number) => void;
   setTickUpper: (tickUpper: number) => void;
   setLiquidityOut: (liquidity: bigint) => void;
-  fetchZapRoute: (chainId: ChainId) => Promise<void>;
+  fetchZapRoute: (chainId: ChainId, client: string) => Promise<void>;
   fetchingRoute: boolean;
   route: GetRouteResponse | null;
   showPreview: boolean;
@@ -47,7 +47,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
-  fetchZapRoute: async (chainId: ChainId) => {
+  fetchZapRoute: async (chainId: ChainId, client: string) => {
     const {
       liquidityOut,
       tickLower: lower,
@@ -69,9 +69,12 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       position === "loading" ||
       liquidityOut === 0n ||
       tickLower === null ||
-      tickUpper === null
-    )
+      tickUpper === null ||
+      tickLower >= tickUpper
+    ) {
+      set({ route: null });
       return;
+    }
 
     set({ fetchingRoute: true });
 
@@ -94,18 +97,22 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
     });
 
     try {
-      // TODO: x-client-id
       const res = await fetch(
         `${ZAP_URL}/${
           NetworkInfo[chainId].zapPath
-        }/api/v1/migrate/route?${tmp.slice(1)}`
+        }/api/v1/migrate/route?${tmp.slice(1)}`,
+        {
+          headers: {
+            "x-client-id": client,
+          },
+        }
       ).then((res) => res.json());
 
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
       console.log(e);
-      set({ fetchingRoute: false });
+      set({ fetchingRoute: false, route: null });
     }
   },
 }));

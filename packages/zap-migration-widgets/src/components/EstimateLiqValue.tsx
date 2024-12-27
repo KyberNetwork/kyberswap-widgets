@@ -26,6 +26,7 @@ export function EstimateLiqValue({
   connectedAccount,
   onClose,
   onSubmitTx,
+  client,
 }: {
   chainId: ChainId;
   connectedAccount: {
@@ -42,6 +43,7 @@ export function EstimateLiqValue({
     data: string;
     gasLimit: string;
   }) => Promise<string>;
+  client: string;
 }) {
   const { pools, theme } = usePoolsStore();
   const { fromPosition: position } = usePositionStore();
@@ -82,7 +84,7 @@ export function EstimateLiqValue({
 
   useEffect(() => {
     if (showPreview) return;
-    fetchZapRoute(chainId);
+    fetchZapRoute(chainId, client);
   }, [
     pools,
     position,
@@ -125,6 +127,8 @@ export function EstimateLiqValue({
   else if (pendingTx || clickedApprove) btnText = "Approving...";
   else if (!isApproved) btnText = "Approve NFT";
   else if (pi.piVeryHigh) btnText = "Zap anyway";
+  else if (tickLower >= tickUpper) btnText = "Invalid Price Range";
+  else if (!route) btnText = "No Route Found";
   else btnText = "Preview";
 
   const disableBtn =
@@ -133,6 +137,7 @@ export function EstimateLiqValue({
     liquidityOut === 0n ||
     tickLower === null ||
     tickUpper === null ||
+    tickLower >= tickUpper ||
     isChecking ||
     !!pendingTx ||
     clickedApprove;
