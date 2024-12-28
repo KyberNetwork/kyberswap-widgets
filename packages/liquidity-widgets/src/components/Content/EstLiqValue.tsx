@@ -12,7 +12,6 @@ import {
   PI_LEVEL,
   formatCurrency,
   formatNumber,
-  formatWei,
   getPriceImpact,
 } from "../../utils";
 import InfoHelper from "../InfoHelper";
@@ -81,14 +80,24 @@ export default function EstLiqValue() {
       (item) => item.address.toLowerCase() === token1Address?.toLowerCase()
     ) || [];
 
-  const refundAmount0 = formatWei(
-    refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    token0Decimals
+  const refundAmount0 = formatDisplayNumber(
+    formatUnits(
+      refundToken0
+        .reduce((acc, cur) => acc + BigInt(cur.amount), 0n)
+        .toString(),
+      token0Decimals
+    ),
+    { significantDigits: 6 }
   );
 
-  const refundAmount1 = formatWei(
-    refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    token1Decimals
+  const refundAmount1 = formatDisplayNumber(
+    formatUnits(
+      refundToken1
+        .reduce((acc, cur) => acc + BigInt(cur.amount), 0n)
+        .toString(),
+      token1Decimals
+    ),
+    { significantDigits: 6 }
   );
 
   const refundUsd =
@@ -140,8 +149,8 @@ export default function EstLiqValue() {
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0
@@ -174,14 +183,8 @@ export default function EstLiqValue() {
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
-        const amountIn = formatWei(
-          item.tokenIn.amount,
-          tokenIn?.decimals
-        ).replace(/,/g, "");
-        const amountOut = formatWei(
-          item.tokenOut.amount,
-          tokenOut?.decimals
-        ).replace(/,/g, "");
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0

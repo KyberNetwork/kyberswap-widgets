@@ -120,7 +120,7 @@ export function ZapSummary() {
         <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
           2
         </div>
-        <div className="text-xs text-subText">
+        <div className="text-xs text-subText flex-1">
           Swap {swapText} to{" "}
           {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
           {tokenOut?.symbol} via <span className="text-text">KyberSwap</span>

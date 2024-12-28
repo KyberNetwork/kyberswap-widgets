@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { PI_LEVEL, formatWei, getPriceImpact } from "@/utils";
+import { PI_LEVEL, getPriceImpact } from "@/utils";
 import {
   Accordion,
   AccordionContent,
@@ -90,14 +90,8 @@ export const useSwapPI = () => {
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
-        const amountIn = formatWei(
-          item.tokenIn.amount,
-          tokenIn?.decimals
-        ).replace(/,/g, "");
-        const amountOut = formatWei(
-          item.tokenOut.amount,
-          tokenOut?.decimals
-        ).replace(/,/g, "");
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0

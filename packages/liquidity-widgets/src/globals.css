@@ -119,4 +119,8 @@
   .ks-error-msg::-webkit-scrollbar-thumb {
     @apply bg-subText rounded-full;
   }
+
+  img {
+    border-radius: 50%;
+  }
 }
