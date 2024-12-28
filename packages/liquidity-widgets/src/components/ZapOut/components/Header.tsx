@@ -56,10 +56,10 @@ export const Header = () => {
         {loading ? (
           <Skeleton className="w-[400px] h-7" />
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 flex-wrap">
             Zap Out {pool.token0.symbol}/{pool.token1.symbol}{" "}
             {isUniV3 && (
-              <>
+              <div className="flex items-center gap-1">
                 #{positionId}
                 <div
                   className={cn(
@@ -74,7 +74,7 @@ export const Header = () => {
                 >
                   {isOutOfRange ? "● Out of range" : "● In range"}
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
@@ -83,11 +83,12 @@ export const Header = () => {
           <X />
         </div>
       </div>
+
       <div className="flex justify-between items-center mt-4 relative">
         {loading ? (
           <Skeleton className="w-[300px] h-6 mt-1" />
         ) : (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-1 flex-wrap">
             <div className="relative flex items-end">
               <img
                 src={pool.token0.logo}
@@ -119,15 +120,17 @@ export const Header = () => {
               {Copy}
             </div>
 
-            <img
-              src={logo}
-              width={16}
-              height={16}
-              className="rounded-full"
-              alt=""
-              onError={onImgError}
-            />
-            <span className="text-sm">{name}</span>
+            <div className="flex items-center gap-1">
+              <img
+                src={logo}
+                width={16}
+                height={16}
+                className="rounded-full"
+                alt=""
+                onError={onImgError}
+              />
+              <span className="text-sm">{name}</span>
+            </div>
           </div>
         )}
 

@@ -94,7 +94,7 @@ export function EstLiqValue() {
                 currentTarget.src = questionImg;
               }}
             />
-            {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+            {formatTokenAmount(amountOut, tokenOut?.decimals || 18, 6)}{" "}
             {tokenOut?.symbol}
           </div>
         )}
