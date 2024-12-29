@@ -60,7 +60,10 @@ export const Action = () => {
       return;
     }
     if (pi.piVeryHigh && !degenMode) {
-      toggleSetting();
+      toggleSetting(true);
+      document
+        .getElementById("zapout-setting")
+        ?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     togglePreview();

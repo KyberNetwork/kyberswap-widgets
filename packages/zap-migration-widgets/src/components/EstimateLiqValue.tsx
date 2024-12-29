@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { usePositionStore } from "../stores/usePositionStore";
 import { usePoolsStore } from "../stores/usePoolsStore";
-import { useZapStateStore } from "../stores/useZapStateStore";
-import { ChainId } from "../schema";
+import {
+  ProtocolFeeAction,
+  RefundAction,
+  useZapStateStore,
+} from "../stores/useZapStateStore";
+import { ChainId, Token } from "../schema";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { Image } from "./Image";
 import {
@@ -16,8 +20,9 @@ import { cn } from "@kyber/utils/tailwind-helpers";
 import { SwapPI, useSwapPI } from "./SwapImpact";
 import { useNftApproval } from "../hooks/use-nft-approval";
 import { DexInfos, NetworkInfo } from "../constants";
-import { PI_LEVEL } from "../utils";
+import { PI_LEVEL, formatCurrency } from "../utils";
 import { InfoHelper } from "@kyber/ui/info-helper";
+import { MouseoverTooltip } from "@kyber/ui/tooltip";
 
 export function EstimateLiqValue({
   chainId,
@@ -148,9 +153,43 @@ export function EstimateLiqValue({
     else if (!isApproved) {
       setClickedApprove(true);
       await approve().finally(() => setClickedApprove(false));
-    } else if (pi.piVeryHigh && !degenMode) toggleSetting();
-    else togglePreview();
+    } else if (pi.piVeryHigh && !degenMode) {
+      toggleSetting(true);
+      document
+        .getElementById("zapout-setting")
+        ?.scrollIntoView({ behavior: "smooth" });
+    } else togglePreview();
   };
+
+  const refundInfo = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REFUND"
+  ) as RefundAction | null;
+
+  const refundUsd =
+    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
+    0;
+
+  const tokens: Token[] =
+    pools === "loading"
+      ? []
+      : [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1];
+  const refunds: { amount: string; symbol: string }[] = [];
+  refundInfo?.refund.tokens.forEach((refund) => {
+    const token = tokens.find(
+      (t) => t.address.toLowerCase() === refund.address.toLowerCase()
+    );
+    if (token) {
+      refunds.push({
+        amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
+        symbol: token.symbol,
+      });
+    }
+  });
+
+  const feeInfo = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
+  ) as ProtocolFeeAction | undefined;
+  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
   return (
     <>
@@ -260,6 +299,35 @@ export function EstimateLiqValue({
                 )}
               </div>
             </div>
+            <div className="flex items-center justify-between mt-2">
+              <MouseoverTooltip
+                text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+                width="220px"
+              >
+                <div className="text-subText w-fit border-b border-dotted border-subText">
+                  Est. Remaining Value
+                </div>
+              </MouseoverTooltip>
+
+              {refunds.length > 0 ? (
+                <div>
+                  {formatCurrency(refundUsd)}
+                  <InfoHelper
+                    text={
+                      <div>
+                        {refunds.map((refund) => (
+                          <div key={refund.symbol}>
+                            {refund.amount} {refund.symbol}{" "}
+                          </div>
+                        ))}
+                      </div>
+                    }
+                  />
+                </div>
+              ) : (
+                <div>--</div>
+              )}
+            </div>
           </div>
           <div className="h-auto w-[1px] bg-stroke" />
           <div className="flex-1 text-xs">
@@ -303,6 +371,32 @@ export function EstimateLiqValue({
               ) : (
                 "--"
               )}
+            </div>
+            <div className="flex items-center justify-between mt-2">
+              <MouseoverTooltip
+                text={
+                  <div>
+                    Fees charged for automatically zapping into a liquidity
+                    pool. You still have to pay the standard gas fees.{" "}
+                    <a
+                      className="text-accent"
+                      href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                      target="_blank"
+                      rel="noopener norefferer"
+                    >
+                      More details.
+                    </a>
+                  </div>
+                }
+                width="220px"
+              >
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Migration Fee
+                </div>
+              </MouseoverTooltip>
+              <div className="text-sm font-medium">
+                {parseFloat(zapFee.toFixed(3))}%
+              </div>
             </div>
           </div>
         </div>

@@ -23,10 +23,11 @@ interface ZapState {
   degenMode: boolean;
   toggleDegenMode: () => void;
   showSetting: boolean;
-  toggleSetting: () => void;
+  toggleSetting: (highlightDegenMode?: boolean) => void;
   ttl: number;
   setTtl: (value: number) => void;
   reset: () => void;
+  highlightDegenMode: boolean;
 }
 
 const initState = {
@@ -40,13 +41,24 @@ const initState = {
   tickUpper: null,
   fetchingRoute: false,
   route: null,
+  highlightDegenMode: false,
 };
 
 export const useZapStateStore = create<ZapState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
   setTtl: (value: number) => set({ ttl: value }),
-  toggleSetting: () => set((state) => ({ showSetting: !state.showSetting })),
+  toggleSetting: (highlightDegenMode?: boolean) => {
+    set((state) => ({
+      showSetting: !state.showSetting,
+      highlightDegenMode: Boolean(highlightDegenMode),
+    }));
+    if (highlightDegenMode) {
+      setTimeout(() => {
+        set({ highlightDegenMode: false });
+      }, 4000);
+    }
+  },
   toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
   setSlippage: (value: number) => set({ slippage: value }),
   togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
@@ -233,7 +245,7 @@ const apiResponse = z.object({
     ),
 
     finalAmountUsd: z.string(),
-    priceImpact: z.number(),
+    priceImpact: z.number().nullable().optional(),
   }),
   route: z.string(),
   routerAddress: z.string(),

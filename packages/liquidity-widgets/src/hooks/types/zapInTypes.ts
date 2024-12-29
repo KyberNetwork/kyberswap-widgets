@@ -122,7 +122,7 @@ export interface ZapRouteDetail {
       | PartnerFeeAction
     >;
     finalAmountUsd: string;
-    priceImpact: number;
+    priceImpact: number | null | undefined;
   };
   route: string;
   routerAddress: string;

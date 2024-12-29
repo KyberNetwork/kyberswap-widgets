@@ -8,7 +8,7 @@ interface ZapOutUserState {
   setTtl: (value: number) => void;
 
   showSetting: boolean;
-  toggleSetting: () => void;
+  toggleSetting: (highlightDegenMode?: boolean) => void;
 
   degenMode: boolean;
   toggleDegenMode: () => void;
@@ -36,6 +36,7 @@ interface ZapOutUserState {
     poolAddress: string;
     positionId: string;
   }) => Promise<void>;
+  highlightDegenMode: boolean;
 }
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
@@ -46,7 +47,18 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   setTokenOut: (token) => set({ tokenOut: token }),
 
   showSetting: false,
-  toggleSetting: () => set((state) => ({ showSetting: !state.showSetting })),
+  highlightDegenMode: false,
+  toggleSetting: (highlightDegenMode) => {
+    set((state) => ({
+      showSetting: !state.showSetting,
+      highlightDegenMode: Boolean(highlightDegenMode),
+    }));
+    if (highlightDegenMode) {
+      setTimeout(() => {
+        set({ highlightDegenMode: false });
+      }, 4000);
+    }
+  },
 
   degenMode: false,
   toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
@@ -185,7 +197,7 @@ const apiResponse = z.object({
     ),
 
     finalAmountUsd: z.string(),
-    priceImpact: z.number(),
+    priceImpact: z.number().nullable().optional(),
   }),
   route: z.string(),
   routerAddress: z.string(),

@@ -123,4 +123,22 @@
   img {
     border-radius: 50%;
   }
+
+  @keyframes highlight {
+    0% {
+      box-shadow: 0 0 0 0 var(--ks-lw-accent);
+    }
+
+    70% {
+      box-shadow: 0 0 0 2px var(--ks-lw-accent);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 var(--ks-lw-accent);
+    }
+  }
+
+  .degen-mode[data-highlight='true'] {
+    animation: highlight 2s 2 alternate ease-in-out;
+  }
 }

@@ -55,6 +55,7 @@ export function Header({
           <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
             <div
               className="w-9 h-9 flex items-center justify-center rounded-full bg-layer2 hover:opacity-60 setting"
+              id="zapout-setting"
               role="button"
               onClick={(e) => {
                 e.stopPropagation();

@@ -37,6 +37,7 @@ export default function Setting() {
     toggleSetting,
     degenMode,
     toggleDegenMode,
+    highlightDegenMode,
   } = useZapStateStore();
   const ref = useRef(null);
   const [deadline, setDeadline] = useState(ttl);
@@ -171,7 +172,13 @@ export default function Setting() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-3">
+        <div
+          className={cn(
+            "flex items-center justify-between degen-mode rounded-xl mt-2 py-1",
+            highlightDegenMode ? "-mx-2 px-2" : ""
+          )}
+          data-highlight={highlightDegenMode}
+        >
           <MouseoverTooltip
             text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
             width="220px"

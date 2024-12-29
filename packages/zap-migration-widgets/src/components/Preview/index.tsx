@@ -529,9 +529,27 @@ export function Preview({
               </div>
 
               <div className="flex items-center justify-between mt-2">
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Migration Fee
-                </div>
+                <MouseoverTooltip
+                  text={
+                    <div>
+                      Fees charged for automatically zapping into a liquidity
+                      pool. You still have to pay the standard gas fees.{" "}
+                      <a
+                        className="text-accent"
+                        href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                        target="_blank"
+                        rel="noopener norefferer"
+                      >
+                        More details.
+                      </a>
+                    </div>
+                  }
+                  width="220px"
+                >
+                  <div className="text-subText text-xs border-b border-dotted border-subText">
+                    Migration Fee
+                  </div>
+                </MouseoverTooltip>
                 <div className="text-sm font-medium">
                   {parseFloat(zapFee.toFixed(3))}%
                 </div>

@@ -1,4 +1,5 @@
 import { useZapOutContext } from "@/stores/zapout";
+import questionImg from "@/assets/svg/question.svg?url";
 import {
   RemoveLiquidityAction,
   useZapOutUserState,
@@ -9,7 +10,7 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { useRef } from "react";
+import { SyntheticEvent, useRef } from "react";
 
 export const PoolFee = () => {
   const { route } = useZapOutUserState();
@@ -41,6 +42,13 @@ export const PoolFee = () => {
   const feeAmount1Ref = useRef(feeAmount1);
   if (route) feeAmount1Ref.current = feeAmount1;
 
+  const onError = ({
+    currentTarget,
+  }: SyntheticEvent<HTMLImageElement, Event>) => {
+    currentTarget.onerror = null; // prevents looping
+    currentTarget.src = questionImg;
+  };
+
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
       <div>Pool fee</div>
@@ -54,7 +62,12 @@ export const PoolFee = () => {
         ) : (
           <>
             <div className="flex items-center text-base gap-1 text-text">
-              <img src={pool.token0.logo || ""} alt="" className="w-4 h-4" />
+              <img
+                src={pool.token0.logo || ""}
+                alt=""
+                className="w-4 h-4"
+                onError={onError}
+              />
               {formatTokenAmount(
                 feeAmount0Ref.current,
                 pool.token0.decimals,
@@ -83,7 +96,12 @@ export const PoolFee = () => {
         ) : (
           <>
             <div className="flex items-center text-base gap-1 text-text">
-              <img src={pool.token1.logo || ""} alt="" className="w-4 h-4" />
+              <img
+                src={pool.token1.logo || ""}
+                alt=""
+                className="w-4 h-4"
+                onError={onError}
+              />
               {formatTokenAmount(
                 feeAmount1Ref.current,
                 pool.token1.decimals,
