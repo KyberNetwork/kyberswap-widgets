@@ -1,6 +1,6 @@
 {
-  "name": "viet-nv-liquidity-widgets",
-  "version": "1.2.23",
+  "name": "kane-liquidity-widgets",
+  "version": "1.2.24",
   "license": "MIT",
   "type": "module",
   "exports": {

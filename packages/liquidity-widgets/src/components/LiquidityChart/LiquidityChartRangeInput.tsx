@@ -15,6 +15,8 @@ import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
 import { toString } from "@/utils/number";
 import { univ3PoolNormalize } from "@/schema";
+import { formatNumber } from "@/utils";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export default function LiquidityChartRangeInput({
   feeAmount,
@@ -48,7 +50,7 @@ export default function LiquidityChartRangeInput({
 }) {
   const { theme, pool: rawPool } = useWidgetContext((s) => s);
 
-  const { revertPrice, priceLower, priceUpper } = useZapState();
+  const { revertPrice, tickLower, tickUpper } = useZapState();
 
   const pool = useMemo(() => {
     if (rawPool === "loading") return rawPool;
@@ -61,14 +63,27 @@ export default function LiquidityChartRangeInput({
   const isSorted = !revertPrice;
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    if (pool === "loading" || !priceLower || !priceUpper) return;
+    if (pool === "loading" || !tickLower || !tickUpper) return;
 
-    const leftPrice = isSorted
-      ? priceLower
-      : 1 / parseFloat(priceUpper.toString().replace(/,/g, ""));
-    const rightPrice = isSorted
-      ? priceUpper
-      : 1 / parseFloat(priceLower.toString().replace(/,/g, ""));
+    const priceLower = formatNumber(
+      +tickToPrice(
+        tickLower,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
+        revertPrice
+      )
+    );
+    const priceUpper = formatNumber(
+      +tickToPrice(
+        tickUpper,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
+        revertPrice
+      )
+    );
+
+    const leftPrice = !revertPrice ? priceLower : priceUpper;
+    const rightPrice = !revertPrice ? priceUpper : priceLower;
 
     return leftPrice && rightPrice
       ? [
@@ -76,7 +91,7 @@ export default function LiquidityChartRangeInput({
           parseFloat(rightPrice.toString().replace(/,/g, "")),
         ]
       : undefined;
-  }, [isSorted, pool, priceLower, priceUpper]);
+  }, [pool, revertPrice, tickLower, tickUpper]);
 
   const onBrushDomainChangeEnded = useCallback(
     (domain: [number, number], mode: string | undefined) => {
