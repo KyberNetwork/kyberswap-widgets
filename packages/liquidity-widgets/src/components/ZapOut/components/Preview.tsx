@@ -188,7 +188,7 @@ export const Preview = () => {
               <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
             )}
             {txStatus === "success"
-              ? "Migrate Success!"
+              ? "Zap Out Success!"
               : txStatus === "failed"
               ? "Transaction Failed!"
               : "Processing Transaction"}

@@ -44,8 +44,8 @@ export function ZapSummary() {
     (item) => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase()
   );
 
-  const feeAmount0 = BigInt(fees?.[0].amount || 0);
-  const feeAmount1 = BigInt(fees?.[1].amount || 0);
+  const feeAmount0 = BigInt(fees?.[0]?.amount || 0);
+  const feeAmount1 = BigInt(fees?.[1]?.amount || 0);
 
   const swapAction = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_AGGREGATOR_SWAP"
