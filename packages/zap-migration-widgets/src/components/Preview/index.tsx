@@ -48,6 +48,7 @@ export function Preview({
   account,
   client,
   onClose,
+  onViewPosition,
 }: {
   client: string;
   chainId: ChainId;
@@ -60,6 +61,7 @@ export function Preview({
   }) => Promise<string>;
   account: string | undefined;
   onClose: () => void;
+  onViewPosition?: () => void;
 }) {
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
@@ -251,6 +253,27 @@ export function Preview({
           >
             View transaction ↗
           </a>
+          <div className="flex gap-4 w-full mt-4">
+            <button
+              className={cn(
+                "flex-1 h-[40px] rounded-full border font-medium text-sm",
+                onViewPosition
+                  ? "border-stroke text-subText"
+                  : "border-primary bg-primary text-textRevert"
+              )}
+              onClick={onClose}
+            >
+              Close
+            </button>
+            {txStatus === "success" && onViewPosition && (
+              <button
+                className="flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium"
+                onClick={onViewPosition}
+              >
+                View position
+              </button>
+            )}
+          </div>
         </div>
       );
     } else if (submiting) {

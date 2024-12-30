@@ -209,6 +209,9 @@ export const Preview = () => {
           >
             View transaction ↗
           </a>
+          <button className="ks-primary-btn w-full mt-4" onClick={onClose}>
+            Close
+          </button>
         </div>
       );
     } else if (submiting) {

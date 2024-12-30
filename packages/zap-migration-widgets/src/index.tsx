@@ -58,6 +58,7 @@ export interface ZapMigrationProps {
     data: string;
     gasLimit: string;
   }) => Promise<string>;
+  onViewPosition?: () => void;
 }
 
 // createModalRoot.js
@@ -86,6 +87,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     onSwitchChain,
     onSubmitTx,
     theme,
+    onViewPosition,
     //aggregatorOptions,
     //feeConfig,
   } = props;
@@ -220,6 +222,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
             account={connectedAccount.address}
             client={client}
             onClose={onClose}
+            onViewPosition={onViewPosition}
           />
         )}
       </div>

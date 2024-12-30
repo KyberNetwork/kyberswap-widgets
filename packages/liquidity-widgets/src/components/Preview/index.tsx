@@ -51,6 +51,7 @@ import {
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import useCopy from "@/hooks/useCopy";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 export interface ZapState {
   pool: Pool;
@@ -93,6 +94,7 @@ export default function Preview({
     position,
     poolAddress,
     onSubmitTx,
+    onViewPosition,
   } = useWidgetContext((s) => s);
 
   const { address: account } = connectedAccount;
@@ -529,9 +531,21 @@ export default function Preview({
             View transaction ↗
           </a>
         )}
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
-          Close
-        </button>
+        <div className="flex gap-4 w-full">
+          <button
+            className={cn(
+              onViewPosition ? "ks-outline-btn flex-1" : "ks-primary-btn flex-1"
+            )}
+            onClick={onDismiss}
+          >
+            Close
+          </button>
+          {txStatus === "success" && onViewPosition && (
+            <button className="ks-primary-btn flex-1" onClick={onViewPosition}>
+              View position
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -541,7 +555,7 @@ export default function Preview({
       <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
         <div className="min-h-[300px] flex justify-center items-center gap-3 flex-col flex-1">
           <ErrorIcon className="text-error" />
-          <div>{friendlyError(txError)}</div>
+          <div className="text-center">{friendlyError(txError)}</div>
         </div>
 
         <div className="w-full">

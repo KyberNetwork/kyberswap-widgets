@@ -67,6 +67,8 @@ export interface WidgetProps {
     feePcm: number;
     feeAddress: string;
   };
+
+  onViewPosition?: () => void;
 }
 
 interface WidgetState extends WidgetProps {
