@@ -25,6 +25,7 @@ import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { useZapStateStore } from "./stores/useZapStateStore";
 import { Theme } from "./theme";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { PoolInfo } from "./components/PoolInfo";
 
 export { Dex, ChainId };
 
@@ -93,10 +94,11 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     getPools,
     error: poolError,
     setTheme,
+    pools,
     reset: resetPools,
   } = usePoolsStore();
   const { reset } = useZapStateStore();
-  const { reset: resetPos } = usePositionStore();
+  const { reset: resetPos, toPosition } = usePositionStore();
 
   const onClose = () => {
     resetPos();
@@ -123,7 +125,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     });
   }, [theme]);
 
-  // fetch position on load
+  // fetch pool on load
   useEffect(() => {
     resetPos();
     resetPools();
@@ -133,15 +135,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     if (to.positionId) fetchPosition(to.dex, chainId, +to.positionId, false);
     else setToPositionNull();
 
-    const interval = setInterval(() => {
-      fetchPosition(from.dex, chainId, +from.positionId, true);
-    }, 15_000);
-
-    return () => clearInterval(interval);
-  }, [chainId, fetchPosition, from, from.dex]);
-
-  // fetch pool on load
-  useEffect(() => {
     const params = {
       chainId,
       poolFrom: from.poolId,
@@ -155,6 +148,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     // refresh pools every 10s
     const interval = setInterval(() => {
       getPools(params);
+      fetchPosition(from.dex, chainId, +from.positionId, true);
     }, 15_000);
 
     return () => clearInterval(interval);
@@ -184,14 +178,29 @@ export const ZapMigration = (props: ZapMigrationProps) => {
         )}
       >
         <Header onClose={onClose} chainId={chainId} />
+
         <div className="flex gap-3 items-center mt-5">
           <FromPool />
-          <CircleChevronRight className="text-primary w-8 h-8 p-1" />
-          <ToPool />
+          <div className="hidden md:block">
+            <CircleChevronRight className="text-primary w-8 h-8 p-1" />
+          </div>
+          <ToPool className="hidden md:block" />
         </div>
 
-        <div className="flex gap-[48px] mt-4">
+        <div className="flex flex-col md:!flex-row gap-4 md:!gap-12 mt-4">
           <SourcePoolState />
+
+          <div className="block md:!hidden">
+            <CircleChevronRight className="text-primary w-8 h-8 p-1 rotate-90 mx-auto mb-4" />
+            <PoolInfo
+              pool={pools === "loading" ? "loading" : pools[1]}
+              chainId={chainId}
+              position={toPosition}
+            />
+          </div>
+
+          <ToPool className="block md:!hidden" />
+
           <TargetPoolState />
         </div>
         <EstimateLiqValue

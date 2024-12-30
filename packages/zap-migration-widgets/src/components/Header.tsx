@@ -36,7 +36,7 @@ export function Header({
         </button>
       </div>
 
-      <div className="flex gap-[48px] mt-8">
+      <div className="flex gap-4 md:!gap-12 mt-8">
         <div className="flex-1">
           <PoolInfo
             pool={pools === "loading" ? "loading" : pools[0]}
@@ -44,8 +44,8 @@ export function Header({
             position={fromPosition}
           />
         </div>
-        <div className="flex-1 justify-between flex">
-          <div>
+        <div className="flex md:flex-1 justify-between">
+          <div className="hidden md:block">
             <PoolInfo
               pool={pools === "loading" ? "loading" : pools[1]}
               chainId={chainId}
