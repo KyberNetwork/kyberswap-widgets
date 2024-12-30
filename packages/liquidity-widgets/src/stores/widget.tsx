@@ -18,6 +18,7 @@ import {
   univ2Pool,
   univ3PoolType,
   univ2PoolType,
+  Token,
 } from "@/schema";
 import { createStore, useStore } from "zustand";
 import { DexInfos, NetworkInfo, PATHS } from "@/constants";
@@ -154,17 +155,53 @@ const createWidgetStore = (initProps: WidgetProps) => {
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      const token0 = tokens.find(
+      let token0 = tokens.find(
         (tk) => tk.address.toLowerCase() === token0Address.toLowerCase()
       );
-      const token1 = tokens.find(
+      let token1 = tokens.find(
         (tk) => tk.address.toLowerCase() === token1Address.toLowerCase()
       );
 
       if (!token0 || !token1) {
-        set({ errorMsg: `Can't get token info` });
-        set({ poolLoading: false });
-        return;
+        const tokensToImport = [];
+        if (!token0)
+          tokensToImport.push({
+            chainId: chainId.toString(),
+            address: token0Address,
+          });
+        if (!token1)
+          tokensToImport.push({
+            chainId: chainId.toString(),
+            address: token1Address,
+          });
+
+        const res = await fetch(
+          `https://ks-setting.kyberswap.com/api/v1/tokens/import`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ tokens: tokensToImport }),
+          }
+        ).then((res) => res.json());
+
+        if (!token0)
+          token0 = res?.data?.tokens?.find(
+            (item: { data: Token }) =>
+              item.data.address.toLowerCase() === token0Address.toLowerCase()
+          )?.data;
+        if (!token1)
+          token1 = res?.data?.tokens?.find(
+            (item: { data: Token }) =>
+              item.data.address.toLowerCase() === token1Address.toLowerCase()
+          )?.data;
+
+        if (!token0 || !token1) {
+          set({ errorMsg: `Can't get token info` });
+          set({ poolLoading: false });
+          return;
+        }
       }
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);

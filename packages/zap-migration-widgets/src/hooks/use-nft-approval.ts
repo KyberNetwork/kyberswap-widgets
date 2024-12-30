@@ -82,6 +82,8 @@ export function useNftApproval({
     const methodSignature = getFunctionSelector("getApproved(uint256)"); // getApproved(uint256)
     const encodedTokenId = nftId?.toString(16).padStart(64, "0");
     const data = "0x" + methodSignature + encodedTokenId;
+    setIsApproved(false);
+    setIsChecking(true);
 
     fetch(rpcUrl, {
       method: "POST",
@@ -104,7 +106,6 @@ export function useNftApproval({
       .then((res) => res.json())
       .then((res) => {
         setIsChecking(false);
-        console.log(res, decodeAddress((res?.result || "").slice(2)));
         if (
           decodeAddress((res?.result || "").slice(2))?.toLowerCase() ===
           spender.toLowerCase()

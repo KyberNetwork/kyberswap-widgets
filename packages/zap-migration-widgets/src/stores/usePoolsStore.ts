@@ -147,16 +147,35 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         addresses.map((item) => item.toLowerCase())
       );
 
-      const enrichLogoAndPrice = (
+      const enrichLogoAndPrice = async (
         token: Pick<Token, "address">
-      ): Token | undefined => {
+      ): Promise<Token | undefined> => {
         const price = prices[token.address.toLowerCase()];
-        const tk = tokens.find(
+        let tk = tokens.find(
           (item) => item.address.toLowerCase() === token.address.toLowerCase()
         );
 
         if (!tk) {
-          return;
+          const res = await fetch(
+            `https://ks-setting.kyberswap.com/api/v1/tokens/import`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                tokens: [
+                  { chainId: chainId.toString(), address: token.address },
+                ],
+              }),
+            }
+          ).then((res) => res.json());
+
+          tk = res?.data.tokens?.find(
+            (item: { data: Token }) =>
+              item.data.address.toLowerCase() === token.address.toLowerCase()
+          )?.data;
+          if (!tk) return;
         }
 
         return {
@@ -167,8 +186,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         };
       };
 
-      const tokenFrom0 = enrichLogoAndPrice(fromPoolToken0);
-      const tokenFrom1 = enrichLogoAndPrice(fromPoolToken1);
+      const tokenFrom0 = await enrichLogoAndPrice(fromPoolToken0);
+      const tokenFrom1 = await enrichLogoAndPrice(fromPoolToken1);
       if (!tokenFrom0 || !tokenFrom1) {
         set({ error: "Can't get token info" });
         return;
