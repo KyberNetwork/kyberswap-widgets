@@ -79,7 +79,7 @@ export default function PriceInput({ type }: { type: Type }) {
   };
 
   const onPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/,/g, ".");
+    const value = e.target.value.replace(/,/g, "");
     const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
     if (
       value === "" ||

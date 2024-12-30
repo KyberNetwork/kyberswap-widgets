@@ -46,7 +46,12 @@ export const usePoolActiveLiquidity = () => {
       : pool.tickSpacing;
 
   return useMemo(() => {
-    if (pool === "loading" || !tickCurrent || !tickSpacing) return [];
+    if (
+      pool === "loading" ||
+      (!tickCurrent && tickCurrent !== 0) ||
+      !tickSpacing
+    )
+      return [];
 
     const activeTick = Math.floor(tickCurrent / tickSpacing) * tickSpacing;
     const ticks = !("ticks" in pool) ? [] : pool.ticks;

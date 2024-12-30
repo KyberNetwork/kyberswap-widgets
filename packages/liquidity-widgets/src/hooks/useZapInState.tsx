@@ -19,7 +19,12 @@ import {
   ZERO_ADDRESS,
   chainIdToChain,
 } from "@/constants";
-import { assertUnreachable, formatWei, countDecimals } from "@/utils";
+import {
+  assertUnreachable,
+  formatWei,
+  countDecimals,
+  formatNumber,
+} from "@/utils";
 import {
   Token,
   univ2PoolNormalize,
@@ -28,7 +33,7 @@ import {
   univ3Position,
 } from "@/schema";
 import { useWidgetContext } from "@/stores/widget";
-import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
+import { divideBigIntToString } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { formatUnits, parseUnits } from "@kyber/utils/crypto";
 
@@ -197,27 +202,25 @@ export const ZapContextProvider = ({
 
   const priceLower = useMemo(() => {
     if (pool === "loading" || tickLower == null) return null;
-    return formatDisplayNumber(
+    return formatNumber(
       +tickToPrice(
         tickLower,
         pool.token0?.decimals,
         pool.token1?.decimals,
         false
-      ),
-      { significantDigits: 8 }
+      )
     );
   }, [pool, tickLower]);
 
   const priceUpper = useMemo(() => {
     if (pool === "loading" || tickUpper === null) return null;
-    return formatDisplayNumber(
+    return formatNumber(
       +tickToPrice(
         tickUpper,
         pool.token0?.decimals,
         pool.token1?.decimals,
         false
-      ),
-      { significantDigits: 8 }
+      )
     );
   }, [pool, tickUpper]);
 
