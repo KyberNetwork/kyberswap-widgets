@@ -57,6 +57,7 @@ export default function Content() {
     marketPrice,
     tokensIn,
     amountsIn,
+    toggleSetting,
   } = useZapState();
 
   const {
@@ -163,7 +164,7 @@ export default function Content() {
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
 
-  const btnText = useMemo(() => {
+  const btnText = (() => {
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
@@ -172,33 +173,19 @@ export default function Content() {
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
-  }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
+  })();
 
   const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
   const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
 
-  const disabled = useMemo(
-    () =>
-      clickedApprove ||
-      loading ||
-      zapLoading ||
-      (!!error && !isWrongNetwork && !isNotConnected) ||
-      Object.values(approvalStates).some(
-        (item) => item === APPROVAL_STATE.PENDING
-      ) ||
-      (pi.piVeryHigh && !degenMode),
-    [
-      approvalStates,
-      clickedApprove,
-      degenMode,
-      error,
-      isWrongNetwork,
-      isNotConnected,
-      loading,
-      pi.piVeryHigh,
-      zapLoading,
-    ]
-  );
+  const disabled =
+    clickedApprove ||
+    loading ||
+    zapLoading ||
+    (!!error && !isWrongNetwork && !isNotConnected) ||
+    Object.values(approvalStates).some(
+      (item) => item === APPROVAL_STATE.PENDING
+    );
 
   const { success: isUniV3PoolType } = univ3PoolType.safeParse(poolType);
 
@@ -322,6 +309,15 @@ export default function Content() {
         ? tickLower !== null && tickUpper !== null && priceLower && priceUpper
         : true)
     ) {
+      if (pi.piVeryHigh && !degenMode) {
+        toggleSetting(true);
+        document
+          .getElementById("zapin-setting")
+          ?.scrollIntoView({ behavior: "smooth" });
+
+        return;
+      }
+
       const date = new Date();
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
@@ -520,7 +516,7 @@ export default function Content() {
                 Object.values(approvalStates).some(
                   (item) => item !== APPROVAL_STATE.NOT_APPROVED
                 )
-                  ? pi.piVeryHigh && degenMode
+                  ? pi.piVeryHigh
                     ? "bg-error border-solid border-error text-white"
                     : pi.piHigh
                     ? "bg-warning border-solid border-warning"
@@ -531,17 +527,23 @@ export default function Content() {
               onClick={hanldeClick}
             >
               {btnText}
-              {pi.piVeryHigh && (
-                <InfoHelper
-                  color={disabled ? theme.subText : theme.layer1}
-                  width="300px"
-                  text={
-                    degenMode
-                      ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                      : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-                  }
-                />
-              )}
+              {pi.piVeryHigh &&
+                !error &&
+                !isWrongNetwork &&
+                !isNotConnected &&
+                Object.values(approvalStates).every(
+                  (item) => item === APPROVAL_STATE.APPROVED
+                ) && (
+                  <InfoHelper
+                    width="300px"
+                    color="#ffffff"
+                    text={
+                      degenMode
+                        ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                        : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+                    }
+                  />
+                )}
             </button>
           </div>
         </div>

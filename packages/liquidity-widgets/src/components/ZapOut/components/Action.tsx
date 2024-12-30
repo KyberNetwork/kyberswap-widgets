@@ -38,7 +38,6 @@ export const Action = () => {
   const [clickedApprove, setClickedApprove] = useState(false);
 
   const disabled =
-    !account ||
     clickedApprove ||
     isChecking ||
     fetchingRoute ||

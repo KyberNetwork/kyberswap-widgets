@@ -140,6 +140,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
               degenMode ? "text-warning" : ""
             }`}
             role="button"
+            id="zapin-setting"
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();

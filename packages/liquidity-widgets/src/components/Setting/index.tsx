@@ -6,6 +6,7 @@ import Toggle from "../Toggle";
 import SlippageInput from "./SlippageInput";
 import { MouseoverTooltip } from "../Tooltip";
 import Modal from "../Modal";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);
@@ -29,8 +30,15 @@ const validateDeadlineString = (str: string): boolean => {
 };
 
 export default function Setting() {
-  const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode } =
-    useZapState();
+  const {
+    showSetting,
+    ttl,
+    setTtl,
+    toggleSetting,
+    degenMode,
+    setDegenMode,
+    highlightDegenMode,
+  } = useZapState();
   const ref = useRef(null);
   const [deadline, setDeadline] = useState(ttl);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -162,7 +170,13 @@ export default function Setting() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mt-3">
+        <div
+          className={cn(
+            "flex items-center justify-between degen-mode rounded-xl mt-2 py-1",
+            highlightDegenMode ? "-mx-2 px-2" : ""
+          )}
+          data-highlight={highlightDegenMode}
+        >
           <MouseoverTooltip
             text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
             width="220px"

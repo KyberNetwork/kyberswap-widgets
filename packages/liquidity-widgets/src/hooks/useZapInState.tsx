@@ -65,7 +65,8 @@ const ZapContext = createContext<{
   setSlippage: (val: number) => void;
   ttl: number;
   setTtl: (val: number) => void;
-  toggleSetting: () => void;
+  toggleSetting: (highlightDegenMode?: boolean) => void;
+  highlightDegenMode: boolean;
   setShowSeting: (val: boolean) => void;
   showSetting: boolean;
   degenMode: boolean;
@@ -80,6 +81,7 @@ const ZapContext = createContext<{
   token0Price: number;
   token1Price: number;
 }>({
+  highlightDegenMode: false,
   price: null,
   revertPrice: false,
   tickLower: null,
@@ -161,6 +163,7 @@ export const ZapContextProvider = ({
   const [zapApiError, setZapApiError] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [degenMode, setDegenMode] = useState(false);
+  const [highlightDegenMode, setHighlightDegenMode] = useState(false);
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
@@ -289,8 +292,14 @@ export const ZapContextProvider = ({
     setRevertPrice((prev) => !prev);
   }, []);
 
-  const toggleSetting = () => {
+  const toggleSetting = (highlight?: boolean) => {
     setShowSeting((prev) => !prev);
+    if (highlight) {
+      setHighlightDegenMode(true);
+      setTimeout(() => {
+        setHighlightDegenMode(false);
+      }, 4000);
+    }
   };
 
   useEffect(() => {
@@ -592,6 +601,7 @@ export const ZapContextProvider = ({
         tokensInUsdPrice,
         token0Price,
         token1Price,
+        highlightDegenMode,
       }}
     >
       {children}
