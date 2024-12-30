@@ -123,13 +123,13 @@ export default function ZapRoute() {
         <AccordionItem value="item-1">
           <AccordionTrigger
             className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
-              expanded ? "rounded-b-none border-b-0 pb-1" : ""
+              expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
             }`}
             onClick={onExpand}
           >
             Zap Summary
           </AccordionTrigger>
-          <AccordionContent className="px-4 pb-4 pt-0 border border-stroke border-t-0 rounded-b-md">
+          <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
             <p className="text-subText text-xs italic">
               The actual Zap Routes could be adjusted with on-chain states
             </p>

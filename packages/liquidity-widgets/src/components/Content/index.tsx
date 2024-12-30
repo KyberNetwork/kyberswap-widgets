@@ -266,6 +266,15 @@ export default function Content() {
       : false;
   }, [newPool, position]);
 
+  const isFullRange = useMemo(
+    () =>
+      pool !== "loading" &&
+      "minTick" in pool &&
+      tickLower === pool.minTick &&
+      tickUpper === pool.maxTick,
+    [pool, tickLower, tickUpper]
+  );
+
   const marketRate = useMemo(
     () =>
       marketPrice
@@ -457,13 +466,26 @@ export default function Content() {
 
               {isOutOfRangeAfterZap && (
                 <div
-                  className="py-3 px-4 text-sm rounded-md font-normal text-warning mt-4"
+                  className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
                   style={{
-                    backgroundColor: `${theme.warning}33`,
+                    backgroundColor: `${theme.blue}33`,
                   }}
                 >
-                  The position will be inactive after zapping and won’t earn any
-                  fees until the pool price moves back to select price range
+                  Your liquidity is outside the current market range and will
+                  not be used/earn fees until the market price enters your
+                  specified range.
+                </div>
+              )}
+              {isFullRange && (
+                <div
+                  className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
+                  style={{
+                    backgroundColor: `${theme.blue}33`,
+                  }}
+                >
+                  Your liquidity is active across the full price range. However,
+                  this may result in a lower APR than estimated due to less
+                  concentration of liquidity.
                 </div>
               )}
               {isDeviated && (

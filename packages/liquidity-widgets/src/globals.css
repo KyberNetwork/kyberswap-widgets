@@ -34,7 +34,7 @@
 
   .ks-lw-modal-content {
     @apply relative overflow-y-scroll;
-    @apply w-full max-w-[480px] max-h-[96vh] p-6 rounded-md;
+    @apply w-full max-w-[500px] max-h-[96vh] p-6 rounded-md;
     @apply bg-layer1 text-text;
     @apply transition-all duration-200;
     font-family: var(--ks-lw-fontFamily) "Work Sans", Sans-serif;

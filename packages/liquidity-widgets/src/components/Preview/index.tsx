@@ -659,7 +659,7 @@ export default function Preview({
             <InfoHelper
               width="300px"
               color={theme.warning}
-              text="The position is inactive and not earning trading fees due to the current price being out of the set price range."
+              text="Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
               size={16}
               style={{ position: "relative", top: "-1px", margin: 0 }}
             />
@@ -751,13 +751,13 @@ export default function Preview({
             Est. Pooled Amount
           </div>
           <div className="text-[14px] flex gap-4">
-            <div>
-              <div className="flex gap-[4px]">
+            <div className="flex flex-col gap-1">
+              <div className="flex gap-1">
                 {pool?.token0?.logo && (
                   <img
                     src={pool.token0.logo}
                     className={`w-4 h-4 rounded-full relative ${
-                      positionId ? "" : "mt-1 top-[-4px]"
+                      positionId ? "" : "mt-1 -top-1"
                     }`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
@@ -765,10 +765,10 @@ export default function Preview({
                     }}
                   />
                 )}
-                <div className="text-end w-max">
+                <div>
                   {formatDisplayNumber(
                     positionId !== undefined ? amount0 : +addedAmount0,
-                    { significantDigits: 5 }
+                    { significantDigits: 4 }
                   )}{" "}
                   {pool?.token0.symbol}
                 </div>
@@ -777,7 +777,7 @@ export default function Preview({
               {positionId && (
                 <div className="text-end">
                   +{" "}
-                  {formatDisplayNumber(+addedAmount0, { significantDigits: 5 })}{" "}
+                  {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })}{" "}
                   {pool?.token0.symbol}
                 </div>
               )}
@@ -789,13 +789,13 @@ export default function Preview({
                 )}
               </div>
             </div>
-            <div>
+            <div className="flex flex-col gap-1">
               <div className="flex gap-1">
                 {pool?.token1?.logo && (
                   <img
                     src={pool.token1.logo}
                     className={`w-4 h-4 rounded-full relative ${
-                      positionId ? "" : "mt-1 top-[-4px]"
+                      positionId ? "" : "mt-1 -top-1"
                     }`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
@@ -803,10 +803,10 @@ export default function Preview({
                     }}
                   />
                 )}
-                <div className="text-end">
+                <div>
                   {formatDisplayNumber(
                     positionId !== undefined ? amount1 : +addedAmount1,
-                    { significantDigits: 5 }
+                    { significantDigits: 4 }
                   )}{" "}
                   {pool?.token1.symbol}
                 </div>
@@ -814,7 +814,7 @@ export default function Preview({
               {positionId && (
                 <div className="text-end">
                   +{" "}
-                  {formatDisplayNumber(+addedAmount1, { significantDigits: 5 })}{" "}
+                  {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })}{" "}
                   {pool?.token1.symbol}
                 </div>
               )}

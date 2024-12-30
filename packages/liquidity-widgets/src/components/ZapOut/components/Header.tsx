@@ -29,7 +29,7 @@ export const Header = () => {
   const { degenMode, toggleSetting } = useZapOutUserState();
   const Copy = useCopy({
     text: poolAddress,
-    copyClassName: "!text-[#2C9CE4] hover:brightness-125",
+    copyClassName: "!text-blue hover:brightness-125",
   });
 
   const loading = pool === "loading" || position === "loading";
@@ -115,7 +115,7 @@ export const Header = () => {
               Fee {pool.fee}%
             </div>
 
-            <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
+            <div className="rounded-full text-xs bg-layer2 text-blue px-3 py-1 flex gap-1">
               {shortenAddress(chainId, poolAddress, 4)}
               {Copy}
             </div>

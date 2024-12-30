@@ -31,6 +31,7 @@ const config: Omit<Config, "content"> = {
         chartRange: "var(--ks-lw-chart-range)",
         chartArea: "var(--ks-lw-chart-area)",
         success: "var(--ks-lw-success)",
+        blue: "var(--ks-lw-blue)",
         "primary-20": "var(--ks-lw-accent-20)",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
