@@ -206,8 +206,8 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         ticks: fromPool.positionInfo.ticks,
       };
 
-      const tokenTo0 = enrichLogoAndPrice(toPoolToken0);
-      const tokenTo1 = enrichLogoAndPrice(toPoolToken1);
+      const tokenTo0 = await enrichLogoAndPrice(toPoolToken0);
+      const tokenTo1 = await enrichLogoAndPrice(toPoolToken1);
       if (!tokenTo0 || !tokenTo1) {
         set({ error: "Can't get token info" });
         return;
