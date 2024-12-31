@@ -133,7 +133,7 @@ export default function Preview({
           (res) => {
             if (!res) return;
 
-            if (res) {
+            if (res.status) {
               setTxStatus("success");
             } else setTxStatus("failed");
           }

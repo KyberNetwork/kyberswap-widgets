@@ -1,3 +1,5 @@
+import { DexInfos, NetworkInfo } from "@/constants";
+import { PoolSwapAction, ZapAction } from "@/hooks/types/zapInTypes";
 import { Token } from "@/schema";
 import { useZapOutContext } from "@/stores/zapout";
 import {
@@ -6,10 +8,12 @@ import {
   RemoveLiquidityAction,
   useZapOutUserState,
 } from "@/stores/zapout/zapout-state";
-import { formatTokenAmount } from "@kyber/utils/number";
+import { formatUnits } from "@kyber/utils/crypto";
+import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
+import { useMemo } from "react";
 
 export function ZapSummary() {
-  const { pool } = useZapOutContext((s) => s);
+  const { pool, chainId, poolType } = useZapOutContext((s) => s);
   const { route, tokenOut } = useZapOutUserState();
 
   const actionRefund = route?.zapDetails.actions.find(
@@ -63,14 +67,67 @@ export function ZapSummary() {
     }
   });
 
-  const swapText = amountIns
-    .map(
-      (item) =>
-        `${formatTokenAmount(item.amount, item.token.decimals)} ${
-          item.token.symbol
-        }`
-    )
-    .join(" + ");
+  const dexNameObj = DexInfos[poolType].name;
+  const dexName =
+    typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
+
+  const swapInfo = useMemo(() => {
+    const aggregatorSwapInfo = route?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    ) as AggregatorSwapAction | null;
+
+    const poolSwapInfo = route?.zapDetails.actions.find(
+      (item) => item.type === ZapAction.POOL_SWAP
+    ) as PoolSwapAction | null;
+
+    if (pool === "loading") return [];
+    const tokens = [
+      pool.token0,
+      pool.token1,
+      NetworkInfo[chainId].wrappedToken,
+    ];
+    if (tokenOut) tokens.push(tokenOut);
+
+    const parsedAggregatorSwapInfo =
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+        const tokenIn = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn: formatUnits(item.tokenIn.amount, tokenIn?.decimals),
+          amountOut: formatUnits(item.tokenOut.amount, tokenOut?.decimals),
+          pool: "KyberSwap",
+        };
+      }) || [];
+
+    const parsedPoolSwapInfo =
+      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+        const tokenIn = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+        );
+        const tokenOut = tokens.find(
+          (token) =>
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+        );
+        return {
+          tokenInSymbol: tokenIn?.symbol || "--",
+          tokenOutSymbol: tokenOut?.symbol || "--",
+          amountIn: formatUnits(item.tokenIn.amount, tokenIn?.decimals),
+          amountOut: formatUnits(item.tokenOut.amount, tokenOut?.decimals),
+          pool: `${dexName} Pool`,
+        };
+      }) || [];
+
+    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
+  }, [chainId, dexName, pool, route?.zapDetails.actions]);
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
@@ -121,9 +178,25 @@ export function ZapSummary() {
           2
         </div>
         <div className="text-xs text-subText flex-1">
-          Swap {swapText} to{" "}
-          {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
-          {tokenOut?.symbol} via <span className="text-text">KyberSwap</span>
+          {swapInfo.map((item, index) => (
+            <div className="flex gap-3 items-center text-xs" key={index}>
+              <div className="flex-1 text-subText leading-4">
+                Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol}{" "}
+                for {formatDisplayNumber(item.amountOut)} {item.tokenOutSymbol}{" "}
+                via <span className="font-medium text-text">{item.pool}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex gap-2 mt-3 items-center">
+        <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
+          3
+        </div>
+        <div className="text-xs text-subText">
+          Receive {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+          {tokenOut?.symbol}
         </div>
       </div>
     </div>

@@ -158,7 +158,8 @@ export function Preview({
     if (!txHash) return;
     const i = setInterval(
       async () => {
-        const isSuccess = await isTransactionSuccessful(rpcUrl, txHash);
+        const res = await isTransactionSuccessful(rpcUrl, txHash);
+        const isSuccess = res && res.status;
         setTxStatus(isSuccess ? "success" : "failed");
       },
       chainId === ChainId.Ethereum ? 10_000 : 5_000

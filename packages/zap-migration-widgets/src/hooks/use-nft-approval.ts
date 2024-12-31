@@ -64,7 +64,7 @@ export function useNftApproval({
         isTransactionSuccessful(rpcUrl, pendingTx).then((res) => {
           if (res) {
             setPendingTx("");
-            setIsApproved(true);
+            setIsApproved(res.status);
           }
         });
       }, 8_000);
