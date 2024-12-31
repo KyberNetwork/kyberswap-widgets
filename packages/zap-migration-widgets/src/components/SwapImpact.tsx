@@ -8,7 +8,7 @@ import {
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { NetworkInfo } from "../constants";
 import { ChainId } from "..";
-import { PI_LEVEL, formatWei, getPriceImpact } from "../utils";
+import { PI_LEVEL, getPriceImpact } from "../utils";
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +17,7 @@ import {
 } from "@kyber/ui/accordion";
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import { formatDisplayNumber } from "@kyber/utils/number";
+import { formatUnits } from "@kyber/utils/crypto";
 
 export const useSwapPI = (chainId: ChainId) => {
   const { route } = useZapStateStore();
@@ -57,8 +58,8 @@ export const useSwapPI = (chainId: ChainId) => {
           (token) =>
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0 ||
@@ -92,14 +93,8 @@ export const useSwapPI = (chainId: ChainId) => {
             token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
-        const amountIn = formatWei(
-          item.tokenIn.amount,
-          tokenIn?.decimals
-        ).replace(",", "");
-        const amountOut = formatWei(
-          item.tokenOut.amount,
-          tokenOut?.decimals
-        ).replace(",", "");
+        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0 ||
