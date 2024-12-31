@@ -18,6 +18,7 @@ export default function LiquidityChart() {
     (revertPrice
       ? pool.token1.price / pool.token0.price
       : pool.token0.price / pool.token1.price);
+
   const fee = pool === "loading" ? undefined : pool.fee * 10_000;
   const tickSpacing =
     pool === "loading" || !("tickSpacing" in pool)
@@ -38,7 +39,7 @@ export default function LiquidityChart() {
         UPPER:
           pool !== "loading" && "maxTick" in pool && pool.maxTick === tickUpper,
       }}
-      price={price ? parseFloat(price.toFixed(8)) : undefined}
+      price={price ? parseFloat(price.toFixed(18)) : undefined}
       onBothRangeInput={(l, r) => {
         if (pool === "loading" || positionId) return;
         const tickLowerFromPrice = priceToClosestTick(
