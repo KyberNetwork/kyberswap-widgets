@@ -173,26 +173,32 @@ export function ZapSummary() {
         </div>
       </div>
 
-      <div className="flex gap-2 mt-3">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
-          2
-        </div>
-        <div className="text-xs text-subText flex-1">
-          {swapInfo.map((item, index) => (
-            <div className="flex gap-3 items-center text-xs" key={index}>
-              <div className="flex-1 text-subText leading-4">
-                Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol}{" "}
-                for {formatDisplayNumber(item.amountOut)} {item.tokenOutSymbol}{" "}
-                via <span className="font-medium text-text">{item.pool}</span>
+      {swapInfo.length > 0 && (
+        <div className="flex gap-2 mt-3">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
+            2
+          </div>
+          <div className="text-xs text-subText flex-1">
+            {swapInfo.map((item, index) => (
+              <div className="flex gap-3 items-center text-xs" key={index}>
+                <div className="flex-1 text-subText leading-4">
+                  <span>
+                    Swap {formatDisplayNumber(item.amountIn)}{" "}
+                    {item.tokenInSymbol} for{" "}
+                    {formatDisplayNumber(item.amountOut)}{" "}
+                  </span>
+                  {item.tokenOutSymbol} via{" "}
+                  <span className="font-medium text-text">{item.pool}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="flex gap-2 mt-3 items-center">
         <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
-          3
+          {swapInfo.length > 0 ? 3 : 2}
         </div>
         <div className="text-xs text-subText">
           Receive {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
