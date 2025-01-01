@@ -406,112 +406,111 @@ export default function Content() {
           onClose={onCloseTokenSelectModal}
         />
       )}
-      {showWidget && (
-        <div className="p-6">
-          <Header onDismiss={onClose} />
-          <div className="mt-5 flex gap-5 max-sm:flex-col">
-            <div className="flex-1 w-1/2 max-sm:w-full">
-              <PoolInfo
-                chainId={chainId}
-                poolAddress={poolAddress}
-                poolType={poolType}
-                positionId={positionId}
-              />
-              <PriceInfo />
-              {!positionId && <LiquidityChart />}
-              <PriceRange />
-              {positionId === undefined ? (
-                isUniV3PoolType && (
-                  <>
-                    <PriceInput type={Type.PriceLower} />
-                    <PriceInput type={Type.PriceUpper} />
-                  </>
-                )
-              ) : (
-                <PositionLiquidity />
-              )}
+      <div className={`p-6 ${!showWidget ? "hidden" : ""}`}>
+        <Header onDismiss={onClose} />
+        <div className="mt-5 flex gap-5 max-sm:flex-col">
+          <div className="flex-1 w-1/2 max-sm:w-full">
+            <PoolInfo
+              chainId={chainId}
+              poolAddress={poolAddress}
+              poolType={poolType}
+              positionId={positionId}
+            />
+            <PriceInfo />
+            {!positionId && <LiquidityChart />}
+            <PriceRange />
+            {positionId === undefined ? (
+              isUniV3PoolType && (
+                <>
+                  <PriceInput type={Type.PriceLower} />
+                  <PriceInput type={Type.PriceUpper} />
+                </>
+              )
+            ) : (
+              <PositionLiquidity />
+            )}
+          </div>
+
+          <div className="flex-1 w-1/2 max-sm:w-full">
+            <div>
+              <div className="text-base">
+                {positionId ? "Increase" : "Add"} Liquidity
+              </div>
+              {tokensIn.map((_, tokenIndex: number) => (
+                <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
+              ))}
             </div>
 
-            <div className="flex-1 w-1/2 max-sm:w-full">
-              <div>
-                <div className="text-base">
-                  {positionId ? "Increase" : "Add"} Liquidity
-                </div>
-                {tokensIn.map((_, tokenIndex: number) => (
-                  <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
-                ))}
-              </div>
+            <div
+              className="my-3 text-accent cursor-pointer w-fit text-sm"
+              onClick={onOpenTokenSelectModal}
+            >
+              + Add Token(s) or Use Existing Position
+              <InfoHelper
+                placement="bottom"
+                text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
+                color={theme.accent}
+                width="300px"
+                style={{
+                  verticalAlign: "baseline",
+                  position: "relative",
+                  top: 2,
+                  left: 2,
+                }}
+              />
+            </div>
 
+            <EstLiqValue />
+            <ZapRoute />
+
+            {isOutOfRangeAfterZap && (
               <div
-                className="my-3 text-accent cursor-pointer w-fit text-sm"
-                onClick={onOpenTokenSelectModal}
+                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
+                style={{
+                  backgroundColor: `${theme.blue}33`,
+                }}
               >
-                + Add Token(s) or Use Existing Position
-                <InfoHelper
-                  placement="bottom"
-                  text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
-                  color={theme.accent}
-                  width="300px"
-                  style={{
-                    verticalAlign: "baseline",
-                    position: "relative",
-                    top: 2,
-                    left: 2,
-                  }}
-                />
+                Your liquidity is outside the current market range and will not
+                be used/earn fees until the market price enters your specified
+                range.
               </div>
-
-              <EstLiqValue />
-              <ZapRoute />
-
-              {isOutOfRangeAfterZap && (
-                <div
-                  className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
-                  style={{
-                    backgroundColor: `${theme.blue}33`,
-                  }}
-                >
-                  Your liquidity is outside the current market range and will
-                  not be used/earn fees until the market price enters your
-                  specified range.
+            )}
+            {isFullRange && (
+              <div
+                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
+                style={{
+                  backgroundColor: `${theme.blue}33`,
+                }}
+              >
+                Your liquidity is active across the full price range. However,
+                this may result in a lower APR than estimated due to less
+                concentration of liquidity.
+              </div>
+            )}
+            {isDeviated && (
+              <div
+                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
+                style={{ backgroundColor: `${theme.warning}33` }}
+              >
+                <div className="italic text-text">
+                  The pool's estimated price after zapping of{" "}
+                  <span className="font-medium text-warning not-italic ml-[2px]">
+                    1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{" "}
+                    {revertPrice ? token0?.symbol : token1?.symbol}
+                  </span>{" "}
+                  deviates from the market price{" "}
+                  <span className="font-medium text-warning not-italic">
+                    (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
+                    {marketRate} {revertPrice ? token0?.symbol : token1?.symbol}
+                    )
+                  </span>
+                  . You might have high impermanent loss after you add liquidity
+                  to this pool
                 </div>
-              )}
-              {isFullRange && (
-                <div
-                  className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
-                  style={{
-                    backgroundColor: `${theme.blue}33`,
-                  }}
-                >
-                  Your liquidity is active across the full price range. However,
-                  this may result in a lower APR than estimated due to less
-                  concentration of liquidity.
-                </div>
-              )}
-              {isDeviated && (
-                <div
-                  className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
-                  style={{ backgroundColor: `${theme.warning}33` }}
-                >
-                  <div className="italic text-text">
-                    The pool's estimated price after zapping of{" "}
-                    <span className="font-medium text-warning not-italic ml-[2px]">
-                      1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                      {price} {revertPrice ? token0?.symbol : token1?.symbol}
-                    </span>{" "}
-                    deviates from the market price{" "}
-                    <span className="font-medium text-warning not-italic">
-                      (1 {revertPrice ? token1?.symbol : token0?.symbol} ={" "}
-                      {marketRate}{" "}
-                      {revertPrice ? token0?.symbol : token1?.symbol})
-                    </span>
-                    . You might have high impermanent loss after you add
-                    liquidity to this pool
-                  </div>
-                </div>
-              )}
+              </div>
+            )}
 
-              {/* TODO: implement owner check 
+            {/* TODO: implement owner check 
                 {position?.owner &&
                   account &&
                   position.owner.toLowerCase() !== account.toLowerCase() && (
@@ -526,50 +525,49 @@ export default function Content() {
                     </div>
                   )}
                 */}
-            </div>
-          </div>
-          <div className="flex gap-6 mt-6">
-            <button className="ks-outline-btn flex-1" onClick={onClose}>
-              Cancel
-            </button>
-            <button
-              className={`ks-primary-btn flex-1 ${
-                !disabled &&
-                Object.values(approvalStates).some(
-                  (item) => item !== APPROVAL_STATE.NOT_APPROVED
-                )
-                  ? pi.piVeryHigh
-                    ? "bg-error border-solid border-error text-white"
-                    : pi.piHigh
-                    ? "bg-warning border-solid border-warning"
-                    : ""
-                  : ""
-              }`}
-              disabled={disabled}
-              onClick={hanldeClick}
-            >
-              {btnText}
-              {pi.piVeryHigh &&
-                !error &&
-                !isWrongNetwork &&
-                !isNotConnected &&
-                Object.values(approvalStates).every(
-                  (item) => item === APPROVAL_STATE.APPROVED
-                ) && (
-                  <InfoHelper
-                    width="300px"
-                    color="#ffffff"
-                    text={
-                      degenMode
-                        ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                        : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-                    }
-                  />
-                )}
-            </button>
           </div>
         </div>
-      )}
+        <div className="flex gap-6 mt-6">
+          <button className="ks-outline-btn flex-1" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className={`ks-primary-btn flex-1 ${
+              !disabled &&
+              Object.values(approvalStates).some(
+                (item) => item !== APPROVAL_STATE.NOT_APPROVED
+              )
+                ? pi.piVeryHigh
+                  ? "bg-error border-solid border-error text-white"
+                  : pi.piHigh
+                  ? "bg-warning border-solid border-warning"
+                  : ""
+                : ""
+            }`}
+            disabled={disabled}
+            onClick={hanldeClick}
+          >
+            {btnText}
+            {pi.piVeryHigh &&
+              !error &&
+              !isWrongNetwork &&
+              !isNotConnected &&
+              Object.values(approvalStates).every(
+                (item) => item === APPROVAL_STATE.APPROVED
+              ) && (
+                <InfoHelper
+                  width="300px"
+                  color="#ffffff"
+                  text={
+                    degenMode
+                      ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+                      : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+                  }
+                />
+              )}
+          </button>
+        </div>
+      </div>
     </>
   );
 }

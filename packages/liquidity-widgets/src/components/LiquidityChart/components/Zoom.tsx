@@ -80,17 +80,7 @@ export default function Zoom({
       );
 
     select(svg as Element).call(zoomBehavior.current);
-  }, [
-    height,
-    width,
-    setZoom,
-    svg,
-    xScale,
-    zoomBehavior,
-    zoomLevels,
-    zoomLevels.max,
-    zoomLevels.min,
-  ]);
+  }, [height, width, setZoom, svg, xScale, zoomBehavior, zoomLevels]);
 
   useEffect(() => {
     // reset zoom to initial on zoomLevel change
@@ -111,11 +101,7 @@ export default function Zoom({
             zoomReset();
           }}
         >
-          <RefreshIcon
-            className="relative -top-[1px]"
-            width={18}
-            height={18}
-          />
+          <RefreshIcon className="relative -top-[1px]" width={18} height={18} />
         </div>
       )}
       <div className="cursor-pointer" onClick={zoomIn}>
