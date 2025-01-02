@@ -13,6 +13,8 @@ import { useWidgetContext } from "@/stores/widget";
 const xAccessor = (d: ChartEntry) => d.price0;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;
 
+let zoomTimeout: ReturnType<typeof setTimeout> | undefined;
+
 export function Chart({
   id = "liquidityChartRangeInput",
   data: { series, current },
@@ -31,6 +33,7 @@ export function Chart({
   const theme = useWidgetContext((s) => s.theme);
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
+  const [zoomInited, setZoomInited] = useState(false);
 
   const [innerHeight, innerWidth] = useMemo(
     () => [
@@ -75,10 +78,16 @@ export function Chart({
   }, [zoomLevels]);
 
   useEffect(() => {
-    if (!brushDomain) {
-      onBrushDomainChange(xScale.domain() as [number, number], undefined);
+    if (zoomInited) return;
+    if (zoom && zoomTimeout) {
+      clearTimeout(zoomTimeout);
     }
-  }, [brushDomain, onBrushDomainChange, xScale]);
+
+    zoomTimeout = setTimeout(() => {
+      setZoomInited(true);
+    }, 500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom]);
 
   const [leftSeries, rightSeries] = useMemo(() => {
     const isHighToLow = series[0]?.price0 > series[series.length - 1]?.price0;
@@ -220,6 +229,7 @@ export function Chart({
             setBrushExtent={onBrushDomainChange}
             westHandleColor={styles.brush.handle.west}
             eastHandleColor={styles.brush.handle.east}
+            zoomInited={zoomInited}
           />
         </g>
       </svg>

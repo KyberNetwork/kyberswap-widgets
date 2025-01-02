@@ -497,7 +497,7 @@ export const PATHS = {
 
 export const DEFAULT_PRICE_RANGE = {
   LOW_POOL_FEE: 0.01,
-  MEDIUM_POOL_FEE: 0.1,
+  MEDIUM_POOL_FEE: 0.2,
   HIGH_POOL_FEE: 0.5,
 };
 

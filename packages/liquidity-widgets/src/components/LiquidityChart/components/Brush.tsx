@@ -37,6 +37,7 @@ export const Brush = ({
   innerHeight,
   westHandleColor,
   eastHandleColor,
+  zoomInited,
 }: {
   id: string;
   xScale: ScaleLinear<number, number>;
@@ -48,6 +49,7 @@ export const Brush = ({
   innerHeight: number;
   westHandleColor: string;
   eastHandleColor: string;
+  zoomInited: boolean;
 }) => {
   const theme = useWidgetContext((s) => s.theme);
   const brushRef = useRef<SVGGElement | null>(null);
@@ -77,13 +79,17 @@ export const Brush = ({
       ];
 
       // avoid infinite render loop by checking for change
-      if (type === "end" && !compare(brushExtent, scaled, xScale)) {
+      if (
+        type === "end" &&
+        !compare(brushExtent, scaled, xScale) &&
+        zoomInited
+      ) {
         setBrushExtent(scaled, mode);
       }
 
       setLocalBrushExtent(scaled);
     },
-    [xScale, brushExtent, setBrushExtent]
+    [xScale, brushExtent, setBrushExtent, zoomInited]
   );
 
   // keep local and external brush extent in sync
