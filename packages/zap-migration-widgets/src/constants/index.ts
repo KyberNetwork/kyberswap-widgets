@@ -274,4 +274,4 @@ export const DexInfos: Record<Dex, DexInfo> = {
   },
 };
 
-export const ZAP_URL = "https://zap-api.kyberengineering.io";
+export const ZAP_URL = "https://zap-api.kyberswap.io";
