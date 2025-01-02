@@ -88,10 +88,14 @@ export async function estimateGas(
   return BigInt(result.result); // Gas estimate as a hex string
 }
 
+interface TxReceipt {
+  status: boolean;
+}
+
 export async function isTransactionSuccessful(
   rpcUrl: string,
   txHash: string
-): Promise<boolean> {
+): Promise<false | TxReceipt> {
   const response = await fetch(rpcUrl, {
     method: "POST",
     headers: {
@@ -114,7 +118,9 @@ export async function isTransactionSuccessful(
   }
 
   // `status` is "0x1" for success, "0x0" for failure
-  return result.result.status === "0x1";
+  return {
+    status: result.result.status === "0x1",
+  };
 }
 
 export async function checkApproval({
