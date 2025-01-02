@@ -70,7 +70,11 @@ export const useSwapPI = (chainId: ChainId) => {
                 parseFloat(item.tokenIn.amountUsd)) *
               100;
 
-        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          route?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -104,7 +108,11 @@ export const useSwapPI = (chainId: ChainId) => {
                 parseFloat(item.tokenOut.amountUsd)) /
                 parseFloat(item.tokenIn.amountUsd)) *
               100;
-        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          route?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -138,7 +146,7 @@ export const useSwapPI = (chainId: ChainId) => {
   const zapPiRes = getPriceImpact(
     route?.zapDetails.priceImpact,
     "Zap Impact",
-    feeInfo
+    route?.zapDetails.suggestedSlippage || 100
   );
 
   return { swapPi, swapPiRes, zapPiRes };

@@ -7,12 +7,7 @@ import { useZapOutContext } from "@/stores/zapout";
 import { NetworkInfo, PATHS, chainIdToChain } from "@/constants";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { formatTokenAmount } from "@kyber/utils/number";
-import {
-  PI_LEVEL,
-  formatCurrency,
-  getPriceImpact,
-  getWarningThreshold,
-} from "@/utils";
+import { PI_LEVEL, formatCurrency } from "@/utils";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
 import {
@@ -27,7 +22,10 @@ import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import AlertIcon from "@/assets/svg/error.svg";
 import LoadingIcon from "@/assets/svg/loader.svg";
 import CheckIcon from "@/assets/svg/success.svg";
-import { SwapPI } from "./SwapImpact";
+import { SwapPI, useSwapPI } from "./SwapImpact";
+import { SlippageWarning } from "@/components/SlippageWarning";
+import { WarningMsg } from "./WarningMsg";
+import { cn } from "@kyber/utils/tailwind-helpers";
 export const Preview = () => {
   const {
     onClose,
@@ -140,6 +138,8 @@ export const Preview = () => {
     }
   }, [txHash]);
 
+  const { swapPiRes, zapPiRes } = useSwapPI();
+
   if (pool === "loading" || position === "loading" || !tokenOut || !route)
     return null;
 
@@ -154,11 +154,14 @@ export const Preview = () => {
     (item) => item.type === ZapAction.PROTOCOL_FEE
   ) as ProtocolFeeAction | undefined;
 
-  const piRes = getPriceImpact(
-    route?.zapDetails.priceImpact,
-    "Zap Impact",
-    feeInfo
-  );
+  const pi = {
+    piHigh:
+      swapPiRes.piRes.level === PI_LEVEL.HIGH ||
+      zapPiRes.level === PI_LEVEL.HIGH,
+    piVeryHigh:
+      swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH ||
+      zapPiRes.level === PI_LEVEL.VERY_HIGH,
+  };
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
@@ -171,8 +174,7 @@ export const Preview = () => {
       currentTarget.src = defaultTokenLogo;
     },
   };
-  const warningThreshold =
-    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
+  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
 
   if (showProcessing) {
     let content = <></>;
@@ -257,6 +259,13 @@ export const Preview = () => {
     );
   }
 
+  const color =
+    zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+      ? theme.error
+      : zapPiRes.level === PI_LEVEL.HIGH
+      ? theme.warning
+      : theme.subText;
+
   return (
     <Modal
       isOpen={showPreview}
@@ -325,23 +334,12 @@ export const Preview = () => {
             {tokenOut.symbol}
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <MouseoverTooltip
-            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-            width="220px"
-          >
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Max Slippage
-            </div>
-          </MouseoverTooltip>
-          <span
-            className={`text-sm font-medium ${
-              slippage > warningThreshold ? "text-warning" : "text-text"
-            }`}
-          >
-            {((slippage * 100) / 10_000).toFixed(2)}%
-          </span>
-        </div>
+
+        <SlippageWarning
+          slippage={slippage}
+          suggestedSlippage={suggestedSlippage}
+          className="mt-0"
+        />
 
         <div className="flex items-center justify-between">
           <SwapPI />
@@ -357,13 +355,8 @@ export const Preview = () => {
               style={
                 route
                   ? {
-                      color:
-                        piRes.level === PI_LEVEL.VERY_HIGH ||
-                        piRes.level === PI_LEVEL.INVALID
-                          ? theme.error
-                          : piRes.level === PI_LEVEL.HIGH
-                          ? theme.warning
-                          : theme.subText,
+                      color,
+                      borderColor: color,
                     }
                   : {}
               }
@@ -374,15 +367,15 @@ export const Preview = () => {
           <div
             style={{
               color:
-                piRes.level === PI_LEVEL.VERY_HIGH ||
-                piRes.level === PI_LEVEL.INVALID
+                zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                zapPiRes.level === PI_LEVEL.INVALID
                   ? theme.error
-                  : piRes.level === PI_LEVEL.HIGH
+                  : zapPiRes.level === PI_LEVEL.HIGH
                   ? theme.warning
                   : theme.text,
             }}
           >
-            {piRes.display}
+            {zapPiRes.display}
           </div>
         </div>
 
@@ -424,14 +417,17 @@ export const Preview = () => {
         </div>
       </div>
 
-      {slippage > warningThreshold && (
+      {(slippage > 2 * suggestedSlippage ||
+        slippage < suggestedSlippage / 2) && (
         <div
           className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
           style={{
             backgroundColor: `${theme.warning}33`,
           }}
         >
-          Slippage is high, your transaction might be front-run!
+          {suggestedSlippage / 2 > slippage
+            ? "Your slippage is set higher than usual, which may cause unexpected losses."
+            : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
         </div>
       )}
 
@@ -441,8 +437,16 @@ export const Preview = () => {
         making decisions
       </div>
 
+      <WarningMsg />
       <button
-        className="ks-primary-btn w-full mt-4"
+        className={cn(
+          "ks-primary-btn w-full mt-4",
+          pi.piVeryHigh
+            ? "bg-error border-solid border-error text-white"
+            : pi.piHigh
+            ? "bg-warning border-solid border-warning"
+            : ""
+        )}
         onClick={async () => {
           if (!account) return;
           if (!buildData) {

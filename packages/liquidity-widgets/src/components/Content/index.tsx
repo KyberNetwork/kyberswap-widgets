@@ -7,7 +7,6 @@ import { ERROR_MESSAGE, useZapState } from "../../hooks/useZapInState";
 import {
   AggregatorSwapAction,
   PoolSwapAction,
-  ProtocolFeeAction,
   Type,
   ZapAction,
 } from "../../hooks/types/zapInTypes";
@@ -117,14 +116,10 @@ export default function Content() {
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
-    const feeInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.PROTOCOL_FEE
-    ) as ProtocolFeeAction | undefined;
-
     const piRes = getPriceImpact(
       zapInfo?.zapDetails.priceImpact,
       "Zap Impact",
-      feeInfo
+      zapInfo?.zapDetails.suggestedSlippage || 100
     );
 
     const aggregatorSwapPi =
@@ -134,7 +129,11 @@ export default function Content() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        return getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
       }) || [];
     const poolSwapPi =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
@@ -143,7 +142,11 @@ export default function Content() {
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        return getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
       }) || [];
 
     const swapPiHigh = !!aggregatorSwapPi

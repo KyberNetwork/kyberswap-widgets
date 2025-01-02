@@ -23,6 +23,7 @@ import { DexInfos, NetworkInfo } from "../constants";
 import { PI_LEVEL, formatCurrency } from "../utils";
 import { InfoHelper } from "@kyber/ui/info-helper";
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { SlippageInfo } from "./SlippageInfo";
 
 export function EstimateLiqValue({
   chainId,
@@ -168,6 +169,12 @@ export function EstimateLiqValue({
   const refundUsd =
     refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
     0;
+  const initUsd = Number(route?.zapDetails.initialAmountUsd || 0);
+  const suggestedSlippage =
+    (route?.zapDetails.suggestedSlippage || 100) / 10_000;
+  const isHighRemainingAmount = initUsd
+    ? refundUsd / initUsd >= suggestedSlippage
+    : false;
 
   const tokens: Token[] =
     pools === "loading"
@@ -304,7 +311,7 @@ export function EstimateLiqValue({
                 text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
                 width="220px"
               >
-                <div className="text-subText w-fit border-b border-dotted border-subText">
+                <div className="text-xs text-subText w-fit border-b border-dotted border-subText">
                   Est. Remaining Value
                 </div>
               </MouseoverTooltip>
@@ -332,12 +339,11 @@ export function EstimateLiqValue({
           <div className="h-auto w-[1px] bg-stroke" />
           <div className="flex-1 text-xs">
             <SwapPI chainId={chainId} />
-            <div className="flex justify-between items-start mt-2">
-              <span className="text-subText border-b border-dotted border-subText">
-                Swap Max Slippage
-              </span>
-              <span>{(slippage / 10_000) * 100}%</span>
-            </div>
+
+            <SlippageInfo
+              slippage={slippage}
+              suggestedSlippage={route?.zapDetails.suggestedSlippage || 100}
+            />
 
             <div className="flex justify-between items-start mt-2">
               <span
@@ -400,6 +406,16 @@ export function EstimateLiqValue({
             </div>
           </div>
         </div>
+
+        {route && isHighRemainingAmount && (
+          <div
+            className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
+            style={{ background: `${theme.warning}33` }}
+          >
+            {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains
+            unused. Consider lowering your input amount
+          </div>
+        )}
 
         {route && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
           <div

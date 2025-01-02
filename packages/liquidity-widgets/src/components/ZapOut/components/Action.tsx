@@ -7,6 +7,7 @@ import { useSwapPI } from "./SwapImpact";
 import { PI_LEVEL } from "@/utils";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import InfoHelper from "@/components/InfoHelper";
+import { WarningMsg } from "./WarningMsg";
 
 export const Action = () => {
   const {
@@ -17,7 +18,6 @@ export const Action = () => {
     onSwitchChain,
     poolType,
     positionId,
-    theme,
   } = useZapOutContext((s) => s);
   const { address: account, chainId: walletChainId } = connectedAccount;
 
@@ -71,8 +71,12 @@ export const Action = () => {
   const { swapPiRes, zapPiRes } = useSwapPI();
 
   const pi = {
-    piHigh: swapPiRes.piRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh:
+      swapPiRes.piRes.level === PI_LEVEL.HIGH ||
+      zapPiRes.level === PI_LEVEL.HIGH,
+    piVeryHigh:
+      swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH ||
+      zapPiRes.level === PI_LEVEL.VERY_HIGH,
   };
 
   const btnText = useMemo(() => {
@@ -100,39 +104,7 @@ export const Action = () => {
 
   return (
     <>
-      {route && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-            swapPiRes.piRes.level === PI_LEVEL.HIGH
-              ? "text-warning"
-              : "text-error"
-          }`}
-          style={{
-            backgroundColor:
-              swapPiRes.piRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-          }}
-        >
-          {swapPiRes.piRes.msg}
-        </div>
-      )}
-
-      {route && zapPiRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-            zapPiRes.level === PI_LEVEL.HIGH ? "text-warning" : "text-error"
-          }`}
-          style={{
-            backgroundColor:
-              zapPiRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
-          }}
-        >
-          {zapPiRes.msg}
-        </div>
-      )}
+      <WarningMsg />
       <div className="grid grid-cols-2 gap-3 mt-5 sm:gap-6">
         <button className="ks-outline-btn flex-1 w-full" onClick={onClose}>
           Cancel
@@ -157,6 +129,7 @@ export const Action = () => {
             account &&
             isApproved && (
               <InfoHelper
+                color="#ffffff"
                 width="300px"
                 text={
                   degenMode

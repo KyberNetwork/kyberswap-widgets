@@ -4,16 +4,12 @@ import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { useZapOutContext } from "@/stores/zapout";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
-import {
-  PI_LEVEL,
-  formatCurrency,
-  getPriceImpact,
-  getWarningThreshold,
-} from "@/utils";
+import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
 import { Skeleton } from "@kyber/ui/skeleton";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { useEffect } from "react";
 import { SwapPI } from "./SwapImpact";
+import { SlippageWarning } from "@/components/SlippageWarning";
 
 export function EstLiqValue() {
   const { chainId, positionId, poolAddress, poolType, pool, theme } =
@@ -44,7 +40,7 @@ export function EstLiqValue() {
   const piRes = getPriceImpact(
     route?.zapDetails.priceImpact,
     "Zap Impact",
-    feeInfo
+    route?.zapDetails.suggestedSlippage || 100
   );
 
   useEffect(() => {
@@ -58,10 +54,16 @@ export function EstLiqValue() {
     tokenOut?.address,
   ]);
 
-  const warningThreshold =
-    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
+  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+
+  const color =
+    piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+      ? theme.error
+      : piRes.level === PI_LEVEL.HIGH
+      ? theme.warning
+      : theme.subText;
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
@@ -100,34 +102,10 @@ export function EstLiqValue() {
         )}
       </div>
 
-      <div className="flex items-center justify-between mt-2">
-        <MouseoverTooltip
-          text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-          width="220px"
-        >
-          <div className="text-subText text-xs border-b border-dotted border-subText">
-            Max Slippage
-          </div>
-        </MouseoverTooltip>
-        <MouseoverTooltip
-          text={
-            slippage > warningThreshold
-              ? "Slippage is high, your transaction might be front-run!"
-              : ""
-          }
-          width="220px"
-        >
-          <span
-            className={`text-sm font-medium ${
-              slippage > warningThreshold
-                ? "text-warning border-b border-warning border-dotted"
-                : "text-text"
-            }`}
-          >
-            {((slippage * 100) / 10_000).toFixed(2)}%
-          </span>
-        </MouseoverTooltip>
-      </div>
+      <SlippageWarning
+        slippage={slippage}
+        suggestedSlippage={suggestedSlippage}
+      />
 
       <div className="flex items-center justify-between mt-2">
         <SwapPI />
@@ -143,13 +121,8 @@ export function EstLiqValue() {
             style={
               route
                 ? {
-                    color:
-                      piRes.level === PI_LEVEL.VERY_HIGH ||
-                      piRes.level === PI_LEVEL.INVALID
-                        ? theme.error
-                        : piRes.level === PI_LEVEL.HIGH
-                        ? theme.warning
-                        : theme.subText,
+                    color,
+                    borderColor: color,
                   }
                 : {}
             }

@@ -1,5 +1,4 @@
 import { ChainId, NetworkInfo } from "../constants";
-import { ProtocolFeeAction } from "@/hooks/types/zapInTypes";
 import { formatUnits } from "@kyber/utils/number";
 
 export const formatCurrency = (value: number) =>
@@ -161,7 +160,7 @@ export enum PI_LEVEL {
 export const getPriceImpact = (
   pi: number | null | undefined,
   type: "Swap Price Impact" | "Zap Impact",
-  zapFeeInfo?: ProtocolFeeAction
+  suggestedSlippage: number
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
@@ -172,20 +171,28 @@ export const getPriceImpact = (
 
   const piDisplay = pi < 0.01 ? "<0.01%" : pi.toFixed(2) + "%";
 
-  const warningThreshold = zapFeeInfo ? getWarningThreshold(zapFeeInfo) : 1;
+  const warningThreshold = (2 * suggestedSlippage * 100) / 10_000;
 
-  if (pi > 10 * warningThreshold) {
-    return {
-      msg: `Warning: The ${type} seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.`,
-      level: PI_LEVEL.VERY_HIGH,
-      display: piDisplay,
-    };
-  }
+  //if (pi > 10 * warningThreshold) {
+  //  return {
+  //    //msg: `Warning: The ${type} seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.`,
+  //    msg:
+  //      type === "Swap Price Impact"
+  //        ? "The price impact for this swap is higher than usual, which may affect trade outcomes"
+  //        : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+  //
+  //    level: PI_LEVEL.VERY_HIGH,
+  //    display: piDisplay,
+  //  };
+  //}
 
   if (pi > warningThreshold) {
     return {
-      msg: `${type} is high`,
-      level: PI_LEVEL.HIGH,
+      msg:
+        type === "Swap Price Impact"
+          ? "The price impact for this swap is higher than usual, which may affect trade outcomes"
+          : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+      level: type === "Swap Price Impact" ? PI_LEVEL.HIGH : PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
   }
@@ -203,21 +210,6 @@ export enum PairType {
   Common = "common",
   Exotic = "exotic",
 }
-
-// basis point is 100k
-const feeConfig = {
-  [PairType.Stable]: 10,
-  [PairType.Correlated]: 25,
-  [PairType.Common]: 100,
-  [PairType.Exotic]: 250,
-};
-
-// basis point is 10k
-export const getWarningThreshold = (zapFee: ProtocolFeeAction) => {
-  if (zapFee.protocolFee.pcm <= feeConfig[PairType.Stable]) return 0.1;
-  if (zapFee.protocolFee.pcm <= feeConfig[PairType.Correlated]) return 0.25;
-  return 1;
-};
 
 export function getEtherscanLink(
   chainId: ChainId,

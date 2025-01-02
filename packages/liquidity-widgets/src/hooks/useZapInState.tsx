@@ -103,7 +103,7 @@ const ZapContext = createContext<{
   error: "",
   zapInfo: null,
   loading: false,
-  slippage: 10,
+  slippage: 50,
   setSlippage: () => {},
   ttl: 20, // 20min
   setTtl: () => {},
@@ -157,7 +157,7 @@ export const ZapContextProvider = ({
   );
 
   const [showSetting, setShowSeting] = useState(false);
-  const [slippage, setSlippage] = useState(10);
+  const [slippage, setSlippage] = useState(50);
   const [ttl, setTtl] = useState(20);
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(null);

@@ -101,6 +101,13 @@ export function MigrationSummary({
     (action) => action.type === "ACTION_TYPE_ADD_LIQUIDITY"
   ) as AddLiquidityAction | undefined;
 
+  const addedAmount0 = BigInt(
+    addliquidityAction?.addLiquidity.token0.amount || 0
+  );
+  const addedAmount1 = BigInt(
+    addliquidityAction?.addLiquidity.token1.amount || 0
+  );
+
   return (
     <div className="border border-stroke rounded-md px-4 py-3 mt-8">
       <div className="text-sm">Migration Summary</div>
@@ -149,20 +156,16 @@ export function MigrationSummary({
         </div>
         <div className="text-xs">
           Add{" "}
-          {formatTokenAmount(
-            BigInt(addliquidityAction?.addLiquidity.token0.amount || 0),
-            pools[1].token0.decimals,
-            8
-          )}{" "}
-          {pools[1].token0.symbol} and{" "}
-          {formatTokenAmount(
-            BigInt(addliquidityAction?.addLiquidity.token1.amount || 0),
-            pools[1].token1.decimals,
-            8
-          )}{" "}
-          {pools[1].token1.symbol} into{" "}
-          <span className="text-text">{DexInfos[pools[1].dex].name}</span> in
-          the selected fee pool
+          {addedAmount0 !== 0n &&
+            `${formatTokenAmount(addedAmount0, pools[1].token0.decimals, 8)} ${
+              pools[1].token0.symbol
+            } and`}{" "}
+          {addedAmount0 !== 0n &&
+            `${formatTokenAmount(addedAmount1, pools[1].token1.decimals, 8)} ${
+              pools[1].token1.symbol
+            }`}{" "}
+          into <span className="text-text">{DexInfos[pools[1].dex].name}</span>{" "}
+          in the selected fee pool
         </div>
       </div>
     </div>

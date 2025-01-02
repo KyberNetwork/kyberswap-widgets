@@ -39,8 +39,9 @@ import { MigrationSummary } from "./MigrationSummary";
 import { SwapPI, useSwapPI } from "../SwapImpact";
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import { InfoHelper } from "@kyber/ui/info-helper";
-import { PI_LEVEL, formatCurrency, getWarningThreshold } from "../../utils";
+import { PI_LEVEL, formatCurrency } from "../../utils";
 import useCopy from "../../hooks/use-copy";
+import { SlippageInfo } from "../SlippageInfo";
 
 export function Preview({
   chainId,
@@ -215,9 +216,6 @@ export function Preview({
   });
 
   const { zapPiRes } = useSwapPI(chainId);
-
-  const warningThreshold =
-    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
   if (showProcessing) {
     let content = <></>;
@@ -490,20 +488,10 @@ export function Preview({
                 )}
               </div>
 
-              <div className="flex items-center justify-between mt-2">
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Max Slippage
-                </div>
-                <div className="text-sm">
-                  <span
-                    className={`text-sm font-medium ${
-                      slippage > warningThreshold ? "text-warning" : "text-text"
-                    }`}
-                  >
-                    {((slippage * 100) / 10_000).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
+              <SlippageInfo
+                slippage={slippage}
+                suggestedSlippage={route?.zapDetails.suggestedSlippage || 100}
+              />
 
               <div className="flex items-center justify-between mt-2">
                 <SwapPI chainId={chainId} />
@@ -579,14 +567,17 @@ export function Preview({
                 </div>
               </div>
 
-              {slippage > warningThreshold && (
+              {(slippage > 2 * route.zapDetails.suggestedSlippage ||
+                slippage < route.zapDetails.suggestedSlippage / 2) && (
                 <div
                   className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
                   style={{
                     backgroundColor: `${theme.warning}33`,
                   }}
                 >
-                  Slippage is high, your transaction might be front-run!
+                  {route.zapDetails.suggestedSlippage / 2 > slippage
+                    ? "Your slippage is set higher than usual, which may cause unexpected losses."
+                    : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
                 </div>
               )}
 

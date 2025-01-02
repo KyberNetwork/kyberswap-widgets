@@ -123,6 +123,7 @@ export interface ZapRouteDetail {
     >;
     finalAmountUsd: string;
     priceImpact: number | null | undefined;
+    suggestedSlippage: number;
   };
   route: string;
   routerAddress: string;

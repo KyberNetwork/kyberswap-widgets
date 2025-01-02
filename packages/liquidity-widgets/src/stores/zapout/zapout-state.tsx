@@ -198,6 +198,7 @@ const apiResponse = z.object({
 
     finalAmountUsd: z.string(),
     priceImpact: z.number().nullable().optional(),
+    suggestedSlippage: z.number(),
   }),
   route: z.string(),
   routerAddress: z.string(),

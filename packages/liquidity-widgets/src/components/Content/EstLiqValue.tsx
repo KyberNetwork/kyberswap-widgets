@@ -29,6 +29,8 @@ import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useWidgetContext } from "@/stores/widget";
 import { toRawString } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
+import { SlippageWarning } from "../SlippageWarning";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 export default function EstLiqValue() {
   const { zapInfo, source, slippage, tokensIn } = useZapState();
@@ -103,6 +105,12 @@ export default function EstLiqValue() {
   const refundUsd =
     refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
     0;
+  const initUsd = Number(zapInfo?.zapDetails.initialAmountUsd || 0);
+  const suggestedSlippage =
+    (zapInfo?.zapDetails.suggestedSlippage || 100) / 10_000;
+  const isHighRemainingAmount = initUsd
+    ? refundUsd / initUsd >= suggestedSlippage
+    : false;
 
   const feeInfo = zapInfo?.zapDetails.actions.find(
     (item) => item.type === ZapAction.PROTOCOL_FEE
@@ -118,7 +126,7 @@ export default function EstLiqValue() {
   const piRes = getPriceImpact(
     zapInfo?.zapDetails.priceImpact,
     "Zap Impact",
-    feeInfo
+    zapInfo?.zapDetails.suggestedSlippage || 100
   );
 
   const swapPi = useMemo(() => {
@@ -160,7 +168,11 @@ export default function EstLiqValue() {
                 parseFloat(item.tokenIn.amountUsd)) *
               100;
 
-        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -193,7 +205,11 @@ export default function EstLiqValue() {
                 parseFloat(item.tokenOut.amountUsd)) /
                 parseFloat(item.tokenIn.amountUsd)) *
               100;
-        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -435,24 +451,30 @@ export default function EstLiqValue() {
           )}
         </div>
 
-        <div className="flex justify-between items-start mt-3 text-xs">
-          <MouseoverTooltip
-            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-            width="220px"
-          >
-            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
-              Max Slippage
-            </div>
-          </MouseoverTooltip>
-          <div>{((slippage * 100) / 10_000).toString() + "%"}</div>
-        </div>
+        <SlippageWarning
+          className="mt-3 text-xs"
+          slippage={slippage}
+          suggestedSlippage={zapInfo?.zapDetails.suggestedSlippage || 100}
+        />
 
         <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
             text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
             width="220px"
           >
-            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+            <div
+              className={cn(
+                "text-subText mt-[2px] w-fit border-b border-dotted border-subText",
+                zapInfo
+                  ? piRes.level === PI_LEVEL.VERY_HIGH ||
+                    piRes.level === PI_LEVEL.INVALID
+                    ? "border-error text-error"
+                    : piRes.level === PI_LEVEL.HIGH
+                    ? "border-warning text-warning"
+                    : "border-subText"
+                  : ""
+              )}
+            >
               Zap Impact
             </div>
           </MouseoverTooltip>
@@ -516,6 +538,16 @@ export default function EstLiqValue() {
           </MouseoverTooltip>
         </div>
       </div>
+
+      {zapInfo && isHighRemainingAmount && (
+        <div
+          className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
+          style={{ background: `${theme.warning}33` }}
+        >
+          {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains
+          unused. Consider lowering your input amount
+        </div>
+      )}
 
       {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
         <div

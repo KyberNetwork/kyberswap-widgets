@@ -23,7 +23,6 @@ import {
   formatWei,
   friendlyError,
   getPriceImpact,
-  getWarningThreshold,
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import InfoHelper from "../InfoHelper";
@@ -52,6 +51,7 @@ import {
 } from "@kyber/utils/crypto";
 import useCopy from "@/hooks/useCopy";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { SlippageWarning } from "../SlippageWarning";
 
 export interface ZapState {
   pool: Pool;
@@ -267,7 +267,7 @@ export default function Preview({
   const piRes = getPriceImpact(
     zapInfo?.zapDetails.priceImpact,
     "Zap Impact",
-    feeInfo
+    zapInfo?.zapDetails.suggestedSlippage || 100
   );
 
   const piVeryHigh =
@@ -316,7 +316,11 @@ export default function Preview({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -351,7 +355,11 @@ export default function Preview({
             parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(pi, "Swap Price Impact", feeInfo);
+        const piRes = getPriceImpact(
+          pi,
+          "Swap Price Impact",
+          zapInfo?.zapDetails.suggestedSlippage || 100
+        );
 
         return {
           tokenInSymbol: tokenIn?.symbol || "--",
@@ -479,9 +487,6 @@ export default function Preview({
       })
       .finally(() => setAttempTx(false));
   };
-
-  const warningThreshold =
-    ((feeInfo ? getWarningThreshold(feeInfo) : 1) / 100) * 10_000;
 
   if (attempTx || txHash) {
     let txStatusText = "";
@@ -834,7 +839,7 @@ export default function Preview({
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="text-sm font-medium text-subText border-b border-dotted border-subText">
+            <div className="text-xs text-subText border-b border-dotted border-subText">
               Remaining Amount
             </div>
           </MouseoverTooltip>
@@ -855,23 +860,11 @@ export default function Preview({
           </span>
         </div>
 
-        <div className="flex justify-between items-center gap-4 w-full">
-          <MouseoverTooltip
-            text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-            width="220px"
-          >
-            <div className="text-sm font-medium text-subText border-b border-dotted border-subText">
-              Max Slippage
-            </div>
-          </MouseoverTooltip>
-          <span
-            className={`text-sm font-medium ${
-              slippage > warningThreshold ? "text-warning" : "text-text"
-            }`}
-          >
-            {((slippage * 100) / 10_000).toFixed(2)}%
-          </span>
-        </div>
+        <SlippageWarning
+          className="gap-4 w-full mt-0"
+          slippage={slippage}
+          suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
+        />
 
         <div className="flex justify-between items-center gap-4 w-full">
           {swapPi.length ? (
@@ -883,7 +876,7 @@ export default function Preview({
                     width="220px"
                   >
                     <div
-                      className={`text-sm font-medium border-b border-dotted border-subText ${
+                      className={`text-xs border-b border-dotted border-subText ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? "text-subText"
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
@@ -943,7 +936,17 @@ export default function Preview({
             text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
             width="220px"
           >
-            <div className="text-sm font-medium text-subText border-b border-dotted border-subText">
+            <div
+              className={cn(
+                "text-xs text-subText border-b border-dotted border-subText",
+                piRes.level === PI_LEVEL.VERY_HIGH ||
+                  piRes.level === PI_LEVEL.INVALID
+                  ? "border-error text-error"
+                  : piRes.level === PI_LEVEL.HIGH
+                  ? "border-warning text-warning"
+                  : "border-text text-text"
+              )}
+            >
               Zap impact
             </div>
           </MouseoverTooltip>
@@ -970,7 +973,7 @@ export default function Preview({
             text="Estimated network fee for your transaction."
             width="220px"
           >
-            <div className="text-sm font-medium text-subText border-b border-dotted border-subText">
+            <div className="text-xs text-subText border-b border-dotted border-subText">
               Est. Gas Fee
             </div>
           </MouseoverTooltip>
@@ -997,7 +1000,7 @@ export default function Preview({
             }
             width="220px"
           >
-            <div className="text-sm font-medium text-subText border-b border-dotted border-subText">
+            <div className="text-xs text-subText border-b border-dotted border-subText">
               Zap Fee
             </div>
           </MouseoverTooltip>
@@ -1007,14 +1010,17 @@ export default function Preview({
         </div>
       </div>
 
-      {slippage > warningThreshold && (
+      {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage ||
+        slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
         <div
           className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
           style={{
             backgroundColor: `${theme.warning}33`,
           }}
         >
-          Slippage is high, your transaction might be front-run!
+          {zapInfo.zapDetails.suggestedSlippage / 2 > slippage
+            ? "Your slippage is set higher than usual, which may cause unexpected losses."
+            : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
         </div>
       )}
 
