@@ -7,13 +7,16 @@ import { Skeleton } from "@kyber/ui/skeleton";
 import { usePositionStore } from "../stores/usePositionStore";
 import { MouseoverTooltip } from "@kyber/ui/tooltip";
 import { useZapStateStore } from "../stores/useZapStateStore";
+import ChevronLeft from "../assets/icons/chevron-left.svg";
 import Setting from "./Setting";
 
 export function Header({
   onClose,
+  onBack,
   chainId,
 }: {
   onClose: () => void;
+  onBack?: () => void;
   chainId: ChainId;
 }) {
   const { pools, theme } = usePoolsStore();
@@ -26,7 +29,13 @@ export function Header({
         {pools === "loading" ? (
           <Skeleton className="w-[300px] h-7" />
         ) : (
-          <div>
+          <div className="flex gap-1">
+            {onBack && (
+              <ChevronLeft
+                className="relative top-[2px] cursor-pointer text-subText hover:text-text"
+                onClick={onBack}
+              />
+            )}
             Migrate from {pools[0].token0.symbol}/{pools[0].token1.symbol} to{" "}
             {pools[1].token0.symbol}/{pools[1].token1.symbol}
           </div>

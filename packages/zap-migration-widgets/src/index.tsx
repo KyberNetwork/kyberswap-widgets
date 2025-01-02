@@ -59,6 +59,7 @@ export interface ZapMigrationProps {
     gasLimit: string;
   }) => Promise<string>;
   onViewPosition?: () => void;
+  onBack?: () => void;
 }
 
 // createModalRoot.js
@@ -88,6 +89,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     onSubmitTx,
     theme,
     onViewPosition,
+    onBack,
     //aggregatorOptions,
     //feeConfig,
   } = props;
@@ -179,7 +181,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
           className
         )}
       >
-        <Header onClose={onClose} chainId={chainId} />
+        <Header onClose={onClose} onBack={onBack} chainId={chainId} />
 
         <div className="flex gap-3 items-center mt-5">
           <FromPool />
