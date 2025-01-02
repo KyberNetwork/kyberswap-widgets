@@ -944,7 +944,7 @@ export default function Preview({
                   ? "border-error text-error"
                   : piRes.level === PI_LEVEL.HIGH
                   ? "border-warning text-warning"
-                  : "border-text text-text"
+                  : "border-subText text-subText"
               )}
             >
               Zap impact

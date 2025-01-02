@@ -50,26 +50,25 @@ export const getPriceImpact = (
 
   const warningThreshold = (2 * suggestedSlippage * 100) / 10_000;
 
-  //if (pi > 10 * warningThreshold) {
-  //  return {
-  //    //msg: `Warning: The ${type} seems high, and you may lose funds in this swap. Click ‘Zap Anyway’ if you wish to continue to Zap in by enabling Degen Mode.`,
-  //    msg:
-  //      type === "Swap Price Impact"
-  //        ? "The price impact for this swap is higher than usual, which may affect trade outcomes"
-  //        : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
-  //
-  //    level: PI_LEVEL.VERY_HIGH,
-  //    display: piDisplay,
-  //  };
-  //}
+  if (pi > 2 * warningThreshold) {
+    return {
+      msg:
+        type === "Swap Price Impact"
+          ? "The price impact for this swap is higher than usual, which may affect trade outcomes."
+          : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+
+      level: type === "Swap Price Impact" ? PI_LEVEL.HIGH : PI_LEVEL.VERY_HIGH,
+      display: piDisplay,
+    };
+  }
 
   if (pi > warningThreshold) {
     return {
       msg:
         type === "Swap Price Impact"
-          ? "The price impact for this swap is higher than usual, which may affect trade outcomes"
-          : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
-      level: type === "Swap Price Impact" ? PI_LEVEL.HIGH : PI_LEVEL.VERY_HIGH,
+          ? "The price impact for this swap is higher than usual, which may affect trade outcomes."
+          : "Overall zap price impact is higher than expected.",
+      level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
   }
