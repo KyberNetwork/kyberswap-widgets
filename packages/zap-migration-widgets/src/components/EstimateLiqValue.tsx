@@ -216,7 +216,7 @@ export function EstimateLiqValue({
         <div className="py-4 flex gap-2 md:gap-6 flex-col md:!flex-row">
           <div className="flex-1">
             <div className="flex justify-between items-start">
-              <div className="text-subText text-xs border-b border-dotted border-subText flex items-center gap-2">
+              <div className="text-subText text-xs flex items-center gap-2">
                 Est. Pooled{" "}
                 {pools === "loading" ? (
                   <Skeleton className="w-8 h-2.5" />
@@ -262,7 +262,7 @@ export function EstimateLiqValue({
             </div>
 
             <div className="flex justify-between items-start mt-2">
-              <div className="text-subText text-xs border-b border-dotted border-subText flex items-center gap-2">
+              <div className="text-subText text-xs flex items-center gap-2">
                 Est. Pooled{" "}
                 {pools === "loading" ? (
                   <Skeleton className="w-8 h-2.5" />
@@ -346,21 +346,26 @@ export function EstimateLiqValue({
             />
 
             <div className="flex justify-between items-start mt-2">
-              <span
-                className={cn(
-                  "text-subText border-b border-dotted border-subText",
-                  route
-                    ? zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                      zapPiRes.level === PI_LEVEL.INVALID
-                      ? "text-error border-error"
-                      : zapPiRes.level === PI_LEVEL.HIGH
-                      ? "text-warning border-warning"
-                      : "text-subText border-subText"
-                    : ""
-                )}
+              <MouseoverTooltip
+                text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
+                width="220px"
               >
-                Zap Impact
-              </span>
+                <span
+                  className={cn(
+                    "text-subText border-b border-dotted border-subText",
+                    route
+                      ? zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                        zapPiRes.level === PI_LEVEL.INVALID
+                        ? "text-error border-error"
+                        : zapPiRes.level === PI_LEVEL.HIGH
+                        ? "text-warning border-warning"
+                        : "text-subText border-subText"
+                      : ""
+                  )}
+                >
+                  Zap Impact
+                </span>
+              </MouseoverTooltip>
               {route ? (
                 <div
                   className={`text-xs  ${

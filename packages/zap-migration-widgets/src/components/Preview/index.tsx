@@ -498,19 +498,24 @@ export function Preview({
               </div>
 
               <div className="flex justify-between items-start mt-2">
-                <span
-                  className={cn(
-                    "text-subText border-b border-dotted border-subText text-xs",
-                    zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                      zapPiRes.level === PI_LEVEL.INVALID
-                      ? "text-error border-error"
-                      : zapPiRes.level === PI_LEVEL.HIGH
-                      ? "text-warning border-warning"
-                      : "text-subText border-subText"
-                  )}
+                <MouseoverTooltip
+                  text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
+                  width="220px"
                 >
-                  Zap Impact
-                </span>
+                  <span
+                    className={cn(
+                      "text-subText border-b border-dotted border-subText text-xs",
+                      zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                        zapPiRes.level === PI_LEVEL.INVALID
+                        ? "text-error border-error"
+                        : zapPiRes.level === PI_LEVEL.HIGH
+                        ? "text-warning border-warning"
+                        : "text-subText border-subText"
+                    )}
+                  >
+                    Zap Impact
+                  </span>
+                </MouseoverTooltip>
                 {route ? (
                   <div
                     className={`text-sm font-medium ${
@@ -530,9 +535,14 @@ export function Preview({
               </div>
 
               <div className="flex items-center justify-between mt-2">
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Est. Gas Fee
-                </div>
+                <MouseoverTooltip
+                  text="Estimated network fee for your transaction."
+                  width="220px"
+                >
+                  <div className="text-subText text-xs border-b border-dotted border-subText">
+                    Est. Gas Fee
+                  </div>
+                </MouseoverTooltip>
                 <div className="text-sm">
                   {gasUsd
                     ? formatDisplayNumber(gasUsd, { style: "currency" })
