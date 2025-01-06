@@ -137,11 +137,11 @@ const SlippageInput = () => {
           className="relative border w-[72px] rounded-full text-subText text-sm p-1 font-medium flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent data-[error='true']:border-error data-[warning='true']:border-warning data-[focus='true']:border-accent"
           data-active={![5, 10, 50, 100].includes(slippage)}
           data-error={!!message && !isValid}
-          data-warning={!!message && isValid}
+          data-warning={zapInfo && !!message && isValid}
           data-focus={isFocus}
           style={{ flex: 3 }}
         >
-          {message && (
+          {zapInfo && message && (
             <AlertIcon
               className={`absolute top-[5px] left-1 w-4 h-4 ${
                 isValid ? "text-warning" : "text-error"
@@ -161,7 +161,7 @@ const SlippageInput = () => {
           <span>%</span>
         </div>
       </div>
-      {(message || slippage) && (
+      {zapInfo && (message || slippage) && (
         <div
           className={`text-xs text-left mt-1 max-w-[280px] ${
             isValid ? "text-warning" : "text-error"
