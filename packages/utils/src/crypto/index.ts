@@ -170,7 +170,7 @@ export async function checkApproval({
 
 export function calculateGasMargin(value: bigint): string {
   const defaultGasLimitMargin = 20_000n;
-  const gasMargin = (value * 2000n) / 10_000n;
+  const gasMargin = (value * 5000n) / 10_000n;
 
   return (
     "0x" +
