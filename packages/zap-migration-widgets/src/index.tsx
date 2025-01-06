@@ -164,13 +164,13 @@ export const ZapMigration = (props: ZapMigrationProps) => {
       pools[0].category === "stablePair" &&
       pools[1].category === "stablePair"
     )
-      setSlippage(1);
+      setSlippage(10);
     else if (
       pools[0].category === "correlatedPair" &&
       pools[1].category === "correlatedPair" &&
       pools[0].address.toLowerCase() === pools[1].address.toLowerCase()
     ) {
-      setSlippage(10);
+      setSlippage(25);
     } else setSlippage(50);
   }, [pools, manualSlippage]);
 

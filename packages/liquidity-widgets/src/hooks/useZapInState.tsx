@@ -193,9 +193,9 @@ export const ZapContextProvider = ({
 
   useEffect(() => {
     if (pool === "loading" || manualSlippage) return;
-    if (pool.category === "stablePair" && isTokensStable) setSlippage(1);
+    if (pool.category === "stablePair" && isTokensStable) setSlippage(10);
     else if (pool.category === "correlatedPair" && isTokensInPair)
-      setSlippage(10);
+      setSlippage(25);
     else {
       setSlippage(50);
     }

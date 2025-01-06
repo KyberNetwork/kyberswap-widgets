@@ -51,7 +51,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
     if (pool === "loading" || !tokenOut || manualSlippage) return;
 
     if (pool.category === "stablePair" && tokenOut.isStable) {
-      setSlippage(1);
+      setSlippage(10);
     } else if (
       pool.category === "correlatedPair" &&
       [
@@ -63,7 +63,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           : NetworkInfo[chainId].wrappedToken.address.toLowerCase()
       )
     ) {
-      setSlippage(10);
+      setSlippage(25);
     } else {
       setSlippage(50);
     }
