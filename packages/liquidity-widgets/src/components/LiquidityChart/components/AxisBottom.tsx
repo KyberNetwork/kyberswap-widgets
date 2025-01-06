@@ -1,4 +1,5 @@
 import { useWidgetContext } from "@/stores/widget";
+import { formatDisplayNumber } from "@kyber/utils/number";
 import {
   Axis as d3Axis,
   axisBottom,
@@ -37,7 +38,13 @@ export const AxisBottom = ({
   useMemo(
     () => (
       <g className="group" transform={`translate(0, ${innerHeight + offset})`}>
-        <Axis axisGenerator={axisBottom(xScale).ticks(6)} />
+        <Axis
+          axisGenerator={axisBottom(xScale)
+            .ticks(6)
+            .tickFormat((value) =>
+              formatDisplayNumber(Number(value), { significantDigits: 6 })
+            )}
+        />
       </g>
     ),
     [innerHeight, offset, xScale]
