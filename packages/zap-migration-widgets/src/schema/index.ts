@@ -26,6 +26,7 @@ export const token = z.object({
   decimals: z.number(),
   logo: z.string().optional(),
   price: z.number().optional(),
+  isStable: z.boolean().optional(),
 });
 
 export type Token = z.infer<typeof token>;
@@ -146,6 +147,12 @@ const univ3PoolCommonField = z.object({
   sqrtPriceX96: z.string(),
   tickSpacing: z.number(),
   ticks: z.array(tick),
+  category: z.enum([
+    "stablePair",
+    "correlatedPair",
+    "commonPair",
+    "exoticPair",
+  ]),
 });
 
 export const pool = z.discriminatedUnion("dex", [

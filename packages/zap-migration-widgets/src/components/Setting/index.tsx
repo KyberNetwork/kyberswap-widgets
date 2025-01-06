@@ -136,7 +136,7 @@ export default function Setting() {
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
           width="220px"
         >
-          <div className="text-sm border-b border-dotted border-subText">
+          <div className="text-sm border-b border-dotted border-subText w-fit">
             Slippage Tolerance
           </div>
         </MouseoverTooltip>

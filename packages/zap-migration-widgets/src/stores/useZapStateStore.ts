@@ -28,6 +28,8 @@ interface ZapState {
   setTtl: (value: number) => void;
   reset: () => void;
   highlightDegenMode: boolean;
+  manualSlippage: boolean;
+  setManualSlippage: (value: boolean) => void;
 }
 
 const initState = {
@@ -42,6 +44,7 @@ const initState = {
   fetchingRoute: false,
   route: null,
   highlightDegenMode: false,
+  manualSlippage: false,
 };
 
 export const useZapStateStore = create<ZapState>((set, get) => ({
@@ -139,6 +142,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
+  setManualSlippage: (value) => set({ manualSlippage: value }),
 }));
 
 const token = z.object({

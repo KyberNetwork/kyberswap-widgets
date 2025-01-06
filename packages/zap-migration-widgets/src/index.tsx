@@ -117,7 +117,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     setToPositionNull,
   } = usePositionStore();
 
-  const { showPreview } = useZapStateStore();
+  const { showPreview, manualSlippage, setSlippage } = useZapStateStore();
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
@@ -157,6 +157,22 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
     return () => clearInterval(interval);
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
+
+  useEffect(() => {
+    if (pools === "loading" || manualSlippage) return;
+    if (
+      pools[0].category === "stablePair" &&
+      pools[1].category === "stablePair"
+    )
+      setSlippage(1);
+    else if (
+      pools[0].category === "correlatedPair" &&
+      pools[1].category === "correlatedPair" &&
+      pools[0].address.toLowerCase() === pools[1].address.toLowerCase()
+    ) {
+      setSlippage(10);
+    } else setSlippage(50);
+  }, [pools, manualSlippage]);
 
   return (
     <div

@@ -7,7 +7,7 @@ export const parseSlippageInput = (str: string): number =>
 
 export const validateSlippageInput = (
   str: string,
-  degenMode = false
+  suggestedSlippage: number
 ): { isValid: boolean; message?: string } => {
   if (str === "") {
     return {
@@ -37,20 +37,20 @@ export const validateSlippageInput = (
       isValid: false,
       message: `Enter a valid slippage percentage`,
     };
-  } else if (rawSlippage < 50) {
+  } else if (rawSlippage < suggestedSlippage / 2) {
     return {
       isValid: true,
-      message: `Your transaction may fail`,
+      message: `Your slippage is set lower than usual, increasing the risk of transaction failure.`,
     };
-  } else if (rawSlippage > (!degenMode ? 2000 : 5000)) {
+  } else if (rawSlippage > 5000) {
     return {
       isValid: false,
       message: `Enter a smaller slippage percentage`,
     };
-  } else if (rawSlippage > 500) {
+  } else if (rawSlippage > 2 * suggestedSlippage) {
     return {
       isValid: true,
-      message: `Your transaction may be frontrun`,
+      message: `Your slippage is set higher than usual, which may cause unexpected losses.`,
     };
   }
 
@@ -60,21 +60,31 @@ export const validateSlippageInput = (
 };
 
 const SlippageInput = () => {
-  const { slippage, setSlippage, degenMode } = useZapOutUserState();
+  const { slippage, setSlippage, route, setManualSlippage } =
+    useZapOutUserState();
   const [v, setV] = useState(() => {
     if ([5, 10, 50, 100].includes(slippage)) return "";
     return ((slippage * 100) / 10_000).toString();
   });
 
+  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
+
   const [isFocus, setIsFocus] = useState(false);
-  const { isValid, message } = validateSlippageInput(v, degenMode);
+  const { isValid, message } = validateSlippageInput(v, suggestedSlippage);
+  const { message: slpWarning } = validateSlippageInput(
+    ((slippage * 100) / 10_000).toString(),
+    suggestedSlippage
+  );
 
   const onCustomSlippageFocus = () => setIsFocus(true);
 
   const onCustomSlippageBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocus(false);
     if (!e.currentTarget.value) setSlippage(10);
-    else if (isValid) setSlippage(parseSlippageInput(e.currentTarget.value));
+    else if (isValid) {
+      setSlippage(parseSlippageInput(e.currentTarget.value));
+      setManualSlippage(true);
+    }
   };
 
   const onCustomSlippageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +102,7 @@ const SlippageInput = () => {
       return;
     }
 
-    const res = validateSlippageInput(value);
+    const res = validateSlippageInput(value, suggestedSlippage);
 
     if (res.isValid) {
       const parsedValue = parseSlippageInput(value);
@@ -111,7 +121,11 @@ const SlippageInput = () => {
             className="relative border rounded-full text-subText text-sm p-1 font-medium w-12 flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent"
             data-active={item === slippage}
             role="button"
-            onClick={() => setSlippage(item)}
+            onClick={() => {
+              setSlippage(item);
+              setManualSlippage(true);
+              setV("");
+            }}
             key={item}
             style={{ flex: 2 }}
           >
@@ -147,13 +161,13 @@ const SlippageInput = () => {
           <span>%</span>
         </div>
       </div>
-      {message && (
+      {(message || slippage) && (
         <div
-          className={`text-xs text-left mt-1 ${
+          className={`text-xs text-left mt-1 max-w-[280px] ${
             isValid ? "text-warning" : "text-error"
           }`}
         >
-          {message}
+          {message || slpWarning}
         </div>
       )}
     </>

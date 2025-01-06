@@ -81,12 +81,12 @@ export const Action = () => {
 
   const btnText = useMemo(() => {
     if (!account) return "Connect Wallet";
+    if (isChecking) return "Checking Approval...";
+    if (fetchingRoute) return "Fetching Route...";
     if (!route) return "No route found";
     if (chainId !== walletChainId) return "Switch Network";
-    if (isChecking) return "Checking Approval...";
     if (clickedApprove || pendingTx) return "Approving...";
     if (!isApproved) return "Approve NFT";
-    if (fetchingRoute) return "Fetching Route...";
     if (pi.piVeryHigh) return "Remove anyway";
     return "Preview";
   }, [

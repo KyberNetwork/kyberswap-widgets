@@ -192,8 +192,14 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         set({ error: "Can't get token info" });
         return;
       }
+      // check category pair
+      const pairCheck0 = await fetch(
+        `https://token-api.kyberengineering.io/api/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${tokenFrom0.address}&tokenOut=${tokenFrom1.address}`
+      ).then((res) => res.json());
+      const cat = pairCheck0?.data?.category || "commonPair";
 
       const pool0: Pool = {
+        category: cat,
         token0: tokenFrom0,
         token1: tokenFrom1,
         address: poolFrom,
@@ -213,7 +219,14 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         return;
       }
 
+      // check category pair
+      const pairCheck1 = await fetch(
+        `https://token-api.kyberengineering.io/api/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${tokenTo0.address}&tokenOut=${tokenTo1.address}`
+      ).then((res) => res.json());
+      const cat1 = pairCheck1?.data?.category || "commonPair";
+
       const pool1: Pool = {
+        category: cat1,
         token0: tokenTo0,
         token1: tokenTo1,
         address: poolTo,

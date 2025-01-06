@@ -126,7 +126,7 @@ export default function Setting() {
         </div>
       </Modal>
       <div
-        className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md"
+        className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[320px]"
         ref={ref}
       >
         <div className="text-base font-medium mb-5">Advanced Setting</div>

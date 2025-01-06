@@ -37,6 +37,8 @@ interface ZapOutUserState {
     positionId: string;
   }) => Promise<void>;
   highlightDegenMode: boolean;
+  manualSlippage: boolean;
+  setManualSlippage: (value: boolean) => void;
 }
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
@@ -114,6 +116,8 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
+  manualSlippage: false,
+  setManualSlippage: (value) => set({ manualSlippage: value }),
 }));
 
 const token = z.object({

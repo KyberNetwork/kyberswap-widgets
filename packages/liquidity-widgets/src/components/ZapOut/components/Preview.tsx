@@ -339,6 +339,7 @@ export const Preview = () => {
           slippage={slippage}
           suggestedSlippage={suggestedSlippage}
           className="mt-0"
+          showWarning={!!route}
         />
 
         <div className="flex items-center justify-between">

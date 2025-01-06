@@ -864,6 +864,7 @@ export default function Preview({
           className="gap-4 w-full mt-0"
           slippage={slippage}
           suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
+          showWarning
         />
 
         <div className="flex justify-between items-center gap-4 w-full">

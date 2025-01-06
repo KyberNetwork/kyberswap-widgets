@@ -5,10 +5,12 @@ export const SlippageWarning = ({
   slippage,
   suggestedSlippage,
   className,
+  showWarning,
 }: {
   slippage: number;
   suggestedSlippage: number;
   className?: string;
+  showWarning: boolean;
 }) => {
   return (
     <div
@@ -24,7 +26,9 @@ export const SlippageWarning = ({
         <div
           className={cn(
             "text-subText text-xs border-b border-dotted border-subText",
-            slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2
+            showWarning &&
+              (slippage > 2 * suggestedSlippage ||
+                slippage < suggestedSlippage / 2)
               ? "text-warning border-warning"
               : ""
           )}
@@ -34,7 +38,9 @@ export const SlippageWarning = ({
       </MouseoverTooltip>
       <MouseoverTooltip
         text={
-          slippage > 2 * suggestedSlippage
+          !showWarning
+            ? ""
+            : slippage > 2 * suggestedSlippage
             ? "Your slippage is set higher than usual, which may cause unexpected losses."
             : slippage < suggestedSlippage / 2
             ? "Your slippage is set lower than usual, increasing the risk of transaction failure."
@@ -44,7 +50,9 @@ export const SlippageWarning = ({
       >
         <span
           className={`font-medium ${
-            slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2
+            showWarning &&
+            (slippage > 2 * suggestedSlippage ||
+              slippage < suggestedSlippage / 2)
               ? "text-warning border-b border-warning border-dotted"
               : "text-text"
           }`}

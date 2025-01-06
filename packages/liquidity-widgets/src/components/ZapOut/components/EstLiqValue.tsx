@@ -105,6 +105,7 @@ export function EstLiqValue() {
       <SlippageWarning
         slippage={slippage}
         suggestedSlippage={suggestedSlippage}
+        showWarning={!!route}
       />
 
       <div className="flex items-center justify-between mt-2">

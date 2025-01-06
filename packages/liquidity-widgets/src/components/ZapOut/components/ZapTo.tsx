@@ -19,6 +19,7 @@ import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/zapout/zapout-state";
 import { useEffect, useState } from "react";
 import TokenSelectorModal from "./TokenSelector/TokenSelectorModal";
+import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { position, pool, poolType } = useZapOutContext((s) => s);
@@ -26,7 +27,14 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const loading = position === "loading" || pool === "loading";
   const [showTokenSelect, setShowTokenSelect] = useState(false);
 
-  const { liquidityOut, tokenOut, setTokenOut, route } = useZapOutUserState();
+  const {
+    liquidityOut,
+    tokenOut,
+    setTokenOut,
+    route,
+    setSlippage,
+    manualSlippage,
+  } = useZapOutUserState();
 
   const actionRefund = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REFUND"
@@ -38,6 +46,28 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
       setTokenOut(pool.token0);
     }
   }, [tokenOut, pool]);
+
+  useEffect(() => {
+    if (pool === "loading" || !tokenOut || manualSlippage) return;
+
+    if (pool.category === "stablePair" && tokenOut.isStable) {
+      setSlippage(1);
+    } else if (
+      pool.category === "correlatedPair" &&
+      [
+        pool.token0.address.toLowerCase(),
+        pool.token1.address.toLowerCase(),
+      ].includes(
+        tokenOut.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+          ? tokenOut.address.toLowerCase()
+          : NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+      )
+    ) {
+      setSlippage(10);
+    } else {
+      setSlippage(50);
+    }
+  }, [tokenOut, manualSlippage, pool, chainId]);
 
   let amount0 = 0n;
   let amount1 = 0n;

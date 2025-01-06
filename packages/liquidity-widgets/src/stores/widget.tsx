@@ -206,6 +206,12 @@ const createWidgetStore = (initProps: WidgetProps) => {
         }
       }
 
+      // check category pair
+      const pairCheck = await fetch(
+        `${PATHS.TOKEN_API}/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
+      ).then((res) => res.json());
+      const cat = pairCheck?.data?.category || "commonPair";
+
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
       const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
 
@@ -218,6 +224,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
           throw new Error("Invalid pool univ3 type");
         }
         p = {
+          category: cat,
           poolType: pt,
           address: poolUniv3.address,
           token0: {
@@ -327,6 +334,7 @@ const createWidgetStore = (initProps: WidgetProps) => {
           throw new Error("Invalid pool univ2 type");
         }
         p = {
+          category: cat,
           poolType: pt,
           token0: {
             ...token0,

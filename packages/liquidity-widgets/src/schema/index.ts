@@ -71,6 +71,7 @@ export const token = z.object({
   decimals: z.number(),
   logo: z.string().optional(),
   price: z.number().optional(),
+  isStable: z.boolean().optional(),
 });
 export type Token = z.infer<typeof token>;
 
@@ -114,6 +115,12 @@ export const univ3PoolNormalize = z.object({
   ticks: z.array(tick),
   minTick: z.number(),
   maxTick: z.number(),
+  category: z.enum([
+    "stablePair",
+    "correlatedPair",
+    "commonPair",
+    "exoticPair",
+  ]),
 });
 export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;
 
@@ -122,6 +129,12 @@ export const univ2PoolNormalize = z.object({
   token1: token,
   fee: z.number(),
   reserves: z.tuple([z.string(), z.string()]),
+  category: z.enum([
+    "stablePair",
+    "correlatedPair",
+    "commonPair",
+    "exoticPair",
+  ]),
 });
 
 export const pool = z.discriminatedUnion("poolType", [

@@ -85,6 +85,7 @@ const ZapContext = createContext<{
   tokensInUsdPrice: number[];
   token0Price: number;
   token1Price: number;
+  setManualSlippage: (val: boolean) => void;
 }>({
   highlightDegenMode: false,
   price: null,
@@ -118,6 +119,7 @@ const ZapContext = createContext<{
   tokensInUsdPrice: [],
   token0Price: 0,
   token1Price: 0,
+  setManualSlippage: () => {},
 });
 
 export const ZapContextProvider = ({
@@ -158,6 +160,7 @@ export const ZapContextProvider = ({
 
   const [showSetting, setShowSeting] = useState(false);
   const [slippage, setSlippage] = useState(50);
+  const [manualSlippage, setManualSlippage] = useState(false);
   const [ttl, setTtl] = useState(20);
   const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(null);
@@ -173,6 +176,30 @@ export const ZapContextProvider = ({
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
   const debounceAmountsIn = useDebounce(amountsIn, 300);
+
+  const isTokensStable = tokensIn.every((tk) => tk.isStable);
+
+  const isTokensInPair = tokensIn.every((tk) => {
+    const addr =
+      tk.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+        ? NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+        : tk.address.toLowerCase();
+    return (
+      pool !== "loading" &&
+      (pool.token0.address.toLowerCase() === addr ||
+        pool.token1.address.toLowerCase() === addr)
+    );
+  });
+
+  useEffect(() => {
+    if (pool === "loading" || manualSlippage) return;
+    if (pool.category === "stablePair" && isTokensStable) setSlippage(1);
+    else if (pool.category === "correlatedPair" && isTokensInPair)
+      setSlippage(10);
+    else {
+      setSlippage(50);
+    }
+  }, [isTokensStable, pool, manualSlippage, isTokensInPair]);
 
   const tokensInUsdPrice = useMarketPrice(
     tokensIn
@@ -605,6 +632,7 @@ export const ZapContextProvider = ({
         token0Price,
         token1Price,
         highlightDegenMode,
+        setManualSlippage,
       }}
     >
       {children}

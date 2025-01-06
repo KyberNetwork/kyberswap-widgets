@@ -102,6 +102,12 @@ const createZapOutStore = (initProps: ZapOutProps) => {
       const token0Address = pool.tokens[0].address;
       const token1Address = pool.tokens[1].address;
 
+      // check category pair
+      const pairCheck = await fetch(
+        `${PATHS.TOKEN_API}/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
+      ).then((res) => res.json());
+      const cat = pairCheck?.data?.category || "commonPair";
+
       const prices = await fetchPrices([
         token0Address.toLowerCase(),
         token1Address.toLowerCase(),
@@ -183,6 +189,7 @@ const createZapOutStore = (initProps: ZapOutProps) => {
           throw new Error("Invalid pool univ3 type");
         }
         p = {
+          category: cat,
           poolType: pt,
           address: poolUniv3.address,
           token0: {
@@ -286,6 +293,7 @@ const createZapOutStore = (initProps: ZapOutProps) => {
           throw new Error("Invalid pool univ2 type");
         }
         p = {
+          category: cat,
           poolType: pt,
           token0: {
             ...token0,

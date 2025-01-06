@@ -455,6 +455,7 @@ export default function EstLiqValue() {
           className="mt-3 text-xs"
           slippage={slippage}
           suggestedSlippage={zapInfo?.zapDetails.suggestedSlippage || 100}
+          showWarning={!!zapInfo}
         />
 
         <div className="flex justify-between items-start mt-3 text-xs">
