@@ -59,8 +59,8 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
         pool.token1.address.toLowerCase(),
       ].includes(
         tokenOut.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? tokenOut.address.toLowerCase()
-          : NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+          ? NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+          : tokenOut.address.toLowerCase()
       )
     ) {
       setSlippage(25);

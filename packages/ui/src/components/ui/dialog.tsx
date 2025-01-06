@@ -23,7 +23,7 @@ const DialogOverlay = React.forwardRef<
       className
     )}
     style={{
-      zIndex: 1000,
+      zIndex: 10001,
       ...(props.style || {}),
     }}
     ref={ref}
@@ -57,7 +57,7 @@ const DialogContent = React.forwardRef<
             className
           )}
           style={{
-            zIndex: 1000,
+            zIndex: 10001,
             ...(props.style || {}),
           }}
           ref={ref}

@@ -1,7 +1,7 @@
 {
   "name": "viet-nv-zap-migration-widgets",
   "license": "MIT",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
