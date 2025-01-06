@@ -23,6 +23,7 @@ import {
 } from "@kyber/utils/uniswapv3";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { createStore, useStore } from "zustand";
+import { useZapOutUserState } from "./zapout-state";
 
 export interface ZapOutProps {
   theme?: Theme;
@@ -336,7 +337,10 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
     chainId: store.getState().chainId,
   });
 
+  const { resetState } = useZapOutUserState();
+
   useEffect(() => {
+    resetState();
     // get Pool and position then update store here
     store.getState().getPool(fetchPrices);
     const i = setInterval(() => {

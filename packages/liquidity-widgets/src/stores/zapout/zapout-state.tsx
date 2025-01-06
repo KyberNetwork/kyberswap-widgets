@@ -39,17 +39,29 @@ interface ZapOutUserState {
   highlightDegenMode: boolean;
   manualSlippage: boolean;
   setManualSlippage: (value: boolean) => void;
+  resetState: () => void;
 }
 
-export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
+const initState = {
   ttl: 20,
-  setTtl: (value: number) => set({ ttl: value }),
-
   tokenOut: null,
-  setTokenOut: (token) => set({ tokenOut: token }),
-
   showSetting: false,
   highlightDegenMode: false,
+  degenMode: false,
+  revertPrice: false,
+  slippage: 50,
+  liquidityOut: 0n,
+  showPreview: false,
+  fetchingRoute: false,
+  route: null,
+  manualSlippage: false,
+};
+
+export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
+  ...initState,
+  resetState: () => set({ ...initState }),
+  setTtl: (value: number) => set({ ttl: value }),
+  setTokenOut: (token) => set({ tokenOut: token }),
   toggleSetting: (highlightDegenMode) => {
     set((state) => ({
       showSetting: !state.showSetting,
@@ -62,24 +74,17 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     }
   },
 
-  degenMode: false,
   toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
 
-  revertPrice: false,
   toggleRevertPrice: () =>
     set((state) => ({ revertPrice: !state.revertPrice })),
 
-  slippage: 50,
   setSlippage: (value: number) => set({ slippage: value }),
 
-  liquidityOut: 0n,
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
 
-  showPreview: false,
   togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
 
-  fetchingRoute: false,
-  route: null,
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
     const { tokenOut, liquidityOut, slippage } = get();
 
@@ -116,7 +121,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
-  manualSlippage: false,
+
   setManualSlippage: (value) => set({ manualSlippage: value }),
 }));
 
