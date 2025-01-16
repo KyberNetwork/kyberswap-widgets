@@ -314,4 +314,22 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   5000: 'https://explorer.mantle.xyz',
 }
 
+export const DefaultRpcUrl: { [chainId: number]: string } = {
+  1: '',
+  137: '',
+  56: '',
+  43114: '',
+  250: '',
+  25: '',
+  42161: '',
+  199: '',
+  10: '',
+  59144: '',
+  1101: '',
+  324: '',
+  8453: '',
+  81457: '',
+  5000: '',
+}
+
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

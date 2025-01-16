@@ -45,7 +45,7 @@ import {
 import { BigNumber } from 'ethers'
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, TokenInfo, ZIndex } from '../../constants'
 import SelectCurrency from '../SelectCurrency'
-import { useActiveWeb3, Web3Provider } from '../../hooks/useWeb3Provider'
+import { Web3Provider } from '../../hooks/useWeb3Provider'
 import useSwap from '../../hooks/useSwap'
 import useTokenBalances from '../../hooks/useTokenBalances'
 import { formatUnits } from 'ethers/lib/utils'
@@ -149,6 +149,14 @@ enum ModalType {
   TRADE_ROUTE = 'trade_route',
 }
 
+export interface TxData {
+  from: string
+  to: string
+  value: string
+  data: string
+  gasLimit: string
+}
+
 interface FeeSetting {
   chargeFeeBy: 'currency_in' | 'currency_out'
   feeReceiver: string
@@ -161,7 +169,6 @@ interface FeeSetting {
 export interface WidgetProps {
   client: string
   enableRoute?: boolean
-  provider?: any
   tokenList?: TokenInfo[]
   theme?: Theme
   defaultTokenIn?: string
@@ -169,7 +176,7 @@ export interface WidgetProps {
   defaultSlippage?: number
   defaultAmountIn?: string
   feeSetting?: FeeSetting
-  onTxSubmit?: (txHash: string, data: any) => void
+  onTxSubmit: (data: TxData) => Promise<string>
   enableDexes?: string
   title?: string | ReactNode
   onSourceTokenChange?: (token: TokenInfo) => void
@@ -179,6 +186,13 @@ export interface WidgetProps {
   showRate?: boolean
   showDetail?: boolean
   width?: number
+
+  rpcUrl?: string
+  chainId: number
+  connectedAccount: {
+    address?: string
+    chainId: number
+  }
 }
 
 const Widget = ({
@@ -199,13 +213,15 @@ const Widget = ({
   showRate,
   showDetail,
   width,
+  chainId,
+  connectedAccount,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
   defaultAmountIn?: string
   feeSetting?: FeeSetting
   client: string
-  onTxSubmit?: (txHash: string, data: any) => void
+  onTxSubmit: (data: TxData) => Promise<string>
   enableRoute: boolean
   enableDexes?: string
   title?: string | ReactNode
@@ -217,9 +233,13 @@ const Widget = ({
   showRate?: boolean
   showDetail?: boolean
   width?: number
+  chainId: number
+  connectedAccount: {
+    address?: string
+    chainId: number
+  }
 }) => {
   const [showModal, setShowModal] = useState<ModalType | null>(null)
-  const { chainId } = useActiveWeb3()
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
   const tokens = useTokens()
@@ -737,7 +757,7 @@ const Widget = ({
 }
 
 export default function SwapWidget({
-  provider,
+  rpcUrl,
   tokenList,
   theme,
   defaultTokenIn,
@@ -757,11 +777,13 @@ export default function SwapWidget({
   showRate = true,
   showDetail = true,
   width,
+  chainId,
+  connectedAccount,
 }: WidgetProps) {
   return (
     <StrictMode>
       <ThemeProvider theme={theme || defaultTheme}>
-        <Web3Provider provider={provider}>
+        <Web3Provider chainId={chainId} connectedAccount={connectedAccount} rpcUrl={rpcUrl}>
           <TokenListProvider tokenList={tokenList}>
             <Widget
               defaultTokenIn={defaultTokenIn}
@@ -781,6 +803,8 @@ export default function SwapWidget({
               showRate={showRate}
               showDetail={showDetail}
               width={width}
+              chainId={chainId}
+              connectedAccount={connectedAccount}
             />
           </TokenListProvider>
         </Web3Provider>

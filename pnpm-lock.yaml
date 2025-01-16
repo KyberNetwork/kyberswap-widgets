@@ -677,6 +677,9 @@ importers:
       '@kyber/ui':
         specifier: workspace:*
         version: link:../ui
+      '@kyber/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@types/lodash':
         specifier: ^4.14.196
         version: 4.17.13
