@@ -244,7 +244,6 @@ function SelectCurrency({
                     }}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null // prevents looping
-                      console.log(questionImg)
                       currentTarget.src = questionImg
                     }}
                   />

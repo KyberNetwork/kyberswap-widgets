@@ -42,13 +42,11 @@ import {
   ViewRouteTitle,
 } from './styled'
 
-import { BigNumber } from 'ethers'
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, TokenInfo, ZIndex } from '../../constants'
 import SelectCurrency from '../SelectCurrency'
-import { Web3Provider } from '../../hooks/useWeb3Provider'
+import { Web3Provider, useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import useSwap from '../../hooks/useSwap'
 import useTokenBalances from '../../hooks/useTokenBalances'
-import { formatUnits } from 'ethers/lib/utils'
 import useApproval, { APPROVAL_STATE } from '../../hooks/useApproval'
 import Settings from '../Settings'
 import { TokenListProvider, useTokens } from '../../hooks/useTokens'
@@ -59,6 +57,7 @@ import ImportModal from '../ImportModal'
 import InfoHelper from '../InfoHelper'
 import TradeRouting from '../TradeRouting'
 import Slippage from '../Slippage'
+import { formatUnits } from '@kyber/utils/crypto'
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.dialog};
@@ -176,7 +175,7 @@ export interface WidgetProps {
   defaultSlippage?: number
   defaultAmountIn?: string
   feeSetting?: FeeSetting
-  onTxSubmit: (data: TxData) => Promise<string>
+  onSubmitTx: (data: TxData) => Promise<string>
   enableDexes?: string
   title?: string | ReactNode
   onSourceTokenChange?: (token: TokenInfo) => void
@@ -202,7 +201,6 @@ const Widget = ({
   defaultAmountIn,
   feeSetting,
   client,
-  onTxSubmit,
   enableRoute,
   enableDexes,
   title,
@@ -213,15 +211,12 @@ const Widget = ({
   showRate,
   showDetail,
   width,
-  chainId,
-  connectedAccount,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
   defaultAmountIn?: string
   feeSetting?: FeeSetting
   client: string
-  onTxSubmit: (data: TxData) => Promise<string>
   enableRoute: boolean
   enableDexes?: string
   title?: string | ReactNode
@@ -233,12 +228,8 @@ const Widget = ({
   showRate?: boolean
   showDetail?: boolean
   width?: number
-  chainId: number
-  connectedAccount: {
-    address?: string
-    chainId: number
-  }
 }) => {
+  const { chainId } = useActiveWeb3()
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
@@ -306,11 +297,11 @@ const Widget = ({
         : (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()
   }
 
-  const tokenInBalance = balances[tokenIn] || BigNumber.from(0)
-  const tokenOutBalance = balances[tokenOut] || BigNumber.from(0)
+  const tokenInBalance = balances[tokenIn] || 0n
+  const tokenOutBalance = balances[tokenOut] || 0n
 
-  const tokenInWithUnit = formatUnits(tokenInBalance, tokenInInfo?.decimals || 18)
-  const tokenOutWithUnit = formatUnits(tokenOutBalance, tokenOutInfo?.decimals || 18)
+  const tokenInWithUnit = formatUnits(tokenInBalance.toString(), tokenInInfo?.decimals || 18)
+  const tokenOutWithUnit = formatUnits(tokenOutBalance.toString(), tokenOutInfo?.decimals || 18)
 
   const rate =
     isWrap || isUnwrap
@@ -421,7 +412,6 @@ const Widget = ({
                 setShowModal(null)
                 refetch()
               }}
-              onTxSubmit={onTxSubmit}
               onError={onError}
               showDetail={showDetail}
             />
@@ -766,7 +756,7 @@ export default function SwapWidget({
   defaultSlippage,
   feeSetting,
   client,
-  onTxSubmit,
+  onSubmitTx,
   enableRoute = true,
   enableDexes,
   title,
@@ -783,7 +773,7 @@ export default function SwapWidget({
   return (
     <StrictMode>
       <ThemeProvider theme={theme || defaultTheme}>
-        <Web3Provider chainId={chainId} connectedAccount={connectedAccount} rpcUrl={rpcUrl}>
+        <Web3Provider chainId={chainId} connectedAccount={connectedAccount} rpcUrl={rpcUrl} onSubmitTx={onSubmitTx}>
           <TokenListProvider tokenList={tokenList}>
             <Widget
               defaultTokenIn={defaultTokenIn}
@@ -792,7 +782,6 @@ export default function SwapWidget({
               defaultSlippage={defaultSlippage}
               feeSetting={feeSetting}
               client={client}
-              onTxSubmit={onTxSubmit}
               onSourceTokenChange={onSourceTokenChange}
               onAmountInChange={onAmountInChange}
               onDestinationTokenChange={onDestinationTokenChange}
@@ -803,8 +792,6 @@ export default function SwapWidget({
               showRate={showRate}
               showDetail={showDetail}
               width={width}
-              chainId={chainId}
-              connectedAccount={connectedAccount}
             />
           </TokenListProvider>
         </Web3Provider>

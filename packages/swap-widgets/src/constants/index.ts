@@ -315,21 +315,21 @@ export const SCAN_LINK: { [chainId: number]: string } = {
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
-  1: '',
-  137: '',
-  56: '',
-  43114: '',
-  250: '',
-  25: '',
-  42161: '',
-  199: '',
-  10: '',
-  59144: '',
-  1101: '',
-  324: '',
-  8453: '',
-  81457: '',
-  5000: '',
+  1: 'https://ethereum.kyberengineering.io',
+  137: 'https://polygon.kyberengineering.io',
+  56: 'https://bsc.kyberengineering.io',
+  43114: 'https://avalanche.kyberengineering.io',
+  250: 'https://rpc.fantom.network',
+  25: '', // cronos deprecated
+  42161: 'https://arbitrum.kyberengineering.io',
+  199: '', // deprecated bttc
+  10: 'https://optimism.kyberengineering.io',
+  59144: 'https://rpc.linea.build',
+  1101: 'https://zkevm-rpc.com',
+  324: 'https://mainnet.era.zksync.io',
+  8453: 'https://mainnet.base.org',
+  81457: 'https://rpc.blast.io',
+  5000: 'https://rpc.mantle.xyz',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

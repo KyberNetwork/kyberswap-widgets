@@ -27,9 +27,9 @@ import { SCAN_LINK, TokenInfo } from '../../constants'
 import { SwapPool, SwapRouteV2, getTradeComposition } from '../../utils/aggregationRouting'
 import { Trade, useDexes } from '../../hooks/useSwap'
 import { useTokens } from '../../hooks/useTokens'
-import { isAddress } from '../../utils'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import questionImg from '../../assets/question.svg?url'
+import { isAddress } from '@kyber/utils/crypto'
 
 interface RouteRowProps {
   route: SwapRouteV2

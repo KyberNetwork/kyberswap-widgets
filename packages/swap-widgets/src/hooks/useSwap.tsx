@@ -201,7 +201,7 @@ const useSwap = ({
 
     let amountIn: bigint = 0n
     try {
-      amountIn = parseUnits(debouncedInput, tokenInDecimal)
+      amountIn = BigInt(parseUnits(debouncedInput, tokenInDecimal))
     } catch (e) {
       setError('Invalid input amount')
       setTrade(null)
@@ -217,7 +217,7 @@ const useSwap = ({
     const tokenInBalance = balances[tokenIn] || 0n
 
     let error = ''
-    if (tokenInBalance.lt(amountIn)) {
+    if (tokenInBalance < amountIn) {
       error = 'Insufficient balance'
     }
 
@@ -289,7 +289,7 @@ const useSwap = ({
 
     if (Number(routeResponse.data?.routeSummary?.amountOut)) {
       setTrade(routeResponse.data)
-      if (connectedAccount.address && !tokenInBalance.lt(amountIn)) setError('')
+      if (connectedAccount.address && tokenInBalance >= amountIn) setError('')
     } else {
       setTrade(null)
       setError('Insufficient liquidity')
@@ -314,7 +314,7 @@ const useSwap = ({
     isInBps,
     feeReceiver,
     // eslint-disable-next-line
-    JSON.stringify(balances),
+    JSON.stringify(balances, (_key: string, value: any) => (typeof value === 'bigint' ? value.toString() : value)),
   ])
 
   useEffect(() => {

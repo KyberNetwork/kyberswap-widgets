@@ -5,7 +5,6 @@ import { Button, Detail, DetailLabel, DetailRight, DetailRow, ModalHeader, Modal
 import useTheme from '../../hooks/useTheme'
 import { useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import { useEffect, useState } from 'react'
-import { BigNumber } from 'ethers'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SCAN_LINK, TokenInfo, WRAPPED_NATIVE_TOKEN } from '../../constants'
 import BackIcon from '../../assets/back.svg'
 import Loading from '../../assets/loader.svg'
@@ -16,10 +15,8 @@ import Info from '../../assets/info.svg'
 import DropdownIcon from '../../assets/dropdown.svg'
 import InfoHelper from '../InfoHelper'
 import questionImg from '../../assets/question.svg?url'
-import { useWETHContract } from '../../hooks/useContract'
 import { friendlyError } from '../../utils/errorMessage'
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto'
-import { TxData } from '..'
 
 const Success = styled(SuccessSVG)`
   color: ${({ theme }) => theme.success};
@@ -185,7 +182,6 @@ function Confirmation({
   onClose,
   deadline,
   client,
-  onTxSubmit,
   onError,
   showDetail,
 }: {
@@ -200,12 +196,11 @@ function Confirmation({
   onClose: () => void
   deadline: number
   client: string
-  onTxSubmit: (data: TxData) => Promise<string>
   onError?: (e: any) => void
   showDetail?: boolean
 }) {
   const theme = useTheme()
-  const { connectedAccount, chainId, rpcUrl } = useActiveWeb3()
+  const { connectedAccount, chainId, rpcUrl, onSubmitTx } = useActiveWeb3()
 
   let minAmountOut = '--'
 
@@ -249,8 +244,6 @@ function Confirmation({
     amountOut: string
   } | null>(null)
 
-  const wethContract = useWETHContract()
-
   const confirmSwap = async () => {
     setSnapshotTrade({ amountIn, amountOut })
     try {
@@ -259,34 +252,37 @@ function Confirmation({
       setTxError('')
 
       if (isWrap) {
-        if (!wethContract) return
-        const estimateGas = await wethContract.estimateGas.deposit({
-          value: BigNumber.from(trade.routeSummary.amountIn).toHexString(),
-        })
-        const txReceipt = await wethContract.deposit({
-          value: BigInt(trade.routeSummary.amountIn).toString(16),
-          gasLimit: calculateGasMargin(estimateGas),
-        })
+        //if (!wethContract) return
+        //const estimateGas = await wethContract.estimateGas.deposit({
+        //  value: BigInt(trade.routeSummary.amountIn).toString(16),
+        //})
+        //const txReceipt = await wethContract.deposit({
+        //  value: BigInt(trade.routeSummary.amountIn).toString(16),
+        //  gasLimit: calculateGasMargin(estimateGas),
+        //})
+        //
+        //setTxHash(txReceipt?.hash || '')
+        //onSubmitTx?.(txReceipt?.hash || '', txReceipt)
+        //setAttempTx(false)
 
-        setTxHash(txReceipt?.hash || '')
-        onTxSubmit?.(txReceipt?.hash || '', txReceipt)
-        setAttempTx(false)
-
+        // TODO
         return
       }
 
       if (isUnwrap) {
-        if (!wethContract) return
-        const estimateGas = await wethContract.estimateGas.withdraw(
-          BigNumber.from(trade.routeSummary.amountIn).toHexString(),
-        )
-        const txReceipt = await wethContract.withdraw(BigNumber.from(trade.routeSummary.amountIn).toHexString(), {
-          gasLimit: calculateGasMargin(estimateGas),
-        })
+        //if (!wethContract) return
+        //const estimateGas = await wethContract.estimateGas.withdraw(
+        //  BigNumber.from(trade.routeSummary.amountIn).toHexString(),
+        //)
+        //const txReceipt = await wethContract.withdraw(BigNumber.from(trade.routeSummary.amountIn).toHexString(), {
+        //  gasLimit: calculateGasMargin(estimateGas),
+        //})
+        //
+        //setTxHash(txReceipt?.hash || '')
+        //onSubmitTx?.(txReceipt?.hash || '', txReceipt)
+        //setAttempTx(false)
 
-        setTxHash(txReceipt?.hash || '')
-        onTxSubmit?.(txReceipt?.hash || '', txReceipt)
-        setAttempTx(false)
+        // TODO
 
         return
       }
@@ -319,13 +315,14 @@ function Confirmation({
       const estimateGasOption = {
         from: connectedAccount.address || '',
         to: trade.routerAddress,
-        value: BigInt(tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade.routeSummary.amountIn : 0).toString(16),
+        value:
+          '0x' + BigInt(tokenInInfo.address === NATIVE_TOKEN_ADDRESS ? trade.routeSummary.amountIn : 0).toString(16),
         data: buildRes.data.data as string,
       }
 
       const gasEstimated = await estimateGas(rpcUrl, estimateGasOption)
 
-      const hash = await onTxSubmit({
+      const hash = await onSubmitTx({
         ...estimateGasOption,
         gasLimit: calculateGasMargin(gasEstimated || 0n),
       })

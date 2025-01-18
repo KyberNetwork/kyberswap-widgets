@@ -190,6 +190,7 @@ const useTokenBalances = (tokenAddresses: string[]) => {
       balancesMap[NATIVE_TOKEN_ADDRESS] = nativeBalance
 
       setBalances(balancesMap)
+      setLoading(false)
     } catch (e) {
       setLoading(false)
     }

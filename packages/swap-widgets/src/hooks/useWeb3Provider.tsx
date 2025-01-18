@@ -8,6 +8,7 @@ const Web3Context = createContext<{
     chainId: number
   }
   rpcUrl: string
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
 } | null>(null)
 
 export const Web3Provider = ({
@@ -15,6 +16,7 @@ export const Web3Provider = ({
   chainId,
   connectedAccount,
   rpcUrl,
+  onSubmitTx,
 }: {
   chainId: number
   connectedAccount: {
@@ -23,10 +25,11 @@ export const Web3Provider = ({
   }
   rpcUrl?: string
   children: ReactNode
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
 }) => {
   const defaultRpcUrl = DefaultRpcUrl[chainId]
   return (
-    <Web3Context.Provider value={{ chainId, connectedAccount, rpcUrl: rpcUrl || defaultRpcUrl }}>
+    <Web3Context.Provider value={{ chainId, onSubmitTx, connectedAccount, rpcUrl: rpcUrl || defaultRpcUrl }}>
       {children}
     </Web3Context.Provider>
   )
@@ -38,6 +41,7 @@ export const useActiveWeb3 = () => {
       chainId: 1,
       connectedAccount: { address: undefined, chainId: 1 },
       rpcUrl: DefaultRpcUrl[1],
+      onSubmitTx: async () => '',
     }
   )
 }

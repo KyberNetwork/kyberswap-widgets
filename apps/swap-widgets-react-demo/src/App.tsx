@@ -45,7 +45,7 @@ init({
 });
 
 function App() {
-  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
+  const [{ wallet }, connect, disconnect] = useConnectWallet();
 
   // create an ethers provider
   let ethersProvider: any;
@@ -157,6 +157,8 @@ function App() {
 
   const [showRate, setShowRate] = useState(true);
   const [showDetail, setShowDetail] = useState(true);
+
+  console.log("wallet", wallet?.accounts[0].address);
 
   return (
     <div className="App">
@@ -361,20 +363,28 @@ function App() {
         </div>
       </div>
       <Widget
-        client="widget-react-demo"
         theme={theme}
         tokenList={[]}
-        provider={ethersProvider}
         defaultTokenOut={defaultTokenOut[chainId]}
         feeSetting={
           feeSetting.feeAmount && feeSetting.feeReceiver
             ? feeSetting
             : undefined
         }
+        client="widget-react-demo"
+        onSubmitTx={async (txData) => {
+          console.log("xxx", txData);
+          return "";
+        }}
         enableRoute={enableRoute}
         enableDexes={enableDexes}
         showDetail={showDetail}
         showRate={showRate}
+        chainId={chainId}
+        connectedAccount={{
+          address: wallet?.accounts[0].address,
+          chainId: chainId,
+        }}
       />
     </div>
   );
