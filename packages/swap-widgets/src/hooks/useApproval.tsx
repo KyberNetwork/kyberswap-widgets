@@ -21,10 +21,13 @@ function useApproval(amountToApproveString: string, token: string, spender: stri
 
   return {
     loading,
-    approvalState: approvalStates[0],
-    approve: useCallback(() => {
-      approve(token)
-    }, [approve, token]),
+    approvalState: approvalStates[token],
+    approve: useCallback(
+      (amount?: bigint) => {
+        approve(token, amount)
+      },
+      [approve, token],
+    ),
   }
 }
 

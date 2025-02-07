@@ -58,6 +58,7 @@ import InfoHelper from '../InfoHelper'
 import TradeRouting from '../TradeRouting'
 import Slippage from '../Slippage'
 import { formatUnits } from '@kyber/utils/crypto'
+import Select from '../Select'
 
 export const DialogWrapper = styled.div`
   background-color: ${({ theme }) => theme.dialog};
@@ -192,6 +193,12 @@ export interface WidgetProps {
     address?: string
     chainId: number
   }
+  onSwitchChain?: () => void
+}
+
+enum AllowanceType {
+  INFINITE = 'infinite',
+  EXACT = 'exact',
 }
 
 const Widget = ({
@@ -211,6 +218,7 @@ const Widget = ({
   showRate,
   showDetail,
   width,
+  onSwitchChain,
 }: {
   defaultTokenIn?: string
   defaultTokenOut?: string
@@ -228,8 +236,11 @@ const Widget = ({
   showRate?: boolean
   showDetail?: boolean
   width?: number
+  onSwitchChain?: () => void
 }) => {
-  const { chainId } = useActiveWeb3()
+  const { chainId, connectedAccount } = useActiveWeb3()
+  const wrongNetwork = chainId !== connectedAccount.chainId
+
   const [showModal, setShowModal] = useState<ModalType | null>(null)
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
@@ -447,6 +458,8 @@ const Widget = ({
     approve,
     approvalState,
   } = useApproval(trade?.routeSummary?.amountIn || '0', tokenIn, trade?.routerAddress || '')
+
+  const [approvalType, setApprovalType] = useState(AllowanceType.INFINITE)
 
   return (
     <Wrapper width={width}>
@@ -697,8 +710,13 @@ const Widget = ({
       <Button
         disabled={!!error || loading || checkingAllowance || approvalState === APPROVAL_STATE.PENDING || isUnsupported}
         onClick={async () => {
+          if (wrongNetwork && onSwitchChain) {
+            onSwitchChain()
+            return
+          }
+
           if (approvalState === APPROVAL_STATE.NOT_APPROVED && !isWrap && !isUnwrap) {
-            approve()
+            approve(approvalType === AllowanceType.INFINITE ? undefined : BigInt(trade?.routeSummary?.amountIn || '0'))
           } else {
             setShowModal(ModalType.REVIEW)
           }
@@ -713,6 +731,12 @@ const Widget = ({
           <Dots>Calculate best route</Dots>
         ) : error ? (
           error
+        ) : wrongNetwork ? (
+          onSwitchChain ? (
+            'Switch Network'
+          ) : (
+            'Wrong Network'
+          )
         ) : isWrap ? (
           'Wrap'
         ) : isUnwrap ? (
@@ -727,6 +751,42 @@ const Widget = ({
           'Swap'
         )}
       </Button>
+      {approvalState === APPROVAL_STATE.NOT_APPROVED && !isWrap && !isUnwrap && (
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div />
+          <Select
+            value={approvalType}
+            style={{ marginTop: '1rem', fontSize: '14px', padding: 0, background: 'transparent' }}
+            optionStyle={{ fontSize: '14px' }}
+            options={[
+              {
+                value: AllowanceType.INFINITE,
+                label: 'Infinite Allowance',
+                onSelect: () => setApprovalType(AllowanceType.INFINITE),
+              },
+              {
+                value: AllowanceType.EXACT,
+                label: 'Exact Allowance',
+                onSelect: () => setApprovalType(AllowanceType.EXACT),
+              },
+            ]}
+            activeRender={selected =>
+              selected ? (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {selected.label}{' '}
+                  <InfoHelper
+                    text={
+                      selected.value === AllowanceType.EXACT
+                        ? 'You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.'
+                        : 'You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.'
+                    }
+                  />
+                </div>
+              ) : null
+            }
+          />
+        </div>
+      )}
 
       <Footer>
         <PoweredBy>
@@ -769,6 +829,7 @@ export default function SwapWidget({
   width,
   chainId,
   connectedAccount,
+  onSwitchChain,
 }: WidgetProps) {
   return (
     <StrictMode>
@@ -792,6 +853,7 @@ export default function SwapWidget({
               showRate={showRate}
               showDetail={showDetail}
               width={width}
+              onSwitchChain={onSwitchChain}
             />
           </TokenListProvider>
         </Web3Provider>

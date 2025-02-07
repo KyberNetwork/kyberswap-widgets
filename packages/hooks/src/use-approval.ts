@@ -49,17 +49,17 @@ export const useApprovals = (
   const [pendingTx, setPendingTx] = useState("");
   const [addressToApprove, setAddressToApprove] = useState("");
 
-  const approve = async (address: string) => {
+  const approve = async (address: string, amount?: bigint) => {
     if (!isAddress(address) || !owner) return;
     setAddressToApprove(address);
 
     const approveFunctionSig = getFunctionSelector("approve(address,uint256)"); // "0x095ea7b3"; // Keccak-256 hash of "" truncated to 4 bytes
     const paddedSpender = spender.replace("0x", "").padStart(64, "0");
-    const paddedAmount =
-      "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff".padStart(
-        64,
-        "0"
-      ); // Amount in hex
+    const paddedAmount = (
+      amount
+        ? amount.toString(16)
+        : "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+    ).padStart(64, "0"); // Amount in hex
 
     const data = `0x${approveFunctionSig}${paddedSpender}${paddedAmount}`;
 
