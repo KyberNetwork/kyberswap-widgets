@@ -95,6 +95,7 @@ export default function Preview({
     poolAddress,
     onSubmitTx,
     onViewPosition,
+    refCode,
   } = useWidgetContext((s) => s);
 
   const { address: account } = connectedAccount;
@@ -459,6 +460,7 @@ export default function Preview({
         route: zapInfo.route,
         deadline,
         source,
+        refCode,
       }),
     })
       .then((res) => res.json())

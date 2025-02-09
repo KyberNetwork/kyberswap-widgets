@@ -37,6 +37,7 @@ export const Preview = () => {
     chainId,
     connectedAccount,
     onSubmitTx,
+    refCode,
   } = useZapOutContext((s) => s);
 
   const { address: account } = connectedAccount;
@@ -65,6 +66,7 @@ export const Preview = () => {
           route: route.route,
           burnNft: false,
           source,
+          refCode,
         }),
         headers: {
           "x-client-id": source,
