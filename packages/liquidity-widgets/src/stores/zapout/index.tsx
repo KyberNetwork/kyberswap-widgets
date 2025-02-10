@@ -50,6 +50,7 @@ export interface ZapOutProps {
   }) => Promise<string>;
 
   source: string; // for tracking volume
+  referral?: string;
 }
 
 interface ZapOutState extends ZapOutProps {
@@ -105,7 +106,7 @@ const createZapOutStore = (initProps: ZapOutProps) => {
 
       // check category pair
       const pairCheck = await fetch(
-        `${PATHS.TOKEN_API}/v1/public/pair-category/check?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
+        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
       ).then((res) => res.json());
       const cat = pairCheck?.data?.category || "commonPair";
 
