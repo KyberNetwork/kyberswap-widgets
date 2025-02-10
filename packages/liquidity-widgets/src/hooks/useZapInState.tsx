@@ -423,7 +423,6 @@ export const ZapContextProvider = ({
         ]?.toString() || "0",
         token1?.decimals
       );
-      console.log("balances", balances);
       if (parseFloat(token0Balance) > 0) tokensToSet.push(token0);
       if (parseFloat(token1Balance) > 0) tokensToSet.push(token1);
       if (!tokensToSet.length) tokensToSet.push(nativeToken);
