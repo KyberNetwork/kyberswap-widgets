@@ -356,7 +356,6 @@ export const ZapContextProvider = ({
 
     // with params
     if (initDepositTokens && allTokens.length) {
-      console.log(1);
       const listInitTokens = initDepositTokens
         .split(",")
         .map((address: string) =>
@@ -400,8 +399,8 @@ export const ZapContextProvider = ({
 
     if (
       !initDepositTokens &&
-      balances[token0Address] &&
-      balances[token1Address]
+      token0Address in balances &&
+      token1Address in balances
     ) {
       const tokensToSet = [];
 
