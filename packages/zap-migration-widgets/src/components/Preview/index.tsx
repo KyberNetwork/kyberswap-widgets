@@ -50,7 +50,7 @@ export function Preview({
   client,
   onClose,
   onViewPosition,
-  refCode,
+  referral,
 }: {
   client: string;
   chainId: ChainId;
@@ -64,7 +64,7 @@ export function Preview({
   account: string | undefined;
   onClose: () => void;
   onViewPosition?: () => void;
-  refCode?: string;
+  referral?: string;
 }) {
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
     useZapStateStore();
@@ -102,7 +102,7 @@ export function Preview({
           route: route.route,
           burnNft: false,
           source: client,
-          refCode,
+          referral,
         }),
         headers: {
           "x-client-id": client,

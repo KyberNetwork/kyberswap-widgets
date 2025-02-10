@@ -64,7 +64,7 @@ export interface ZapMigrationProps {
     tickLower: number;
     tickUpper: number;
   };
-  refCode?: string;
+  referral?: string;
 }
 
 // createModalRoot.js
@@ -96,7 +96,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     onViewPosition,
     onBack,
     initialTick,
-    refCode,
+    referral,
     //aggregatorOptions,
     //feeConfig,
   } = props;
@@ -248,7 +248,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
             client={client}
             onClose={onClose}
             onViewPosition={onViewPosition}
-            refCode={refCode}
+            referral={referral}
           />
         )}
       </div>
