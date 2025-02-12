@@ -4,7 +4,7 @@ import {
   PRICE_RANGE,
 } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@kyber/ui/button";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores/widget";
 import {
