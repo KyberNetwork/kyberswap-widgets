@@ -128,7 +128,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
                   currentTarget.src = defaultTokenLogo;
                 }}
               />
-              <span className="relative top-[-1=px]">{name}</span>
+              <span>{name}</span>
             </div>
           </div>
         </div>
