@@ -47,7 +47,7 @@ export function PoolPrice() {
   return (
     <div className="rounded-lg flex items-center border border-stroke px-4 py-3 text-subText text-sm">
       Pool Price{" "}
-      <span className="text-text mx-2 max-w-[96px] overflow-hidden text-ellipsis">
+      <span className="text-text mx-2 max-w-[96px] truncate" title={price}>
         {price}
       </span>{" "}
       {pool === "loading"
