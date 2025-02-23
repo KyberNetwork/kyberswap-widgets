@@ -85,8 +85,8 @@ const usePoolActiveLiquidity = () => {
     };
 
     const subsequentTicks = computeSurroundingTicks(
-      pool[revertPrice ? "token1" : "token0"].decimals,
-      pool[revertPrice ? "token0" : "token1"].decimals,
+      pool.token0.decimals,
+      pool.token1.decimals,
       activeTickProcessed,
       ticks,
       pivot,
@@ -94,8 +94,8 @@ const usePoolActiveLiquidity = () => {
       revertPrice
     );
     const previousTicks = computeSurroundingTicks(
-      pool[revertPrice ? "token1" : "token0"].decimals,
-      pool[revertPrice ? "token0" : "token1"].decimals,
+      pool.token0.decimals,
+      pool.token1.decimals,
       activeTickProcessed,
       ticks,
       pivot,

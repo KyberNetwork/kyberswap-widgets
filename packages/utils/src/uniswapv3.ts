@@ -323,14 +323,12 @@ export function tickToPrice(
   const sqrtRatioX96 = getSqrtRatioAtTick(tick);
   const ratioX192 = sqrtRatioX96 * sqrtRatioX96; // 1.0001 ** tick * Q192
 
-  const numerator =
-    ratioX192 * 10n ** BigInt(!revert ? baseDecimal : quoteDecimal);
-  const denominator =
-    Q192 * 10n ** BigInt(!revert ? quoteDecimal : baseDecimal);
+  const numerator = ratioX192 * 10n ** BigInt(baseDecimal);
+  const denominator = Q192 * 10n ** BigInt(quoteDecimal);
 
-  return !revert
-    ? divideBigIntToString(numerator, denominator, 18)
-    : divideBigIntToString(denominator, numerator, 18);
+  return revert
+    ? divideBigIntToString(denominator, numerator, 18)
+    : divideBigIntToString(numerator, denominator, 18);
 }
 
 function sqrt(y: bigint): bigint {
