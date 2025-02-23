@@ -16,13 +16,11 @@ const yAccessor = (d: ChartEntry) => d.activeLiquidity;
 let zoomTimeout: ReturnType<typeof setTimeout> | undefined;
 
 export function Chart({
-  id = "liquidityChartRangeInput",
+  id = "liquidityChart",
   data: { series, current },
   ticksAtLimit,
-  styles,
   dimensions: { width, height },
   margins,
-  interactive = true,
   brushDomain,
   brushLabels,
   onBrushDomainChange,
@@ -125,19 +123,7 @@ export function Chart({
           xScale={xScale}
           setZoom={setZoom}
           width={innerWidth}
-          height={
-            // allow zooming inside the x-axis
-            height
-          }
-          resetBrush={() => {
-            onBrushDomainChange(
-              [
-                current * zoomLevels.initialMin,
-                current * zoomLevels.initialMax,
-              ] as [number, number],
-              "reset"
-            );
-          }}
+          height={height} // allow zooming inside the x-axis
           showResetButton={Boolean(
             ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
           )}
@@ -151,13 +137,13 @@ export function Chart({
         className="overflow-visible"
       >
         <defs>
-          <clipPath id={`${id}-chart-clip`}>
+          <clipPath id={`${id}-clip`}>
             <rect x="0" y="0" width={innerWidth} height={height} />
           </clipPath>
 
           {brushDomain && (
             // mask to highlight selected area
-            <mask id={`${id}-chart-area-mask`}>
+            <mask id={`${id}-area-mask`}>
               <rect
                 fill="white"
                 x={xScale(brushDomain[0])}
@@ -170,7 +156,7 @@ export function Chart({
         </defs>
 
         <g transform={`translate(${margins.left},${margins.top})`}>
-          <g clipPath={`url(#${id}-chart-clip)`}>
+          <g clipPath={`url(#${id}-clip)`}>
             <Area
               series={leftSeries}
               xScale={xScale}
@@ -192,7 +178,7 @@ export function Chart({
 
             {brushDomain && (
               // duplicate area chart with mask for selected area
-              <g mask={`url(#${id}-chart-area-mask)`}>
+              <g mask={`url(#${id}-area-mask)`}>
                 <Area
                   opacity={1}
                   series={series}
@@ -204,9 +190,7 @@ export function Chart({
                 />
               </g>
             )}
-
             <Line value={current} xScale={xScale} innerHeight={innerHeight} />
-
             <AxisBottom xScale={xScale} innerHeight={innerHeight} />
           </g>
 
@@ -221,14 +205,11 @@ export function Chart({
           <Brush
             id={id}
             xScale={xScale}
-            interactive={interactive}
             brushLabelValue={brushLabels}
             brushExtent={brushDomain ?? (xScale.domain() as [number, number])}
             innerWidth={innerWidth}
             innerHeight={innerHeight}
             setBrushExtent={onBrushDomainChange}
-            westHandleColor={styles.brush.handle.west}
-            eastHandleColor={styles.brush.handle.east}
             zoomInited={zoomInited}
           />
         </g>

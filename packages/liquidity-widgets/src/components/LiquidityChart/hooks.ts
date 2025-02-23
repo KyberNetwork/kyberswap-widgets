@@ -9,9 +9,7 @@ export const useDensityChartData = () => {
   const ticksProcessed = usePoolActiveLiquidity();
 
   const chartData = useMemo(() => {
-    if (!ticksProcessed.length) {
-      return undefined;
-    }
+    if (!ticksProcessed.length) return [];
 
     const newData: ChartEntry[] = [];
 
@@ -34,7 +32,7 @@ export const useDensityChartData = () => {
   return chartData;
 };
 
-export const usePoolActiveLiquidity = () => {
+const usePoolActiveLiquidity = () => {
   const { pool } = useWidgetContext((s) => s);
   const { revertPrice } = useZapState();
 
@@ -92,7 +90,8 @@ export const usePoolActiveLiquidity = () => {
       activeTickProcessed,
       ticks,
       pivot,
-      true
+      true,
+      revertPrice
     );
     const previousTicks = computeSurroundingTicks(
       pool[revertPrice ? "token1" : "token0"].decimals,
@@ -100,7 +99,8 @@ export const usePoolActiveLiquidity = () => {
       activeTickProcessed,
       ticks,
       pivot,
-      false
+      false,
+      revertPrice
     );
     const ticksProcessed = previousTicks
       .concat(activeTickProcessed)

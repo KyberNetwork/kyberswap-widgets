@@ -8,7 +8,8 @@ export const computeSurroundingTicks = (
   activeTickProcessed: TickProcessed,
   sortedTickData: TickDataRaw[],
   pivot: number,
-  ascending: boolean
+  ascending: boolean,
+  revert: boolean
 ): TickProcessed[] => {
   let previousTickProcessed: TickProcessed = {
     ...activeTickProcessed,
@@ -28,9 +29,9 @@ export const computeSurroundingTicks = (
       liquidityActive: previousTickProcessed.liquidityActive,
       tick,
       liquidityNet: BigInt(sortedTickData[i].liquidityNet),
-      price0: Number(tickToPrice(tick, token0decimals, token1decimal)).toFixed(
-        PRICE_FIXED_DIGITS
-      ),
+      price0: Number(
+        tickToPrice(tick, token0decimals, token1decimal, revert)
+      ).toFixed(PRICE_FIXED_DIGITS),
     };
 
     // Update the active liquidity.
@@ -52,9 +53,7 @@ export const computeSurroundingTicks = (
     previousTickProcessed = currentTickProcessed;
   }
 
-  if (!ascending) {
-    processedTicks = processedTicks.reverse();
-  }
+  if (!ascending) processedTicks = processedTicks.reverse();
 
   return processedTicks;
 };

@@ -17,7 +17,6 @@ export default function Zoom({
   setZoom,
   width,
   height,
-  resetBrush,
   showResetButton,
   zoomLevels,
 }: {
@@ -26,7 +25,6 @@ export default function Zoom({
   setZoom: (transform: ZoomTransform) => void;
   width: number;
   height: number;
-  resetBrush: () => void;
   showResetButton: boolean;
   zoomLevels: ZoomLevels;
 }) {
@@ -94,13 +92,7 @@ export default function Zoom({
       }`}
     >
       {showResetButton && (
-        <div
-          className="cursor-pointer"
-          onClick={() => {
-            resetBrush();
-            zoomReset();
-          }}
-        >
+        <div className="cursor-pointer" onClick={zoomReset}>
           <RefreshIcon className="relative -top-[1px]" width={18} height={18} />
         </div>
       )}
@@ -130,7 +122,7 @@ export default function Zoom({
             d="M13.01 11h-.79l-.28-.27a6.471 6.471 0 001.57-4.23 6.5 6.5 0 10-6.5 6.5c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L18 16l-4.99-5zm-6 0c-2.49 0-4.5-2.01-4.5-4.5S4.52 2 7.01 2s4.5 2.01 4.5 4.5S9.5 11 7.01 11zm-2.5-5h5v1h-5V6z"
             fill="currentColor"
           ></path>
-        </svg>{" "}
+        </svg>
       </div>
     </div>
   );

@@ -2,10 +2,10 @@ import { ReactNode } from "react";
 
 export function InfoBox({
   message,
-  icon,
+  icon = null,
 }: {
   message?: ReactNode;
-  icon: ReactNode;
+  icon?: ReactNode;
 }) {
   return (
     <div className="h-full justify-center">

@@ -29,26 +29,20 @@ const compare = (
 export const Brush = ({
   id,
   xScale,
-  interactive,
   brushLabelValue,
   brushExtent,
   setBrushExtent,
   innerWidth,
   innerHeight,
-  westHandleColor,
-  eastHandleColor,
   zoomInited,
 }: {
   id: string;
   xScale: ScaleLinear<number, number>;
-  interactive: boolean;
   brushLabelValue: (d: "w" | "e", x: number) => string;
   brushExtent: [number, number];
   setBrushExtent: (extent: [number, number], mode: string | undefined) => void;
   innerWidth: number;
   innerHeight: number;
-  westHandleColor: string;
-  eastHandleColor: string;
   zoomInited: boolean;
 }) => {
   const theme = useWidgetContext((s) => s.theme);
@@ -108,7 +102,6 @@ export const Brush = ({
         [innerWidth - BRUSH_EXTENT_MARGIN_PX, innerHeight],
       ])
       .handleSize(30)
-      .filter(() => interactive)
       .on("brush end", brushed);
 
     brushBehavior.current(select(brushRef.current));
@@ -134,7 +127,6 @@ export const Brush = ({
     id,
     innerHeight,
     innerWidth,
-    interactive,
     previousBrushExtent,
     xScale,
   ]);
@@ -191,8 +183,8 @@ export const Brush = ({
             x2="100%"
             y2="100%"
           >
-            <stop stopColor={westHandleColor} />
-            <stop stopColor={eastHandleColor} offset="1" />
+            <stop stopColor="transparent" />
+            <stop stopColor="transparent" offset="1" />
           </linearGradient>
 
           {/* clips at exactly the svg area */}
@@ -318,8 +310,6 @@ export const Brush = ({
     ),
     [
       id,
-      westHandleColor,
-      eastHandleColor,
       innerWidth,
       innerHeight,
       localBrushExtent,
