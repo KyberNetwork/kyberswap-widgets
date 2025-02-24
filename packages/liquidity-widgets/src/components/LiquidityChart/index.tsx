@@ -4,7 +4,8 @@ import { nearestUsableTick, priceToClosestTick } from "@kyber/utils/uniswapv3";
 import { useCallback, useMemo } from "react";
 import { toString } from "@/utils/number";
 import { univ3PoolNormalize } from "@/schema";
-import LiquidityChartRangeInput, { Bound } from "@kyberswap/liquidity-chart";
+import { LiquidityChartRangeInput, Bound } from "@kyberswap/liquidity-chart";
+import "@kyberswap/liquidity-chart/style.css";
 
 export default function LiquidityChart() {
   const { pool: rawPool, positionId } = useWidgetContext((s) => s);
@@ -212,23 +213,21 @@ export default function LiquidityChart() {
   );
 
   return (
-    <div className="mt-9">
-      <LiquidityChartRangeInput
-        id="zap-widget-liquidity-chart"
-        pool={{
-          fee,
-          tickCurrent,
-          tickSpacing,
-          ticks,
-          liquidity,
-          token0,
-          token1,
-        }}
-        price={{ current: price, lower: priceLower, upper: priceUpper }}
-        ticksAtLimit={ticksAtLimit}
-        revertPrice={revertPrice}
-        onBrushDomainChange={onBrushDomainChange}
-      />
-    </div>
+    <LiquidityChartRangeInput
+      id="zap-widget-liquidity-chart"
+      pool={{
+        fee,
+        tickCurrent,
+        tickSpacing,
+        ticks,
+        liquidity,
+        token0,
+        token1,
+      }}
+      price={{ current: price, lower: priceLower, upper: priceUpper }}
+      ticksAtLimit={ticksAtLimit}
+      revertPrice={revertPrice}
+      onBrushDomainChange={onBrushDomainChange}
+    />
   );
 }
