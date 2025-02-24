@@ -26,7 +26,7 @@ export default defineConfig({
 
   esbuildPlugins: [svgrPlugin(), sassPlugin()],
   esbuildOptions(options) {
-    options.globalName = "Widgets";
+    options.globalName = "Liquiditychart";
     options.define = {
       global: "globalThis",
     };

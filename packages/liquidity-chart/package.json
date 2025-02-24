@@ -2,6 +2,7 @@
   "name": "@kyberswap/liquidity-chart",
   "version": "0.0.1",
   "license": "MIT",
+  "type": "module",
   "exports": {
     ".": {
       "import": "./dist/liquidity-chart.js",
@@ -9,6 +10,12 @@
     },
     "./style.css": "./dist/liquidity-chart.css"
   },
+  "main": "./dist/liquidity-chart.cjs",
+  "module": "./dist/liquidity-chart.js",
+  "types": "./dist/liquidity-chart.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup && tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "dev": "tsup --watch",
