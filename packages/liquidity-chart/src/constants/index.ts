@@ -5,7 +5,12 @@ export const PRICE_FIXED_DIGITS = 8;
 
 export const DEFAULT_DIMENSIONS = { width: 400, height: 200 };
 
-export const DEFAULT_MARGINS = { top: 10, right: 0, bottom: 10, left: 0 };
+export const DEFAULT_MARGINS = {
+  top: 10,
+  right: 0,
+  bottom: 10,
+  left: 0,
+};
 
 export const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
   [FeeAmount.LOWEST]: {

@@ -70,11 +70,11 @@ interface Margins {
 }
 
 interface ZoomPosition {
-  top: number | undefined;
-  left: number | undefined;
-  right: number | undefined;
-  bottom: number | undefined;
-  gap: number | undefined;
+  top: string | undefined;
+  left: string | undefined;
+  right: string | undefined;
+  bottom: string | undefined;
+  gap: string | undefined;
 }
 
 export interface LiquidityChartRangeInputProps {

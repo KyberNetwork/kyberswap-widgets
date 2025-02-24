@@ -76,26 +76,28 @@ export default function LiquidityChartRangeInput({
 
   return (
     <div className="ks-lc-style">
-      <div className="flex items-center min-h-52 w-full mt-2 gap-4 justify-center">
+      <div className="flex items-center min-h-52 w-full gap-4 justify-center">
         {!chartData ? (
           <InfoBox message="Your position will appear here." />
         ) : chartData.length === 0 || !currentPrice ? (
           <InfoBox message="There is no liquidity data." />
         ) : (
-          <Chart
-            brushDomain={brushDomain}
-            brushLabels={brushLabel}
-            data={{ series: chartData, current: currentPrice }}
-            dimensions={{ ...DEFAULT_DIMENSIONS, ...(dimensions || {}) }}
-            id={id}
-            margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
-            onBrushDomainChange={onBrushDomainChange}
-            ticksAtLimit={ticksAtLimit}
-            zoomInIcon={zoomInIcon}
-            zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
-            zoomOutIcon={zoomOutIcon}
-            zoomPosition={zoomPosition}
-          />
+          <div className="relative flex justify-center items-center w-full">
+            <Chart
+              brushDomain={brushDomain}
+              brushLabels={brushLabel}
+              data={{ series: chartData, current: currentPrice }}
+              dimensions={{ ...DEFAULT_DIMENSIONS, ...(dimensions || {}) }}
+              id={id}
+              margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
+              onBrushDomainChange={onBrushDomainChange}
+              ticksAtLimit={ticksAtLimit}
+              zoomInIcon={zoomInIcon}
+              zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
+              zoomOutIcon={zoomOutIcon}
+              zoomPosition={zoomPosition}
+            />
+          </div>
         )}
       </div>
     </div>
