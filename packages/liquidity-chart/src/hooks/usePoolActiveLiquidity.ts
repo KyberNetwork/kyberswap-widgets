@@ -1,67 +1,16 @@
 import { useMemo } from "react";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { computeSurroundingTicks } from "./utils";
-import {
-  ChartEntry,
-  TickProcessed,
-  PRICE_FIXED_DIGITS,
-  PoolInfo,
-} from "./types";
+import { type PoolInfo, type TickProcessed } from "@/types";
+import { computeSurroundingTicks } from "@/utils";
+import { PRICE_FIXED_DIGITS } from "@/constants";
 
-export const useDensityChartData = ({
+export default function usePoolActiveLiquidity({
   pool,
   revertPrice,
 }: {
   pool: PoolInfo;
   revertPrice: boolean;
-}) => {
-  const ticksProcessed = usePoolActiveLiquidity({
-    pool,
-    revertPrice,
-  });
-
-  return useMemo(() => {
-    if (
-      (!pool.tickCurrent && pool.tickCurrent !== 0) ||
-      !pool.tickSpacing ||
-      !pool.token0 ||
-      !pool.token1
-    )
-      return;
-    if (!ticksProcessed.length) return [];
-
-    const newData: ChartEntry[] = [];
-
-    for (let i = 0; i < ticksProcessed.length; i++) {
-      const t = ticksProcessed[i];
-
-      const chartEntry = {
-        activeLiquidity: parseFloat(t.liquidityActive.toString()),
-        price: parseFloat(t.price),
-      };
-
-      if (chartEntry.activeLiquidity > 0) {
-        newData.push(chartEntry);
-      }
-    }
-
-    return newData;
-  }, [
-    pool.tickCurrent,
-    pool.tickSpacing,
-    pool.token0,
-    pool.token1,
-    ticksProcessed,
-  ]);
-};
-
-const usePoolActiveLiquidity = ({
-  pool,
-  revertPrice,
-}: {
-  pool: PoolInfo;
-  revertPrice: boolean;
-}) => {
+}) {
   const { tickCurrent, tickSpacing, ticks, liquidity, token0, token1 } = pool;
 
   return useMemo(() => {
@@ -124,4 +73,4 @@ const usePoolActiveLiquidity = ({
 
     return ticksProcessed;
   }, [liquidity, revertPrice, tickCurrent, tickSpacing, ticks, token0, token1]);
-};
+}

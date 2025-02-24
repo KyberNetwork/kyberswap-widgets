@@ -1,16 +1,11 @@
 import { useCallback, useMemo } from "react";
-import {
-  Bound,
-  DEFAULT_DIMENSIONS,
-  DEFAULT_MARGINS,
-  FeeAmount,
-  LiquidityChartRangeInputProps,
-  ZOOM_LEVELS,
-} from "./types";
 import { format } from "d3";
-import Chart from "./components/Chart";
-import InfoBox from "./components/InfoBox";
-import { useDensityChartData } from "./hooks";
+import type { LiquidityChartRangeInputProps } from "./types";
+import { Bound, FeeAmount } from "@/types";
+import { DEFAULT_DIMENSIONS, DEFAULT_MARGINS, ZOOM_LEVELS } from "@/constants";
+import Chart from "@/components/Chart";
+import InfoBox from "@/components/InfoBox";
+import useDensityChartData from "@/hooks/useDensityChartData";
 
 export default function LiquidityChartRangeInput({
   id,
@@ -79,29 +74,33 @@ export default function LiquidityChartRangeInput({
   );
 
   return (
-    <div className="flex items-center min-h-52 w-full mt-2 gap-4 justify-center">
-      {!chartData ? (
-        <InfoBox message={"Your position will appear here."} />
-      ) : chartData.length === 0 || !currentPrice ? (
-        <InfoBox message={"There is no liquidity data."} />
-      ) : (
-        <div className="relative justify-center items-center">
-          <Chart
-            id={id}
-            data={{ series: chartData, current: currentPrice }}
-            dimensions={{ ...DEFAULT_DIMENSIONS, ...(dimensions || {}) }}
-            margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
-            brushDomain={brushDomain}
-            zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
-            ticksAtLimit={ticksAtLimit}
-            zoomPosition={zoomPosition}
-            zoomInIcon={zoomInIcon}
-            zoomOutIcon={zoomOutIcon}
-            brushLabels={brushLabel}
-            onBrushDomainChange={onBrushDomainChange}
-          />
-        </div>
-      )}
+    <div className="ks-lc-style">
+      <div className="flex items-center min-h-52 w-full mt-2 gap-4 justify-center">
+        {!chartData ? (
+          <InfoBox message="Your position will appear here." />
+        ) : chartData.length === 0 || !currentPrice ? (
+          <InfoBox message="There is no liquidity data." />
+        ) : (
+          <div className="relative justify-center items-center">
+            <Chart
+              brushDomain={brushDomain}
+              brushLabels={brushLabel}
+              data={{ series: chartData, current: currentPrice }}
+              dimensions={{ ...DEFAULT_DIMENSIONS, ...(dimensions || {}) }}
+              id={id}
+              margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
+              onBrushDomainChange={onBrushDomainChange}
+              ticksAtLimit={ticksAtLimit}
+              zoomInIcon={zoomInIcon}
+              zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
+              zoomOutIcon={zoomOutIcon}
+              zoomPosition={zoomPosition}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
+export { Bound };

@@ -36,11 +36,11 @@ export const OffScreenHandle = ({
   margin?: number;
 }) => (
   <polygon
-    points={`0 0, ${size} ${size}, 0 ${size}`}
-    transform={` translate(${size + margin}, ${margin}) rotate(45) `}
     fill={color}
+    points={`0 0, ${size} ${size}, 0 ${size}`}
     stroke={color}
-    strokeWidth="4"
     strokeLinejoin="round"
+    strokeWidth="4"
+    transform={` translate(${size + margin}, ${margin}) rotate(45) `}
   />
 );

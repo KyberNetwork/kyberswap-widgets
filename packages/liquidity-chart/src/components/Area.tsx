@@ -1,7 +1,6 @@
 import { area, curveStepAfter } from "d3";
 import { useMemo } from "react";
-
-import { AreaProps, ChartEntry } from "../types";
+import type { AreaProps, ChartEntry } from "@/types";
 
 export default function Area({
   series,
@@ -15,9 +14,6 @@ export default function Area({
   return useMemo(
     () => (
       <path
-        opacity={opacity || 1}
-        fill={fill}
-        stroke={fill}
         d={
           area()
             .curve(curveStepAfter)
@@ -30,6 +26,9 @@ export default function Area({
             }) as Iterable<[number, number]>
           ) ?? undefined
         }
+        fill={fill}
+        opacity={opacity || 1}
+        stroke={fill}
       />
     ),
     [fill, opacity, series, xScale, xValue, yScale, yValue]

@@ -1,6 +1,7 @@
 import { tickToPrice } from "@kyber/utils/uniswapv3";
-import { TickDataRaw, TickProcessed, PRICE_FIXED_DIGITS } from "./types";
-import { ScaleLinear } from "d3";
+import type { ScaleLinear } from "d3";
+import type { TickDataRaw, TickProcessed } from "@/types";
+import { PRICE_FIXED_DIGITS } from "@/constants";
 
 // Computes the numSurroundingTicks above or below the active tick.
 export const computeSurroundingTicks = (
@@ -43,7 +44,7 @@ export const computeSurroundingTicks = (
       currentTickProcessed.liquidityActive =
         previousTickProcessed.liquidityActive +
         BigInt(sortedTickData[i].liquidityNet);
-    } else if (!ascending && previousTickProcessed.liquidityNet !== 0n) {
+    } else if (previousTickProcessed.liquidityNet !== 0n) {
       // We are iterating descending, so look at the previous tick and apply any net liquidity.
       currentTickProcessed.liquidityActive =
         previousTickProcessed.liquidityActive -

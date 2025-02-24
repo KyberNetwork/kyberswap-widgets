@@ -1,12 +1,14 @@
-import { max, scaleLinear, ZoomTransform } from "d3";
+import type { ZoomTransform } from "d3";
+import { max, scaleLinear } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Bound, ChartEntry, ChartProps } from "../types";
-import Area from "./Area";
-import AxisBottom from "./AxisBottom";
-import Brush from "./Brush";
-import Line from "./Line";
-import Zoom from "./Zoom";
 import partition from "lodash.partition";
+import type { ChartEntry, ChartProps } from "@/types";
+import { Bound } from "@/types";
+import Area from "@/components/Area";
+import AxisBottom from "@/components/AxisBottom";
+import Brush from "@/components/Brush";
+import Line from "@/components/Line";
+import Zoom from "@/components/Zoom";
 
 const xAccessor = (d: ChartEntry) => d.price;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;
@@ -88,8 +90,10 @@ export default function Chart({
 
   const [leftSeries, rightSeries] = useMemo(() => {
     const isHighToLow = series[0]?.price > series[series.length - 1]?.price;
-    let [left, right] = partition(series, (d) =>
-      isHighToLow ? +xAccessor(d) < current : +xAccessor(d) > current
+    let [left, right] = partition(series, (d: ChartEntry) =>
+      isHighToLow
+        ? Number(xAccessor(d)) < current
+        : Number(xAccessor(d)) > current
     );
 
     if (right.length && right[right.length - 1]) {
@@ -117,100 +121,98 @@ export default function Chart({
   return (
     <>
       <Zoom
-        svg={zoomRef.current}
-        xScale={xScale}
-        width={innerWidth}
         height={height} // allow zooming inside the x-axis
+        setZoom={setZoom}
         showResetButton={Boolean(
           ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
         )}
-        zoomPosition={zoomPosition}
-        zoomLevels={zoomLevels}
+        svg={zoomRef.current}
+        width={innerWidth}
+        xScale={xScale}
         zoomInIcon={zoomInIcon}
+        zoomLevels={zoomLevels}
         zoomOutIcon={zoomOutIcon}
-        setZoom={setZoom}
+        zoomPosition={zoomPosition}
       />
       <svg
-        width="100%"
+        className="overflow-visible"
         height="100%"
         viewBox={`0 0 ${width} ${height}`}
-        className="overflow-visible"
+        width="100%"
       >
         <defs>
           <clipPath id={`${id}-clip`}>
-            <rect x="0" y="0" width={innerWidth} height={height} />
+            <rect height={height} width={innerWidth} x="0" y="0" />
           </clipPath>
 
-          {brushDomain && (
-            // mask to highlight selected area
+          {brushDomain ? (
             <mask id={`${id}-area-mask`}>
               <rect
                 fill="white"
+                height={innerHeight}
+                width={xScale(brushDomain[1]) - xScale(brushDomain[0])}
                 x={xScale(brushDomain[0])}
                 y="0"
-                width={xScale(brushDomain[1]) - xScale(brushDomain[0])}
-                height={innerHeight}
               />
             </mask>
-          )}
+          ) : null}
         </defs>
 
         <g transform={`translate(${margins.left},${margins.top})`}>
           <g clipPath={`url(#${id}-clip)`}>
             <Area
+              fill="#065F44"
+              opacity={1}
               series={leftSeries}
               xScale={xScale}
-              yScale={yScale}
-              opacity={1}
-              fill="#065F44"
               xValue={xAccessor}
+              yScale={yScale}
               yValue={yAccessor}
             />
             <Area
+              fill="#065F44"
+              opacity={1}
               series={rightSeries}
               xScale={xScale}
-              yScale={yScale}
-              opacity={1}
-              fill="#065F44"
               xValue={xAccessor}
+              yScale={yScale}
               yValue={yAccessor}
             />
 
-            {brushDomain && (
-              // duplicate area chart with mask for selected area
+            {brushDomain ? (
               <g mask={`url(#${id}-area-mask)`}>
                 <Area
-                  opacity={1}
                   fill="#31cb9e"
+                  opacity={1}
                   series={series}
                   xScale={xScale}
-                  yScale={yScale}
                   xValue={xAccessor}
+                  yScale={yScale}
                   yValue={yAccessor}
                 />
               </g>
-            )}
-            <Line value={current} xScale={xScale} innerHeight={innerHeight} />
-            <AxisBottom xScale={xScale} innerHeight={innerHeight} />
+            ) : null}
+            <Line innerHeight={innerHeight} value={current} xScale={xScale} />
+            <AxisBottom innerHeight={innerHeight} xScale={xScale} />
           </g>
 
           <rect
-            fill="transparent"
             cursor="grab"
-            width={innerWidth}
+            fill="transparent"
             height={height}
             ref={zoomRef}
+            width={innerWidth}
           />
 
           <Brush
-            id={id}
-            xScale={xScale}
             brushExtent={brushDomain ?? (xScale.domain() as [number, number])}
-            innerWidth={innerWidth}
-            innerHeight={innerHeight}
-            zoomInited={zoomInited}
             brushLabelValue={brushLabels}
+            id={id}
+            innerHeight={innerHeight}
+            innerWidth={innerWidth}
             setBrushExtent={onBrushDomainChange}
+            xScale={xScale}
+            zoomInited={zoomInited}
           />
         </g>
       </svg>
