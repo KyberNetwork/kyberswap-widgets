@@ -1,34 +1,33 @@
 import { max, scaleLinear, ZoomTransform } from "d3";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Bound, ChartEntry, ChartProps } from "../types";
+import Area from "./Area";
+import AxisBottom from "./AxisBottom";
+import Brush from "./Brush";
+import Line from "./Line";
+import Zoom from "./Zoom";
 import partition from "lodash.partition";
 
-import { Area } from "./Area";
-import { AxisBottom } from "./AxisBottom";
-import { Brush } from "./Brush";
-import { Line } from "./Line";
-import { Bound, ChartEntry, LiquidityChartRangeInputProps } from "../types";
-import Zoom from "./Zoom";
-import { useWidgetContext } from "@/stores/widget";
-
-const xAccessor = (d: ChartEntry) => d.price0;
+const xAccessor = (d: ChartEntry) => d.price;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;
 
 let zoomTimeout: ReturnType<typeof setTimeout> | undefined;
 
-export function Chart({
+export default function Chart({
   id = "liquidityChart",
   data: { series, current },
   ticksAtLimit,
   dimensions: { width, height },
   margins,
   brushDomain,
+  zoomLevels,
+  zoomPosition,
+  zoomInIcon,
+  zoomOutIcon,
   brushLabels,
   onBrushDomainChange,
-  zoomLevels,
-  showZoomButtons = true,
-}: LiquidityChartRangeInputProps) {
+}: ChartProps) {
   const zoomRef = useRef<SVGRectElement | null>(null);
-  const theme = useWidgetContext((s) => s.theme);
 
   const [zoom, setZoom] = useState<ZoomTransform | null>(null);
   const [zoomInited, setZoomInited] = useState(false);
@@ -88,25 +87,25 @@ export function Chart({
   }, [zoom]);
 
   const [leftSeries, rightSeries] = useMemo(() => {
-    const isHighToLow = series[0]?.price0 > series[series.length - 1]?.price0;
+    const isHighToLow = series[0]?.price > series[series.length - 1]?.price;
     let [left, right] = partition(series, (d) =>
       isHighToLow ? +xAccessor(d) < current : +xAccessor(d) > current
     );
 
     if (right.length && right[right.length - 1]) {
-      if (right[right.length - 1].price0 !== current) {
+      if (right[right.length - 1].price !== current) {
         right = [
           ...right,
           {
             activeLiquidity: right[right.length - 1].activeLiquidity,
-            price0: current,
+            price: current,
           },
         ];
       }
       left = [
         {
           activeLiquidity: right[right.length - 1].activeLiquidity,
-          price0: current,
+          price: current,
         },
         ...left,
       ];
@@ -117,19 +116,20 @@ export function Chart({
 
   return (
     <>
-      {showZoomButtons && (
-        <Zoom
-          svg={zoomRef.current}
-          xScale={xScale}
-          setZoom={setZoom}
-          width={innerWidth}
-          height={height} // allow zooming inside the x-axis
-          showResetButton={Boolean(
-            ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
-          )}
-          zoomLevels={zoomLevels}
-        />
-      )}
+      <Zoom
+        svg={zoomRef.current}
+        xScale={xScale}
+        width={innerWidth}
+        height={height} // allow zooming inside the x-axis
+        showResetButton={Boolean(
+          ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
+        )}
+        zoomPosition={zoomPosition}
+        zoomLevels={zoomLevels}
+        zoomInIcon={zoomInIcon}
+        zoomOutIcon={zoomOutIcon}
+        setZoom={setZoom}
+      />
       <svg
         width="100%"
         height="100%"
@@ -161,19 +161,19 @@ export function Chart({
               series={leftSeries}
               xScale={xScale}
               yScale={yScale}
+              opacity={1}
+              fill="#065F44"
               xValue={xAccessor}
               yValue={yAccessor}
-              opacity={1}
-              fill={"#065F44"}
             />
             <Area
               series={rightSeries}
               xScale={xScale}
               yScale={yScale}
+              opacity={1}
+              fill="#065F44"
               xValue={xAccessor}
               yValue={yAccessor}
-              opacity={1}
-              fill={"#065F44"}
             />
 
             {brushDomain && (
@@ -181,12 +181,12 @@ export function Chart({
               <g mask={`url(#${id}-area-mask)`}>
                 <Area
                   opacity={1}
+                  fill="#31cb9e"
                   series={series}
                   xScale={xScale}
                   yScale={yScale}
                   xValue={xAccessor}
                   yValue={yAccessor}
-                  fill={theme.accent}
                 />
               </g>
             )}
@@ -205,12 +205,12 @@ export function Chart({
           <Brush
             id={id}
             xScale={xScale}
-            brushLabelValue={brushLabels}
             brushExtent={brushDomain ?? (xScale.domain() as [number, number])}
             innerWidth={innerWidth}
             innerHeight={innerHeight}
-            setBrushExtent={onBrushDomainChange}
             zoomInited={zoomInited}
+            brushLabelValue={brushLabels}
+            setBrushExtent={onBrushDomainChange}
           />
         </g>
       </svg>

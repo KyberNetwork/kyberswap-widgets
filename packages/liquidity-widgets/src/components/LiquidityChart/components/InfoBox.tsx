@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-export function InfoBox({
+export default function InfoBox({
   message,
   icon = null,
 }: {

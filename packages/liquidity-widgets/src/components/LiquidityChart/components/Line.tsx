@@ -1,15 +1,7 @@
-import { ScaleLinear } from "d3";
 import { useMemo } from "react";
+import { LineProps } from "../types";
 
-export const Line = ({
-  value,
-  xScale,
-  innerHeight,
-}: {
-  value: number;
-  xScale: ScaleLinear<number, number>;
-  innerHeight: number;
-}) => {
+export default function Line({ value, xScale, innerHeight }: LineProps) {
   return useMemo(
     () => (
       <line
@@ -22,4 +14,4 @@ export const Line = ({
     ),
     [value, xScale, innerHeight]
   );
-};
+}

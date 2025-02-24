@@ -1,10 +1,9 @@
-import { area, curveStepAfter, ScaleLinear } from "d3";
+import { area, curveStepAfter } from "d3";
 import { useMemo } from "react";
 
-import { ChartEntry } from "../types";
-import { useWidgetContext } from "@/stores/widget";
+import { AreaProps, ChartEntry } from "../types";
 
-export const Area = ({
+export default function Area({
   series,
   xScale,
   yScale,
@@ -12,22 +11,13 @@ export const Area = ({
   yValue,
   fill,
   opacity,
-}: {
-  series: ChartEntry[];
-  xScale: ScaleLinear<number, number>;
-  yScale: ScaleLinear<number, number>;
-  xValue: (d: ChartEntry) => number;
-  yValue: (d: ChartEntry) => number;
-  fill?: string | undefined;
-  opacity?: number;
-}) => {
-  const theme = useWidgetContext((s) => s.theme);
+}: AreaProps) {
   return useMemo(
     () => (
       <path
         opacity={opacity || 1}
-        fill={fill ?? theme.error}
-        stroke={fill ?? theme.error}
+        fill={fill}
+        stroke={fill}
         d={
           area()
             .curve(curveStepAfter)
@@ -42,6 +32,6 @@ export const Area = ({
         }
       />
     ),
-    [fill, opacity, series, xScale, xValue, yScale, yValue, theme.error]
+    [fill, opacity, series, xScale, xValue, yScale, yValue]
   );
-};
+}

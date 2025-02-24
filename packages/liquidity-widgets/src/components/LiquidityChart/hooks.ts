@@ -1,14 +1,33 @@
 import { useMemo } from "react";
-import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores/widget";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { computeSurroundingTicks } from "./utils";
-import { ChartEntry, TickProcessed, PRICE_FIXED_DIGITS } from "./types";
+import {
+  ChartEntry,
+  TickProcessed,
+  PRICE_FIXED_DIGITS,
+  PoolInfo,
+} from "./types";
 
-export const useDensityChartData = () => {
-  const ticksProcessed = usePoolActiveLiquidity();
+export const useDensityChartData = ({
+  pool,
+  revertPrice,
+}: {
+  pool: PoolInfo;
+  revertPrice: boolean;
+}) => {
+  const ticksProcessed = usePoolActiveLiquidity({
+    pool,
+    revertPrice,
+  });
 
-  const chartData = useMemo(() => {
+  return useMemo(() => {
+    if (
+      (!pool.tickCurrent && pool.tickCurrent !== 0) ||
+      !pool.tickSpacing ||
+      !pool.token0 ||
+      !pool.token1
+    )
+      return;
     if (!ticksProcessed.length) return [];
 
     const newData: ChartEntry[] = [];
@@ -18,7 +37,7 @@ export const useDensityChartData = () => {
 
       const chartEntry = {
         activeLiquidity: parseFloat(t.liquidityActive.toString()),
-        price0: parseFloat(t.price0),
+        price: parseFloat(t.price),
       };
 
       if (chartEntry.activeLiquidity > 0) {
@@ -27,32 +46,35 @@ export const useDensityChartData = () => {
     }
 
     return newData;
-  }, [ticksProcessed]);
-
-  return chartData;
+  }, [
+    pool.tickCurrent,
+    pool.tickSpacing,
+    pool.token0,
+    pool.token1,
+    ticksProcessed,
+  ]);
 };
 
-const usePoolActiveLiquidity = () => {
-  const { pool } = useWidgetContext((s) => s);
-  const { revertPrice } = useZapState();
-
-  const tickCurrent =
-    pool === "loading" || !("tick" in pool) ? undefined : pool.tick;
-  const tickSpacing =
-    pool === "loading" || !("tickSpacing" in pool)
-      ? undefined
-      : pool.tickSpacing;
+const usePoolActiveLiquidity = ({
+  pool,
+  revertPrice,
+}: {
+  pool: PoolInfo;
+  revertPrice: boolean;
+}) => {
+  const { tickCurrent, tickSpacing, ticks, liquidity, token0, token1 } = pool;
 
   return useMemo(() => {
     if (
-      pool === "loading" ||
       (!tickCurrent && tickCurrent !== 0) ||
-      !tickSpacing
+      !tickSpacing ||
+      !ticks.length ||
+      !token0 ||
+      !token1
     )
       return [];
 
     const activeTick = Math.floor(tickCurrent / tickSpacing) * tickSpacing;
-    const ticks = !("ticks" in pool) ? [] : pool.ticks;
 
     // find where the active tick would be to partition the array
     // if the active tick is initialized, the pivot will be an element
@@ -66,27 +88,21 @@ const usePoolActiveLiquidity = () => {
       return [];
     }
 
-    const poolLiquidity = "liquidity" in pool ? pool.liquidity : 0;
     const activeTickProcessed: TickProcessed = {
-      liquidityActive: BigInt(poolLiquidity),
+      liquidityActive: BigInt(liquidity),
       tick: activeTick,
       liquidityNet:
         Number(ticks[pivot].index) === activeTick
           ? BigInt(ticks[pivot].liquidityNet)
           : 0n,
-      price0: Number(
-        tickToPrice(
-          activeTick,
-          pool.token0.decimals,
-          pool.token1.decimals,
-          revertPrice
-        )
+      price: Number(
+        tickToPrice(activeTick, token0.decimals, token1.decimals, revertPrice)
       ).toFixed(PRICE_FIXED_DIGITS),
     };
 
     const subsequentTicks = computeSurroundingTicks(
-      pool.token0.decimals,
-      pool.token1.decimals,
+      token0.decimals,
+      token1.decimals,
       activeTickProcessed,
       ticks,
       pivot,
@@ -94,8 +110,8 @@ const usePoolActiveLiquidity = () => {
       revertPrice
     );
     const previousTicks = computeSurroundingTicks(
-      pool.token0.decimals,
-      pool.token1.decimals,
+      token0.decimals,
+      token1.decimals,
       activeTickProcessed,
       ticks,
       pivot,
@@ -107,5 +123,5 @@ const usePoolActiveLiquidity = () => {
       .concat(subsequentTicks);
 
     return ticksProcessed;
-  }, [pool, revertPrice, tickCurrent, tickSpacing]);
+  }, [liquidity, revertPrice, tickCurrent, tickSpacing, ticks, token0, token1]);
 };
