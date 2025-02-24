@@ -74,6 +74,7 @@ interface ZoomPosition {
   left: number | undefined;
   right: number | undefined;
   bottom: number | undefined;
+  gap: number | undefined;
 }
 
 export interface LiquidityChartRangeInputProps {

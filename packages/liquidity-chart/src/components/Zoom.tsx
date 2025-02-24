@@ -16,6 +16,7 @@ export default function Zoom({
     top: -18,
     left: undefined,
     bottom: undefined,
+    gap: 6,
   },
   zoomInIcon,
   zoomOutIcon,
@@ -79,7 +80,7 @@ export default function Zoom({
   }, [zoomInitial, zoomLevels]);
 
   return (
-    <div className="flex gap-[6px] absolute" style={zoomPosition}>
+    <div className="flex items-center absolute" style={zoomPosition}>
       {showResetButton ? (
         <div className="cursor-pointer" onClick={zoomReset}>
           <RefreshIcon className="relative -top-[1px]" height={18} width={18} />

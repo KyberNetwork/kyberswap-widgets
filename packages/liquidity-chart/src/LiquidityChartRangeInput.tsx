@@ -82,22 +82,20 @@ export default function LiquidityChartRangeInput({
         ) : chartData.length === 0 || !currentPrice ? (
           <InfoBox message="There is no liquidity data." />
         ) : (
-          <div className="relative justify-center items-center">
-            <Chart
-              brushDomain={brushDomain}
-              brushLabels={brushLabel}
-              data={{ series: chartData, current: currentPrice }}
-              dimensions={{ ...DEFAULT_DIMENSIONS, ...(dimensions || {}) }}
-              id={id}
-              margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
-              onBrushDomainChange={onBrushDomainChange}
-              ticksAtLimit={ticksAtLimit}
-              zoomInIcon={zoomInIcon}
-              zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
-              zoomOutIcon={zoomOutIcon}
-              zoomPosition={zoomPosition}
-            />
-          </div>
+          <Chart
+            brushDomain={brushDomain}
+            brushLabels={brushLabel}
+            data={{ series: chartData, current: currentPrice }}
+            dimensions={{ ...DEFAULT_DIMENSIONS, ...(dimensions || {}) }}
+            id={id}
+            margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
+            onBrushDomainChange={onBrushDomainChange}
+            ticksAtLimit={ticksAtLimit}
+            zoomInIcon={zoomInIcon}
+            zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
+            zoomOutIcon={zoomOutIcon}
+            zoomPosition={zoomPosition}
+          />
         )}
       </div>
     </div>
