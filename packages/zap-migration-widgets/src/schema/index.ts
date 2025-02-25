@@ -13,7 +13,6 @@ export enum ChainId {
   // Mantle = 5000,
   Optimism = 10,
   Scroll = 534352,
-  PolygonZkEVM = 1101,
   // ZkSync = 324,
 }
 
@@ -47,7 +46,6 @@ export enum Dex {
   Uniswapv3 = 2,
   Pancakev3 = 3,
   Sushiv3 = 11,
-  Quickswapv3Uni = 10,
 }
 
 export const dex = z.nativeEnum(Dex);
@@ -71,8 +69,7 @@ export const dexFrom = z
     if (
       (data.dex === Dex.Uniswapv3 ||
         data.dex === Dex.Pancakev3 ||
-        data.dex === Dex.Sushiv3 ||
-        data.dex === Dex.Quickswapv3Uni) &&
+        data.dex === Dex.Sushiv3) &&
       typeof data.positionId !== "number"
     ) {
       ctx.addIssue({
@@ -99,8 +96,7 @@ export const dexTo = z
     if (
       (data.dex === Dex.Pancakev3 ||
         data.dex === Dex.Uniswapv3 ||
-        data.dex === Dex.Sushiv3 ||
-        data.dex === Dex.Quickswapv3Uni) &&
+        data.dex === Dex.Sushiv3) &&
       data.positionId &&
       typeof data.positionId !== "number"
     ) {
@@ -167,10 +163,6 @@ export const pool = z.discriminatedUnion("dex", [
   univ3PoolCommonField.extend({
     dex: z.literal(Dex.Sushiv3),
   }),
-
-  univ3PoolCommonField.extend({
-    dex: z.literal(Dex.Quickswapv3Uni),
-  }),
 ]);
 
 export type Pool = z.infer<typeof pool>;
@@ -191,9 +183,6 @@ export const position = z.discriminatedUnion("dex", [
   }),
   univ3Position.extend({
     dex: z.literal(Dex.Sushiv3),
-  }),
-  univ3Position.extend({
-    dex: z.literal(Dex.Quickswapv3Uni),
   }),
 ]);
 

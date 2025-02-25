@@ -30,7 +30,6 @@ const dexMapping: Record<Dex, string> = {
   [Dex.Uniswapv3]: "uniswapv3",
   [Dex.Pancakev3]: "pancake-v3",
   [Dex.Sushiv3]: "sushiswap-v3",
-  [Dex.Quickswapv3Uni]: "quickswap-v3",
   // Add new DEX mappings here when needed
 } as const;
 
@@ -39,7 +38,6 @@ const dexMapping2: Record<Dex, string> = {
   [Dex.Uniswapv3]: "DEX_UNISWAPV3",
   [Dex.Pancakev3]: "DEX_PANCAKESWAPV3",
   [Dex.Sushiv3]: "DEX_SUSHISWAPV3",
-  [Dex.Quickswapv3Uni]: "DEX_QUICKSWAPV3UNI",
   // Add new DEX mappings here when needed
 } as const;
 
