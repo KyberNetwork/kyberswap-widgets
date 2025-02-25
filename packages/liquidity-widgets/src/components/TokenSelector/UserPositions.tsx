@@ -112,6 +112,7 @@ enum EarnDex {
   DEX_UNISWAPV3 = "Uniswap V3",
   DEX_PANCAKESWAPV3 = "PancakeSwap V3",
   DEX_SUSHISWAPV3 = "SushiSwap V3",
+  DEX_QUICKSWAPV3UNI = "Quickswap V3",
 }
 const earnSupportedChains = [
   ChainId.Ethereum,
