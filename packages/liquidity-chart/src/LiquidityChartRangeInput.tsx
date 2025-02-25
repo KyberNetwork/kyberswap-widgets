@@ -75,7 +75,7 @@ export default function LiquidityChartRangeInput({
   );
 
   return (
-    <div className="ks-lc-style">
+    <div className="ks-lc-style" style={{ width: "100%" }}>
       <div className="flex items-center min-h-52 w-full gap-4 justify-center">
         {!chartData ? (
           <InfoBox message="Your position will appear here." />
