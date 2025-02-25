@@ -188,7 +188,7 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_KOICL]: ["koi-cl"],
   [PoolType.DEX_THRUSTERV3]: ["thruster-v3"],
   [PoolType.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
-  [PoolType.DEX_QUICKSWAPV3UNI]: ["quickswap-uni-v3"],
+  [PoolType.DEX_QUICKSWAPV3UNI]: ["quickswap-v3"],
 
   // uni v2 forks
   [PoolType.DEX_PANCAKESWAPV2]: ["pancake"],
