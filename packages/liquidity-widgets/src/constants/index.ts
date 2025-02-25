@@ -9,6 +9,7 @@ import thrusterLogo from "@/assets/dexes/thruster.png";
 import sushiLogo from "@/assets/dexes/sushi.png";
 import quickswapLogo from "@/assets/dexes/quickswap.png";
 import pangolinLogo from "@/assets/dexes/pangolin.png";
+import thenaLogo from "@/assets/dexes/thena.png";
 
 export { PoolType, ChainId };
 
@@ -444,6 +445,14 @@ export const DexInfos: Record<PoolType, DexInfo> = {
     name: "SwapMode V2",
     nftManagerContract: {},
   },
+
+  [PoolType.DEX_THENAFUSION]: {
+    icon: thenaLogo,
+    name: "Thena",
+    nftManagerContract: {
+      [ChainId.Bsc]: "0x643B68Bf3f855B8475C0A700b6D1020bfc21d02e",
+    },
+  },
 };
 
 export const chainIdToChain: { [chainId in ChainId]: string } = {
@@ -481,6 +490,8 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_QUICKSWAPV2: 19,
   DEX_THRUSTERV2: 20,
   DEX_SWAPMODEV2: 44,
+
+  DEX_THENAFUSION: 15,
 };
 
 export const PATHS = {
