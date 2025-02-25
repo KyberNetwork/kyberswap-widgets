@@ -1,6 +1,10 @@
 import { useWidgetContext } from "@/stores/widget";
 import { useZapState } from "@/hooks/useZapInState";
-import { nearestUsableTick, priceToClosestTick } from "@kyber/utils/uniswapv3";
+import {
+  nearestUsableTick,
+  priceToClosestTick,
+  tickToPrice,
+} from "@kyber/utils/uniswapv3";
 import { useCallback, useMemo } from "react";
 import { toString } from "@/utils/number";
 import { univ3PoolNormalize } from "@/schema";
@@ -26,16 +30,6 @@ export default function LiquidityChart() {
     return "loading";
   }, [rawPool]);
 
-  const price =
-    pool !== "loading" && pool.token0.price && pool.token1.price
-      ? parseFloat(
-          (revertPrice
-            ? pool.token1.price / pool.token0.price
-            : pool.token0.price / pool.token1.price
-          ).toFixed(18)
-        )
-      : undefined;
-
   const fee = pool === "loading" ? undefined : pool.fee;
   const tickCurrent =
     pool === "loading" || !("tick" in pool) ? undefined : pool.tick;
@@ -47,6 +41,11 @@ export default function LiquidityChart() {
   const liquidity = pool === "loading" ? "0" : pool.liquidity;
   const token0 = pool === "loading" ? undefined : pool.token0;
   const token1 = pool === "loading" ? undefined : pool.token1;
+
+  const price =
+    tickCurrent !== undefined && token0 && token1
+      ? +tickToPrice(tickCurrent, token0.decimals, token1.decimals, revertPrice)
+      : undefined;
 
   const ticksAtLimit = useMemo(
     () => ({
