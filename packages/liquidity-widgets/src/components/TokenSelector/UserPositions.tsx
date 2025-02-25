@@ -108,11 +108,10 @@ export interface EarnPosition {
   };
 }
 
-enum EarnSupportedProtocols {
+enum EarnDex {
   DEX_UNISWAPV3 = "Uniswap V3",
   DEX_PANCAKESWAPV3 = "PancakeSwap V3",
   DEX_SUSHISWAPV3 = "SushiSwap V3",
-  DEX_QUICKSWAPV3UNI = "QuickSwap V3",
 }
 const earnSupportedChains = [
   ChainId.Ethereum,
@@ -123,9 +122,8 @@ const earnSupportedChains = [
   ChainId.Optimism,
   ChainId.PolygonPos,
 ];
-export const earnSupportedProtocols = Object.keys(EarnSupportedProtocols).map(
-  (dexKey) =>
-    EarnSupportedProtocols[dexKey as keyof typeof EarnSupportedProtocols]
+export const earnSupportedProtocols = Object.keys(EarnDex).map(
+  (dexKey) => EarnDex[dexKey as keyof typeof EarnDex]
 );
 
 const COPY_TIMEOUT = 2000;

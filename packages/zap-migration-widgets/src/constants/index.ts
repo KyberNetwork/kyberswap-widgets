@@ -2,7 +2,6 @@ import { ChainId, Chain, Dex, DexInfo } from "../schema";
 import uniLogo from "../assets/dexes/uniswap.png";
 import pancakeLogo from "../assets/dexes/pancake.png";
 import sushiLogo from "../assets/dexes/sushi.png";
-import quickswapLogo from "../assets/dexes/quickswap.png";
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
@@ -271,13 +270,6 @@ export const DexInfos: Record<Dex, DexInfo> = {
       [ChainId.PolygonPos]: "0xb7402ee99F0A008e461098AC3A27F4957Df89a40",
       [ChainId.PolygonZkEVM]: "0xF4d73326C13a4Fc5FD7A064217e12780e9Bd62c3",
       [ChainId.Scroll]: "0x0389879e0156033202C44BF784ac18fC02edeE4f",
-    },
-  },
-  [Dex.Quickswapv3Uni]: {
-    icon: quickswapLogo,
-    name: "Quickswap V3",
-    nftManagerContract: {
-      [ChainId.PolygonZkEVM]: "0x331F3a300b7115A45ba31E3428AC002267BB6D77",
     },
   },
 };
