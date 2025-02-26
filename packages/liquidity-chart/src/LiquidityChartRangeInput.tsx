@@ -100,7 +100,15 @@ export default function LiquidityChartRangeInput({
       min: 0.00001,
       max: 20,
     };
-  }, []);
+  }, [
+    onBrushDomainChange,
+    priceLower,
+    priceUpper,
+    currentPrice,
+    revertPrice,
+    ticksAtLimit,
+    nearestFeeAmount,
+  ]);
 
   return (
     <div className="ks-lc-style" style={{ width: "100%" }}>

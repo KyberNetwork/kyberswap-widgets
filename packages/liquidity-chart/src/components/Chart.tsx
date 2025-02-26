@@ -134,7 +134,7 @@ export default function Chart({
         showResetButton={Boolean(
           (!westHandleInView && !eastHandleInView) ||
             (zoom && zoom.k >= 2 ** 4) ||
-            (zoom && zoom.k <= 2 ** -4)
+            (zoom && zoom.k <= 2 ** -3)
         )}
         svg={zoomRef.current}
         width={innerWidth}
