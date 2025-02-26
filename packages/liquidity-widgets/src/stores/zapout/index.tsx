@@ -17,6 +17,7 @@ import { encodeUint256, getFunctionSelector } from "@kyber/utils/crypto";
 import {
   MAX_TICK,
   MIN_TICK,
+  decodeAlgebraV1Position,
   decodePosition,
   getPositionAmounts,
   nearestUsableTick,
@@ -263,7 +264,10 @@ const createZapOutStore = (initProps: ZapOutProps) => {
         const { result, error } = await response.json();
 
         if (result && result !== "0x") {
-          const data = decodePosition(result);
+          const data =
+            pt === PoolType.DEX_THENAFUSION
+              ? decodeAlgebraV1Position(result)
+              : decodePosition(result);
 
           const { amount0, amount1 } = getPositionAmounts(
             p.tick,
