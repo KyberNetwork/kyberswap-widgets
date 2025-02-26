@@ -16,6 +16,7 @@ export default function LiquidityChartRangeInput({
   revertPrice,
   dimensions,
   margins,
+  zoomLevels,
   zoomPosition,
   zoomInIcon,
   zoomOutIcon,
@@ -91,9 +92,8 @@ export default function LiquidityChartRangeInput({
               id={id}
               margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
               onBrushDomainChange={onBrushDomainChange}
-              ticksAtLimit={ticksAtLimit}
               zoomInIcon={zoomInIcon}
-              zoomLevels={ZOOM_LEVELS[nearestFeeAmount]}
+              zoomLevels={zoomLevels || ZOOM_LEVELS[nearestFeeAmount]}
               zoomOutIcon={zoomOutIcon}
               zoomPosition={zoomPosition}
             />

@@ -18,7 +18,6 @@ let zoomTimeout: ReturnType<typeof setTimeout> | undefined;
 export default function Chart({
   id = "liquidityChart",
   data: { series, current },
-  ticksAtLimit,
   dimensions: { width, height },
   margins,
   brushDomain,
@@ -118,13 +117,24 @@ export default function Chart({
     return [left, right];
   }, [current, series]);
 
+  const westHandleInView =
+    brushDomain &&
+    xScale(brushDomain[0]) >= 0 &&
+    xScale(brushDomain[0]) <= innerWidth;
+  const eastHandleInView =
+    brushDomain &&
+    xScale(brushDomain[1]) >= 0 &&
+    xScale(brushDomain[1]) <= innerWidth;
+
   return (
     <>
       <Zoom
         height={height} // allow zooming inside the x-axis
         setZoom={setZoom}
         showResetButton={Boolean(
-          ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER]
+          (!westHandleInView && !eastHandleInView) ||
+            (zoom && zoom.k >= 2 ** 4) ||
+            (zoom && zoom.k <= 2 ** -4)
         )}
         svg={zoomRef.current}
         width={innerWidth}

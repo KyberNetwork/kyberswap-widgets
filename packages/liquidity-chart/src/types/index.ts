@@ -89,6 +89,7 @@ export interface LiquidityChartRangeInputProps {
   revertPrice: boolean;
   dimensions?: Dimensions;
   margins?: Margins;
+  zoomLevels?: ZoomLevels;
   zoomPosition?: ZoomPosition;
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
@@ -104,7 +105,6 @@ export interface ChartProps {
     series: ChartEntry[];
     current: number;
   };
-  ticksAtLimit: { [bound in Bound]?: boolean | undefined };
   dimensions: Dimensions;
   margins: Margins;
   brushDomain: [number, number] | undefined;
