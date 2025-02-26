@@ -108,17 +108,23 @@ export interface EarnPosition {
   };
 }
 
-enum EarnSupportedProtocols {
-  UNISWAP_V3 = "Uniswap V3",
-  PANCAKESWAP_V3 = "PancakeSwap V3",
-  SUSHISWAP_V3 = "SushiSwap V3",
+enum EarnDex {
+  DEX_UNISWAPV3 = "Uniswap V3",
+  DEX_PANCAKESWAPV3 = "PancakeSwap V3",
+  DEX_SUSHISWAPV3 = "SushiSwap V3",
 }
-const earnSupportedChains = [ChainId.Ethereum, ChainId.Base];
-const earnSupportedProtocols = [
-  EarnSupportedProtocols.UNISWAP_V3,
-  EarnSupportedProtocols.PANCAKESWAP_V3,
-  EarnSupportedProtocols.SUSHISWAP_V3,
+const earnSupportedChains = [
+  ChainId.Ethereum,
+  ChainId.Base,
+  ChainId.Bsc,
+  ChainId.Arbitrum,
+  ChainId.Avalanche,
+  ChainId.Optimism,
+  ChainId.PolygonPos,
 ];
+export const earnSupportedProtocols = Object.keys(EarnDex).map(
+  (dexKey) => EarnDex[dexKey as keyof typeof EarnDex]
+);
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
