@@ -16,7 +16,6 @@ export default function LiquidityChartRangeInput({
   revertPrice,
   dimensions,
   margins,
-  zoomLevels,
   zoomPosition,
   zoomInIcon,
   zoomOutIcon,
@@ -75,10 +74,38 @@ export default function LiquidityChartRangeInput({
     [currentPrice, ticksAtLimit, revertPrice]
   );
 
+  const defaultZoomLevels = useMemo(() => {
+    if (onBrushDomainChange) return ZOOM_LEVELS[nearestFeeAmount];
+    if (!priceLower || !priceUpper || !currentPrice) return;
+
+    const leftPrice = parseFloat(
+      (!revertPrice ? priceLower : priceUpper).toString().replace(/,/g, "")
+    );
+    const rightPrice = parseFloat(
+      (!revertPrice ? priceUpper : priceLower).toString().replace(/,/g, "")
+    );
+    const priceToCalculate =
+      ticksAtLimit[Bound.UPPER] ||
+      Math.abs(currentPrice - leftPrice) > Math.abs(currentPrice - rightPrice)
+        ? leftPrice
+        : rightPrice;
+
+    const ratio = Math.abs(
+      (7 * (currentPrice - priceToCalculate)) / (5 * currentPrice)
+    );
+
+    return {
+      initialMin: 1 - ratio,
+      initialMax: 1 + ratio,
+      min: 0.00001,
+      max: 20,
+    };
+  }, []);
+
   return (
     <div className="ks-lc-style" style={{ width: "100%" }}>
       <div className="flex items-center min-h-52 w-full gap-4 justify-center">
-        {!chartData ? (
+        {!chartData || !defaultZoomLevels ? (
           <InfoBox message="Your position will appear here." />
         ) : chartData.length === 0 || !currentPrice ? (
           <InfoBox message="There is no liquidity data." />
@@ -93,7 +120,7 @@ export default function LiquidityChartRangeInput({
               margins={{ ...DEFAULT_MARGINS, ...(margins || {}) }}
               onBrushDomainChange={onBrushDomainChange}
               zoomInIcon={zoomInIcon}
-              zoomLevels={zoomLevels || ZOOM_LEVELS[nearestFeeAmount]}
+              zoomLevels={defaultZoomLevels}
               zoomOutIcon={zoomOutIcon}
               zoomPosition={zoomPosition}
             />

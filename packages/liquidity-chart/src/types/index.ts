@@ -89,7 +89,6 @@ export interface LiquidityChartRangeInputProps {
   revertPrice: boolean;
   dimensions?: Dimensions;
   margins?: Margins;
-  zoomLevels?: ZoomLevels;
   zoomPosition?: ZoomPosition;
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
