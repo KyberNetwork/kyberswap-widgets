@@ -452,7 +452,16 @@ export const ZapContextProvider = ({
     const isToken0Native =
       pool.token0.address.toLowerCase() ===
       wrappedNativeToken.address.toLowerCase();
-    if (isToken0Native) setRevertPrice(true);
+    const isToken1Native =
+      pool.token1.address.toLowerCase() ===
+      wrappedNativeToken.address.toLowerCase();
+    const isToken0Stable = pool.token0.isStable;
+    const isToken1Stable = pool.token1.isStable;
+    if (
+      (isToken0Native && !isToken1Stable) ||
+      (isToken1Native && isToken0Stable)
+    )
+      setRevertPrice(true);
   }, [defaultRevertChecked, pool, wrappedNativeToken.address]);
 
   // Get zap route
