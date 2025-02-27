@@ -13,7 +13,7 @@ import {
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
 import { univ3PoolNormalize, univ3PoolType } from "@/schema";
-import { formatDisplayNumber, toString } from "@/utils/number";
+import { toString } from "@/utils/number";
 import { formatNumber } from "@/utils";
 
 interface SelectedRange {
@@ -207,7 +207,7 @@ const PriceRange = () => {
           <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
             <p className="text-subText">Min Price</p>
             <p className="max-w-full truncate" title={minPrice?.toString()}>
-              {formatDisplayNumber(minPrice, { significantDigits: 6 })}
+              {minPrice}
             </p>
             <p className="text-subText">
               {revertPrice
@@ -218,7 +218,7 @@ const PriceRange = () => {
           <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
             <p className="text-subText">Max Price</p>
             <p className="max-w-full truncate" title={maxPrice?.toString()}>
-              {formatDisplayNumber(maxPrice, { significantDigits: 6 })}
+              {maxPrice}
             </p>
             <p className="text-subText">
               {revertPrice
