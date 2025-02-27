@@ -98,10 +98,10 @@ function App() {
     //poolType: PoolType.DEX_UNISWAPV3,
     // positionId: "24654",
 
-    chainId: ChainId.Ethereum,
-    poolAddress: "0x04c8577958ccc170eb3d2cca76f9d51bc6e42d8f",
-    poolType: PoolType.DEX_PANCAKESWAPV3,
-    //positionId: "3611904",
+    chainId: ChainId.Bsc,
+    poolAddress: "0x1123e75b71019962cd4d21b0f3018a6412edb63c",
+    poolType: PoolType.DEX_THENAFUSION,
+    positionId: "16142",
   });
   const [key, setKey] = useState(Date.now());
 
@@ -210,10 +210,10 @@ function App() {
 
       <div className="ks-demo-app-wrapper">
         <ZapOut
-          poolAddress="0x3ba13e5074292aaba8f56faf65055952ccc20dc6"
-          poolType={PoolType.DEX_UNISWAPV3}
-          positionId="1716748"
-          chainId={ChainId.Base}
+          poolAddress="0x1123e75b71019962cd4d21b0f3018a6412edb63c"
+          poolType={PoolType.DEX_THENAFUSION}
+          positionId="16142"
+          chainId={ChainId.Bsc}
           connectedAccount={connectedAccount}
           onClose={() => {
             //

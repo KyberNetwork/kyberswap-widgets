@@ -204,17 +204,20 @@ export default function Content() {
       univ2PoolType.safeParse(poolType);
 
     if (zapInfo) {
-      if (success && isUniV3PoolType)
+      if (success && isUniV3PoolType) {
+        const newInfo =
+          zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
         return {
           ...data,
           poolType: pt,
-          sqrtRatioX96: zapInfo?.poolDetails.uniswapV3.newSqrtP,
-          tick: zapInfo.poolDetails.uniswapV3.newTick,
+          sqrtRatioX96: newInfo?.newSqrtP,
+          tick: newInfo.newTick,
           liquidity: (
             BigInt(data.liquidity) +
             BigInt(zapInfo.positionDetails.addedLiquidity)
           ).toString(),
         };
+      }
       if (isUniV2 && isUniV2PoolType)
         return {
           ...poolUniv2,

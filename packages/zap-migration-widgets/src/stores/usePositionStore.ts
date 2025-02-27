@@ -2,7 +2,10 @@ import { create } from "zustand";
 import { ChainId, Dex, Position } from "../schema";
 import { DexInfos, NetworkInfo } from "../constants";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
-import { decodePosition } from "@kyber/utils/uniswapv3";
+import {
+  decodeAlgebraV1Position,
+  decodePosition,
+} from "@kyber/utils/uniswapv3";
 
 const initState = {
   fromPosition: "loading" as "loading" | Position,
@@ -71,7 +74,10 @@ export const usePositionStore = create<{
     const { result, error } = await response.json();
 
     if (result && result !== "0x") {
-      const data = decodePosition(result);
+      const data =
+        dex === Dex.DEX_THENAFUSION
+          ? decodeAlgebraV1Position(result)
+          : decodePosition(result);
 
       if (isFromPos)
         set({
