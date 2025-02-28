@@ -98,10 +98,11 @@ function App() {
     //poolType: PoolType.DEX_UNISWAPV3,
     // positionId: "24654",
 
-    chainId: ChainId.Bsc,
-    poolAddress: "0x1123e75b71019962cd4d21b0f3018a6412edb63c",
-    poolType: PoolType.DEX_THENAFUSION,
-    positionId: "16142",
+    chainId: ChainId.Blast,
+    poolAddress: "0x314adeeb90b428ec1b184e8aab8ca616a0368f33",
+    poolType: PoolType.DEX_BLADESWAP,
+    //positionId: "153688",
+    //positionId: "16142",
   });
   const [key, setKey] = useState(Date.now());
 

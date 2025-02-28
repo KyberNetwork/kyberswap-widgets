@@ -38,6 +38,8 @@ const dexMapping: Record<Dex, string[]> = {
   [Dex.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
 
   [Dex.DEX_THENAFUSION]: ["thena-fusion"],
+  [Dex.DEX_CAMELOTV3]: ["camelot-v3"],
+  [Dex.DEX_QUICKSWAPV3ALGEBRA]: ["quickswap-v3"],
 } as const;
 
 const poolResponse = z.object({

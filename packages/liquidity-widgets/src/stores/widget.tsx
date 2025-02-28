@@ -2,6 +2,7 @@ import { Theme, defaultTheme } from "@/theme";
 import {
   MAX_TICK,
   MIN_TICK,
+  decodeAlgebraV1Position,
   decodePosition,
   getPositionAmounts,
   nearestUsableTick,
@@ -19,6 +20,7 @@ import {
   univ3PoolType,
   univ2PoolType,
   Token,
+  algebraTypes,
 } from "@/schema";
 import { createStore, useStore } from "zustand";
 import { DexInfos, NetworkInfo, PATHS } from "@/constants";
@@ -302,7 +304,9 @@ const createWidgetStore = (initProps: WidgetProps) => {
           const { result, error } = await response.json();
 
           if (result && result !== "0x") {
-            const data = decodePosition(result);
+            const data = algebraTypes.includes(pt)
+              ? decodeAlgebraV1Position(result)
+              : decodePosition(result);
 
             const { amount0, amount1 } = getPositionAmounts(
               p.tick,

@@ -53,6 +53,9 @@ export enum Dex {
   DEX_THRUSTERV3 = 12,
 
   DEX_THENAFUSION = 15,
+
+  DEX_CAMELOTV3 = 13,
+  DEX_QUICKSWAPV3ALGEBRA = 14,
 }
 
 export const dex = z.nativeEnum(Dex);
@@ -150,6 +153,12 @@ const univ3PoolCommonField = z.object({
   ]),
 });
 
+export const algebraTypes: Dex[] = [
+  Dex.DEX_THENAFUSION,
+  Dex.DEX_CAMELOTV3,
+  Dex.DEX_QUICKSWAPV3ALGEBRA,
+] as const;
+
 export const univ3Dexes = [
   Dex.DEX_UNISWAPV3,
   Dex.DEX_PANCAKESWAPV3,
@@ -160,6 +169,8 @@ export const univ3Dexes = [
   Dex.DEX_THRUSTERV3,
   Dex.DEX_SUSHISWAPV3,
   Dex.DEX_THENAFUSION,
+  Dex.DEX_CAMELOTV3,
+  Dex.DEX_QUICKSWAPV3ALGEBRA,
 ] as const;
 
 // Create the discriminated union with the correct structure
@@ -190,6 +201,12 @@ export const pool = z.discriminatedUnion("dex", [
   }),
   univ3PoolCommonField.extend({
     dex: z.literal(Dex.DEX_THENAFUSION),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_CAMELOTV3),
+  }),
+  univ3PoolCommonField.extend({
+    dex: z.literal(Dex.DEX_QUICKSWAPV3ALGEBRA),
   }),
 ]);
 export type Pool = z.infer<typeof pool>;
@@ -228,6 +245,12 @@ export const position = z.discriminatedUnion("dex", [
   }),
   univ3Position.extend({
     dex: z.literal(Dex.DEX_THENAFUSION),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_CAMELOTV3),
+  }),
+  univ3Position.extend({
+    dex: z.literal(Dex.DEX_QUICKSWAPV3ALGEBRA),
   }),
 ]);
 

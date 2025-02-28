@@ -10,6 +10,8 @@ import sushiLogo from "@/assets/dexes/sushi.png";
 import quickswapLogo from "@/assets/dexes/quickswap.png";
 import pangolinLogo from "@/assets/dexes/pangolin.png";
 import thenaLogo from "@/assets/dexes/thena.png";
+import camelotLogo from "@/assets/dexes/camelot.svg?url";
+//import blastswapLogo from "@/assets/dexes/blastswap.png";
 
 export { PoolType, ChainId };
 
@@ -426,6 +428,27 @@ export const DexInfos: Record<PoolType, DexInfo> = {
       [ChainId.Bsc]: "0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab",
     },
   },
+  [PoolType.DEX_CAMELOTV3]: {
+    icon: camelotLogo,
+    name: "Camelot",
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15",
+    },
+  },
+  [PoolType.DEX_QUICKSWAPV3ALGEBRA]: {
+    icon: quickswapLogo,
+    name: "QuickSwap",
+    nftManagerContract: {
+      [ChainId.PolygonPos]: "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6",
+    },
+  },
+  //[PoolType.DEX_BLADESWAP]: {
+  //  icon: blastswapLogo,
+  //  name: "BlastSwap",
+  //  nftManagerContract: {
+  //    [ChainId.Blast]: "0x7553b306773EFa59E6f9676aFE049D2D2AbdfDd6",
+  //  },
+  //},
 };
 
 export const chainIdToChain: { [chainId in ChainId]: string } = {
@@ -463,6 +486,9 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_SWAPMODEV2: 44,
 
   DEX_THENAFUSION: 15,
+  DEX_CAMELOTV3: 13,
+  DEX_QUICKSWAPV3ALGEBRA: 14,
+  //DEX_BLADESWAP: 50,
 };
 
 export const PATHS = {

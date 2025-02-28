@@ -5,6 +5,7 @@ import {
   PoolType,
   Position,
   Token,
+  algebraTypes,
   poolResponse,
   univ2Pool,
   univ2PoolType,
@@ -264,10 +265,9 @@ const createZapOutStore = (initProps: ZapOutProps) => {
         const { result, error } = await response.json();
 
         if (result && result !== "0x") {
-          const data =
-            pt === PoolType.DEX_THENAFUSION
-              ? decodeAlgebraV1Position(result)
-              : decodePosition(result);
+          const data = algebraTypes.includes(pt)
+            ? decodeAlgebraV1Position(result)
+            : decodePosition(result);
 
           const { amount0, amount1 } = getPositionAmounts(
             p.tick,

@@ -1,4 +1,6 @@
 import { ChainId, Chain, Dex, DexInfo } from "../schema";
+import camelotLogo from "@/assets/dexes/camelot.svg?url";
+import quickswapLogo from "@/assets/dexes/quickswap.png";
 import uniLogo from "../assets/dexes/uniswap.png";
 import pancakeLogo from "../assets/dexes/pancake.png";
 import sushiLogo from "../assets/dexes/sushi.png";
@@ -339,6 +341,20 @@ export const DexInfos: Record<Dex, DexInfo> = {
     nftManagerContract: {
       //[ChainId.Bsc]: "0x643B68Bf3f855B8475C0A700b6D1020bfc21d02e",
       [ChainId.Bsc]: "0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab",
+    },
+  },
+  [Dex.DEX_CAMELOTV3]: {
+    icon: camelotLogo,
+    name: "Camelot",
+    nftManagerContract: {
+      [ChainId.Arbitrum]: "0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15",
+    },
+  },
+  [Dex.DEX_QUICKSWAPV3ALGEBRA]: {
+    icon: quickswapLogo,
+    name: "QuickSwap",
+    nftManagerContract: {
+      [ChainId.PolygonPos]: "0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6",
     },
   },
 };
