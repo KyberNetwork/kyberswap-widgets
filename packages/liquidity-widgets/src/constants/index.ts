@@ -492,7 +492,7 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
 };
 
 export const PATHS = {
-  BFF_API: "https://bff.kyberswap.com/api",
+  BFF_API: "https://pre-kyberswap-bff.kyberengineering.io/api",
   KYBERSWAP_DOCS: "https://docs.kyberswap.com",
   INTERFACE_GATEWAY_UNISWAP: "https://interface.gateway.uniswap.org/v1/graphql",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
@@ -500,7 +500,7 @@ export const PATHS = {
   //PRE_ZAP_API: "https://pre-zap-api.kyberengineering.io",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
-  ZAP_EARN_API: "https://zap-earn-service.kyberengineering.io/api",
+  ZAP_EARN_API: "https://pre-zap-earn-service.kyberengineering.io/api",
   TOKEN_API: "https://token-api.kyberengineering.io/api",
 };
 
