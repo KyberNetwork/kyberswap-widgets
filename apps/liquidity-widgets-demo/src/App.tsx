@@ -93,14 +93,14 @@ function App() {
     // poolAddress: "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae",
     // poolType: PoolType.DEX_PANCAKESWAPV2,
 
-    //chainId: ChainId.Base,
-    //poolAddress: "0xd0b53d9277642d899df5c87a3966a349a798f224",
-    //poolType: PoolType.DEX_UNISWAPV3,
+    chainId: ChainId.Base,
+    poolAddress: "0xd0b53d9277642d899df5c87a3966a349a798f224",
+    poolType: PoolType.DEX_UNISWAPV3,
     // positionId: "24654",
 
-    chainId: ChainId.Blast,
-    poolAddress: "0x314adeeb90b428ec1b184e8aab8ca616a0368f33",
-    poolType: PoolType.DEX_BLADESWAP,
+    // chainId: ChainId.Blast,
+    // poolAddress: "0x314adeeb90b428ec1b184e8aab8ca616a0368f33",
+    // poolType: PoolType.DEX_BLADESWAP,
     //positionId: "153688",
     //positionId: "16142",
   });

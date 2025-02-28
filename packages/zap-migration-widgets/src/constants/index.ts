@@ -1,6 +1,6 @@
 import { ChainId, Chain, Dex, DexInfo } from "../schema";
-import camelotLogo from "@/assets/dexes/camelot.svg?url";
-import quickswapLogo from "@/assets/dexes/quickswap.png";
+import camelotLogo from "../assets/dexes/camelot.svg?url";
+import quickswapLogo from "../assets/dexes/quickswap.png";
 import uniLogo from "../assets/dexes/uniswap.png";
 import pancakeLogo from "../assets/dexes/pancake.png";
 import sushiLogo from "../assets/dexes/sushi.png";
