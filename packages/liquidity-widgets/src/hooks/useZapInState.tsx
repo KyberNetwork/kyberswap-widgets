@@ -234,10 +234,10 @@ export const ZapContextProvider = ({
         tickLower,
         pool.token0?.decimals,
         pool.token1?.decimals,
-        false
+        revertPrice
       )
     );
-  }, [pool, tickLower]);
+  }, [pool, tickLower, revertPrice]);
 
   const priceUpper = useMemo(() => {
     if (pool === "loading" || tickUpper === null) return null;
@@ -246,10 +246,10 @@ export const ZapContextProvider = ({
         tickUpper,
         pool.token0?.decimals,
         pool.token1?.decimals,
-        false
+        revertPrice
       )
     );
-  }, [pool, tickUpper]);
+  }, [pool, tickUpper, revertPrice]);
 
   const isUniv3Pool = useMemo(
     () => univ3PoolType.safeParse(poolType).success,

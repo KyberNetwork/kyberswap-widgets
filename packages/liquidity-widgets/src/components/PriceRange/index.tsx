@@ -14,7 +14,6 @@ import {
 } from "@kyber/utils/uniswapv3";
 import { univ3PoolNormalize, univ3PoolType } from "@/schema";
 import { toString } from "@/utils/number";
-import { formatNumber } from "@/utils";
 
 interface SelectedRange {
   range: typeof FULL_PRICE_RANGE | number;
@@ -65,12 +64,7 @@ const PriceRange = () => {
           (revertPrice && data.maxTick === tickUpper))
       )
         return "0";
-
-      return !revertPrice
-        ? priceLower
-        : priceUpper
-        ? formatNumber(1 / Number(priceUpper))
-        : null;
+      return !revertPrice ? priceLower : priceUpper;
     }
   }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper]);
 
@@ -83,11 +77,7 @@ const PriceRange = () => {
           (revertPrice && data.minTick === tickLower))
       )
         return "∞";
-      return !revertPrice
-        ? priceUpper
-        : priceLower
-        ? formatNumber(1 / Number(priceLower))
-        : null;
+      return !revertPrice ? priceUpper : priceLower;
     }
   }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
 
