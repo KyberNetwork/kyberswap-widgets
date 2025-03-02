@@ -316,6 +316,53 @@ const createZapOutStore = (initProps: ZapOutProps) => {
         };
 
         set({ pool: p });
+
+        // get pool total supply and user supply
+        const balanceOfSelector = getFunctionSelector("balanceOf(address)");
+        const totalSupplySelector = getFunctionSelector("totalSupply()");
+        const paddedAccount = positionId.replace("0x", "").padStart(64, "0");
+
+        const getPayload = (d: string) => {
+          return {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              method: "eth_call",
+              params: [
+                {
+                  to: poolAddress,
+                  data: d,
+                },
+                "latest",
+              ],
+              id: 1,
+            }),
+          };
+        };
+
+        const balanceRes = await fetch(
+          NetworkInfo[chainId].defaultRpc,
+          getPayload(`0x${balanceOfSelector}${paddedAccount}`)
+        ).then((res) => res.json());
+        const totalSupplyRes = await fetch(
+          NetworkInfo[chainId].defaultRpc,
+          getPayload(`0x${totalSupplySelector}`)
+        ).then((res) => res.json());
+
+        const userBalance = BigInt(balanceRes?.result || "0");
+        const totalSupply = BigInt(totalSupplyRes?.result || "0");
+
+        const pos = {
+          liquidity: userBalance.toString(),
+          amount0: (userBalance * BigInt(poolUniv2.reserves[0])) / totalSupply,
+          amount1: (userBalance * BigInt(poolUniv2.reserves[1])) / totalSupply,
+          poolType: pt,
+          totalSupply,
+        };
+        set({ position: pos });
       } else {
         throw new Error("Invalid pool type");
       }

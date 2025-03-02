@@ -182,7 +182,9 @@ export const univ2Position = z.object({
   liquidity: z.string(),
   amount0: z.bigint(),
   amount1: z.bigint(),
+  totalSupply: z.bigint(),
 });
+export type UniV2Position = z.infer<typeof univ2Position>;
 
 export const position = z.discriminatedUnion("poolType", [
   univ3Position.extend({

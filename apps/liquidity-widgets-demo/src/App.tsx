@@ -94,8 +94,9 @@ function App() {
     // poolType: PoolType.DEX_PANCAKESWAPV2,
 
     chainId: ChainId.Base,
-    poolAddress: "0xd0b53d9277642d899df5c87a3966a349a798f224",
-    poolType: PoolType.DEX_UNISWAPV3,
+    poolAddress: "0x88A43bbDF9D098eEC7bCEda4e2494615dfD9bB9C",
+    poolType: PoolType.DEX_UNISWAPV2,
+    positionId: "0xdcfcd5dd752492b95ac8c1964c83f992e7e39fa9",
     // positionId: "24654",
 
     // chainId: ChainId.Blast,
@@ -211,10 +212,10 @@ function App() {
 
       <div className="ks-demo-app-wrapper">
         <ZapOut
-          poolAddress="0x1123e75b71019962cd4d21b0f3018a6412edb63c"
-          poolType={PoolType.DEX_THENAFUSION}
-          positionId="16142"
-          chainId={ChainId.Bsc}
+          poolAddress="0x88A43bbDF9D098eEC7bCEda4e2494615dfD9bB9C"
+          poolType={PoolType.DEX_UNISWAPV2}
+          positionId="0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9"
+          chainId={ChainId.Base}
           connectedAccount={connectedAccount}
           onClose={() => {
             //
