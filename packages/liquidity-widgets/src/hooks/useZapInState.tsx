@@ -172,6 +172,7 @@ export const ZapContextProvider = ({
   const [loading, setLoading] = useState(false);
   const [degenMode, setDegenMode] = useState(false);
   const [highlightDegenMode, setHighlightDegenMode] = useState(false);
+  const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
@@ -226,6 +227,7 @@ export const ZapContextProvider = ({
     }),
     [chainId]
   );
+  const wrappedNativeToken = NetworkInfo[chainId].wrappedToken;
 
   const priceLower = useMemo(() => {
     if (pool === "loading" || tickLower == null) return null;
@@ -385,10 +387,10 @@ export const ZapContextProvider = ({
     // with balance
     const isToken0Native =
       pool?.token0.address.toLowerCase() ===
-      NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+      wrappedNativeToken.address.toLowerCase();
     const isToken1Native =
       pool?.token1.address.toLowerCase() ===
-      NetworkInfo[chainId].wrappedToken.address.toLowerCase();
+      wrappedNativeToken.address.toLowerCase();
 
     const token0Address = isToken0Native
       ? NATIVE_TOKEN_ADDRESS
@@ -441,7 +443,20 @@ export const ZapContextProvider = ({
     allTokens,
     initAmounts,
     account,
+    wrappedNativeToken.address,
   ]);
+
+  useEffect(() => {
+    if (pool === "loading" || defaultRevertChecked) return;
+    setDefaultRevertChecked(true);
+    const isToken0Native =
+      pool.token0.address.toLowerCase() ===
+      wrappedNativeToken.address.toLowerCase();
+    const isToken0Stable = pool.token0.isStable;
+    const isToken1Stable = pool.token1.isStable;
+    if (isToken0Stable || (isToken0Native && !isToken1Stable))
+      setRevertPrice(true);
+  }, [defaultRevertChecked, pool, wrappedNativeToken.address]);
 
   // Get zap route
   useEffect(() => {
