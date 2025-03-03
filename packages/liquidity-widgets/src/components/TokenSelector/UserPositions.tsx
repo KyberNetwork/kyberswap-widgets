@@ -115,7 +115,7 @@ enum EarnDex {
   DEX_QUICKSWAPV3ALGEBRA = "QuickSwap V3",
   DEX_CAMELOTV3 = "Camelot V3",
   DEX_THENAFUSION = "THENA",
-  DEX_UNISWAPV2 = "Uniswap V2",
+  // DEX_UNISWAPV2 = "Uniswap V2",
 }
 const earnSupportedChains = [
   ChainId.Ethereum,
