@@ -337,7 +337,7 @@ export function Preview({
     <>
       <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
         <DialogPortal>
-          <DialogContent containerClassName="ks-lw-migration-style">
+          <DialogContent className="max-h-[800px] overflow-auto" containerClassName="ks-lw-migration-style">
             <DialogHeader>
               <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
             </DialogHeader>
