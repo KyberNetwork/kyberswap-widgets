@@ -430,7 +430,7 @@ export const DexInfos: Record<PoolType, DexInfo> = {
   },
   [PoolType.DEX_CAMELOTV3]: {
     icon: camelotLogo,
-    name: "Camelot",
+    name: "Camelot V3",
     nftManagerContract: {
       [ChainId.Arbitrum]: "0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15",
     },
