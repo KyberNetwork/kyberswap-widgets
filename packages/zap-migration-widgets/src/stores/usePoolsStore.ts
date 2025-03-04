@@ -23,7 +23,7 @@ interface PoolsState {
   reset: () => void;
 }
 
-const BFF_API = "https://pre-kyberswap-bff.kyberengineering.io/api";
+const BFF_API = "https://bff.kyberswap.com/api";
 
 // Create a mapping object for string to Dex enum
 const dexMapping: Record<Dex, string[]> = {
