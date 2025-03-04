@@ -1,7 +1,7 @@
 {
-  "name": "kane6-zap-migration-widgets",
+  "name": "@kyberswap/zap-migration-widgets",
   "license": "MIT",
-  "version": "1.0.11",
+  "version": "1.0.9",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
