@@ -1,6 +1,6 @@
 {
-  "name": "@kyberswap/liquidity-chart",
-  "version": "1.0.1",
+  "name": "kane6-liquidity-chart",
+  "version": "1.0.3",
   "license": "MIT",
   "type": "module",
   "exports": {

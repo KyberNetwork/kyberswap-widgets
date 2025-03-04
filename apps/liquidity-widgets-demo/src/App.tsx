@@ -89,14 +89,14 @@ function App() {
     //poolAddress: "0xBe141893E4c6AD9272e8C04BAB7E6a10604501a5",
     //poolType: PoolType.DEX_PANCAKESWAPV3,
 
-    // chainId: ChainId.Bsc,
-    // poolAddress: "0x16b9a82891338f9ba80e2d6970fdda79d1eb0dae",
-    // poolType: PoolType.DEX_PANCAKESWAPV2,
+    chainId: ChainId.Arbitrum,
+    poolAddress: "0xc6962004f452be9203591991d15f6b388e09e8d0",
+    poolType: PoolType.DEX_UNISWAPV3,
 
-    chainId: ChainId.Base,
-    poolAddress: "0x88A43bbDF9D098eEC7bCEda4e2494615dfD9bB9C",
-    poolType: PoolType.DEX_UNISWAPV2,
-    positionId: "0xdcfcd5dd752492b95ac8c1964c83f992e7e39fa9",
+    // chainId: ChainId.Base,
+    // poolAddress: "0x88A43bbDF9D098eEC7bCEda4e2494615dfD9bB9C",
+    // poolType: PoolType.DEX_UNISWAPV2,
+    // positionId: "0xdcfcd5dd752492b95ac8c1964c83f992e7e39fa9",
     // positionId: "24654",
 
     // chainId: ChainId.Blast,
