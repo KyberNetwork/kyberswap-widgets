@@ -134,7 +134,7 @@ function App() {
   }, [connectedWallets, wallet]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined" || connectedWallets.length) {
       return;
     }
 
@@ -150,19 +150,20 @@ function App() {
       };
       setWalletFromLocalStorage();
     }
-  }, [connect]);
+  }, [connect, connectedWallets.length]);
 
   const [address, setAddress] = useState<string | undefined>();
+
   useEffect(() => {
     setAddress(wallet?.accounts?.[0].address);
-  }, [wallet?.accounts?.[0].address]);
+  }, [wallet?.accounts]);
 
   const connectedAccount = useMemo(
     () => ({
       address,
       chainId: +(wallet?.chains[0].id || ChainId.Bsc),
     }),
-    [address, wallet?.chains[0].id]
+    [address, wallet?.chains]
   );
 
   const props = {
@@ -347,85 +348,4 @@ function Params({
       </button>
     </>
   );
-}
-
-// theme={{
-//   text: "#ffffff",
-//   subText: "#979797",
-//   icons: "#a9a9a9",
-//   layer1: "#1C1C1C",
-//   dialog: "#1c1c1c",
-//   layer2: "#313131",
-//   stroke: "#313131",
-//   chartRange: "#28e0b9",
-//   chartArea: "#047855",
-//   accent: "#31cb9e",
-//   warning: "#ff9901",
-//   error: "#ff537b",
-//   success: "#189470",
-//   fontFamily: "Work Sans",
-//   borderRadius: "20px",
-//   buttonRadius: "24px",
-//   boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.04)",
-// }}
-
-{
-  /* <div style={{ display: "flex", gap: "60px" }}>
-  <span>Theme</span>
-  <div>
-    <input
-      type="radio"
-      id="dark"
-      name="Dark"
-      value="dark"
-      checked={localParams.theme === "dark"}
-      onChange={(e) =>
-        setLocalParams({
-          ...localParams,
-          theme: e.currentTarget.value as "light" | "dark",
-        })
-      }
-    />
-    <label htmlFor="dark">Dark</label>
-
-    <input
-      type="radio"
-      id="light"
-      name="Light"
-      value="light"
-      checked={localParams.theme === "light"}
-      onChange={(e) =>
-        setLocalParams({
-          ...localParams,
-          theme: e.currentTarget.value as "light" | "dark",
-        })
-      }
-    />
-    <label htmlFor="light">light</label>
-  </div>
-</div>; */
-}
-
-{
-  /* <span>initTickLower</span>
-<input
-  value={localParams.initTickLower}
-  onChange={(e) => {
-    setLocalParams((params) => ({
-      ...params,
-      initTickLower: e.target.value,
-    }));
-  }}
-/>
-
-<span>initTickUpper</span>
-<input
-  value={localParams.initTickUpper}
-  onChange={(e) => {
-    setLocalParams((params) => ({
-      ...params,
-      initTickUpper: e.target.value,
-    }));
-  }}
-/> */
 }
