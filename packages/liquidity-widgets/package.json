@@ -1,5 +1,5 @@
 {
-  "name": "kane7-liquidity-widgets",
+  "name": "@kyberswap/liquidity-widgets",
   "repository": "git@github.com:KyberNetwork/kyberswap-widgets.git",
   "version": "1.1.21",
   "license": "MIT",
