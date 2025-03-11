@@ -1,7 +1,6 @@
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import type { ScaleLinear } from "d3";
 import type { TickDataRaw, TickProcessed } from "@/types";
-import { FeeAmount } from "@/types";
 import { PRICE_FIXED_DIGITS } from "@/constants";
 
 // Computes the numSurroundingTicks above or below the active tick.
