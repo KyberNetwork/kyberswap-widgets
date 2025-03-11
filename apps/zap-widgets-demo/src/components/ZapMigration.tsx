@@ -15,17 +15,12 @@ import {
 } from "@kyber/ui/card";
 import { Label } from "@kyber/ui/label";
 import { TabsContent } from "@kyber/ui/tabs";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogDescription,
-} from "@kyber/ui/dialog";
 import Input from "./Input";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { dexMapping } from "../constant";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import Modal from "./Modal";
 
 const ZapMigration = () => {
   const { address } = useAccount();
@@ -268,21 +263,11 @@ const ZapMigration = () => {
             onClick={() => setOpenWidget(true)}
           />
 
-          <Dialog
-            open={openWidget}
-            onOpenChange={(open) => setOpenWidget(open)}
-          >
-            <DialogTitle className="hidden">Zap migration widget</DialogTitle>
-            <DialogDescription className="hidden">
-              Zap migration widget
-            </DialogDescription>
-            <DialogContent
-              skipClose
-              className="max-w-[800px] max-h-[90%] overflow-auto rounded-md bg-transparent border-none outline-none p-0 [&::-webkit-scrollbar]:w-0"
-            >
+          {openWidget && (
+            <Modal onClose={() => setOpenWidget(false)}>
               <ZapMigrationWidget {...widgetProps} />
-            </DialogContent>
-          </Dialog>
+            </Modal>
+          )}
         </CardFooter>
       </Card>
     </TabsContent>

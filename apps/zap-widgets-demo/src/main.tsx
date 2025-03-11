@@ -54,3 +54,14 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </WagmiProvider>
 );
+
+const createModalRoot = () => {
+  let modalRoot = document.getElementById("ks-zap-demo-modal-root");
+  if (!modalRoot) {
+    modalRoot = document.createElement("div");
+    modalRoot.id = "ks-zap-demo-modal-root";
+    document.body.appendChild(modalRoot);
+  }
+};
+
+createModalRoot();

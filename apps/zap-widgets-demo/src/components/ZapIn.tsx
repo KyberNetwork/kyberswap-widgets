@@ -20,12 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { dexMapping } from "../constant";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@kyber/ui/dialog";
+import Modal from "./Modal";
 
 const ZapIn = () => {
   const { address } = useAccount();
@@ -174,21 +169,11 @@ const ZapIn = () => {
             onClick={() => setOpenWidget(true)}
           />
 
-          <Dialog
-            open={openWidget}
-            onOpenChange={(open) => setOpenWidget(open)}
-          >
-            <DialogTitle className="hidden">Zap in widget</DialogTitle>
-            <DialogDescription className="hidden">
-              Zap in widget
-            </DialogDescription>
-            <DialogContent
-              skipClose
-              className="max-w-[800px] max-h-[90%] overflow-auto rounded-md bg-transparent border-none outline-none p-0 [&::-webkit-scrollbar]:w-0"
-            >
+          {openWidget && (
+            <Modal onClose={() => setOpenWidget(false)}>
               <ZapInWidget {...widgetProps} />
-            </DialogContent>
-          </Dialog>
+            </Modal>
+          )}
         </CardFooter>
       </Card>
     </TabsContent>
