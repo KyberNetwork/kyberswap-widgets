@@ -3,11 +3,11 @@ import type { ScaleLinear, ZoomTransform } from "d3";
 type BigintIsh = bigint | number | string;
 
 export enum FeeAmount {
-  LOWEST = 0.01,
-  LOW = 0.05,
-  MIDDLE = 0.25,
-  MEDIUM = 0.3,
-  HIGH = 1,
+  LOWEST = 100,
+  LOW = 500,
+  MIDDLE = 2500, // For Pancake temporary
+  MEDIUM = 3000,
+  HIGH = 10000,
 }
 
 export enum Bound {

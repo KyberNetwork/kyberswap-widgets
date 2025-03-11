@@ -7,7 +7,6 @@ import Chart from "@/components/Chart";
 import InfoBox from "@/components/InfoBox";
 import useDensityChartData from "@/hooks/useDensityChartData";
 import "./styles.css";
-import { getFeeRange } from "./utils";
 
 export default function LiquidityChartRangeInput({
   id,
@@ -25,7 +24,19 @@ export default function LiquidityChartRangeInput({
   const chartData = useDensityChartData({ pool, revertPrice });
 
   const { current: currentPrice, lower: priceLower, upper: priceUpper } = price;
-  const feeRange = getFeeRange(pool.fee || 0);
+  const fee = pool.fee ? pool.fee * 10_000 : undefined;
+  const feeAmount = fee ?? 2500;
+  const nearestFeeAmount = [
+    FeeAmount.LOWEST,
+    FeeAmount.LOW,
+    FeeAmount.MIDDLE,
+    FeeAmount.MEDIUM,
+    FeeAmount.HIGH,
+  ].reduce((nearest, cur) => {
+    return Math.abs(cur - feeAmount) < Math.abs(nearest - feeAmount)
+      ? cur
+      : nearest;
+  });
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
     if (!priceLower || !priceUpper) return;
@@ -64,7 +75,7 @@ export default function LiquidityChartRangeInput({
   );
 
   const defaultZoomLevels = useMemo(() => {
-    if (onBrushDomainChange) return ZOOM_LEVELS[feeRange];
+    if (onBrushDomainChange) return ZOOM_LEVELS[nearestFeeAmount];
     if (!priceLower || !priceUpper || !currentPrice) return;
 
     const leftPrice = parseFloat(
@@ -96,7 +107,7 @@ export default function LiquidityChartRangeInput({
     currentPrice,
     revertPrice,
     ticksAtLimit,
-    feeRange,
+    nearestFeeAmount,
   ]);
 
   return (

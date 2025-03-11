@@ -58,7 +58,7 @@ export interface ZapMigrationProps {
     data: string;
     gasLimit: string;
   }) => Promise<string>;
-  onViewPosition?: (txHash: string) => void;
+  onViewPosition?: () => void;
   onBack?: () => void;
   initialTick?: {
     tickLower: number;

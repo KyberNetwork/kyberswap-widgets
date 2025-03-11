@@ -114,10 +114,8 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
         }/api/v1/out/route?${search.slice(1)}`
       ).then((res) => res.json());
 
-      const { success } = apiResponse.safeParse(res.data);
-
-      if (success) set({ route: res.data, fetchingRoute: false });
-      else set({ fetchingRoute: false, route: null });
+      apiResponse.parse(res.data);
+      set({ route: res.data, fetchingRoute: false });
     } catch (e) {
       console.log(e);
       set({ fetchingRoute: false, route: null });

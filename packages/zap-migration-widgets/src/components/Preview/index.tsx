@@ -63,7 +63,7 @@ export function Preview({
   }) => Promise<string>;
   account: string | undefined;
   onClose: () => void;
-  onViewPosition?: (txHash: string) => void;
+  onViewPosition?: () => void;
   referral?: string;
 }) {
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
@@ -171,8 +171,6 @@ export function Preview({
     return () => clearInterval(i);
   }, [txHash, chainId]);
 
-  const { zapPiRes } = useSwapPI(chainId);
-
   if (route === null || pools === "loading" || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
@@ -220,6 +218,8 @@ export function Preview({
       });
     }
   });
+
+  const { zapPiRes } = useSwapPI(chainId);
 
   if (showProcessing) {
     let content = <></>;
@@ -271,7 +271,7 @@ export function Preview({
             {txStatus === "success" && onViewPosition && (
               <button
                 className="flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium"
-                onClick={() => onViewPosition(txHash)}
+                onClick={onViewPosition}
               >
                 View position
               </button>
@@ -340,7 +340,6 @@ export function Preview({
           <DialogContent
             className="max-h-[700px] overflow-auto"
             containerClassName="ks-lw-migration-style"
-            aria-hidden="false"
           >
             <DialogHeader>
               <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
