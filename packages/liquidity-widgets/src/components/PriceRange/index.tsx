@@ -1,7 +1,7 @@
 import {
-  PRICE_RANGE,
-  FULL_PRICE_RANGE,
   DEFAULT_PRICE_RANGE,
+  FULL_PRICE_RANGE,
+  PRICE_RANGE,
 } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@kyber/ui/button";
