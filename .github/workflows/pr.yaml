@@ -130,6 +130,7 @@ jobs:
         run: pnpm build-prod
 
       - name: Docker build and push
+        working-directory: apps/kyberswap-interface
         uses: docker/build-push-action@v5
         with:
           context: .
